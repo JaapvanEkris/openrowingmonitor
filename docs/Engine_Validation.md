@@ -7,7 +7,9 @@ Please note that we don't strive to reverse engineer the inner workings of the P
 
 ## Set-up of test environment
 
-Our main approach is a series of side-by-side tests: comparing the results on both monitors for the same row. To realistically compare the two monitors, without introducing any measurement errors, we split the signal from the Concept2 RowErg's internal sensor and feed it to the two monitors simultanously. This approach will exclude any measurement errors by misaligned sensors, etc..
+Our main approach is a series of side-by-side tests: comparing the results on both monitors for the same row.
+
+To realistically compare the two monitors, without introducing any measurement errors, we split the signal from the Concept2 RowErg's internal sensor and feed it to the two monitors simultanously. This approach will exclude any measurement errors by misaligned sensors, etc..Schematically, the setup looks as follows:
 
 ```mermaid
 flowchart LR
@@ -16,6 +18,8 @@ A(Sensor) -->|15V sinoid| B(OptoCoupler)
 B -->|15V sinoid| C(Concept 2 PM5)
 B -->|Binary pulses| D(Open Rowing Monitor)
 ```
+
+Here, we deliberatly use the optocoupler to split the signal, as it prevents interference with the signal that is fed to the PM5. The optocoupler switches on 12V, translating the sinoid into the binary signal needed for the Raspberry Pi.
 
 ### Concept2's signal
 
@@ -31,10 +35,12 @@ To process the 15V signal for the 3.3V Raspberry Pi, a 24V to 3.3V DST-1R4P-P op
 
 Open Rowing Monitor has been configured following the normal [engine configuration procedure](rower_settings.md), also partially based on known settings from literature. In config.js we set the following parameters:
 
-* Based on [[13]](#13), we conclude that Concept2 defines the drive-phase as an accelerating flywheel, which would be simulated in Open Rowing Monitor by setting *minumumRecoverySlope* to 0. However, the configuration procedure results in a *minumumRecoverySlope* of 0.00070, a *minimumStrokeQuality* of 0.32 a *flanklength* of 11 and a *NumberofErrorsAllowed* of 2, which produces a solid stroke detection. As the configuration procedure's results are more robustly defined than a (potentially forgotten) statement in a FAQ, we depend on the configuration procedure.
-* A *flywheel inertia* of 0.1001 kg/m<sup>2</sup>, is indicated by [[2]](#2) and [[7]](#7), where [[7]](#7) also emperically verifies these results for a Concept 2 Model D based on single revolutions. However, on a Concept2 RowErg, magnets have been added, and electric power is generated to power the PM5. Based on our own callibration, the flywheel Inertia seems to be 0.1016. As this approaches the results of a Concept 2 RowErg best, we consider the last value valid.
+* Based on [[13]](#13), we conclude that Concept2 defines the drive-phase as an accelerating flywheel, which would be simulated in Open Rowing Monitor by setting *minumumRecoverySlope* to 0. However, the configuration procedure results in a *minumumRecoverySlope* of 0.00070, a *minimumStrokeQuality* of 0.90 a *flanklength* of 12, which produces a solid stroke detection. As the configuration procedure's results are more robustly defined than a (potentially unmaintained) statement in a FAQ, we depend on the configuration procedure.
+* A *flywheel inertia* of 0.1001 kg/m<sup>2</sup>, is indicated by [[2]](#2) and [[7]](#7), where [[7]](#7) also emperically verifies these results for a Concept 2 Model D based on single revolutions. However, on a Concept2 RowErg, magnets have been added, and electric power is generated to power the PM5. Based on our own callibration, the flywheel Inertia seems to be 0.1016. Several tests show that this approaches the results of a Concept 2 RowErg best, we consider the last value valid.
 * *numOfPhasesForAveragingScreenData* is set to 2, to make the data as volatile as possible.
 * Concept2 seems to have used a drag factor smoothing of around 15 strokes in the PM2 in the past, and later moved to not use any smoothing at all (as suggested by [[19]](#19)). Based on practical experiments, we choose a *dragFactorSmoothing* of 3, as it best fits our algorithm to exclude any outliers and the approach to cheating (as described by [[19]](#19)) is excluded from our test-setup.
+
+In configuring Open Rowing Monitor for the RowErg, we do observe that there are subtle differences in start-up behaviour: typically Open Rowing Monitor starts the row 0.5 second earlier than the PM5. Typically, this is managed by adjusting **maximumTimeBetweenImpulses** in Open Rowing Monitor, which seemed impossible for this setup without hurting the general applicability of these settings. This results in ORM structural including the (very slow) startup phase of the row, where the PM5 seems to skip this, introducing a small but structural deviation.
 
 ### Rowing style
 
