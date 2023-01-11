@@ -9,7 +9,7 @@ Please note that we don't strive to reverse engineer the inner workings of the P
 
 Our main approach is a series of side-by-side tests: comparing the results on both monitors for the same row.
 
-To realistically compare the two monitors, without introducing any measurement errors, we split the signal from the Concept2 RowErg's internal sensor and feed it to the two monitors simultanously. This approach will exclude any measurement errors by misaligned sensors, etc..Schematically, the setup looks as follows:
+To realistically compare the two monitors, without introducing any measurement errors, we split the signal from the Concept2 RowErg's internal sensor and feed it to the two monitors simultanously. This approach will exclude any measurement errors by misaligned sensors, etc.. Schematically, the setup looks as follows:
 
 ```mermaid
 flowchart LR
