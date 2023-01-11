@@ -9,6 +9,14 @@ Please note that we don't strive to reverse engineer the inner workings of the P
 
 Our main approach is a series of side-by-side tests: comparing the results on both monitors for the same row. To realistically compare the two monitors, without introducing any measurement errors, we split the signal from the Concept2 RowErg's internal sensor and feed it to the two monitors simultanously. This approach will exclude any measurement errors by misaligned sensors, etc..
 
+```mermaid
+flowchart LR
+
+A(Sensor) -->|15V sinoid| B(OptoCoupler)
+B -->|15V sinoid| C(Concept 2 PM5)
+B -->|Binary pulses| D(Open Rowing Monitor)
+```
+
 ### Concept2's signal
 
 The Concept2 produces a 15V signal [[6]](#6), which alternates between 0V and 15V [[7]](#7). This signal is produced by a 12-pole magnet [[8]](#8) which are attached to the flywheel, also doubling as a generator for the PM5. Although [[7]](#7) suggests a sinoid signal, another interpretation is that this a full-wave recified signal [[9]](#9). This later makes more sense given the lack of reversal of the polarity, which would be expected given the construction of the magnets and generator. To evade any dependencies on this assumption, we explicitly choose to measure on the upper part of the signal, removing any dependency on the behaviour on the lower part of the signal.
