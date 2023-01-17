@@ -1,4 +1,4 @@
-# A validation and improvement of the Open Rowing Monitor physics engine
+# A validation of the Open Rowing Monitor physics engine
 
 <!-- markdownlint-disable no-inline-html -->
 Our primary goal is to validate the physics engine of Open Rowing Monitor: are the results produced by Open Rowing Monitor reliable and accurate? Although OpenRowingMonitor is built upon a tested theoretical model [[1]](#1),[[2]](#2),[[3]](#3),[[4]](#4), some open questions remain. For example, the formula used for power calculations [[1]](#1),[[2]](#2). In this article, we compare OpenRowingMonitor against the golden standard in indoor Rowing: the Concept2 RowErg's PM5. We consider the physics model of OpenRowingMonitor valid when it produces results very similar to the Concept2 PM5.
