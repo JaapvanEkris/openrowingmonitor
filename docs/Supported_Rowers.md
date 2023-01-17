@@ -1,7 +1,5 @@
 # Known rowers and their support status
 
-See table:
-
 | Brand | Type | Rower type | Measurement type | HW Modification needed | Support status | Rower profile | Basic Metrics | Advanced Metrics | Limitations | Remarks |
 | ----- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
 | Abilica | Winrower 2.0 | Air rower | Handle drive wheel | No | Known to work | - | Yes | No | Static distance | see [this discussion](https://github.com/laberning/openrowingmonitor/discussions/48) |
@@ -17,6 +15,8 @@ See table:
 | Sportstech | WRX700 | Water rower | Impellor | Add one magnet | Active support | Sportstech_WRX700 | Yes | Yes | Static drag | see [Sportstech WRX700 setup](hardware_setup_WRX700.md)
 | White label | Air Rower | Air rower | Fywheel | None | Supported | Generic_Air_Rower | Yes | Yes | None | Sold under different brand names |
 | Open ergo | - | Air rower | Flywheel | Addition of magnets en sensor | Known to work | - | Yes | Yes | None | Machine specific profile is needed, but is done before, see [example 1](https://github.com/laberning/openrowingmonitor/discussions/80), [example 2](https://github.com/laberning/openrowingmonitor/discussions/105) and [example 3](https://github.com/laberning/openrowingmonitor/discussions/115) |
+
+If your machine isn't listed, it just means that you need to [adjust the software settings following the settings adjustment guide](rower_settings.md) yourself. But don't worry, in the [GitHub Discussions](https://github.com/laberning/openrowingmonitor/discussions) there always are friendly people to help you set up your machine and the settings.
 
 ## Support status
 * **Active support**: These are the testmachines of the developers, these are tested almost on a daily basis. These settings are automatically modified to facilitate updates of the rowing engine;
