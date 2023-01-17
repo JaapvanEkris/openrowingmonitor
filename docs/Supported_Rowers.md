@@ -2,11 +2,8 @@
 
 See table:
 
-| X | Y |
-| - | - |
-| 0 | 1 |
-
 | Brand | Type | Rower type | Measurement type | HW Modification needed | Support status | Rower profile | Basic Metrics | Advanced Metrics | Limitations | Remarks |
+| ----- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
 | Abilica | Winrower 2.0 | Air rower | Handle drive wheel | No | Known to work | - | Yes | No | Static distance | see [this discussion](https://github.com/laberning/openrowingmonitor/discussions/48) |
 | Concept 2 | Model B, C | Air rower | Flywheel | Modification to electrical signal | In development | - | - | - | - | [Concept 2 Model C discussion](https://github.com/laberning/openrowingmonitor/issues/77) |
 | | Model D, E | Air rower | Flywheel | Modification to electrical signal | Active support | Concept2_RowErg | Yes | Yes | None | [Concept 2 Model D, Model E and RowErg](hardware_setup_Concept2_RowErg.md) |
