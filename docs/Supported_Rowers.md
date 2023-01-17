@@ -3,11 +3,11 @@
 See table:
 
 | Brand | Type | Rower type | Measurement type | HW Modification needed | Support status | Rower profile | Basic Metrics | Advanced Metrics | Limitations | Remarks |
-| Abilica | Winrower 2.0 | Air rower | Handle drive wheel | No | Known to work | - | Yes | No | Static distance | see [this discussion](https://github.com/laberning/openrowingmonitor/discussions/48) |
-| Concept 2 | Model B, C | Air rower | Flywheel | Modification to electrical signal | In development | - | - | - | - | [Concept 2 Model C discussion](https://github.com/laberning/openrowingmonitor/issues/77) |
-| | Model D, E | Air rower | Flywheel | Modification to electrical signal | Active support | Concept2_RowErg | Yes | Yes | None | [Concept 2 Model D, Model E and RowErg](hardware_setup_Concept2_RowErg.md) |
-| | RowErg | Air rower | Flywheel | Modification to electrical signal | Active support | Concept2_RowErg | Yes | Yes | None | [Concept 2 Model D, Model E and RowErg](hardware_setup_Concept2_RowErg.md) |
-| Decathlon | Rower 120 | Physical friction | Flywheel | Adding sensor and adding magnets to the flywheel | In development | - | - | - | - | see [this discussion](https://github.com/laberning/openrowingmonitor/issues/110) |
+| Abilica | Winrower 2.0 | Air rower | Handle drive wheel | No | Known to work | - | Yes | No | Static distance | see |
+| Concept 2 | Model B, C | Air rower | Flywheel | Modification to electrical signal | In development | - | - | - | - |  |
+| | Model D, E | Air rower | Flywheel | Modification to electrical signal | Active support | Concept2_RowErg | Yes | Yes | None |  |
+| | RowErg | Air rower | Flywheel | Modification to electrical signal | Active support | Concept2_RowErg | Yes | Yes | None |  |
+| Decathlon | Rower 120 | Physical friction | Flywheel | Adding sensor and adding magnets to the flywheel | In development | - | - | - | - |  |
 | DKN | R-320 | Air Rower | Flywheel | No | Full support | DKN_R320 | Yes | No | Static drag | - |
 
 
