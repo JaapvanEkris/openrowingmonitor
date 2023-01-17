@@ -3,6 +3,7 @@
 See table:
 
 | X | Y |
+| - | - |
 | 0 | 1 |
 
 | Brand | Type | Rower type | Measurement type | HW Modification needed | Support status | Rower profile | Basic Metrics | Advanced Metrics | Limitations | Remarks |
