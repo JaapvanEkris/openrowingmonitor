@@ -2,8 +2,16 @@
 
 See table:
 
-| Brand | Type | Rower type | Measurement type | HW Modification needed | Support status | Rower profile | Basic Metrics | Advanced Metrics | Limitations | Remarks |
+| X | Y |
+| 0 | 1 |
 
+| Brand | Type | Rower type | Measurement type | HW Modification needed | Support status | Rower profile | Basic Metrics | Advanced Metrics | Limitations | Remarks |
+| Abilica | Winrower 2.0 | Air rower | Handle drive wheel | No | Known to work | - | Yes | No | Static distance | see [this discussion](https://github.com/laberning/openrowingmonitor/discussions/48) |
+| Concept 2 | Model B, C | Air rower | Flywheel | Modification to electrical signal | In development | - | - | - | - | [Concept 2 Model C discussion](https://github.com/laberning/openrowingmonitor/issues/77) |
+| | Model D, E | Air rower | Flywheel | Modification to electrical signal | Active support | Concept2_RowErg | Yes | Yes | None | [Concept 2 Model D, Model E and RowErg](hardware_setup_Concept2_RowErg.md) |
+| | RowErg | Air rower | Flywheel | Modification to electrical signal | Active support | Concept2_RowErg | Yes | Yes | None | [Concept 2 Model D, Model E and RowErg](hardware_setup_Concept2_RowErg.md) |
+| Decathlon | Rower 120 | Physical friction | Flywheel | Adding sensor and adding magnets to the flywheel | In development | - | - | - | - | see [this discussion](https://github.com/laberning/openrowingmonitor/issues/110) |
+| DKN | R-320 | Air Rower | Flywheel | No | Full support | DKN_R320 | Yes | No | Static drag | - |
 
 
 * FDF Neon Pro V rower: known to work, see [this discussion](https://github.com/laberning/openrowingmonitor/discussions/87);
@@ -25,10 +33,26 @@ Please note: the support status largely depends on the willingness of users to r
 
 ## Basic Metrics
 Basic metrics include:
-* Time
-* Distance
-* Power
-* 
+* Distance rowed,
+* Training Duration,
+* Power,
+* Pace,
+* Strokes per Minute,
+* Drive time,
+* Recovery Time,
+* Calories used,
+* Total number of strokes,
+* Heart Rate
+
+## Extended Metrics
+Extended metrics include:
+* Drag factor,
+* Drive length,
+* Average handle force,
+* Peak handle force,
+* Handle force curve,
+* Handle velocity curve,
+* Handle power curve.
 
 ## Limitations
 * **None**: No limitations, drag calculation and distance per stroke are dynamic based on flywheel behaviour;
