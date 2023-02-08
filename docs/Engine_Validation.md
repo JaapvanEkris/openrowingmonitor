@@ -19,23 +19,25 @@ B -->|15V sinoid| C(Concept 2 PM5)
 B -->|Binary pulses| D(Open Rowing Monitor)
 ```
 
-Here, we deliberatly use the optocoupler to split the signal, as it prevents interference with the signal that is fed to the PM5. The optocoupler switches on 12V, translating the sinoid into the binary signal needed for the Raspberry Pi.
+Here, we deliberatly use the optocoupler to split the signal, as it prevents interference with the signal that is fed to the PM5.
 
 ### Concept2's signal
 
-The Concept2 produces a 15V signal [[6]](#6), which alternates between 0V and 15V [[7]](#7). This signal is produced by a 12-pole magnet [[8]](#8) which are attached to the flywheel, also doubling as a generator for the PM5. Although [[7]](#7) suggests a sinoid signal, another interpretation is that this a full-wave recified signal [[9]](#9). This later makes more sense given the lack of reversal of the polarity, which would be expected given the construction of the magnets and generator. To evade any dependencies on this assumption, we explicitly choose to measure on the upper part of the signal, removing any dependency on the behaviour on the lower part of the signal.
+The Concept2 produces a 15V signal [[6]](#6), which alternates between 0V and 15V [[7]](#7). This signal is produced by a 12-pole magnet [[8]](#8) which are attached to the flywheel, also doubling as a generator for the PM5. Although [[7]](#7) suggests a sinoid signal, another interpretation is that this a full-wave recified signal [[9]](#9). This later makes more sense given the lack of reversal of the polarity, which would be expected given the construction of the magnets and generator. 
 
 The shortest impulses measured on a scope are 15-16 pulses per 100 msec, when the rower rows 1:13/500m [[10]](#10), which implies an average time between impulses of 6.25ms, or a frequency 160Hz.
 
 ### Processing the data for the Raspberry Pi
 
-To process the 15V signal for the 3.3V Raspberry Pi, a 24V to 3.3V DST-1R4P-P optocoupler/isolation board is used [[11]](#11), which switches at 12V [[12]](#12). Where the DST-1R4P-N can handle 20KHz, we chose to use a DST-1R4P-P which is rated for 80KHz, far exceeding the 160Hz produced by the RowErg. The signal from the RowErg is a (non)sinusoidal wave, where the DST-1R4P-P expects a block-wave. As the EL817C936 optocoupler used on this board will trigger on a treshold value, we estimate this doesn't affect accuracy. Due to a lack of equipment, we were not able to verify this assumption.
+To process the 15V signal for the 3.3V Raspberry Pi, a 24V to 3.3V DST-1R4P-P optocoupler/isolation board is used [[11]](#11), which switches at 12V [[12]](#12). As the optocoupler switches at 12V, it transforms the sinoid-like signal into the binary block signal needed for the Raspberry Pi switching, with sufficient signal length to detect it. The signal from the RowErg is a sinoid-like wave, where the DST-1R4P-P expects a block-wave. As the EL817C936 optocoupler used on this board will trigger on a treshold value, we estimate this doesn't affect accuracy. Due to a lack of equipment, we were not able to verify this assumption. To evade any dependencies on any assumptions on the sinoid-like shape of the signal, we explicitly choose to trigger on the upper part of the signal, removing any dependency on the behaviour on the lower part of the signal.
+
+Where the DST-1R4P-N can handle 20KHz, we chose to use a DST-1R4P-P which is rated for 80KHz, far exceeding the 160Hz produced by the RowErg. 
 
 ### Settings used
 
 Open Rowing Monitor has been configured following the normal [engine configuration procedure](rower_settings.md), also partially based on known settings from literature. In config.js we set the following parameters:
 
-* Based on [[13]](#13), we conclude that Concept2 defines the drive-phase as an accelerating flywheel, which would be simulated in Open Rowing Monitor by setting *minumumRecoverySlope* to 0. However, the configuration procedure results in a *minumumRecoverySlope* of 0.00070, a *minimumStrokeQuality* of 0.90 a *flanklength* of 12, which produces a solid stroke detection. As the configuration procedure's results are more robustly defined than a (potentially unmaintained) statement in a FAQ, we depend on the configuration procedure.
+* Based on [[13]](#13), we conclude that Concept2 defines the drive-phase as an accelerating flywheel, which would be simulated in Open Rowing Monitor by setting *minumumRecoverySlope* to 0. However, the configuration procedure results in a *minumumRecoverySlope* of 0.00070, a *minimumStrokeQuality* of 0.95 a *flanklength* of 12, which produces a solid stroke detection. As the configuration procedure's results are more robustly defined than a (potentially unmaintained) statement in a FAQ, we depend on the configuration procedure.
 * A *flywheel inertia* of 0.1001 kg/m<sup>2</sup>, is indicated by [[2]](#2) and [[7]](#7), where [[7]](#7) also emperically verifies these results for a Concept 2 Model D based on single revolutions. However, on a Concept2 RowErg, magnets have been added, and electric power is generated to power the PM5. Based on our own callibration, the flywheel Inertia seems to be 0.1016. Several tests show that this approaches the results of a Concept 2 RowErg best, we consider the last value valid.
 * *numOfPhasesForAveragingScreenData* is set to 2, to make the data as volatile as possible.
 * Concept2 seems to have used a drag factor smoothing of around 15 strokes in the PM2 in the past, and later moved to not use any smoothing at all (as suggested by [[19]](#19)). Based on practical experiments, we choose a *dragFactorSmoothing* of 3, as it best fits our algorithm to exclude any outliers and the approach to cheating (as described by [[19]](#19)) is excluded from our test-setup.
@@ -103,15 +105,7 @@ The distance calculation is solely dependent on the drag factor (a known factor 
 
 #### Theoretical basis of the linear distance calculation
 
-From theory [[1]](#1) and [[2]](#2) the initial calculation was based on formula 9.1 described in [[1]](#1):
-
-> P = 2.8 \* u<sup>3</sup>
-
-The calculation of linear speed is based on this, resulting in the following formula [[1]](#1), formula 9.2:
-
-> u = (k/2.8)<sup>1/3</sup> &omega;
-
-As s = u \* t, the calculation of linear distance accordingly becomes [[1]](#1), formula 9.3:
+The calculation of linear distance accordingly [[5]](#5) is:
 
 > s = (k/2.8)<sup>1/3</sup> &theta;
 
@@ -127,32 +121,18 @@ Although OpenRowingMonitor temporarily calculates a completed distance per recor
 
 The first series side-by-side test are fixed distance or fixed time tests (taking at least 15 minutes), where both monitors are fed the same stream of impulses (as described above). We vary in length fortests to investigate whether the deviations change (potentially signalling temporary deviations like start-up noise) and whether the deviations remain stable across tests. This test stops when both monitors have reached 4000 meters, where OpenRowingMonitor uses its traditional algorithm to calculate this criterion.
 
-This leads to the following results when repeating the datastreams through OpenRowingMonitor:
-| Test | Drag factor | Target distance | #strokes on PM5| Result on PM5 | Modified Base algorithm result | Modified Base algorithm Deviation |
+This leads to the following results when repeating the datastreams through OpenRowingMonitor (ORM):
+| Test | PM5 Drag factor | Target distance | #strokes on PM5| Result on PM5 | Result in ORM | Deviation |
 | :-: | --: | --: | --: | --: | --: | --: |
-| 32 | 70 | 4,000 m | 441 | 17:31.3 | :. | -0.% |
-| 33 | 122 | 6,000 m | 606 | 25:44.8 | :. | -0.% |
-| 34 | 112 | 10,000 m | 1051 | 43:08.2 | :. | -0.% |
-| 35 | 80 | 4,000 m | 438 | 17:26.0 | :. | -0.%|
-| 36 | 226 | 4,000 m | 403 | 17:08.8 | :. | -0.% |
-| 38 | 212 | 4,000 m | 400 | 17:01.8 | :. | -0.% |
-| 39 | 101 | 6,000 m | 633 | 26:10.2 | :. | -0.%|
-| 40 | 101 | 10,000 m | 1065 | 43:02.7 | :. | -0.% |
-| 41 | 200 | 4,000 m | 405 | 16:54.5 | :. | -0.% |
-| 42 | 103 | 5,000 m | 522 | 21:40.3 | :. | -0.% |
-| 43 | 192 | 4,000 m | 410 | 17:11.1 | :. | -0.% |
-| 44 | 90 | 4,000 m | 427 | 17:10.2 | :. | -0.% |
-| 45 | 118 | 6,000 m | 624 | 26:02.9 | :. | -0.% |
-| 46 | 102 | 10,000 m | 994 | 44:39.5 | :. | -0.% |
-| 47 | 133 | 4,000 m | 415 | 17:11.9 | :. | -0.% |
-| 48 | 183 | 4,000 m | 410 | 17:27.7 | :. | -0.% |
-| 50 | 110 | 6,000 m | 630 | 25:43.5 | :. | -0.% |
-| 51 | 108 | 10,000 m | 983 | 44:20.9 | :. | -0.% |
-| 52 | 159 | 4,000 m | 423 | 17:18.3 | :. | -0.% |
-| 53 | 150 | 4,000 m | 413 | 16:55.0 | :. | -0.% |
-| 54 | 140 | 4,000 m | 413 | 17:39.3 | :. | -0.% |
-| 55 | 130 | 2,000 m | 219 | 9:01.0 | :. | -0.% |
-| 56 | 150 | 4,000 m | 399 | 18:13.5 | :. | -0.%|
+| 28 | 70 | 6,000 m | | :. | :. | -0.% |
+| 29 | 70 | 10,000 m | | :. | :. | -0.% |
+| 30 | 70 | 15,000 m | | :. | :. | -0.% |
+| 31 | 80 | 6,000 m | | :. | :. | -0.% |
+| 32 | 80 | 10,000 m | | :. | :. | -0.% |
+| 33 | 80 | 15,000 m | | :. | :. | -0.% |
+| 31 | 90 | 6,000 m | | :. | :. | -0.% |
+| 32 | 90 | 10,000 m | | :. | :. | -0.% |
+| 33 | 90 | 15,000 m | | :. | :. | -0.% |
 
 Here, a negative deviation indicates that the algorithm was too slow when compared to the PM5 data, a positive deviation indicates that the algorithm was too fast when compared to the PM5 data. The strokerate was nearly identical along the row, and only varied slightly between 23 and 24 SPM). The total number of strokes across the monitors was sufficiently similar at similar times.
 
