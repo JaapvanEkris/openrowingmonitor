@@ -105,11 +105,11 @@ The distance calculation is solely dependent on the drag factor (a known factor 
 
 #### Theoretical basis of the linear distance calculation
 
-The calculation of linear distance s according to [[5]](#5) is:
+From theory [[1]](#1) and [[2]](#2), and confirmed in [[5]](#5), the calculation of linear distance s is:
 
 > s = (k/2.8)<sup>1/3</sup> &theta;
 
-Where k is the calculated dragfactor. In RowingEngine 2.0 (in RowingEngine.js, OpenRowingMonitor version 1.0) we implemented this as follows:
+Where k is the calculated dragfactor and &theta; the travelled angular distance. In RowingEngine 3.0 (in `Rower.js`, OpenRowingMonitor version 1.0) we implemented this formula as follows:
 
 ```javascript
 LinearDistance = Math.pow((dragFactor / rowerSettings.magicConstant), 1.0 / 3.0) * AngularDisplacement
@@ -142,27 +142,15 @@ Here, a negative deviation indicates that the algorithm was too slow when compar
 
 #### Theoretical basis of the linear speed calculations
 
-From theory [[1]](#1) and [[2]](#2) the initial calculation was based on formula 9.1 described in [[1]](#1):
+From theory [[1]](#1) and [[2]](#2), and confirmed in [[5]](#5), the calculation of linear velocity u is:
 
-> P=2.8 \* u<sup>3</sup>
+> u = (k/2.8)<sup>1/3</sup> &omega;
 
-The calculation of linear speed is based on this, resulting in the following formula [[1]](#1), formula 9.2:
-
-> u=(k/2.8)<sup>1/3</sup> &omega;
-
-In RowingEngine 2.0 (in RowingEngine.js, OpenRowingMonitor version 0.8.2) we implemented formula 9.2 as follows:
+Where k is the calculated dragfactor and &omega; the angular velocity. Although it is theoretically possible to calculate an instantanous linear velocity, in rowing it is customary to calculate the linear velocity averaged across the entire stroke (i.e. one drive and one recovery phase). In RowingEngine 3.0 (in `Rower.js`, OpenRowingMonitor version 1.0) we implemented this formula as follows:
 
 ```javascript
 LinearVelocity = Math.pow((dragFactor / rowerSettings.magicConstant), 1.0 / 3.0) * ((cycleAngularDisplacement) / cycleLength)
 ```
-
-Based on the first test, we recognised that Concept2 seems to use a different formula for its calculations, which is described in formula 9.4 [[1]](#1):
-
-> P=4.31 \* u<sup>2.75</sup>
-
-By applying formula 9.4 to calculate the linear speed, we obtain the following formula, replacing formula 9.2 [[1]](#1):
-
-> u=((k \* &omega;<sup>0.25</sup>) / 4.31)<sup>1/2.75</sup> &omega;
 
 ### Validation of the displayed power calculation
 
