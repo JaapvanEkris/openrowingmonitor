@@ -121,7 +121,8 @@ Please note: although OpenRowingMonitor temporarily calculates a completed dista
 
 The first series side-by-side test are fixed distance or fixed time tests (taking at least 25 minutes), where both monitors are fed the same stream of impulses (as described above). We vary in length for tests to investigate whether the deviations change (potentially signalling temporary deviations like start-up noise) and whether the deviations remain stable across tests. The test stops when both monitors have reached their target distance.
 
-This leads to the following results when repeating the datastreams through OpenRowingMonitor (ORM):
+This leads to the following results when rowing and feeding the PM5 and OpenRowingMonitor (ORM) the same datastream:
+
 | Test | Target distance | PM5 Drag factor | ORM Drag factor | Time on PM5 | Time on ORM | Time deviation |
 | :-: | --: | --: | --: | --: | --: | --: |
 | 28 | 6,000 m | 67 | 69.2 | 28:24.4 | 28:24.4 | 0% | <!--- Session date 05-11-2022 --->
