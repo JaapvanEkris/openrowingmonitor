@@ -105,34 +105,34 @@ The distance calculation is solely dependent on the drag factor (a known factor 
 
 #### Theoretical basis of the linear distance calculation
 
-The calculation of linear distance accordingly [[5]](#5) is:
+The calculation of linear distance s according to [[5]](#5) is:
 
 > s = (k/2.8)<sup>1/3</sup> &theta;
 
-In RowingEngine 2.0 (in RowingEngine.js, OpenRowingMonitor version 0.8.2) we implemented formula 9.3 as follows:
+Where k is the calculated dragfactor. In RowingEngine 2.0 (in RowingEngine.js, OpenRowingMonitor version 1.0) we implemented this as follows:
 
 ```javascript
 LinearDistance = Math.pow((dragFactor / rowerSettings.magicConstant), 1.0 / 3.0) * AngularDisplacement
 ```
 
-Although OpenRowingMonitor temporarily calculates a completed distance per recorded impulse for display purposses, the definite value of the completed distance is calculated per phase as the dragfactor then can be applied retrospectively onto the Recovery phase.
+Please note: although OpenRowingMonitor temporarily calculates a completed distance per recorded impulse for display and session management purposses, the definite value of the completed distance is calculated per phase as the dragfactor then can be applied retrospectively onto the Recovery phase.
 
 #### Results and interpretation of a first side-by-side linear distance test
 
-The first series side-by-side test are fixed distance or fixed time tests (taking at least 15 minutes), where both monitors are fed the same stream of impulses (as described above). We vary in length fortests to investigate whether the deviations change (potentially signalling temporary deviations like start-up noise) and whether the deviations remain stable across tests. This test stops when both monitors have reached 4000 meters, where OpenRowingMonitor uses its traditional algorithm to calculate this criterion.
+The first series side-by-side test are fixed distance or fixed time tests (taking at least 25 minutes), where both monitors are fed the same stream of impulses (as described above). We vary in length for tests to investigate whether the deviations change (potentially signalling temporary deviations like start-up noise) and whether the deviations remain stable across tests. The test stops when both monitors have reached their target distance.
 
 This leads to the following results when repeating the datastreams through OpenRowingMonitor (ORM):
-| Test | PM5 Drag factor | Target distance | #strokes on PM5| Result on PM5 | Result in ORM | Deviation |
+| Test | Target distance | PM5 Drag factor | ORM Drag factor | Time on PM5 | Time on ORM | Time deviation |
 | :-: | --: | --: | --: | --: | --: | --: |
-| 28 | 70 | 6,000 m | | :. | :. | -0.% |
-| 29 | 70 | 10,000 m | | :. | :. | -0.% |
-| 30 | 70 | 15,000 m | | :. | :. | -0.% |
-| 31 | 80 | 6,000 m | | :. | :. | -0.% |
-| 32 | 80 | 10,000 m | | :. | :. | -0.% |
-| 33 | 80 | 15,000 m | | :. | :. | -0.% |
-| 31 | 90 | 6,000 m | | :. | :. | -0.% |
-| 32 | 90 | 10,000 m | | :. | :. | -0.% |
-| 33 | 90 | 15,000 m | | :. | :. | -0.% |
+| 28 | 6,000 m | 70 | | :. | :. | -0.% |
+| 29 | 10,000 m | 70 | | :. | :. | -0.% |
+| 30 | 15,000 m | 70 | | :. | :. | -0.% |
+| 31 | 6,000 m | 80 | | :. | :. | -0.% |
+| 32 | 10,000 m | 80 | | :. | :. | -0.% |
+| 33 | 15,000 m | 80 | | :. | :. | -0.% |
+| 31 | 6,000 m | 90 | | :. | :. | -0.% |
+| 32 | 10,000 m | 90 | | :. | :. | -0.% |
+| 33 | 15,000 m | 90 | | :. | :. | -0.% |
 
 Here, a negative deviation indicates that the algorithm was too slow when compared to the PM5 data, a positive deviation indicates that the algorithm was too fast when compared to the PM5 data. The strokerate was nearly identical along the row, and only varied slightly between 23 and 24 SPM). The total number of strokes across the monitors was sufficiently similar at similar times.
 
