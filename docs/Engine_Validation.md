@@ -124,15 +124,15 @@ The first series side-by-side test are fixed distance or fixed time tests (takin
 This leads to the following results when repeating the datastreams through OpenRowingMonitor (ORM):
 | Test | Target distance | PM5 Drag factor | ORM Drag factor | Time on PM5 | Time on ORM | Time deviation |
 | :-: | --: | --: | --: | --: | --: | --: |
-| 28 | 6,000 m | 70 | | :. | :. | -0.% |
-| 29 | 10,000 m | 70 | | :. | :. | -0.% |
-| 30 | 15,000 m | 70 | | :. | :. | -0.% |
-| 31 | 6,000 m | 80 | | :. | :. | -0.% |
-| 32 | 10,000 m | 80 | | :. | :. | -0.% |
-| 33 | 15,000 m | 80 | | :. | :. | -0.% |
-| 31 | 6,000 m | 90 | | :. | :. | -0.% |
-| 32 | 10,000 m | 90 | | :. | :. | -0.% |
-| 33 | 15,000 m | 90 | | :. | :. | -0.% |
+| 28 | 6,000 m | 67 | 69.2 | 28:24.4 | 28:24.4 | 0% | <!--- Session date 05-11-2022 --->
+| 29 | 10,000 m | 68 | 70.0 | 47:19.8 | 47:19.4 | -0.@@% | <!--- Session date 08-11-2022 --->
+| 30 | 15,000 m | 69 | 70.5 | 1:13:14.8 | 1:13:14.7 | -0.@@% | <!--- Session date 13-11-2022 --->
+| 31 | 6,000 m | 80 | | :. | :. | -0.% | <!--- Session date --->
+| 32 | 10,000 m | 80 | | :. | :. | -0.% | <!--- Session date --->
+| 33 | 15,000 m | 80 | | :. | :. | -0.% | <!--- Session date --->
+| 31 | 6,000 m | 90 | | :. | :. | -0.% | <!--- Session date --->
+| 32 | 10,000 m | 90 | | :. | :. | -0.% | <!--- Session date --->
+| 33 | 15,000 m | 90 | | :. | :. | -0.% | <!--- Session date --->
 
 Here, a negative deviation indicates that the algorithm was too slow when compared to the PM5 data, a positive deviation indicates that the algorithm was too fast when compared to the PM5 data. The strokerate was nearly identical along the row, and only varied slightly between 23 and 24 SPM). The total number of strokes across the monitors was sufficiently similar at similar times.
 
