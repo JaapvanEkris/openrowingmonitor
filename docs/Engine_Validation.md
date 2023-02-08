@@ -131,11 +131,11 @@ This leads to the following results when rowing and feeding the PM5 and OpenRowi
 | 31 | 6,000 m | 79 | 80.4 | 26:55.9 | 26:55.9 | 0% | <!--- Session date 2023-01-20 --->
 | 32 | 10,000 m | 76 | 78.0 | 46:17.3 | 46:17.0 | -0.@@% | <!--- Session date 2023-01-14 --->
 | 33 | 15,000 m | 80 | 82.2 | 1:11:26.3 | 1:11:26.0 | -0.@@% | <!--- Session date 2023-01-22 --->
-| 31 | 6,000 m | 90 | | :. | :. | -0.% | <!--- Session date --->
-| 32 | 10,000 m | 90 | | :. | :. | -0.% | <!--- Session date --->
-| 33 | 15,000 m | 90 | | :. | :. | -0.% | <!--- Session date --->
+| 31 | 6,000 m | 90 | 91.7 | 26:03.1 | 26:03.6 | +0.@@% | <!--- Session date 2023-02-02 --->
+| 32 | 10,000 m | 92 | 93.8 | 44:14.7 | 44:15.2 | +0.@@% | <!--- Session date 2023-02-04 --->
+| 33 | 15,000 m | 92 | 94.0 | 1:08:56.0 | 1:08:56.1 | +0.@@% | <!--- Session date 2023-02-05 --->
 
-Here, a negative deviation indicates that the algorithm was too slow when compared to the PM5 data, a positive deviation indicates that the algorithm was too fast when compared to the PM5 data. The strokerate was nearly identical along the row, and only varied slightly between 23 and 24 SPM). The total number of strokes across the monitors was sufficiently similar at similar times.
+Here, a negative deviation indicates that the algorithm was too slow when compared to the PM5 data, a positive deviation indicates that the ORM algorithm was too fast when compared to the PM5 data. The strokerate was nearly identical along the row, and only varied slightly between 23 and 24 SPM). The total number of strokes across the monitors was sufficiently similar at similar times.
 
 ### Validation of the linear speed caclulation
 
