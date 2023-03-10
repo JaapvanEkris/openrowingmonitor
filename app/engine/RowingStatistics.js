@@ -65,9 +65,22 @@ function createRowingStatistics (config) {
   // we could respect this and set the update rate accordingly
   setInterval(emitPeripheralMetrics, peripheralUpdateInterval)
 
+	// use a watchdog to ensure that maximumStrokeTimeBeforePause works
+	// when we do not receive currentDt anymore
+  const pauseWatchdog = setTimeout(() => {
+    if(sessionStatus !== 'Paused' && sessionStatus !== 'Stopped' && sessionStatus !== 'WaitingForStart') {
+      log.debug('Pause triggered by watchdog')
+      // we send a fake dtcurrent
+			handleRotationImpulse(config.rowerSettings.maximumStrokeTimeBeforePause)
+    }
+  }, config.rowerSettings.maximumStrokeTimeBeforePause * 1000)
+
   function handleRotationImpulse (currentDt) {
     // Provide the rower with new data
     rower.handleRotationImpulse(currentDt)
+
+    // reset pauseWatchdog
+    pauseWatchdog.refresh();
 
     // This is the core of the finite state machine that defines all state transitions
     switch (true) {
