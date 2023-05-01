@@ -28,6 +28,7 @@ function createRowingStatistics (config) {
   const cycleLinearVelocity = createStreamFilter(numOfDataPointsForAveraging, 0)
   let sessionStatus = 'WaitingForStart'
   let intervalSettings = []
+  let intervalType= 'JustRow'
   let currentIntervalNumber = -1
   let intervalTargetDistance = 0
   let intervalTargetTime = 0
@@ -36,7 +37,7 @@ function createRowingStatistics (config) {
   let heartRateResetTimer
   let totalLinearDistance = 0.0
   let totalMovingTime = 0
-  let totalNumberOfStrokes = 0
+  let totalNumberOfStrokes = -1
   let driveLastStartTime = 0
   let strokeCalories = 0
   let strokeWork = 0
@@ -54,7 +55,6 @@ function createRowingStatistics (config) {
   let dragFactor = config.rowerSettings.dragFactor
   let heartrate = 0
   let heartRateBatteryLevel = 0
-  const postExerciseHR = []
   let instantPower = 0.0
   let lastStrokeState = 'WaitingForDrive'
 
@@ -66,97 +66,59 @@ function createRowingStatistics (config) {
   // we could respect this and set the update rate accordingly
   setInterval(emitPeripheralMetrics, peripheralUpdateInterval)
 
-  function handleRotationImpulse (currentDt) {
-    // Provide the rower with new data
-    rower.handleRotationImpulse(currentDt)
 
-    // This is the core of the finite state machine that defines all state transitions
-    switch (true) {
-      case (sessionStatus === 'WaitingForStart' && rower.strokeState() === 'Drive'):
-        sessionStatus = 'Rowing'
+  // This function handles all incomming commands. As all commands are broadasted to all application parts,
+  // we need to filter here what the RowingEngine will react to and what it will ignore
+  function handleCommand (commandName) {
+    switch (commandName) {
+      case ('start'):
         startTraining()
-        updateContinousMetrics()
-        emitMetrics('recoveryFinished')
         break
-      case (sessionStatus === 'Paused' && rower.strokeState() === 'Drive'):
-        sessionStatus = 'Rowing'
-        resumeTraining()
-        updateContinousMetrics()
-        emitMetrics('recoveryFinished')
+      case ('startOrResume'):
+        allowResumeTraining()
+        sessionStatus = 'WaitingForStart'
         break
-      case (sessionStatus !== 'Stopped' && rower.strokeState() === 'Stopped'):
-        sessionStatus = 'Stopped'
-        // We need to emit the metrics AFTER the sessionstatus changes to anything other than "Rowing", which forces most merics to zero
-        // This is intended behaviour, as the rower/flywheel indicate the rower has stopped somehow
-        stopTraining()
-        break
-      case (sessionStatus === 'Rowing' && rower.strokeState() === 'WaitingForDrive'):
-        sessionStatus = 'Paused'
+      case ('pause'):
         pauseTraining()
+        emitMetrics('rowingPaused')
+        sessionStatus = 'Paused'
         break
-      case (sessionStatus === 'Rowing' && lastStrokeState === 'Recovery' && rower.strokeState() === 'Drive' && isIntervalTargetReached() && isNextIntervalAvailable()):
-        updateContinousMetrics()
-        updateCycleMetrics()
-        handleRecoveryEnd()
-        activateNextIntervalParameters()
-        emitMetrics('intervalTargetReached')
-        break
-      case (sessionStatus === 'Rowing' && lastStrokeState === 'Recovery' && rower.strokeState() === 'Drive' && isIntervalTargetReached()):
-        updateContinousMetrics()
-        updateCycleMetrics()
-        handleRecoveryEnd()
+      case ('stop'):
         stopTraining()
+        // Emitting the metrics BEFORE the sessionstatus changes to anything other than "Rowing" makes sure the metrics are still non-zero
+        emitMetrics('rowingStopped')
+        sessionStatus = 'Stopped'
         break
-      case (sessionStatus === 'Rowing' && lastStrokeState === 'Recovery' && rower.strokeState() === 'Drive'):
-        updateContinousMetrics()
-        updateCycleMetrics()
-        handleRecoveryEnd()
-        emitMetrics('recoveryFinished')
+      case ('reset'):
+        resetTraining()
+        emitMetrics('rowingPaused')
+        sessionStatus = 'WaitingForStart'
         break
-      case (sessionStatus === 'Rowing' && lastStrokeState === 'Drive' && rower.strokeState() === 'Recovery' && isIntervalTargetReached() && isNextIntervalAvailable()):
-        updateContinousMetrics()
-        updateCycleMetrics()
-        handleDriveEnd()
-        activateNextIntervalParameters()
-        emitMetrics('intervalTargetReached')
+      case 'blePeripheralMode':
         break
-      case (sessionStatus === 'Rowing' && lastStrokeState === 'Drive' && rower.strokeState() === 'Recovery' && isIntervalTargetReached()):
-        updateContinousMetrics()
-        updateCycleMetrics()
-        handleDriveEnd()
+      case 'switchBlePeripheralMode':
+        break
+      case 'antPeripheralMode':
+        break
+      case 'switchAntPeripheralMode':
+        break
+      case 'hrmPeripheralMode':
+        break
+      case 'switchHrmMode':
+        break
+      case 'uploadTraining':
+        break
+      case 'stravaAuthorizationCode':
+        break
+      case 'shutdown':
         stopTraining()
-        break
-      case (sessionStatus === 'Rowing' && lastStrokeState === 'Drive' && rower.strokeState() === 'Recovery'):
-        updateContinousMetrics()
-        updateCycleMetrics()
-        handleDriveEnd()
-        emitMetrics('driveFinished')
-        break
-      case (sessionStatus === 'Rowing' && isIntervalTargetReached() && isNextIntervalAvailable()):
-        updateContinousMetrics()
-        activateNextIntervalParameters()
-        emitMetrics('intervalTargetReached')
-        break
-      case (sessionStatus === 'Rowing' && isIntervalTargetReached()):
-        updateContinousMetrics()
-        stopTraining()
-        break
-      case (sessionStatus === 'Rowing'):
-        updateContinousMetrics()
-        break
-      case (sessionStatus === 'Paused'):
-        // We are in a paused state, we won't update any metrics
-        break
-      case (sessionStatus === 'WaitingForStart'):
-        // We can't change into the "Rowing" state since we are waiting for a drive phase that didn't come
-        break
-      case (sessionStatus === 'Stopped'):
-        // We are in a stopped state, so we won't update any metrics
+        // Emitting the metrics BEFORE the sessionstatus changes to anything other than "Rowing" makes sure the metrics are still non-zero
+        emitMetrics('rowingStopped')
+        sessionStatus = 'Stopped'
         break
       default:
-        log.error(`Time: ${rower.totalMovingTimeSinceStart()}, state ${rower.strokeState()} found in the Rowing Statistics, which is not captured by Finite State Machine`)
+        log.error(`Recieved unknown command: ${commandName}`)
     }
-    lastStrokeState = rower.strokeState()
   }
 
   function startTraining () {
@@ -165,7 +127,6 @@ function createRowingStatistics (config) {
 
   function allowResumeTraining () {
     rower.allowMovement()
-    sessionStatus = 'WaitingForStart'
   }
 
   function resumeTraining () {
@@ -175,13 +136,6 @@ function createRowingStatistics (config) {
   function stopTraining () {
     rower.stopMoving()
     lastStrokeState = 'Stopped'
-    // Emitting the metrics BEFORE the sessionstatus changes to anything other than "Rowing" forces most merics to zero
-    // As there are more than one way to this method, we FIRST emit the metrics and then set them to zero
-    // If they need to be forced to zero (as the flywheel seems to have stopped), this status has to be set before the call
-    emitMetrics('rowingStopped')
-    sessionStatus = 'Stopped'
-    postExerciseHR.splice(0, postExerciseHR.length)
-    measureRecoveryHR()
   }
 
   // clear the metrics in case the user pauses rowing
@@ -193,11 +147,6 @@ function createRowingStatistics (config) {
     cyclePower.reset()
     cycleLinearVelocity.reset()
     lastStrokeState = 'WaitingForDrive'
-    // We need to emit the metrics BEFORE the sessionstatus changes to anything other than "Rowing", as it forces most merics to zero
-    emitMetrics('rowingPaused')
-    sessionStatus = 'Paused'
-    postExerciseHR.splice(0, postExerciseHR.length)
-    measureRecoveryHR()
   }
 
   function resetTraining () {
@@ -222,11 +171,113 @@ function createRowingStatistics (config) {
     cyclePower.reset()
     strokeCalories = 0
     strokeWork = 0
-    postExerciseHR.splice(0, postExerciseHR.length)
     cycleLinearVelocity.reset()
     lastStrokeState = 'WaitingForDrive'
-    emitMetrics('rowingPaused')
-    sessionStatus = 'WaitingForStart'
+  }
+
+  function handleRotationImpulse (currentDt) {
+    // Provide the rower with new data
+    rower.handleRotationImpulse(currentDt)
+
+    // This is the core of the finite state machine that defines all state transitions
+    switch (true) {
+      case (sessionStatus === 'WaitingForStart' && rower.strokeState() === 'Drive'):
+        sessionStatus = 'Rowing'
+        startTraining()
+        updateContinousMetrics()
+        emitMetrics('recoveryFinished')
+        break
+      case (sessionStatus === 'Paused' && rower.strokeState() === 'Drive'):
+        sessionStatus = 'Rowing'
+        resumeTraining()
+        updateContinousMetrics()
+        emitMetrics('recoveryFinished')
+        break
+      case (sessionStatus !== 'Stopped' && rower.strokeState() === 'Stopped'):
+        stopTraining()
+        // We need to emit the metrics AFTER the sessionstatus changes to anything other than "Rowing", which forces most merics to zero
+        // This is intended behaviour, as the rower/flywheel indicate the rower has stopped somehow
+        sessionStatus = 'Stopped'
+        emitMetrics('rowingStopped')
+        break
+      case (sessionStatus === 'Rowing' && rower.strokeState() === 'WaitingForDrive'):
+        // We need to emit the metrics BEFORE the sessionstatus changes to anything other than "Rowing", as it forces most merics to zero
+        pauseTraining()
+        emitMetrics('rowingPaused')
+        sessionStatus = 'Paused'
+        break
+      case (sessionStatus === 'Rowing' && lastStrokeState === 'Recovery' && rower.strokeState() === 'Drive' && isIntervalTargetReached() && isNextIntervalAvailable()):
+        updateContinousMetrics()
+        updateCycleMetrics()
+        handleRecoveryEnd()
+        activateNextIntervalParameters()
+        emitMetrics('intervalTargetReached')
+        break
+      case (sessionStatus === 'Rowing' && lastStrokeState === 'Recovery' && rower.strokeState() === 'Drive' && isIntervalTargetReached()):
+        updateContinousMetrics()
+        updateCycleMetrics()
+        handleRecoveryEnd()
+        stopTraining()
+        // Emitting the metrics BEFORE the sessionstatus changes to anything other than "Rowing" makes sure the metrics are still non-zero
+        emitMetrics('rowingStopped')
+        sessionStatus = 'Stopped'
+        break
+      case (sessionStatus === 'Rowing' && lastStrokeState === 'Recovery' && rower.strokeState() === 'Drive'):
+        updateContinousMetrics()
+        updateCycleMetrics()
+        handleRecoveryEnd()
+        emitMetrics('recoveryFinished')
+        break
+      case (sessionStatus === 'Rowing' && lastStrokeState === 'Drive' && rower.strokeState() === 'Recovery' && isIntervalTargetReached() && isNextIntervalAvailable()):
+        updateContinousMetrics()
+        updateCycleMetrics()
+        handleDriveEnd()
+        activateNextIntervalParameters()
+        emitMetrics('intervalTargetReached')
+        break
+      case (sessionStatus === 'Rowing' && lastStrokeState === 'Drive' && rower.strokeState() === 'Recovery' && isIntervalTargetReached()):
+        updateContinousMetrics()
+        updateCycleMetrics()
+        handleDriveEnd()
+        stopTraining()
+        // Emitting the metrics BEFORE the sessionstatus changes to anything other than "Rowing" makes sure the metrics are still non-zero
+        emitMetrics('rowingStopped')
+        sessionStatus = 'Stopped'
+        break
+      case (sessionStatus === 'Rowing' && lastStrokeState === 'Drive' && rower.strokeState() === 'Recovery'):
+        updateContinousMetrics()
+        updateCycleMetrics()
+        handleDriveEnd()
+        emitMetrics('driveFinished')
+        break
+      case (sessionStatus === 'Rowing' && isIntervalTargetReached() && isNextIntervalAvailable()):
+        updateContinousMetrics()
+        activateNextIntervalParameters()
+        emitMetrics('intervalTargetReached')
+        break
+      case (sessionStatus === 'Rowing' && isIntervalTargetReached()):
+        updateContinousMetrics()
+        stopTraining()
+        // Emitting the metrics BEFORE the sessionstatus changes to anything other than "Rowing" makes sure the metrics are still non-zero
+        emitMetrics('rowingStopped')
+        sessionStatus = 'Stopped'
+        break
+      case (sessionStatus === 'Rowing'):
+        updateContinousMetrics()
+        break
+      case (sessionStatus === 'Paused'):
+        // We are in a paused state, we won't update any metrics
+        break
+      case (sessionStatus === 'WaitingForStart'):
+        // We can't change into the "Rowing" state since we are waiting for a drive phase that didn't come
+        break
+      case (sessionStatus === 'Stopped'):
+        // We are in a stopped state, so we won't update any metrics
+        break
+      default:
+        log.error(`Time: ${rower.totalMovingTimeSinceStart()}, state ${rower.strokeState()} found in the Rowing Statistics, which is not captured by Finite State Machine`)
+    }
+    lastStrokeState = rower.strokeState()
   }
 
   // initiated when updating key statistics
@@ -312,16 +363,30 @@ function createRowingStatistics (config) {
       intervalPrevAccumulatedDistance = rower.totalLinearDistanceSinceStart()
 
       currentIntervalNumber++
-      if (intervalSettings[currentIntervalNumber].targetDistance > 0) {
-        // A target distance is set
-        intervalTargetTime = 0
-        intervalTargetDistance = intervalPrevAccumulatedDistance + intervalSettings[currentIntervalNumber].targetDistance
-        log.info(`Interval settings for interval ${currentIntervalNumber + 1} of ${intervalSettings.length}: Distance target ${intervalSettings[currentIntervalNumber].targetDistance} meters`)
-      } else {
-        // A target time is set
-        intervalTargetTime = intervalPrevAccumulatedTime + intervalSettings[currentIntervalNumber].targetTime
-        intervalTargetDistance = 0
-        log.info(`Interval settings for interval ${currentIntervalNumber + 1} of ${intervalSettings.length}: time target ${secondsToTimeString(intervalSettings[currentIntervalNumber].targetTime)} minutes`)
+      switch (true) {
+        case (intervalSettings[currentIntervalNumber].targetDistance > 0):
+          // A target distance is set
+          intervalType = 'Distance'
+          intervalTargetTime = 0
+          intervalTargetDistance = intervalPrevAccumulatedDistance + intervalSettings[currentIntervalNumber].targetDistance
+          log.info(`Interval settings for interval ${currentIntervalNumber + 1} of ${intervalSettings.length}: Distance target ${intervalSettings[currentIntervalNumber].targetDistance} meters`)
+          break
+        case (intervalSettings[currentIntervalNumber].targetTime > 0):
+          // A target time is set
+          intervalType = 'Time'
+          intervalTargetTime = intervalPrevAccumulatedTime + intervalSettings[currentIntervalNumber].targetTime
+          intervalTargetDistance = 0
+          log.info(`Interval settings for interval ${currentIntervalNumber + 1} of ${intervalSettings.length}: time target ${secondsToTimeString(intervalSettings[currentIntervalNumber].targetTime)} minutes`)
+          break
+        case (intervalSettings[currentIntervalNumber].targetCalories > 0):
+          // A calorie target is set
+          intervalType = 'Calories'
+          //ToDo!!!
+          log.info(`Interval settings for interval ${currentIntervalNumber + 1} of ${intervalSettings.length}: calorie target ${intervalSettings[currentIntervalNumber].targetCalories} calories`)
+          break
+        default:
+          intervalType = 'JustRow'
+          log.error(`Time: ${rower.totalMovingTimeSinceStart()}, encountered a completely empty interval, switching to Just Row!`)
       }
     } else {
       log.error('Interval error: there is no next interval!')
@@ -340,23 +405,6 @@ function createRowingStatistics (config) {
     heartRateBatteryLevel = value.batteryLevel
   }
 
-  function measureRecoveryHR () {
-    // This function is called when the rowing session is stopped. postExerciseHR[0] is the last measured excercise HR
-    // Thus postExerciseHR[1] is Recovery HR after 1 min, etc..
-    if (heartrate !== undefined && heartrate > config.userSettings.restingHR && sessionStatus !== 'Rowing') {
-      log.debug(`*** HRR-${postExerciseHR.length}: ${heartrate}`)
-      postExerciseHR.push(heartrate)
-      if ((postExerciseHR.length > 1) && (postExerciseHR.length <= 4)) {
-        // We skip reporting postExerciseHR[0] and only report measuring postExerciseHR[1], postExerciseHR[2], postExerciseHR[3]
-        emitter.emit('HRRecoveryUpdate', postExerciseHR)
-      }
-      if (postExerciseHR.length < 4) {
-        // We haven't got three post-exercise HR measurements yet, let's schedule the next measurement
-        setTimeout(measureRecoveryHR, 60000)
-      }
-    }
-  }
-
   function emitWebMetrics () {
     emitMetrics('webMetricsUpdate')
   }
@@ -372,7 +420,7 @@ function createRowingStatistics (config) {
   function getMetrics () {
     const cyclePace = cycleLinearVelocity.clean() !== 0 && cycleLinearVelocity.raw() > 0 && sessionStatus === 'Rowing' ? (500.0 / cycleLinearVelocity.clean()) : Infinity
     return {
-      sessiontype: intervalTargetDistance > 0 ? 'Distance' : (intervalTargetTime > 0 ? 'Time' : 'JustRow'),
+      sessiontype: intervalType,
       sessionStatus,
       strokeState: rower.strokeState(),
       totalMovingTime: totalMovingTime > 0 ? totalMovingTime : 0,
@@ -420,13 +468,10 @@ function createRowingStatistics (config) {
   }
 
   return Object.assign(emitter, {
+    handleCommand,
     handleHeartRateMeasurement,
     handleRotationImpulse,
-    setIntervalParameters,
-    pause: pauseTraining,
-    stop: stopTraining,
-    resume: allowResumeTraining,
-    reset: resetTraining
+    setIntervalParameters
   })
 }
 
