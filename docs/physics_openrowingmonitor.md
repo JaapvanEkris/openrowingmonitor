@@ -392,9 +392,9 @@ From theory [[13]](#13)), we know that the handle Power is
 
 For noise filtering, we use a moving median filter, which has the benefit of removing outliers completely. This is more robust than the moving average, where the effect of outliers is reduced, but not removed.
 
-### Linear regression algorithms applied for slope determination
+### Linear regression algorithms available
 
-There are several different linear regression methods [[9]](#9). We have several requirements on the algorithm:
+There are several different linear regression methods [[9]](#9) available and easily implemented. We have several requirements on the algorithm:
 
 * it has to delviver results in near-real-time scenarios in a datastream;
 
@@ -408,7 +408,7 @@ Ordinary Least Squares regression (see [[5]](#5)) and [[6]](#6)) produces result
 
 #### Theil–Sen estimator (Linear TS)
 
-Although the Theil–Sen estimator has a O(N log(N)) solution available, however we could not find a readily available solution. We did manage to develop a solution that has a O(N) impact during the addition of an additional datapoint in a datastream with a fixed length window, and O(log(N)) impact when determining the slope.
+Although the Theil–Sen estimator has a O(N log(N)) solution available, however we could not find a readily available solution. We did manage to develop a solution that has a O(N) impact during the addition of an additional datapoint in a datastream with a fixed length window, and O(log(N)) impact when determining the slope. See `engine/utils/FullTSLinearSeries.js` for more information.
 
 #### Incomplete Theil–Sen estimator (Inc Linear TS)
 
@@ -418,11 +418,17 @@ There also is an Incomplete Theis-Sen estimator for Linear Regression [[11]](#11
 
 The Theil–Sen estimator can be expanded to apply to Quadratic functions, where the implementation is O(N<sup>2</sup>). Based on a Lagrange interpolation, we can calculate the coefficients of the formula quite effectively, resulting in a robust estimation more fitting the data. See `engine/utils/FullTSQuadraticSeries.js` for more information about the background of the implementation.
 
-### Choices for the specific algorithms
+### Choices for the specific regression algorithms applied by Open Rowing Monitor
+
+There are two key algorithms to be chosen:
+
+* The regression algorithm used for the drag calculation
+
+* The regression algorithm used for the angular velocity and angular acceleration calculation
 
 #### Regression algorithm used for drag calculation
 
-For the drag-factor calculation (and the closely related recovery slope detection), we observe three things:
+In essence, the drag calculation assumes that the decay of *CurrentDT* over time is assumed to be linear (see [Determining the "drag factor" of the flywheel](physics_openrowingmonitor.md#determining-the-drag-factor-of-the-flywheel)) For the drag-factor calculation (and the closely related recovery slope detection), we observe three things:
 
 * The number of datapoints in the recovery phase isn't known in advance, and is subject to significant change due to variations in recovery time (i.e. sprints), making both the Incomplete Theil–Sen estimator and Theil–Sen estimator incapable of calculating their slopes in the stream as the efficient implementations require a fixed window. This results in a near O(N<sup>2</sup>) calculation at the start of the *Drive* phase. Given the number of datapoints often encountered (a recoveryphase on a Concept 2 contains around 200 datapoints), this is a significant issue that could disrupt the application. OLS has a O(1) complexity for continous datastreams;
 
@@ -434,7 +440,17 @@ Therefore, we choose to apply the OLS Linear Regression model for the calculatio
 
 #### Regression algorithm used for Angular velocity and Angular Acceleration
 
-We determine the Angular Velocity &omega; and Angular Acceleration &alpha; based on the relation between &theta; and time. First of all, we observe that we use both the first derived function (i.e. &omega;) and the second derived function (i.e. &alpha;), making a quadratic or even a cubic regression algorithm more appropriate, as a liniear regressor would make the second derived function trivial. Practical testing has confirmed that Quadratic Theil-Senn outperformed all Linear Regression methods in terms of robustness and responsiveness. Based on extensive testing with multiple simulated rowing machines, Full Quadratic Theil-Senn has proven to deliver the best results and thus is selected to determine &omega; and &alpha;.
+We determine the Angular Velocity &omega; and Angular Acceleration &alpha; based on the relation between &theta; and time (see [Determining the "Angular Velocity" and "Angular Acceleration" of the flywheel](physics_openrowingmonitor.md#determining-the-angular-velocity-and-angular-acceleration-of-the-flywheel). First of all, we observe that we use both the first derived function (i.e. &omega;) and the second derived function (i.e. &alpha;), making at a quadratic regression algorithm necessary and a cubic regression algorithm potentially even more more appropriate, as a liniear regressor would make the second derived function trivial. It should be noted that cubic regression has a tendency to overfit specific types of errors (specifically misplaced magnets on the flywheel, which introduce a sinoid-like deviation per rotation), thus rendering it unpractical.
+
+Practical testing has confirmed that:
+
+* Simple Quadratic Regression outperformed all Linear Regression methods in terms of robustness and responsiveness.
+
+* Simple Quadratic Regression proved to be too unstable to produce reliable results when compared to Quadratic incomplete Theil-Senn regression.
+
+* Quadratic Theil-Senn regression outperformed the Quadratic incomplete Theil-Senn regression in terms of responsiveness to data changes and robustness to noise, while still being acceptably in terms of CPU load. A flanklength of 24 datapoints (and thus regession across all combinations on these 24 datapoints) still could be processed within 0.005 seconds.
+
+Based on extensive testing with multiple simulated rowing machines, Full Quadratic Theil-Senn has proven to deliver the best results and thus is selected to determine &omega; and &alpha;.
 
 ## Open Issues, Known problems and Regrettable design decissions
 
