@@ -45,6 +45,7 @@ sequenceDiagram
   participant pigpio
   participant GpioTimerService.js
   participant server.js
+  participant RowingStatistics.js
   participant Rower.js
   participant Flywheel.js
   pigpio -)GpioTimerService.js: tick<br>(interrupt based)
@@ -67,7 +68,6 @@ sequenceDiagram
   participant clients
   participant heartrateMonitor
   participant server.js
-  participant RowingStatistics.js
   heartrateMonitor-)server.js: heartrate data<br>(interrupt based)
   server.js-)clients: heartrate data<br>(interrupt based)
 ```
