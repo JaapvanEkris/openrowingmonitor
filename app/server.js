@@ -2,8 +2,7 @@
 /*
   Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
 
-  This start file is currently a mess, as this currently is the devlopment playground to plug
-  everything together while figuring out the physics and model of the application.
+  This start file is currently a mess, but we are getting more structure as we know what this should do
   todo: refactor this as we progress
 */
 import os from 'os'
@@ -14,9 +13,9 @@ import config from './tools/ConfigManager.js'
 import { createRowingStatistics } from './engine/RowingStatistics.js'
 import { createWebServer } from './WebServer.js'
 import { createPeripheralManager } from './peripherals/PeripheralManager.js'
+import { createRecordingManager } from './recorders/recordingManager.js'
 // eslint-disable-next-line no-unused-vars
 import { replayRowingSession } from './tools/RowingRecorder.js'
-import { createWorkoutRecorder } from './engine/WorkoutRecorder.js'
 import { createWorkoutUploader } from './engine/WorkoutUploader.js'
 import { secondsToTimeString } from './tools/Helper.js'
 const exec = promisify(child_process.exec)
@@ -71,72 +70,40 @@ intervalSettings[2] = {
 const peripheralManager = createPeripheralManager()
 
 peripheralManager.on('control', (event) => {
+  log.debug(`Peripheral requested ${event?.req?.name}`)
+  rowingStatistics.handleCommand(event?.req?.name)
+  recordingManager.handleCommand(event?.req?.name)
+  // ideally it would also say peripheralManager.handleCommand(event?.req?.name), instead of the switch statement
   switch (event?.req?.name) {
-    case 'requestControl':
-      event.res = true
-      break
     case 'reset':
-      log.debug('reset requested')
-      resetWorkout()
-      event.res = true
+      peripheralManager.notifyStatus({ name: 'reset' })
       break
-    // todo: we could use these controls once we implement a concept of a rowing session
     case 'stop':
-      log.debug('stop requested')
-      stopWorkout()
       peripheralManager.notifyStatus({ name: 'stoppedOrPausedByUser' })
-      event.res = true
       break
     case 'pause':
-      log.debug('pause requested')
-      pauseWorkout()
       peripheralManager.notifyStatus({ name: 'stoppedOrPausedByUser' })
-      event.res = true
       break
     case 'startOrResume':
-      log.debug('startOrResume requested')
-      resumeWorkout()
       peripheralManager.notifyStatus({ name: 'startedOrResumedByUser' })
-      event.res = true
       break
     case 'blePeripheralMode':
       webServer.notifyClients('config', getConfig())
-      event.res = true
       break
     case 'antPeripheralMode':
       webServer.notifyClients('config', getConfig())
-      event.res = true
       break
     case 'hrmPeripheralMode':
       webServer.notifyClients('config', getConfig())
-      event.res = true
       break
-    default:
-      log.info('unhandled Command', event.req)
   }
+  event.res = true
 })
 
 peripheralManager.on('heartRateMeasurement', (heartRateMeasurement) => {
   rowingStatistics.handleHeartRateMeasurement(heartRateMeasurement)
+  recordingManager.recordHeartRate(heartRateMeasurement)
 })
-
-function pauseWorkout () {
-  rowingStatistics.pause()
-}
-
-function stopWorkout () {
-  rowingStatistics.stop()
-}
-
-function resumeWorkout () {
-  rowingStatistics.resume()
-}
-
-function resetWorkout () {
-  workoutRecorder.reset()
-  rowingStatistics.reset()
-  peripheralManager.notifyStatus({ name: 'reset' })
-}
 
 const gpioTimerService = child_process.fork('./app/gpio/GpioTimerService.js')
 gpioTimerService.on('message', handleRotationImpulse)
@@ -158,7 +125,7 @@ process.once('uncaughtException', async (error) => {
 })
 
 function handleRotationImpulse (dataPoint) {
-  workoutRecorder.recordRotationImpulse(dataPoint)
+  recordingManager.recordRotationImpulse(dataPoint)
   rowingStatistics.handleRotationImpulse(dataPoint)
 }
 
@@ -171,8 +138,8 @@ if (intervalSettings.length > 0) {
   log.info('Starting a just row session, no time or distance target set')
 }
 
-const workoutRecorder = createWorkoutRecorder()
-const workoutUploader = createWorkoutUploader(workoutRecorder)
+const recordingManager = new createRecordingManager(config)
+const workoutUploader = createWorkoutUploader(recordingManager)
 
 rowingStatistics.on('driveFinished', (metrics) => {
   webServer.notifyClients('metrics', metrics)
@@ -196,8 +163,8 @@ rowingStatistics.on('peripheralMetricsUpdate', (metrics) => {
 
 rowingStatistics.on('rowingPaused', (metrics) => {
   logMetrics(metrics)
-  workoutRecorder.recordStroke(metrics)
-  workoutRecorder.handlePause()
+  recordingManager.recordStroke(metrics)
+  recordingManager.handleCommand('pause')
   webServer.notifyClients('metrics', metrics)
   peripheralManager.notifyMetrics('metricsUpdate', metrics)
 })
@@ -214,15 +181,10 @@ rowingStatistics.on('rowingStopped', (metrics) => {
   // This is called when the rowingmachine is stopped for some reason, could be reaching the end of the session,
   // could be user intervention
   logMetrics(metrics)
-  workoutRecorder.recordStroke(metrics)
+  recordingManager.recordStroke(metrics)
+  recordingManager.handleCommand('stop')
   webServer.notifyClients('metrics', metrics)
   peripheralManager.notifyMetrics('metricsUpdate', metrics)
-  workoutRecorder.writeRecordings()
-})
-
-rowingStatistics.on('HRRecoveryUpdate', (hrMetrics) => {
-  // This is called at minute intervals after the rowingmachine has stopped, to record the Recovery heartrate in the tcx
-  workoutRecorder.updateHRRecovery(hrMetrics)
 })
 
 workoutUploader.on('authorizeStrava', (data, client) => {
@@ -230,11 +192,17 @@ workoutUploader.on('authorizeStrava', (data, client) => {
 })
 
 workoutUploader.on('resetWorkout', () => {
-  resetWorkout()
+  // WHY should the workout uploader be able to reset the entire application?????
+  rowingStatistics.handleCommand('reset')
+  recordingManager.handleCommand('reset')
+  peripheralManager.notifyStatus({ name: 'reset' })
 })
 
 const webServer = createWebServer()
 webServer.on('messageReceived', async (message, client) => {
+  log.debug(`webclient requested ${message.command}`)
+  recordingManager.handleCommand(message.command)
+  rowingStatistics.handleCommand(message.command)
   switch (message.command) {
     case 'switchBlePeripheralMode':
       peripheralManager.switchBlePeripheralMode()
@@ -246,7 +214,7 @@ webServer.on('messageReceived', async (message, client) => {
       peripheralManager.switchHrmMode()
       break
     case 'reset':
-      resetWorkout()
+      peripheralManager.notifyStatus({ name: 'reset' })
       break
     case 'uploadTraining':
       workoutUploader.upload(client)
