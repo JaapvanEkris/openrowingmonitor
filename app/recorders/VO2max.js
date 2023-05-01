@@ -5,7 +5,7 @@
   This Module calculates the training specific VO2Max metrics. It is based on formula's found on the web (see function definitions).
 */
 
-import { createBucketedLinearSeries } from './utils/BucketedLinearSeries.js'
+import { createBucketedLinearSeries } from '../engine/utils/BucketedLinearSeries.js'
 
 import loglevel from 'loglevel'
 const log = loglevel.getLogger('RowingEngine')
