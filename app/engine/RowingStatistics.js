@@ -116,7 +116,7 @@ function createRowingStatistics (config) {
         sessionStatus = 'Stopped'
         break
       default:
-        log.error(`Recieved unknown command: ${commandName}`)
+        log.error(`RowingStatistics: Recieved unknown command: ${commandName}`)
     }
   }
 
