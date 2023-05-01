@@ -28,7 +28,7 @@ function createRowingStatistics (config) {
   const cycleLinearVelocity = createStreamFilter(numOfDataPointsForAveraging, 0)
   let sessionStatus = 'WaitingForStart'
   let intervalSettings = []
-  let intervalType= 'JustRow'
+  let intervalType = 'JustRow'
   let currentIntervalNumber = -1
   let intervalTargetDistance = 0
   let intervalTargetTime = 0
@@ -65,7 +65,6 @@ function createRowingStatistics (config) {
   // todo: the FTMS protocol also supports that peripherals deliver a preferred update interval
   // we could respect this and set the update rate accordingly
   setInterval(emitPeripheralMetrics, peripheralUpdateInterval)
-
 
   // This function handles all incomming commands. As all commands are broadasted to all application parts,
   // we need to filter here what the RowingEngine will react to and what it will ignore
@@ -381,7 +380,7 @@ function createRowingStatistics (config) {
         case (intervalSettings[currentIntervalNumber].targetCalories > 0):
           // A calorie target is set
           intervalType = 'Calories'
-          //ToDo!!!
+          // ToDo set all limits for a calorie based workout!
           log.info(`Interval settings for interval ${currentIntervalNumber + 1} of ${intervalSettings.length}: calorie target ${intervalSettings[currentIntervalNumber].targetCalories} calories`)
           break
         default:
