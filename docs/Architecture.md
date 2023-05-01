@@ -45,7 +45,6 @@ sequenceDiagram
   participant pigpio
   participant GpioTimerService.js
   participant server.js
-  participant RowingStatistics.js
   participant Rower.js
   participant Flywheel.js
   pigpio -)GpioTimerService.js: tick<br>(interrupt based)
