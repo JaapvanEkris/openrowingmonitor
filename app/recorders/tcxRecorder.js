@@ -17,7 +17,7 @@ function createTCXRecorder (config) {
   let heartRate = 0
   let heartRateResetTimer
   let strokes = []
-  let postExerciseHR = []
+  const postExerciseHR = []
   let startTime
 
   // This function handles all incomming commands. As all commands are broadasted to all application parts,
@@ -60,7 +60,7 @@ function createTCXRecorder (config) {
     if (startTime === undefined) {
       startTime = new Date()
     }
-    if (heartRate !== undefined && config.userSettings.restingHR <= heartRate &&  heartRate <= config.userSettings.maxHR) {
+    if (heartRate !== undefined && config.userSettings.restingHR <= heartRate && heartRate <= config.userSettings.maxHR) {
       stroke.heartrate = heartRate
     } else {
       stroke.heartrate = heartRate
@@ -233,7 +233,7 @@ function createTCXRecorder (config) {
   function measureRecoveryHR () {
     // This function is called when the rowing session is stopped. postExerciseHR[0] is the last measured excercise HR
     // Thus postExerciseHR[1] is Recovery HR after 1 min, etc..
-    if (heartRate !== undefined && config.userSettings.restingHR <= heartRate &&  heartRate <= config.userSettings.maxHR) {
+    if (heartRate !== undefined && config.userSettings.restingHR <= heartRate && heartRate <= config.userSettings.maxHR) {
       log.debug(`*** HRR-${postExerciseHR.length}: ${heartRate}`)
       postExerciseHR.push(heartRate)
       if ((postExerciseHR.length > 1) && (postExerciseHR.length <= 4)) {
@@ -244,7 +244,7 @@ function createTCXRecorder (config) {
         // We haven't got three post-exercise HR measurements yet, let's schedule the next measurement
         setTimeout(measureRecoveryHR, 60000)
       } else {
-      log.debug(`*** Skipped HRR measurement`)
+        log.debug('*** Skipped HRR measurement')
       }
     }
   }
