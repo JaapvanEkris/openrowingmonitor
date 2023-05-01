@@ -23,17 +23,16 @@ A(GpioTimerService.js) -->|currentDt| B(server.js)
 B(server.js) -->|currentDt| D(RowingStatistics.js)
 D(RowingStatistics.js) -->|Rowing metrics| B(server.js)
 C(PeripheralManager.js) -->|Heart rate data| B(server.js)
-B(server.js) -->|Heart rate data| D(RowingStatistics.js)
 B(server.js) -->|Rowing metrics| E(PeripheralManager.js)
-E(PeripheralManager.js) -->|Rowing metrics| F(ANT+ clients)
-E(PeripheralManager.js) -->|Rowing metrics| G(BLE clients)
+E(PeripheralManager.js) -->|Rowing metrics, HR Data| F(ANT+ clients)
+E(PeripheralManager.js) -->|Rowing metrics, HR Data| G(BLE clients)
 B(server.js) -->|currentDt| H(RecordingManager.js)
-B(server.js) -->|Rowing metrics| H(RecordingManager.js)
+B(server.js) -->|Rowing metrics, HR Data| H(RecordingManager.js)
 H(RecordingManager.js) -->|currentDt| I(raw recorder)
-H(RecordingManager.js) -->|Rowing metrics| J(tcx recorder)
-H(RecordingManager.js) -->|Rowing metrics| K(RowingData recorder)
-B(server.js) -->|Rowing metrics| L(WebServer.js)
-L(WebServer.js) -->|Rowing metrics| M(Client.js)
+H(RecordingManager.js) -->|Rowing metrics, HR Data| J(tcx recorder)
+H(RecordingManager.js) -->|Rowing metrics. HR Data| K(RowingData recorder)
+B(server.js) -->|Rowing metrics, HR Data| L(WebServer.js)
+L(WebServer.js) -->|Rowing metrics, HR Data| M(Client.js)
 ```
 
 Here, *currentDt* stands for the time between the impulses of the sensor, as measured by the pigpio in 'ticks' (i.e. microseconds sinds OS start).
@@ -71,9 +70,7 @@ sequenceDiagram
   participant server.js
   participant RowingStatistics.js
   heartrateMonitor-)server.js: heartrate data<br>(interrupt based)
-  server.js-)RowingStatistics.js: heartrate data<br>(interrupt based)
-  RowingStatistics.js-)server.js: Metrics Updates<br>(State/Time based)
-  server.js-)clients: Metrics Updates<br>(State/Time based)
+  server.js-)clients: heartrate data<br>(interrupt based)
 ```
 
 ### pigpio
