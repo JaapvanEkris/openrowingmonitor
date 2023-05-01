@@ -27,7 +27,7 @@ function createRowingDataRecorder (config) {
       case ('stop'):
         break
       case ('reset'):
-        filename = ""
+        filename = ''
         startTime = undefined
         break
       case 'shutdown':
@@ -57,23 +57,22 @@ function createRowingDataRecorder (config) {
       startTime = new Date()
       // Required file header, please note this includes a typo and odd spaces as the specification demands it!
       fs.appendFile(`${filename}`,
-      ',index, Stroke Number,TimeStamp (sec), ElapsedTime (sec), HRCur (bpm),DistanceMeters, Cadence (stokes/min), Stroke500mPace (sec/500m), Power (watts), StrokeDistance (meters),' +
-      ' DriveTime (ms), DriveLength (meters), StrokeRecoveryTime (ms),Speed, Horizontal (meters), Calories (kCal), DragFactor, PeakDriveForce (N), AverageDriveForce (N),' +
-      'Handle_Force_(N),Handle_Velocity_(m/s),Handle_Power_(W)\n',
-      (err) => { if (err) log.error(err) })
+        ',index, Stroke Number,TimeStamp (sec), ElapsedTime (sec), HRCur (bpm),DistanceMeters, Cadence (stokes/min), Stroke500mPace (sec/500m), Power (watts), StrokeDistance (meters),' +
+        ' DriveTime (ms), DriveLength (meters), StrokeRecoveryTime (ms),Speed, Horizontal (meters), Calories (kCal), DragFactor, PeakDriveForce (N), AverageDriveForce (N),' +
+        'Handle_Force_(N),Handle_Velocity_(m/s),Handle_Power_(W)\n',
+        (err) => { if (err) log.error(err) })
     }
     const trackPointTime = new Date(startTime.getTime() + stroke.totalMovingTime * 1000)
     const timestamp = trackPointTime.getTime() / 1000
     fs.appendFile(`${filename}`,
-    `${stroke.totalNumberOfStrokes.toFixed(0)},${stroke.totalNumberOfStrokes.toFixed(0)},${stroke.totalNumberOfStrokes.toFixed(0)},${timestamp.toFixed(5)},` +
-//    `${stroke.totalMovingTime.toFixed(5)},${(stroke.heartrate > 30 ? stroke.heartrate.toFixed(0) : NaN)},${stroke.totalLinearDistance.toFixed(1)},` +
-    `${stroke.totalMovingTime.toFixed(5)},${(heartRate > 30 ? heartRate.toFixed(0) : NaN)},${stroke.totalLinearDistance.toFixed(1)},` +
-    `${stroke.cycleStrokeRate.toFixed(1)},${(stroke.totalNumberOfStrokes > 0 ? stroke.cyclePace.toFixed(2) : NaN)},${(stroke.totalNumberOfStrokes > 0 ? stroke.cyclePower.toFixed(0) : NaN)},` +
-    `${stroke.cycleDistance.toFixed(2)},${(stroke.driveDuration * 1000).toFixed(0)},${(stroke.totalNumberOfStrokes > 0 ? stroke.driveLength.toFixed(2) : NaN)},${(stroke.recoveryDuration * 1000).toFixed(0)},` +
-    `${(stroke.totalNumberOfStrokes > 0 ? stroke.cycleLinearVelocity.toFixed(2) : 0)},${stroke.totalLinearDistance.toFixed(1)},${stroke.totalCalories.toFixed(1)},${stroke.dragFactor.toFixed(1)},` +
-    `${(stroke.totalNumberOfStrokes > 0 ? stroke.drivePeakHandleForce.toFixed(1) : NaN)},${(stroke.totalNumberOfStrokes > 0 ? stroke.driveAverageHandleForce.toFixed(1) : 0)},"${stroke.driveHandleForceCurve.map(value => value.toFixed(2))}",` +
-    `"${stroke.driveHandleVelocityCurve.map(value => value.toFixed(3))}","${stroke.driveHandlePowerCurve.map(value => value.toFixed(1))}"\n`,
-    (err) => { if (err) log.error(err) })
+      `${stroke.totalNumberOfStrokes.toFixed(0)},${stroke.totalNumberOfStrokes.toFixed(0)},${stroke.totalNumberOfStrokes.toFixed(0)},${timestamp.toFixed(5)},` +
+      `${stroke.totalMovingTime.toFixed(5)},${(heartRate > 30 ? heartRate.toFixed(0) : NaN)},${stroke.totalLinearDistance.toFixed(1)},` +
+      `${stroke.cycleStrokeRate.toFixed(1)},${(stroke.totalNumberOfStrokes > 0 ? stroke.cyclePace.toFixed(2) : NaN)},${(stroke.totalNumberOfStrokes > 0 ? stroke.cyclePower.toFixed(0) : NaN)},` +
+      `${stroke.cycleDistance.toFixed(2)},${(stroke.driveDuration * 1000).toFixed(0)},${(stroke.totalNumberOfStrokes > 0 ? stroke.driveLength.toFixed(2) : NaN)},${(stroke.recoveryDuration * 1000).toFixed(0)},` +
+      `${(stroke.totalNumberOfStrokes > 0 ? stroke.cycleLinearVelocity.toFixed(2) : 0)},${stroke.totalLinearDistance.toFixed(1)},${stroke.totalCalories.toFixed(1)},${stroke.dragFactor.toFixed(1)},` +
+      `${(stroke.totalNumberOfStrokes > 0 ? stroke.drivePeakHandleForce.toFixed(1) : NaN)},${(stroke.totalNumberOfStrokes > 0 ? stroke.driveAverageHandleForce.toFixed(1) : 0)},"${stroke.driveHandleForceCurve.map(value => value.toFixed(2))}",` +
+      `"${stroke.driveHandleVelocityCurve.map(value => value.toFixed(3))}","${stroke.driveHandlePowerCurve.map(value => value.toFixed(1))}"\n`,
+      (err) => { if (err) log.error(err) })
   }
 
   return {
