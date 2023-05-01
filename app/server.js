@@ -138,7 +138,7 @@ if (intervalSettings.length > 0) {
   log.info('Starting a just row session, no time or distance target set')
 }
 
-const recordingManager = new createRecordingManager(config)
+const recordingManager = createRecordingManager(config)
 const workoutUploader = createWorkoutUploader(recordingManager)
 
 rowingStatistics.on('driveFinished', (metrics) => {
@@ -150,7 +150,7 @@ rowingStatistics.on('recoveryFinished', (metrics) => {
   logMetrics(metrics)
   webServer.notifyClients('metrics', metrics)
   peripheralManager.notifyMetrics('strokeFinished', metrics)
-  workoutRecorder.recordStroke(metrics)
+  recordingManager.recordStroke(metrics)
 })
 
 rowingStatistics.on('webMetricsUpdate', (metrics) => {
@@ -247,7 +247,6 @@ function getConfig () {
 
 // This shuts down the pi, use with caution!
 async function shutdown () {
-  stopWorkout()
   if (getConfig().shutdownEnabled) {
     console.info('shutting down device...')
     try {
