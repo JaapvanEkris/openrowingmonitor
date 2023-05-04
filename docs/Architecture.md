@@ -187,7 +187,26 @@ Adittional benefit of this approach is that it makes transitions in intervals mo
 
 ### Use of `config` as a shared memory object
 
-The configuration `config` is shared in memory across all components of Open Rowing Monitor, except the `GpioTimerService.js`. At their creation from `server.js`, all objects get provided the `config`. As this is a complex structure, it is called by reference, and thus changes made by one component (for example, the `PeripheralManager.js`) are also visible in other parts of the application (say `WebServer.js`). This property is used by the setters for the BLEmode, ANTplusMode and HRMMode, to communicate the resulting state from `PeripheralManager.js` to `WebServer.js`. We realize that this is an anti-pattern: this communication isn't explicit, and it could easily be missed that the `config` object is in fact a dynamic structure where shared memory is used to communicate. However, the alternative is that `PeripheralManager.js` has to 'know' what `WebServer.js` needs to know to function, or that the intermediate `server.js` gets cluttered with extracting and transporting this information. The current solution, despite using a shared memory object as glue to communicate by magic, has the very strong benefit that all components only have to maintain knowledge about their own scope: it respects the seperation of concerns. As the alternatives are even less obvious, more complex and more prone to maintenance errors, we chose to use the shared `config` as the solution in the absence of better alternatives.
+The configuration `config` is shared in memory across all components of Open Rowing Monitor, except the `GpioTimerService.js`. At their creation from `server.js`, all objects get provided the `config`. As this is a complex structure, it is called by reference, and thus changes made by one component (for example, the `PeripheralManager.js`) are also visible in other parts of the application (say `WebServer.js`). This property is used by the setters for the BLEmode, ANTplusMode and HRMMode, to communicate the resulting state from `PeripheralManager.js` to `WebServer.js`. It behaves as follows (example for a change in HR mode):
+
+```mermaid
+sequenceDiagram
+  participant user
+  participant WebServer.js
+  participant server.js
+  participant PeripheralManager.js
+  participant config
+  user-)WebServer.js: Change HR Mode
+  WebServer.js-)server.js: switchHrmMode<br>(Message)
+  server.js-)PeripheralManager.js: switchHrmMode<br>(Message)
+  PeripheralManager.js-)config: HrmMode<br>(write)
+  PeripheralManager.js-)server.js: hrmPeripheralMode<br>(Message)
+  server.js-)WebServer.js: hrmPeripheralMode<br>(Message)
+  WebServer.js-)config: HrmMode<br>(read)
+  WebServer.js-)user: Display current<br>HR Mode
+```
+
+We realize that this is an anti-pattern: this communication isn't explicit, and it could easily be missed that the `config` object is in fact a dynamic structure where shared memory is used to communicate. However, the alternative is that `PeripheralManager.js` has to 'know' what `WebServer.js` needs to know to function, or that the intermediate `server.js` gets cluttered with extracting and transporting this information. The current solution, despite using a shared memory object as glue to communicate by magic, has the very strong benefit that all components only have to maintain knowledge about their own scope: it respects the seperation of concerns. As the alternatives are even less obvious, more complex and more prone to maintenance errors, we chose to use the shared `config` as the solution in the absence of better alternatives.
 
 ### Use of quadratic regression instead of cubic regression
 
