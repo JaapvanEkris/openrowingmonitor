@@ -20,6 +20,8 @@ import { createWorkoutUploader } from './engine/WorkoutUploader.js'
 import { secondsToTimeString } from './tools/Helper.js'
 const exec = promisify(child_process.exec)
 
+const shutdownEnabled = !!config.shutdownCommand
+
 // set the log levels
 log.setLevel(config.loglevel.default)
 for (const [loggerName, logLevel] of Object.entries(config.loglevel)) {
@@ -247,7 +249,7 @@ function getConfig () {
 
 // This shuts down the pi, use with caution!
 async function shutdown () {
-  if (isEmpty(config.shutdownCommand)) {
+  if (shutdownEnabled) {
     console.info('shutting down device...')
     try {
       const { stdout, stderr } = await exec(config.shutdownCommand)
