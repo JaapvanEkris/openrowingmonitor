@@ -247,7 +247,7 @@ function getConfig () {
 
 // This shuts down the pi, use with caution!
 async function shutdown () {
-  if (Boolean(config.shutdownCommand)) {
+  if (isEmpty(config.shutdownCommand)) {
     console.info('shutting down device...')
     try {
       const { stdout, stderr } = await exec(config.shutdownCommand)
