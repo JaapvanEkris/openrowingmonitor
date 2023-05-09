@@ -33,8 +33,11 @@ function createRowingDataRecorder (config) {
         break
       case ('reset'):
         await createRowingDataFile()
-        filename = ""
+        heartRate = 0
+        filename = ''
         startTime = undefined
+        strokes = []
+        allDataHasBeenWritten = true
         break
       case 'shutdown':
         await createRowingDataFile()
@@ -83,7 +86,7 @@ function createRowingDataRecorder (config) {
   }
 
   function addHeartRateToMetrics (metrics) {
-    if (heartRate !== undefined && config.userSettings.restingHR <= heartRate &&  heartRate <= config.userSettings.maxHR) {
+    if (heartRate !== undefined) {
       metrics.heartrate = heartRate
     } else {
       metrics.heartrate = undefined
@@ -100,8 +103,8 @@ function createRowingDataRecorder (config) {
     if (allDataHasBeenWritten) return
 
     // we need at least two strokes and ten seconds to generate a valid tcx file
-    if (strokes.length < 2 ||  !minimumRecordingTimeHasPassed()) {
-      log.info(`RowingData file has not been written, as there were not enough strokes recorded (minimum 10 seconds and two strokes)`)
+    if (strokes.length < 2 || !minimumRecordingTimeHasPassed()) {
+      log.info('RowingData file has not been written, as there were not enough strokes recorded (minimum 10 seconds and two strokes)')
       return
     }
 
@@ -116,7 +119,7 @@ function createRowingDataRecorder (config) {
       currentstroke = strokes[i]
       trackPointTime = new Date(startTime.getTime() + currentstroke.totalMovingTime * 1000)
       timestamp = trackPointTime.getTime() / 1000
-          // Add the strokes
+      // Add the strokes
       RowingData += `${currentstroke.totalNumberOfStrokes.toFixed(0)},${currentstroke.totalNumberOfStrokes.toFixed(0)},${currentstroke.totalNumberOfStrokes.toFixed(0)},${timestamp.toFixed(5)},` +
         `${currentstroke.totalMovingTime.toFixed(5)},${(currentstroke.heartrate > 30 ? currentstroke.heartrate.toFixed(0) : NaN)},${currentstroke.totalLinearDistance.toFixed(1)},` +
         `${currentstroke.cycleStrokeRate.toFixed(1)},${(currentstroke.totalNumberOfStrokes > 0 ? currentstroke.cyclePace.toFixed(2) : NaN)},${(currentstroke.totalNumberOfStrokes > 0 ? currentstroke.cyclePower.toFixed(0) : NaN)},` +
