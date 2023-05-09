@@ -28,7 +28,7 @@ function createRowingStatistics (config) {
   let metricsContext
   let sessionStatus = 'WaitingForStart'
   let intervalSettings = []
-  let intervalType= 'JustRow'
+  let intervalType = 'JustRow'
   let currentIntervalNumber = -1
   let intervalTargetDistance = 0
   let intervalTargetTime = 0
@@ -416,7 +416,7 @@ function createRowingStatistics (config) {
         case (intervalSettings[currentIntervalNumber].targetCalories > 0):
           // A calorie target is set
           intervalType = 'Calories'
-          //ToDo!!!
+          // ToDo, define the Calorie based interval as well!!!
           log.info(`Interval settings for interval ${currentIntervalNumber + 1} of ${intervalSettings.length}: calorie target ${intervalSettings[currentIntervalNumber].targetCalories} calories`)
           break
         default:
@@ -445,7 +445,7 @@ function createRowingStatistics (config) {
   function getMetrics () {
     const cyclePace = cycleLinearVelocity.clean() !== 0 && cycleLinearVelocity.raw() > 0 && sessionStatus === 'Rowing' ? (500.0 / cycleLinearVelocity.clean()) : Infinity
     return {
-      metricsContext: metricsContext,
+      metricsContext,
       sessiontype: intervalType,
       sessionStatus,
       strokeState: rower.strokeState(),
