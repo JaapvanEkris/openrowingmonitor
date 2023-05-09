@@ -13,10 +13,10 @@ import { createRowingDataRecorder } from './rowingDataRecorder.js'
 
 function createRecordingManager (config) {
   let startTime
-  let logRecorder = createLogRecorder(config)
-  let rawRecorder = createRawRecorder(config)
-  let tcxRecorder = createTCXRecorder(config)
-  let rowingDataRecorder = createRowingDataRecorder(config)
+  const logRecorder = createLogRecorder(config)
+  const rawRecorder = createRawRecorder(config)
+  const tcxRecorder = createTCXRecorder(config)
+  const rowingDataRecorder = createRowingDataRecorder(config)
 
   // This function handles all incomming commands. As all commands are broadasted to all application parts,
   // we need to filter here what the WorkoutRecorder will react to and what it will ignore
@@ -84,9 +84,9 @@ function createRecordingManager (config) {
   }
 
   async function recordHeartRate (heartRate) {
-      logRecorder.recordHeartRate(heartRate)
-      if (config.createTcxFiles) { tcxRecorder.recordHeartRate(heartRate) }
-      if (config.createRowingDataFiles) { rowingDataRecorder.recordHeartRate(heartRate) }
+    logRecorder.recordHeartRate(heartRate)
+    if (config.createTcxFiles) { tcxRecorder.recordHeartRate(heartRate) }
+    if (config.createRowingDataFiles) { rowingDataRecorder.recordHeartRate(heartRate) }
   }
 
   async function executeCommandsInParralel (commandName) {
