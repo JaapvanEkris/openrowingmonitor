@@ -6,15 +6,17 @@
 */
 import log from 'loglevel'
 import fs from 'fs/promises'
+import { createLogRecorder } from './logRecorder.js'
 import { createRawRecorder } from './rawRecorder.js'
 import { createTCXRecorder } from './tcxRecorder.js'
 import { createRowingDataRecorder } from './rowingDataRecorder.js'
 
 function createRecordingManager (config) {
   let startTime
-  const rawRecorder = createRawRecorder(config)
-  const tcxRecorder = createTCXRecorder(config)
-  const rowingDataRecorder = createRowingDataRecorder(config)
+  let logRecorder = createLogRecorder(config)
+  let rawRecorder = createRawRecorder(config)
+  let tcxRecorder = createTCXRecorder(config)
+  let rowingDataRecorder = createRowingDataRecorder(config)
 
   // This function handles all incomming commands. As all commands are broadasted to all application parts,
   // we need to filter here what the WorkoutRecorder will react to and what it will ignore
@@ -62,59 +64,34 @@ function createRecordingManager (config) {
 
   async function recordRotationImpulse (impulse) {
     if (startTime === undefined && (config.createRawDataFiles || config.createTcxFiles || config.createRowingDataFiles)) {
-      startTime = new Date()
-      // Calculate the directory name and create it if needed
-      const directory = `${config.dataDirectory}/recordings/${startTime.getFullYear()}/${(startTime.getMonth() + 1).toString().padStart(2, '0')}`
-      // Create the directory if needed
-      try {
-        await fs.mkdir(directory, { recursive: true })
-      } catch (error) {
-        if (error.code !== 'EEXIST') {
-          log.error(`can not create directory ${directory}`, error)
-        }
-      }
-
-      // Determine the base filename to be used by all recorders
-      const stringifiedStartTime = startTime.toISOString().replace(/T/, '_').replace(/:/g, '-').replace(/\..+/, '')
-      const fileBaseName = `${directory}/${stringifiedStartTime}`
-      if (config.createRawDataFiles) { rawRecorder.setBaseFileName(fileBaseName) }
-      if (config.createTcxFiles) { tcxRecorder.setBaseFileName(fileBaseName) }
-      if (config.createRowingDataFiles) { rowingDataRecorder.setBaseFileName(fileBaseName) }
+      await nameFilesAndCreateDirectory()
     }
     if (config.createRawDataFiles) { await rawRecorder.recordRotationImpulse(impulse) }
   }
 
-  async function recordStroke (stroke) {
+  async function recordMetrics (metrics) {
     if (startTime === undefined && (config.createRawDataFiles || config.createTcxFiles || config.createRowingDataFiles)) {
-      startTime = new Date()
-      // Calculate the directory name and create it if needed
-      const directory = `${config.dataDirectory}/recordings/${startTime.getFullYear()}/${(startTime.getMonth() + 1).toString().padStart(2, '0')}`
-      try {
-        await fs.mkdir(directory, { recursive: true })
-      } catch (error) {
-        if (error.code !== 'EEXIST') {
-          log.error(`can not create directory ${directory}`, error)
-        }
-      }
-
-      // Determine the base filename to be used by all recorders
-      const stringifiedStartTime = startTime.toISOString().replace(/T/, '_').replace(/:/g, '-').replace(/\..+/, '')
-      const fileBaseName = `${directory}/${stringifiedStartTime}`
-      if (config.createRawDataFiles) { rawRecorder.setBaseFileName(fileBaseName) }
-      if (config.createTcxFiles) { tcxRecorder.setBaseFileName(fileBaseName) }
-      if (config.createRowingDataFiles) { rowingDataRecorder.setBaseFileName(fileBaseName) }
+      await nameFilesAndCreateDirectory()
     }
-    if (config.createTcxFiles) { tcxRecorder.recordStroke(stroke) }
-    if (config.createRowingDataFiles) { rowingDataRecorder.recordStroke(stroke) }
+    logRecorder.recordRowingMetrics(metrics)
+    if (config.createTcxFiles) { tcxRecorder.recordRowingMetrics(metrics) }
+    if (config.createRowingDataFiles) { rowingDataRecorder.recordRowingMetrics(metrics) }
+
+    if (config.createRawDataFiles && (metrics.metricsContext.isPauseStart || metrics.metricsContext.isSessionStop)) {
+      // As the rawRecorder isn't aware of any state, we explicitly need to tell it rowing has stopped
+      rawRecorder.handleCommand('stop')
+    }
   }
 
   async function recordHeartRate (heartRate) {
-    if (config.createTcxFiles) { tcxRecorder.recordHeartRate(heartRate) }
-    if (config.createRowingDataFiles) { rowingDataRecorder.recordHeartRate(heartRate) }
+      logRecorder.recordHeartRate(heartRate)
+      if (config.createTcxFiles) { tcxRecorder.recordHeartRate(heartRate) }
+      if (config.createRowingDataFiles) { rowingDataRecorder.recordHeartRate(heartRate) }
   }
 
   async function executeCommandsInParralel (commandName) {
     const parallelCalls = []
+    parallelCalls.push(logRecorder.handleCommand(commandName))
     if (config.createRawDataFiles) {
       parallelCalls.push(rawRecorder.handleCommand(commandName))
     }
@@ -127,6 +104,26 @@ function createRecordingManager (config) {
     await Promise.all(parallelCalls)
   }
 
+  async function nameFilesAndCreateDirectory () {
+    startTime = new Date()
+    // Calculate the directory name and create it if needed
+    const directory = `${config.dataDirectory}/recordings/${startTime.getFullYear()}/${(startTime.getMonth() + 1).toString().padStart(2, '0')}`
+    try {
+      await fs.mkdir(directory, { recursive: true })
+    } catch (error) {
+      if (error.code !== 'EEXIST') {
+        log.error(`can not create directory ${directory}`, error)
+      }
+    }
+
+    // Determine the base filename to be used by all recorders
+    const stringifiedStartTime = startTime.toISOString().replace(/T/, '_').replace(/:/g, '-').replace(/\..+/, '')
+    const fileBaseName = `${directory}/${stringifiedStartTime}`
+    if (config.createRawDataFiles) { rawRecorder.setBaseFileName(fileBaseName) }
+    if (config.createTcxFiles) { tcxRecorder.setBaseFileName(fileBaseName) }
+    if (config.createRowingDataFiles) { rowingDataRecorder.setBaseFileName(fileBaseName) }
+  }
+
   async function activeWorkoutToTcx () {
     await tcxRecorder.activeWorkoutToTcx()
   }
@@ -134,7 +131,7 @@ function createRecordingManager (config) {
     handleCommand,
     recordHeartRate,
     recordRotationImpulse,
-    recordStroke,
+    recordMetrics,
     activeWorkoutToTcx
   }
 }
