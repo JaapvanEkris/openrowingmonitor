@@ -7,9 +7,8 @@
 import log from 'loglevel'
 import EventEmitter from 'events'
 import { createStravaAPI } from '../tools/StravaAPI.js'
-import config from '../tools/ConfigManager.js'
 
-function createWorkoutUploader (workoutRecorder) {
+function createWorkoutUploader (config, workoutRecorder) {
   const emitter = new EventEmitter()
 
   let stravaAuthorizationCodeResolver
@@ -39,7 +38,6 @@ function createWorkoutUploader (workoutRecorder) {
       const tcxActivity = await workoutRecorder.activeWorkoutToTcx()
       if (tcxActivity !== undefined) {
         await stravaAPI.uploadActivityTcx(tcxActivity)
-        emitter.emit('resetWorkout')
       } else {
         log.error('can not upload an empty workout to strava')
       }
