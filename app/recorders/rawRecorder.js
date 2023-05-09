@@ -2,7 +2,7 @@
 /*
   Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
 
-  This Module captures the raw metrics of a rowing session and persists them.
+  This Module captures the metrics of a rowing session and persists them.
 */
 import log from 'loglevel'
 import zlib from 'zlib'
@@ -13,6 +13,7 @@ const gzip = promisify(zlib.gzip)
 function createRawRecorder (config) {
   let rotationImpulses = []
   let filename
+  let allDataHasBeenWritten
 
   // This function handles all incomming commands. As all commands are broadasted to all application parts,
   // we need to filter here what the WorkoutRecorder will react to and what it will ignore
@@ -23,10 +24,10 @@ function createRawRecorder (config) {
       case ('startOrResume'):
         break
       case ('pause'):
-        await createRawDataFile()
+        createRawDataFile()
         break
       case ('stop'):
-        await createRawDataFile()
+        createRawDataFile()
         break
       case ('reset'):
         await createRawDataFile()
@@ -43,18 +44,30 @@ function createRawRecorder (config) {
 
   function setBaseFileName (baseFileName) {
     filename = `${baseFileName}_raw.csv${config.gzipRawDataFiles ? '.gz' : ''}`
-    log.info(`Raw data will be saved as ${filename}...`)
+    log.info(`Raw data file will be saved as ${filename} (after the session)`)
   }
 
   async function recordRotationImpulse (impulse) {
     // Please observe: this MUST be doe in memory first, before persisting. Persisting to disk without the
     // intermediate step of persisting to memory can lead to buffering issues that will mix up impulses in the recording !!!!
     await rotationImpulses.push(impulse)
+    allDataHasBeenWritten = false
   }
 
   async function createRawDataFile () {
-    log.info(`saving session as raw data file ${filename}...`)
+    // Do not write again if not needed
+    if (allDataHasBeenWritten) return
+
+    // we need at least two strokes and ten seconds to generate a valid tcx file
+    if (!minimumRecordingTimeHasPassed()) {
+      log.info(`raw file has not been written, as there was not enough data recorded (minimum 10 seconds)`)
+      return
+    }
+
     await createFile(rotationImpulses.join('\n'), filename, config.gzipRawDataFiles)
+
+    allDataHasBeenWritten = true
+    log.info(`Raw data has been written as ${filename}`)
   }
 
   async function createFile (content, filename, compress = false) {
@@ -72,6 +85,13 @@ function createRawRecorder (config) {
         log.error(err)
       }
     }
+  }
+
+  function minimumRecordingTimeHasPassed () {
+    const minimumRecordingTimeInSeconds = 10
+    // We need to make sure that we use the Math.abs(), as a gpio rollover can cause impulse to be negative!
+    const rotationImpulseTimeTotal = rotationImpulses.reduce((acc, impulse) => acc + Math.abs(impulse), 0)
+    return (rotationImpulseTimeTotal > minimumRecordingTimeInSeconds)
   }
 
   return {
