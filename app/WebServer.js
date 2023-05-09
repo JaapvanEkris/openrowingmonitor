@@ -91,9 +91,8 @@ function createWebServer (config) {
     }
   }
 
-  let timer = setInterval(notifyClients, 1000, 'metrics', lastKnownMetrics)
-
   function presentRowingMetrics (metrics) {
+    if (metrics.metricsContext === undefined) return
     addHeartRateToMetrics(metrics)
     switch (true) {
       case (metrics.metricsContext.isSessionStart):
@@ -122,6 +121,14 @@ function createWebServer (config) {
         notifyClients('metrics', metrics)
     }
     lastKnownMetrics = metrics
+  }
+
+  // Make sure that the GUI is updated with the latest metrics even when no fresh data arrives
+  setInterval(timeBasedPresenter, config.webUpdateInterval * 2)
+  function timeBasedPresenter () {
+    if (lastKnownMetrics !== undefined && (Date.now() - timeOfLastMetricsUpdate) > config.webUpdateInterval) {
+      notifyClients('metrics', lastKnownMetrics)
+    }
   }
 
   // initiated when a new heart rate value is received from heart rate sensor
