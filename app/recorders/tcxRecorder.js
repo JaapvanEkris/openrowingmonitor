@@ -2,7 +2,7 @@
 /*
   Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
 
-  This Module captures the metrics of a rowing session and persists them to a Garmin TCX file.
+  This Module captures the metrics of a rowing session and persists them.
 */
 import log from 'loglevel'
 import zlib from 'zlib'
@@ -15,10 +15,10 @@ const gzip = promisify(zlib.gzip)
 function createTCXRecorder (config) {
   let filename
   let heartRate = 0
-  let heartRateResetTimer
   let strokes = []
-  const postExerciseHR = []
+  let postExerciseHR = []
   let startTime
+  let allDataHasBeenWritten
 
   // This function handles all incomming commands. As all commands are broadasted to all application parts,
   // we need to filter here what the WorkoutRecorder will react to and what it will ignore
@@ -30,13 +30,9 @@ function createTCXRecorder (config) {
         break
       case ('pause'):
         await createTcxFile()
-        postExerciseHR.splice(0, postExerciseHR.length)
-        measureRecoveryHR()
         break
       case ('stop'):
-        await createTcxFile()
-        postExerciseHR.splice(0, postExerciseHR.length)
-        measureRecoveryHR()
+        createTcxFile()
         break
       case ('reset'):
         await createTcxFile()
@@ -54,42 +50,74 @@ function createTCXRecorder (config) {
 
   function setBaseFileName (baseFileName) {
     filename = `${baseFileName}_rowing.tcx`
+    log.info(`Garmin tcx-file will be saved as ${filename} (after the session)`)
   }
 
-  function recordStroke (stroke) {
-    if (startTime === undefined) {
-      startTime = new Date()
+  function recordRowingMetrics (metrics) {
+    switch (true) {
+      case (metrics.metricsContext.isSessionStart):
+        if (startTime === undefined) {
+          startTime = new Date()
+        }
+        addMetricsToStrokesArray(metrics)
+        break
+      case (metrics.metricsContext.isSessionStop):
+        addMetricsToStrokesArray(metrics)
+        postExerciseHR.splice(0, postExerciseHR.length)
+        measureRecoveryHR()
+        break
+      case (metrics.metricsContext.isPauseStart):
+        addMetricsToStrokesArray(metrics)
+        postExerciseHR.splice(0, postExerciseHR.length)
+        measureRecoveryHR()
+        break
+      case (metrics.metricsContext.isDriveStart):
+        addMetricsToStrokesArray(metrics)
+        break
     }
-    if (heartRate !== undefined && config.userSettings.restingHR <= heartRate && heartRate <= config.userSettings.maxHR) {
-      stroke.heartrate = heartRate
+  }
+
+  function addMetricsToStrokesArray (metrics) {
+    addHeartRateToMetrics(metrics)
+    strokes.push(metrics)
+    allDataHasBeenWritten = false
+  }
+
+  function addHeartRateToMetrics (metrics) {
+    if (heartRate !== undefined && config.userSettings.restingHR <= heartRate &&  heartRate <= config.userSettings.maxHR) {
+      metrics.heartrate = heartRate
     } else {
-      stroke.heartrate = heartRate
+      metrics.heartrate = undefined
     }
-    strokes.push(stroke)
   }
 
   // initiated when a new heart rate value is received from heart rate sensor
   async function recordHeartRate (value) {
-    if (heartRateResetTimer)clearInterval(heartRateResetTimer)
-    // set the heart rate to zero if we did not receive a value for some time
-    heartRateResetTimer = setTimeout(() => {
-      heartRate = 0
-    }, 6000)
     heartRate = value.heartrate
   }
 
   async function createTcxFile () {
+    // Do not write again if not needed
+    if (allDataHasBeenWritten) return
+
+    // we need at least two strokes and ten seconds to generate a valid tcx file
+    if (strokes.length < 2 || !minimumRecordingTimeHasPassed()) {
+      log.info(`tcx file has not been written, as there were not enough strokes recorded (minimum 10 seconds and two strokes)`)
+      return
+    }
+
     const tcxRecord = await activeWorkoutToTcx()
     if (tcxRecord === undefined) {
       log.error('error creating tcx file')
       return
     }
     await createFile(tcxRecord.tcx, `${filename}`, config.gzipTcxFiles)
+    allDataHasBeenWritten = true
+    log.info(`Garmin tcx data has been written as ${filename}`)
   }
 
   async function activeWorkoutToTcx () {
-    // we need at least two strokes to generate a valid tcx file
-    if (strokes.length < 5) return
+    // Be aware! This function is also exposed to the Strava recorder!
     const tcx = await workoutToTcx({
       id: startTime.toISOString(),
       startTime,
@@ -233,26 +261,37 @@ function createTCXRecorder (config) {
   function measureRecoveryHR () {
     // This function is called when the rowing session is stopped. postExerciseHR[0] is the last measured excercise HR
     // Thus postExerciseHR[1] is Recovery HR after 1 min, etc..
-    if (heartRate !== undefined && config.userSettings.restingHR <= heartRate && heartRate <= config.userSettings.maxHR) {
+    if (heartRate !== undefined) {
       log.debug(`*** HRR-${postExerciseHR.length}: ${heartRate}`)
       postExerciseHR.push(heartRate)
       if ((postExerciseHR.length > 1) && (postExerciseHR.length <= 4)) {
         // We skip reporting postExerciseHR[0] and only report measuring postExerciseHR[1], postExerciseHR[2], postExerciseHR[3]
+        allDataHasBeenWritten = false
         createTcxFile()
       }
       if (postExerciseHR.length < 4) {
         // We haven't got three post-exercise HR measurements yet, let's schedule the next measurement
         setTimeout(measureRecoveryHR, 60000)
       } else {
-        log.debug('*** Skipped HRR measurement')
+      log.debug(`*** Skipped HRR measurement`)
       }
+    }
+  }
+
+  function minimumRecordingTimeHasPassed () {
+    const minimumRecordingTimeInSeconds = 10
+    if (strokes.length > 0) {
+      const strokeTimeTotal = strokes[strokes.length - 1].totalMovingTime
+      return (strokeTimeTotal > minimumRecordingTimeInSeconds)
+    } else {
+      return (false)
     }
   }
 
   return {
     handleCommand,
     setBaseFileName,
-    recordStroke,
+    recordRowingMetrics,
     recordHeartRate,
     activeWorkoutToTcx
   }
