@@ -116,7 +116,7 @@ function createWebServer (config) {
       case (metrics.metricsContext.isRecoveryStart):
         notifyClients('metrics', metrics)
         break
-      case((Date.now() - timeOfLastMetricsUpdate) > config.webUpdateInterval):
+      case ((Date.now() - timeOfLastMetricsUpdate) > config.webUpdateInterval):
         // Normal metrics update, only config.webUpdateInterval ms after the last broadcast
         notifyClients('metrics', metrics)
     }
@@ -162,7 +162,7 @@ function createWebServer (config) {
   }
 
   function addHeartRateToMetrics (metrics) {
-    if (heartRate !== undefined && config.userSettings.restingHR <= heartRate &&  heartRate <= config.userSettings.maxHR) {
+    if (heartRate !== undefined) {
       metrics.heartrate = heartRate
     } else {
       metrics.heartrate = undefined
