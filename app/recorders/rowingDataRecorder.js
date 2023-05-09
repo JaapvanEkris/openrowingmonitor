@@ -5,13 +5,17 @@
   This Module captures the metrics of a rowing session and persists them.
 */
 import log from 'loglevel'
-import fs from 'fs'
+import zlib from 'zlib'
+import fs from 'fs/promises'
+import { promisify } from 'util'
+const gzip = promisify(zlib.gzip)
 
 function createRowingDataRecorder (config) {
   let filename
   let startTime
-  let heartRateResetTimer
   let heartRate = 0
+  let strokes = []
+  let allDataHasBeenWritten
 
   // This function handles all incomming commands. As all commands are broadasted to all application parts,
   // we need to filter here what the WorkoutRecorder will react to and what it will ignore
@@ -22,15 +26,18 @@ function createRowingDataRecorder (config) {
       case ('startOrResume'):
         break
       case ('pause'):
-        // ToDo: reset the startTime without adding a header!!!
+        createRowingDataFile()
         break
       case ('stop'):
+        createRowingDataFile()
         break
       case ('reset'):
-        filename = ''
+        await createRowingDataFile()
+        filename = ""
         startTime = undefined
         break
       case 'shutdown':
+        await createRowingDataFile()
         break
       default:
         log.error(`RowingDataRecorder: Recieved unknown command: ${commandName}`)
@@ -39,46 +46,122 @@ function createRowingDataRecorder (config) {
 
   function setBaseFileName (baseFileName) {
     filename = `${baseFileName}_rowingData.csv`
-    log.info(`Saving RowingData file as ${filename}...`)
+    log.info(`RowingData file will be saved as ${filename} (after the session)`)
   }
 
   // initiated when a new heart rate value is received from heart rate sensor
   async function recordHeartRate (value) {
-    if (heartRateResetTimer)clearInterval(heartRateResetTimer)
-    // set the heart rate to zero if we did not receive a value for some time
-    heartRateResetTimer = setTimeout(() => {
-      heartRate = 0
-    }, 6000)
     heartRate = value.heartrate
   }
 
-  function recordStroke (stroke) {
-    if (startTime === undefined) {
-      startTime = new Date()
-      // Required file header, please note this includes a typo and odd spaces as the specification demands it!
-      fs.appendFile(`${filename}`,
-        ',index, Stroke Number,TimeStamp (sec), ElapsedTime (sec), HRCur (bpm),DistanceMeters, Cadence (stokes/min), Stroke500mPace (sec/500m), Power (watts), StrokeDistance (meters),' +
-        ' DriveTime (ms), DriveLength (meters), StrokeRecoveryTime (ms),Speed, Horizontal (meters), Calories (kCal), DragFactor, PeakDriveForce (N), AverageDriveForce (N),' +
-        'Handle_Force_(N),Handle_Velocity_(m/s),Handle_Power_(W)\n',
-        (err) => { if (err) log.error(err) })
+  function recordRowingMetrics (metrics) {
+    switch (true) {
+      case (metrics.metricsContext.isSessionStart):
+        if (startTime === undefined) {
+          startTime = new Date()
+        }
+        addMetricsToStrokesArray(metrics)
+        break
+      case (metrics.metricsContext.isSessionStop):
+        addMetricsToStrokesArray(metrics)
+        createRowingDataFile()
+        break
+      case (metrics.metricsContext.isPauseStart):
+        addMetricsToStrokesArray(metrics)
+        createRowingDataFile()
+        break
+      case (metrics.metricsContext.isDriveStart):
+        addMetricsToStrokesArray(metrics)
+        break
     }
-    const trackPointTime = new Date(startTime.getTime() + stroke.totalMovingTime * 1000)
-    const timestamp = trackPointTime.getTime() / 1000
-    fs.appendFile(`${filename}`,
-      `${stroke.totalNumberOfStrokes.toFixed(0)},${stroke.totalNumberOfStrokes.toFixed(0)},${stroke.totalNumberOfStrokes.toFixed(0)},${timestamp.toFixed(5)},` +
-      `${stroke.totalMovingTime.toFixed(5)},${(heartRate > 30 ? heartRate.toFixed(0) : NaN)},${stroke.totalLinearDistance.toFixed(1)},` +
-      `${stroke.cycleStrokeRate.toFixed(1)},${(stroke.totalNumberOfStrokes > 0 ? stroke.cyclePace.toFixed(2) : NaN)},${(stroke.totalNumberOfStrokes > 0 ? stroke.cyclePower.toFixed(0) : NaN)},` +
-      `${stroke.cycleDistance.toFixed(2)},${(stroke.driveDuration * 1000).toFixed(0)},${(stroke.totalNumberOfStrokes > 0 ? stroke.driveLength.toFixed(2) : NaN)},${(stroke.recoveryDuration * 1000).toFixed(0)},` +
-      `${(stroke.totalNumberOfStrokes > 0 ? stroke.cycleLinearVelocity.toFixed(2) : 0)},${stroke.totalLinearDistance.toFixed(1)},${stroke.totalCalories.toFixed(1)},${stroke.dragFactor.toFixed(1)},` +
-      `${(stroke.totalNumberOfStrokes > 0 ? stroke.drivePeakHandleForce.toFixed(1) : NaN)},${(stroke.totalNumberOfStrokes > 0 ? stroke.driveAverageHandleForce.toFixed(1) : 0)},"${stroke.driveHandleForceCurve.map(value => value.toFixed(2))}",` +
-      `"${stroke.driveHandleVelocityCurve.map(value => value.toFixed(3))}","${stroke.driveHandlePowerCurve.map(value => value.toFixed(1))}"\n`,
-      (err) => { if (err) log.error(err) })
+  }
+
+  function addMetricsToStrokesArray (metrics) {
+    addHeartRateToMetrics(metrics)
+    strokes.push(metrics)
+    allDataHasBeenWritten = false
+  }
+
+  function addHeartRateToMetrics (metrics) {
+    if (heartRate !== undefined && config.userSettings.restingHR <= heartRate &&  heartRate <= config.userSettings.maxHR) {
+      metrics.heartrate = heartRate
+    } else {
+      metrics.heartrate = undefined
+    }
+  }
+
+  async function createRowingDataFile () {
+    let currentstroke
+    let trackPointTime
+    let timestamp
+    let i
+
+    // Do not write again if not needed
+    if (allDataHasBeenWritten) return
+
+    // we need at least two strokes and ten seconds to generate a valid tcx file
+    if (strokes.length < 2 ||  !minimumRecordingTimeHasPassed()) {
+      log.info(`RowingData file has not been written, as there were not enough strokes recorded (minimum 10 seconds and two strokes)`)
+      return
+    }
+
+    // Required file header, please note this includes a typo and odd spaces as the specification demands it!
+    let RowingData = ',index, Stroke Number,TimeStamp (sec), ElapsedTime (sec), HRCur (bpm),DistanceMeters, Cadence (stokes/min), Stroke500mPace (sec/500m), Power (watts), StrokeDistance (meters),' +
+      ' DriveTime (ms), DriveLength (meters), StrokeRecoveryTime (ms),Speed, Horizontal (meters), Calories (kCal), DragFactor, PeakDriveForce (N), AverageDriveForce (N),' +
+      'Handle_Force_(N),Handle_Velocity_(m/s),Handle_Power_(W)\n'
+
+    // Add the strokes
+    i = 0
+    while (i < strokes.length) {
+      currentstroke = strokes[i]
+      trackPointTime = new Date(startTime.getTime() + currentstroke.totalMovingTime * 1000)
+      timestamp = trackPointTime.getTime() / 1000
+          // Add the strokes
+      RowingData += `${currentstroke.totalNumberOfStrokes.toFixed(0)},${currentstroke.totalNumberOfStrokes.toFixed(0)},${currentstroke.totalNumberOfStrokes.toFixed(0)},${timestamp.toFixed(5)},` +
+        `${currentstroke.totalMovingTime.toFixed(5)},${(currentstroke.heartrate > 30 ? currentstroke.heartrate.toFixed(0) : NaN)},${currentstroke.totalLinearDistance.toFixed(1)},` +
+        `${currentstroke.cycleStrokeRate.toFixed(1)},${(currentstroke.totalNumberOfStrokes > 0 ? currentstroke.cyclePace.toFixed(2) : NaN)},${(currentstroke.totalNumberOfStrokes > 0 ? currentstroke.cyclePower.toFixed(0) : NaN)},` +
+        `${currentstroke.cycleDistance.toFixed(2)},${(currentstroke.driveDuration * 1000).toFixed(0)},${(currentstroke.totalNumberOfStrokes > 0 ? currentstroke.driveLength.toFixed(2) : NaN)},${(currentstroke.recoveryDuration * 1000).toFixed(0)},` +
+        `${(currentstroke.totalNumberOfStrokes > 0 ? currentstroke.cycleLinearVelocity.toFixed(2) : 0)},${currentstroke.totalLinearDistance.toFixed(1)},${currentstroke.totalCalories.toFixed(1)},${currentstroke.dragFactor.toFixed(1)},` +
+        `${(currentstroke.totalNumberOfStrokes > 0 ? currentstroke.drivePeakHandleForce.toFixed(1) : NaN)},${(currentstroke.totalNumberOfStrokes > 0 ? currentstroke.driveAverageHandleForce.toFixed(1) : 0)},"${currentstroke.driveHandleForceCurve.map(value => value.toFixed(2))}",` +
+        `"${currentstroke.driveHandleVelocityCurve.map(value => value.toFixed(3))}","${currentstroke.driveHandlePowerCurve.map(value => value.toFixed(1))}"\n`
+      i++
+    }
+    await createFile(RowingData, `${filename}`, false)
+    allDataHasBeenWritten = true
+    log.info(`RowingData has been written as ${filename}`)
+  }
+
+  async function createFile (content, filename, compress = false) {
+    if (compress) {
+      const gzipContent = await gzip(content)
+      try {
+        await fs.writeFile(filename, gzipContent)
+      } catch (err) {
+        log.error(err)
+      }
+    } else {
+      try {
+        await fs.writeFile(filename, content)
+      } catch (err) {
+        log.error(err)
+      }
+    }
+  }
+
+  function minimumRecordingTimeHasPassed () {
+    const minimumRecordingTimeInSeconds = 10
+    if (strokes.length > 0) {
+      const strokeTimeTotal = strokes[strokes.length - 1].totalMovingTime
+      return (strokeTimeTotal > minimumRecordingTimeInSeconds)
+    } else {
+      return (false)
+    }
   }
 
   return {
     handleCommand,
     setBaseFileName,
-    recordStroke,
+    recordRowingMetrics,
     recordHeartRate
   }
 }
