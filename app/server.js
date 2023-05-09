@@ -100,7 +100,7 @@ const rowingStatistics = createRowingStatistics(config)
 rowingStatistics.on('metricsUpdate', (metrics) => {
   webServer.presentRowingMetrics(metrics)
   recordingManager.recordMetrics(metrics)
-  //peripheralManager.notifyMetrics(metrics)
+  // peripheralManager.notifyMetrics(metrics)
 })
 
 rowingStatistics.on('driveFinished', (metrics) => {
@@ -142,7 +142,7 @@ rowingStatistics.on('rowingStopped', (metrics) => {
   peripheralManager.notifyMetrics('metricsUpdate', metrics)
 })
 
-const recordingManager = new createRecordingManager(config)
+const recordingManager = createRecordingManager(config)
 const workoutUploader = createWorkoutUploader(config, recordingManager)
 
 workoutUploader.on('authorizeStrava', (data, client) => {
