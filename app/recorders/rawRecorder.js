@@ -60,7 +60,7 @@ function createRawRecorder (config) {
 
     // we need at least two strokes and ten seconds to generate a valid tcx file
     if (!minimumRecordingTimeHasPassed()) {
-      log.info(`raw file has not been written, as there was not enough data recorded (minimum 10 seconds)`)
+      log.info('raw file has not been written, as there was not enough data recorded (minimum 10 seconds)')
       return
     }
 
