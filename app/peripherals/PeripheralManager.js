@@ -19,6 +19,8 @@ import { createFEPeripheral } from './ant/FEPeripheral.js'
 const bleModes = ['FTMS', 'FTMSBIKE', 'PM5', 'CSC', 'CPS', 'OFF']
 const antModes = ['FE', 'OFF']
 const hrmModes = ['ANT', 'BLE', 'OFF']
+let hrmResetTimer
+
 function createPeripheralManager (config) {
   const emitter = new EventEmitter()
   let _antManager
@@ -86,7 +88,7 @@ function createPeripheralManager (config) {
     }
   }
 
-/* These getters are now obsolete???
+  /* These getters are now obsolete???
   function getBlePeripheral () {
     return blePeripheral
   }
@@ -110,7 +112,7 @@ function createPeripheralManager (config) {
   function getHrmPeripheralMode () {
     return hrmMode
   }
-*/
+  */
 
   function switchBlePeripheralMode (newMode) {
     if (isPeripheralChangeInProgress) return
@@ -311,7 +313,7 @@ function createPeripheralManager (config) {
         if (heartRateMeasurement.heartrate !== undefined && config.userSettings.restingHR <= heartRateMeasurement.heartrate && heartRateMeasurement.heartrate <= config.userSettings.maxHR) {
           emitter.emit('heartRateMeasurement', heartRateMeasurement)
         } else {
-          log.info('PeripheralManager: Heartrate value of ${heartRateMeasurement.heartrate} was outside valid range, setting it to undefined')
+          log.info(`PeripheralManager: Heartrate value of ${heartRateMeasurement.heartrate} was outside valid range, setting it to undefined`)
           heartRateMeasurement.heartrate = undefined
           heartRateMeasurement.heartRateBatteryLevel = undefined
           emitter.emit('heartRateMeasurement', heartRateMeasurement)
@@ -346,7 +348,7 @@ function createPeripheralManager (config) {
 
   return Object.assign(emitter, {
     handleCommand,
-/* All these commands are now internal or even obsolete??
+    /* All these commands are now internal or even obsolete??
     shutdownAllPeripherals,
     getBlePeripheral,
     getBlePeripheralMode,
@@ -357,7 +359,7 @@ function createPeripheralManager (config) {
     switchHrmMode,
     switchBlePeripheralMode,
     switchAntPeripheralMode,
- */
+    */
     notifyMetrics,
     notifyStatus
   })
