@@ -17,7 +17,6 @@ import { createRecordingManager } from './recorders/recordingManager.js'
 // eslint-disable-next-line no-unused-vars
 import { replayRowingSession } from './tools/RowingRecorder.js'
 import { createWorkoutUploader } from './engine/WorkoutUploader.js'
-import { secondsToTimeString } from './tools/Helper.js'
 const exec = promisify(child_process.exec)
 
 const shutdownEnabled = !!config.shutdownCommand
@@ -69,94 +68,51 @@ intervalSettings[2] = {
 }
 */
 
-const peripheralManager = createPeripheralManager()
+const peripheralManager = createPeripheralManager(config)
 
 peripheralManager.on('control', (event) => {
-  log.debug(`Peripheral requested ${event?.req?.name}`)
+  log.debug(`peripheral requested ${event?.req?.name}`)
   rowingStatistics.handleCommand(event?.req?.name)
   recordingManager.handleCommand(event?.req?.name)
-  // ideally it would also say peripheralManager.handleCommand(event?.req?.name), instead of the switch statement
-  switch (event?.req?.name) {
-    case 'reset':
-      peripheralManager.notifyStatus({ name: 'reset' })
-      break
-    case 'stop':
-      peripheralManager.notifyStatus({ name: 'stoppedOrPausedByUser' })
-      break
-    case 'pause':
-      peripheralManager.notifyStatus({ name: 'stoppedOrPausedByUser' })
-      break
-    case 'startOrResume':
-      peripheralManager.notifyStatus({ name: 'startedOrResumedByUser' })
-      break
-    case 'blePeripheralMode':
-      webServer.notifyClients('config', getConfig())
-      break
-    case 'antPeripheralMode':
-      webServer.notifyClients('config', getConfig())
-      break
-    case 'hrmPeripheralMode':
-      webServer.notifyClients('config', getConfig())
-      break
-  }
+  peripheralManager.handleCommand(event?.req?.name)
+  webServer.handleCommand(event?.req?.name)
   event.res = true
 })
 
 peripheralManager.on('heartRateMeasurement', (heartRateMeasurement) => {
-  rowingStatistics.handleHeartRateMeasurement(heartRateMeasurement)
   recordingManager.recordHeartRate(heartRateMeasurement)
+  rowingStatistics.handleHeartRateMeasurement(heartRateMeasurement)
+  webServer.presentHeartRate(heartRateMeasurement)
 })
 
 const gpioTimerService = child_process.fork('./app/gpio/GpioTimerService.js')
 gpioTimerService.on('message', handleRotationImpulse)
 
-process.once('SIGINT', async (signal) => {
-  log.debug(`${signal} signal was received, shutting down gracefully`)
-  await peripheralManager.shutdownAllPeripherals()
-  process.exit(0)
-})
-process.once('SIGTERM', async (signal) => {
-  log.debug(`${signal} signal was received, shutting down gracefully`)
-  await peripheralManager.shutdownAllPeripherals()
-  process.exit(0)
-})
-process.once('uncaughtException', async (error) => {
-  log.error('Uncaught Exception:', error)
-  await peripheralManager.shutdownAllPeripherals()
-  process.exit(1)
-})
-
+// Be aware, both the GPIO as well as the replayer use this as an entrypoint!
 function handleRotationImpulse (dataPoint) {
-  recordingManager.recordRotationImpulse(dataPoint)
   rowingStatistics.handleRotationImpulse(dataPoint)
+  recordingManager.recordRotationImpulse(dataPoint)
 }
 
 const rowingStatistics = createRowingStatistics(config)
-if (intervalSettings.length > 0) {
-  // There is an interval defined at startup, let's inform RowingStatistics
-  // ToDo: update these settings when the PM5 or webinterface tells us to
-  rowingStatistics.setIntervalParameters(intervalSettings)
-} else {
-  log.info('Starting a just row session, no time or distance target set')
-}
 
-const recordingManager = createRecordingManager(config)
-const workoutUploader = createWorkoutUploader(recordingManager)
+// ToDo: merge updating all consumers into this single handler, and remove all specific message handlers (consumers know what to do)
+rowingStatistics.on('metricsUpdate', (metrics) => {
+  webServer.presentRowingMetrics(metrics)
+  recordingManager.recordMetrics(metrics)
+  //peripheralManager.notifyMetrics(metrics)
+})
 
 rowingStatistics.on('driveFinished', (metrics) => {
-  webServer.notifyClients('metrics', metrics)
+  webServer.presentRowingMetrics(metrics)
+  recordingManager.recordMetrics(metrics)
   peripheralManager.notifyMetrics('strokeStateChanged', metrics)
 })
 
 rowingStatistics.on('recoveryFinished', (metrics) => {
-  logMetrics(metrics)
-  webServer.notifyClients('metrics', metrics)
+  webServer.presentRowingMetrics(metrics)
   peripheralManager.notifyMetrics('strokeFinished', metrics)
-  recordingManager.recordStroke(metrics)
-})
-
-rowingStatistics.on('webMetricsUpdate', (metrics) => {
-  webServer.notifyClients('metrics', metrics)
+  recordingManager.recordMetrics(metrics)
 })
 
 rowingStatistics.on('peripheralMetricsUpdate', (metrics) => {
@@ -164,10 +120,8 @@ rowingStatistics.on('peripheralMetricsUpdate', (metrics) => {
 })
 
 rowingStatistics.on('rowingPaused', (metrics) => {
-  logMetrics(metrics)
-  recordingManager.recordStroke(metrics)
-  recordingManager.handleCommand('pause')
-  webServer.notifyClients('metrics', metrics)
+  webServer.presentRowingMetrics(metrics)
+  recordingManager.recordMetrics(metrics)
   peripheralManager.notifyMetrics('metricsUpdate', metrics)
 })
 
@@ -175,76 +129,54 @@ rowingStatistics.on('intervalTargetReached', (metrics) => {
   // This is called when the RowingStatistics conclude the intervaltarget is reached
   // Update all screens to reflect this change, as targetTime and targetDistance have changed
   // ToDo: recording this event in the recordings accordingly should be done as well
-  webServer.notifyClients('metrics', metrics)
+  webServer.presentRowingMetrics(metrics)
+  recordingManager.recordMetrics(metrics)
   peripheralManager.notifyMetrics('metricsUpdate', metrics)
 })
 
 rowingStatistics.on('rowingStopped', (metrics) => {
   // This is called when the rowingmachine is stopped for some reason, could be reaching the end of the session,
   // could be user intervention
-  logMetrics(metrics)
-  recordingManager.recordStroke(metrics)
-  recordingManager.handleCommand('stop')
-  webServer.notifyClients('metrics', metrics)
+  recordingManager.recordMetrics(metrics)
+  webServer.presentRowingMetrics(metrics)
   peripheralManager.notifyMetrics('metricsUpdate', metrics)
 })
+
+const recordingManager = new createRecordingManager(config)
+const workoutUploader = createWorkoutUploader(config, recordingManager)
 
 workoutUploader.on('authorizeStrava', (data, client) => {
   webServer.notifyClient(client, 'authorizeStrava', data)
 })
 
-workoutUploader.on('resetWorkout', () => {
-  // WHY should the workout uploader be able to reset the entire application?????
-  rowingStatistics.handleCommand('reset')
-  recordingManager.handleCommand('reset')
-  peripheralManager.notifyStatus({ name: 'reset' })
-})
-
-const webServer = createWebServer()
+const webServer = createWebServer(config)
 webServer.on('messageReceived', async (message, client) => {
   log.debug(`webclient requested ${message.command}`)
-  recordingManager.handleCommand(message.command)
-  rowingStatistics.handleCommand(message.command)
-  switch (message.command) {
-    case 'switchBlePeripheralMode':
-      peripheralManager.switchBlePeripheralMode()
-      break
-    case 'switchAntPeripheralMode':
-      peripheralManager.switchAntPeripheralMode()
-      break
-    case 'switchHrmMode':
-      peripheralManager.switchHrmMode()
-      break
-    case 'reset':
-      peripheralManager.notifyStatus({ name: 'reset' })
-      break
-    case 'uploadTraining':
-      workoutUploader.upload(client)
-      break
-    case 'shutdown':
-      await shutdown()
-      break
-    case 'stravaAuthorizationCode':
-      workoutUploader.stravaAuthorizationCode(message.data)
-      break
-    default:
-      log.warn('invalid command received:', message)
+  if (message.command === 'shutdown' && shutdownEnabled) {
+    await shutdown()
+  } else {
+    rowingStatistics.handleCommand(message.command)
+    recordingManager.handleCommand(message.command)
+    peripheralManager.handleCommand(message.command)
+    webServer.handleCommand(message.command)
+    // ToDo: refactor the Strava uploader to something that fits in the architecture
+    switch (message.command) {
+      case 'uploadTraining':
+        workoutUploader.upload(client)
+        break
+      case 'stravaAuthorizationCode':
+        workoutUploader.stravaAuthorizationCode(message.data)
+        break
+    }
   }
 })
 
-webServer.on('clientConnected', (client) => {
-  webServer.notifyClient(client, 'config', getConfig())
-})
-
-// todo: extract this into some kind of state manager
-function getConfig () {
-  return {
-    blePeripheralMode: peripheralManager.getBlePeripheralMode(),
-    antPeripheralMode: peripheralManager.getAntPeripheralMode(),
-    hrmPeripheralMode: peripheralManager.getHrmPeripheralMode(),
-    stravaUploadEnabled: !!config.stravaClientId && !!config.stravaClientSecret,
-    shutdownEnabled: !!config.shutdownCommand
-  }
+if (intervalSettings.length > 0) {
+  // There is an interval defined at startup, let's inform RowingStatistics
+  // Please note: keep this AFTER the init of the webserver, otherwise it will not show this info!
+  rowingStatistics.setIntervalParameters(intervalSettings)
+} else {
+  log.info('Starting a just row session, no time or distance target set')
 }
 
 // This shuts down the pi, use with caution!
@@ -263,12 +195,26 @@ async function shutdown () {
   }
 }
 
-function logMetrics (metrics) {
-  log.info(`stroke: ${metrics.totalNumberOfStrokes}, dist: ${metrics.totalLinearDistance.toFixed(1)}m, speed: ${metrics.cycleLinearVelocity.toFixed(2)}m/s` +
-  `, pace: ${secondsToTimeString(metrics.cyclePace)}/500m, power: ${Math.round(metrics.cyclePower)}W, cal: ${metrics.totalCalories.toFixed(1)}kcal` +
-  `, SPM: ${metrics.cycleStrokeRate.toFixed(1)}, drive dur: ${metrics.driveDuration.toFixed(2)}s, rec. dur: ${metrics.recoveryDuration.toFixed(2)}s` +
-  `, stroke dur: ${metrics.cycleDuration.toFixed(2)}s`)
-}
+process.once('SIGINT', async (signal) => {
+  log.debug(`${signal} signal was received, shutting down gracefully`)
+  await recordingManager.handleCommand('shutdown')
+  await peripheralManager.handleCommand('shutdown')
+  process.exit(0)
+})
+
+process.once('SIGTERM', async (signal) => {
+  log.debug(`${signal} signal was received, shutting down gracefully`)
+  await recordingManager.handleCommand('shutdown')
+  await peripheralManager.handleCommand('shutdown')
+  process.exit(0)
+})
+
+process.once('uncaughtException', async (error) => {
+  log.error('Uncaught Exception:', error)
+  await recordingManager.handleCommand('shutdown')
+  await peripheralManager.handleCommand('shutdown')
+  process.exit(1)
+})
 
 /*
 replayRowingSession(handleRotationImpulse, {
