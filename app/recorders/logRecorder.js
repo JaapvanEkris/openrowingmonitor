@@ -33,8 +33,6 @@ function createLogRecorder (config) {
   }
 
   function setBaseFileName (baseFileName) {
-    filename = `${baseFileName}_rowingData.csv`
-    log.info(`Saving RowingData file as ${filename}...`)
   }
 
   // initiated when a new heart rate value is received from heart rate sensor
@@ -73,7 +71,7 @@ function createLogRecorder (config) {
   }
 
   function addHeartRateToMetrics (metrics) {
-    if (heartRate !== undefined && config.userSettings.restingHR <= heartRate &&  heartRate <= config.userSettings.maxHR) {
+    if (heartRate !== undefined) {
       metrics.heartrate = heartRate
     } else {
       metrics.heartrate = undefined
