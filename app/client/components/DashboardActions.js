@@ -86,6 +86,8 @@ export class DashboardActions extends AppElement {
   render () {
     return html`
     <div class="top-button-group">
+    <button @click=${this.testHttp}>$Test HTTP</button>
+    ${this.renderOptionalButtons()}
       <button @click=${this.reset}>${icon_undo}</button>
       ${this.renderOptionalButtons()}
       <button @click=${this.switchHrmPeripheralMode}>
@@ -103,6 +105,19 @@ export class DashboardActions extends AppElement {
     </div>
     ${this._dialog ? this._dialog : ''}
   `
+  }
+
+  async testHttp () {
+    const response = await fetch('api/switch-peripheral', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ mode: 'ble' })
+    })
+
+    console.log(response.json())
   }
 
   firstUpdated () {

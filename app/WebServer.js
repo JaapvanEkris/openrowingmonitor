@@ -6,22 +6,34 @@
   via WebSockets
 */
 import { WebSocket, WebSocketServer } from 'ws'
-import finalhandler from 'finalhandler'
+import express from 'express'
 import http from 'http'
-import serveStatic from 'serve-static'
+import bodyParser from 'body-parser'
 import log from 'loglevel'
 import EventEmitter from 'events'
 
 function createWebServer (config) {
   const emitter = new EventEmitter()
-  const port = process.env.PORT || 80
-  const serve = serveStatic('./build', { index: ['index.html'] })
+  const port = process.env.PORT || 100
+  // const serve = serveStatic('./build', { index: ['index.html'] })
+  const app = express()
   let timeOfLastMetricsUpdate = 0
   let lastKnownMetrics
   let heartRate
 
-  const server = http.createServer((req, res) => {
-    serve(req, res, finalhandler(req, res))
+  const server = http.createServer(app)
+
+  app.use(express.static('./build', { index: ['index.html'] }))
+  app.use(bodyParser.json())
+  app.get('/api/test', (req, res) => {
+    console.log('receied test')
+    res.send('success')
+  })
+
+  app.post('/api/switch-peripheral', (req, res) => {
+    console.log(req.body)
+    // change peripheral by calling the necessary function
+    res.send('success, here we can send json data indicateing that setting the peripheral was success full')
   })
 
   server.listen(port, (err) => {

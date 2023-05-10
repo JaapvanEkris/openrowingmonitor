@@ -33,8 +33,10 @@
   "dependencies": {
     "@abandonware/bleno": "0.5.1-4",
     "@abandonware/noble": "1.9.2-15",
+    "body-parser": "^1.20.2",
     "chart.js": "^4.2.1",
     "chartjs-plugin-datalabels": "^2.2.0",
+    "express": "^4.18.2",
     "finalhandler": "1.1.2",
     "form-data": "4.0.0",
     "incyclist-ant-plus": "^0.1.15",

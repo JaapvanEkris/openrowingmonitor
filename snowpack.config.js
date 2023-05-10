@@ -58,6 +58,16 @@ export default {
           defaultWSHandler
         )
       }
+    },
+    {
+      src: '/api/.*',
+      dest: (req, res) => {
+        // remove /api prefix (optional)
+        return proxy.web(req, res, {
+          hostname: 'localhost',
+          port: 80
+        })
+      }
     }
   ]
 }
