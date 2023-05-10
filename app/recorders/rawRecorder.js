@@ -11,36 +11,9 @@ import { promisify } from 'util'
 const gzip = promisify(zlib.gzip)
 
 function createRawRecorder (config) {
-  let rotationImpulses = []
+  const rotationImpulses = []
   let filename
   let allDataHasBeenWritten
-
-  // This function handles all incomming commands. As all commands are broadasted to all application parts,
-  // we need to filter here what the WorkoutRecorder will react to and what it will ignore
-  async function handleCommand (commandName) {
-    switch (commandName) {
-      case ('start'):
-        break
-      case ('startOrResume'):
-        break
-      case ('pause'):
-        createRawDataFile()
-        break
-      case ('stop'):
-        createRawDataFile()
-        break
-      case ('reset'):
-        await createRawDataFile()
-        rotationImpulses = []
-        filename = undefined
-        break
-      case 'shutdown':
-        await createRawDataFile()
-        break
-      default:
-        log.error(`rawRecorder: Recieved unknown command: ${commandName}`)
-    }
-  }
 
   function setBaseFileName (baseFileName) {
     filename = `${baseFileName}_raw.csv${config.gzipRawDataFiles ? '.gz' : ''}`
@@ -97,7 +70,7 @@ function createRawRecorder (config) {
   return {
     setBaseFileName,
     recordRotationImpulse,
-    handleCommand
+    createRawDataFile
   }
 }
 
