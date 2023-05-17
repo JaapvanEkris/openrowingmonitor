@@ -21,8 +21,9 @@ const antModes = ['FE', 'OFF']
 const hrmModes = ['ANT', 'BLE', 'OFF']
 let hrmResetTimer
 
-function createPeripheralManager (config) {
+function createPeripheralManager (configManagerService) {
   const emitter = new EventEmitter()
+  const config = configManagerService.config
   let _antManager
   let blePeripheral
   let bleMode
@@ -34,6 +35,21 @@ function createPeripheralManager (config) {
   let hrmMode
 
   let isPeripheralChangeInProgress = false
+
+  // TODO: this may be switched to a more specific subscribe. This would remove the need to fire two events in the config manager. The reason this is implemented this way for now is compatibility reasons
+  configManagerService.on('peripheralSettingChanged', (data) => {
+    switch (data.name) {
+      case 'blePeripheralMode':
+        switchBlePeripheralMode(data.mode)
+        break
+      case 'antPeripheralMode':
+        switchAntPeripheralMode(data.mode)
+        break
+      case 'switchHrmMode':
+        switchHrmMode(data.mode)
+        break
+    }
+  })
 
   setupPeripherals()
 

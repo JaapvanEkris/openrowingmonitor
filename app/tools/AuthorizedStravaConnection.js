@@ -7,14 +7,12 @@
 import log from 'loglevel'
 import axios from 'axios'
 import FormData from 'form-data'
-import config from './ConfigManager.js'
 import fs from 'fs/promises'
 
-const clientId = config.stravaClientId
-const clientSecret = config.stravaClientSecret
-const stravaTokenFile = './config/stravatoken'
-
-function createAuthorizedConnection (getStravaAuthorizationCode) {
+function createAuthorizedConnection (getStravaAuthorizationCode, config) {
+  const clientId = config.stravaClientId
+  const clientSecret = config.stravaClientSecret
+  const stravaTokenFile = './config/stravatoken'
   let accessToken
   let refreshToken
 

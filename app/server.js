@@ -9,7 +9,7 @@ import os from 'os'
 import child_process from 'child_process'
 import { promisify } from 'util'
 import log from 'loglevel'
-import config from './tools/ConfigManager.js'
+import { createConfigManager } from './tools/ConfigManager.js'
 import { createRowingStatistics } from './engine/RowingStatistics.js'
 import { createWebServer } from './WebServer.js'
 import { createPeripheralManager } from './peripherals/PeripheralManager.js'
@@ -18,6 +18,11 @@ import { createRecordingManager } from './recorders/recordingManager.js'
 import { replayRowingSession } from './tools/RowingRecorder.js'
 import { createWorkoutUploader } from './engine/WorkoutUploader.js'
 const exec = promisify(child_process.exec)
+
+const configManagerService = await createConfigManager()
+
+// TODO: I am creating a config variable just to make life easier and I dont need for this example change every part of the application where config is expected. This needs to be removed and the actual configManagerService should be injected as dependency
+const config = configManagerService.getConfig()
 
 const shutdownEnabled = !!config.shutdownCommand
 
@@ -68,7 +73,7 @@ intervalSettings[2] = {
 }
 */
 
-const peripheralManager = createPeripheralManager(config)
+const peripheralManager = createPeripheralManager(configManagerService)
 
 peripheralManager.on('control', (event) => {
   log.debug(`peripheral requested ${event?.req?.name}`)
@@ -149,7 +154,7 @@ workoutUploader.on('authorizeStrava', (data, client) => {
   webServer.notifyClient(client, 'authorizeStrava', data)
 })
 
-const webServer = createWebServer(config)
+const webServer = createWebServer(configManagerService)
 webServer.on('messageReceived', async (message, client) => {
   log.debug(`webclient requested ${message.command}`)
   if (message.command === 'shutdown' && shutdownEnabled) {

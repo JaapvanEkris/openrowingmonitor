@@ -73,6 +73,7 @@ export class DashboardActions extends AppElement {
       }
     }
   `
+  bleModes = ['FTMS', 'FTMSBIKE', 'PM5', 'CSC', 'CPS', 'OFF']
 
   @property({ type: Object })
     config = {}
@@ -86,7 +87,7 @@ export class DashboardActions extends AppElement {
   render () {
     return html`
     <div class="top-button-group">
-    <button @click=${this.testHttp}>$Test HTTP</button>
+    <button @click=${this.testHttp}>$Test HTTP BLE</button>
     ${this.renderOptionalButtons()}
       <button @click=${this.reset}>${icon_undo}</button>
       ${this.renderOptionalButtons()}
@@ -108,16 +109,17 @@ export class DashboardActions extends AppElement {
   }
 
   async testHttp () {
-    const response = await fetch('api/switch-peripheral', {
+    const response = await fetch('api/switch-peripheral/ble', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ mode: 'ble' })
+      body: JSON.stringify({ mode: this.bleModes[(this.bleModes.indexOf(this.config?.blePeripheralMode) + 1) % this.bleModes.length] })
     })
 
-    console.log(response.json())
+    // TODO: here on success we can handel the changing of the GUI display or we can remain relying on the ws data stream broadcasting the new config object after the change. This is a choice as ws stream will be one directional even in this case. Nevertheless, I might remove reliance on the config ws data stream and have only metrics updated via WS. However, this would mean that at GUI load an initial HTTP request would be necessary to the server for the config. This can be done quite easily so its a matter of design decision.
+    console.log(await response.json())
   }
 
   firstUpdated () {

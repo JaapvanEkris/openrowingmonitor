@@ -12,9 +12,10 @@ import bodyParser from 'body-parser'
 import log from 'loglevel'
 import EventEmitter from 'events'
 
-function createWebServer (config) {
+function createWebServer (configManagerService) {
+  const config = configManagerService.config
   const emitter = new EventEmitter()
-  const port = process.env.PORT || 100
+  const port = process.env.PORT || 80
   // const serve = serveStatic('./build', { index: ['index.html'] })
   const app = express()
   let timeOfLastMetricsUpdate = 0
@@ -30,10 +31,31 @@ function createWebServer (config) {
     res.send('success')
   })
 
-  app.post('/api/switch-peripheral', (req, res) => {
+  app.post('/api/switch-peripheral/ble', (req, res) => {
     console.log(req.body)
-    // change peripheral by calling the necessary function
-    res.send('success, here we can send json data indicateing that setting the peripheral was success full')
+
+    // TODO: here we need to do some input validation (e.g. that the client does not send invalid Ble mode for instance)
+    // TODO: the ble modes need to be moved to some central const location
+    if (!['FTMS', 'FTMSBIKE', 'PM5', 'CSC', 'CPS', 'OFF'].some((mode) => mode === req.body.mode)) {
+      res.status(400).send('Invalid mode')
+      return
+    }
+
+    configManagerService.once('blePeripheralModeChanged', (setMode) => {
+      // TODO it is possible to add checks if the correct mode was added and if not than send 404 bad request or 500 server error like this:
+
+      if (req.body.mode !== setMode) {
+        res.status(500).send('Mode was not changed correctly')
+        return
+      }
+
+      // TODO: add timeout so in case the change does not occur the gui does not stuck
+      res.send({ mode: setMode })
+    })
+
+    // TODO: the peripheral manager should listen to the configmanagerservice state change instead of the handlecommand
+
+    configManagerService.config.bluetoothMode = req.body.mode
   })
 
   server.listen(port, (err) => {
