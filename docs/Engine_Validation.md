@@ -19,7 +19,7 @@ B -->|15V sinoid| C(Concept 2 PM5)
 B -->|Binary pulses| D(Open Rowing Monitor)
 ```
 
-Here, we deliberatly use the optocoupler to split the signal, as it prevents interference with the signal that is fed to the PM5.
+Here, we deliberatly use the optocoupler to split the signal, as it prevents interference with the signal that is fed to the PM5. Alternative MOSFET solutions have been applied as well and deliver identical results. As we prefer a setup with two electrically isolated systems of measurement as it excludes any electrical interference, we chose the optocoupler approach.
 
 ### Concept2's signal
 
