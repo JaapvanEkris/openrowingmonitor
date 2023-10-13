@@ -113,7 +113,7 @@ In theory, there are two threats here:
 
 The traditional approach [[1]](#1), [[8]](#8), [[13]](#13) suggeste a numerical approach to Angular Velocity &omega;:
 
-> $&omega; = {&Delta;&theta; \over &Delta;t}$
+> $`&omega; = {&Delta;&theta; \over &Delta;t}`$
 
 This formula is dependent on &Delta;t, which is suspect to noise, making this numerical approach to the calculation of &omega; volatile. From a more robust perspective, we approach &omega; as the the first derivative of the function between *time since start* and the angular position &theta;, where we use a robust regression algorithm to determine the function and thus the first derivative.
 
