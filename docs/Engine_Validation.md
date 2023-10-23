@@ -134,6 +134,16 @@ This leads to the following results when rowing and feeding the PM5 and OpenRowi
 | 31 | 6,000 m | 91 | 92.7 | 25:43.7 | 25:44.1 | +0.03% | <!--- Session date 2023-03-02 --->
 | 32 | 10,000 m | 92 | 93.8 | 44:14.7 | 44:15.2 | +0.02% | <!--- Session date 2023-02-04 --->
 | 33 | 15,000 m | 92 | 94.0 | 1:08:56.0 | 1:08:56.1 | +0.00% | <!--- Session date 2023-02-05 --->
+| 34 | 6,000 m | 100 |  | :. | :. | +.% | <!--- Session date 2023-xx-xx --->
+| 35 | 10,000 m | 100 |  | :. | :. | +.% | <!--- Session date 2023-xx-xx --->
+| 36 | 15,000 m | 100 |  | ::. | ::. | +.% | <!--- Session date 2023-xx-xx --->
+| 37 | 6,000 m | 110 |  | :. | :. | +.% | <!--- Session date 2023-xx-xx --->
+| 38 | 10,000 m | 110 |  | :. | :. | +.% | <!--- Session date 2023-xx-xx --->
+| 39 | 15,000 m | 110 |  | ::. | ::. | +.% | <!--- Session date 2023-xx-xx --->
+| 40 | 6,000 m | 120 |  | :. | :. | +.% | <!--- Session date 2023-xx-xx --->
+| 41 | 10,000 m | 120 |  | :. | :. | +.% | <!--- Session date 2023-xx-xx --->
+| 42 | 15,000 m | 120 |  | ::. | ::. | +.% | <!--- Session date 2023-xx-xx --->
+
 
 Here, a negative deviation indicates that the ORM algorithm was faster when compared to the PM5 data, a positive deviation indicates that the ORM algorithm was slower compared to the PM5 data. The strokerate was nearly identical along the row, and only varied slightly between 23 and 24 SPM). The total number of strokes across the monitors was sufficiently similar at similar times.
 
