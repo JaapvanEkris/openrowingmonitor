@@ -137,7 +137,7 @@ The goal is to translate the linear rowing metrics into meaningful and constant 
 
 In a nutshell:
 
-* `RowingStatistics.js` is the bridge/buffer between the interrupt-drive processing of data and the time/state based reporting of the metrics,
+* `RowingStatistics.js` is the bridge/buffer between the rowing phase-drive processing of data and the constant reporting of a full set of metrics,
 * `RowingStatistics.js` maintains the stroke state, thus determines whether the rowing machine is 'Rowing', or 'WaitingForDrive', etc.,
 * `RowingStatistics.js` applies a moving median filter across strokes to make metrics less volatile and thus better suited for presentation,
 * `RowingStatistics.js` calculates derived metrics (like Calories) and trands (like Calories per hour),
