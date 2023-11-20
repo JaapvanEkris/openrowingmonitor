@@ -99,13 +99,9 @@ sequenceDiagram
 
 `SessionManager.js` recieves *currentDt* updates, forwards them to `RowingStatistics.js` and subsequently retrieves the resulting metrics-object from the `RowingStatistics.js`. It manages the state of the session (i.e. start, stop, intervals, etc.).
 
-### RowingStatistics.js
+#### sessionStates in SessionManager.js
 
-`RowingStatistics.js` recieves *currentDt* updates, forwards them to `Rower.js` and subsequently inspects `Rower.js` for the resulting strokestate and associated metrics. Based on this inspection, it updates the finite state machine of the stroke state and the associated metrics (i.e. linear velocity, linear distance, power, etc.). It creates a metrics object that contains all the last known valid values of a metric, decoupling the presence of a metric from the stroke state (as many metrics are only defined in specific moments during the stroke), composes some metrics based on the trend in the underlying date through the drive (i.e. creating the force curve based on individual force measurements throughout the drive) and makes data presentable (i.e. respect the averaging across strokes). 
-
-#### sessionStates in RowingStatistics.js
-
-`RowingStatistics.js` maintains the following sessionstates:
+`SessionManager.js` maintains the following sessionstates:
 
 ```mermaid
 stateDiagram-v2
@@ -125,19 +121,28 @@ stateDiagram-v2
 
 Please note: `handleRotationImpulse` implements all these state transitions, where the state transitions for the end of an interval and the end of a session are handled individually as the metrics updates differ slightly.
 
+In a nutshell:
+
+* `SessionManager.js` maintains the workout intervals, guards interval and session boundaries, and will chop up the metrics-stream accordingly, where `RowingStatistics.js` will just move on without looking at these artifical boundaries.
+
+In total, this takes full control of the displayed metrics in a specific interval.
+
+### RowingStatistics.js
+
+`RowingStatistics.js` recieves *currentDt* updates, forwards them to `Rower.js` and subsequently inspects `Rower.js` for the resulting strokestate and associated metrics. Based on this inspection, it updates the finite state machine of the stroke state and the associated metrics (i.e. linear velocity, linear distance, power, etc.). It creates a metrics object that contains all the last known valid values of a metric, decoupling the presence of a metric from the stroke state (as many metrics are only defined in specific moments during the stroke), composes some metrics based on the trend in the underlying date through the drive (i.e. creating the force curve based on individual force measurements throughout the drive) and makes data presentable (i.e. respect the averaging across strokes). 
+
 #### metrics maintained in RowingStatistics.js
 
-The goal is to translate the linear rowing metrics into meaningful information for the consumers of data updating both session state and the underlying metrics. As `Rower.js` can only provide a limited set of absolute metrics at a time (as most are stroke state dependent) and is unaware of previous strokes and the context of the interval, `RowingStatistics.js` will consume this data, combine it with other datasources like the heartrate and transform it into a consistent and more stable set of metrics useable for presentation. As `RowingStatistics.js` also is the bridge between the interrupt-driven and time/state driven part of the application, it buffers data as well, providing a complete set of metrics regardless of stroke state. Adittionally, `RowingStatistics.js` also smoothens data across strokes to remove eratic behaviour of metrics due to small measurement errors.
+The goal is to translate the linear rowing metrics into meaningful and constant set of metrics for the consumers of data, updating all underlying metrics if needed. As `Rower.js` can only provide a limited set of absolute metrics at any given time (as most are stroke state dependent) and is unaware of previous strokes and the context of the interval, `RowingStatistics.js` will consume this data and transform it into a consistent and more stable set of metrics useable for presentation. `RowingStatistics.js` buffers all metrics as well, always providing a complete set of metrics regardless of stroke state, which allows for abstraction of stroke state for these clients, although the contained `metricsContext` will indicate a specific stroke state transition and `strokeState` will reflect the current stroke state for clients. Adittionally, `RowingStatistics.js` also smoothens data across strokes to remove eratic behaviour of metrics due to small measurement errors.
 
 In a nutshell:
 
 * `RowingStatistics.js` is the bridge/buffer between the interrupt-drive processing of data and the time/state based reporting of the metrics,
-* `RowingStatistics.js` maintains the session state, thus determines whether the rowing machine is 'Rowing', or 'WaitingForDrive', etc.,
+* `RowingStatistics.js` maintains the stroke state, thus determines whether the rowing machine is 'Rowing', or 'WaitingForDrive', etc.,
 * `RowingStatistics.js` applies a moving median filter across strokes to make metrics less volatile and thus better suited for presentation,
 * `RowingStatistics.js` calculates derived metrics (like Calories) and trands (like Calories per hour),
-* `RowingStatistics.js` maintains the workout intervals, guards interval and session boundaries, and will chop up the metrics-stream accordingly, where `Rower.js` will just move on without looking at these artifical boundaries.
 
-In total, this takes full control of the displayed metrics in a specific interval.
+In total, this takes full control of the displayed absolute (i.e. not interval dependent) metrics.
 
 ### Rower.js
 
