@@ -52,12 +52,14 @@ sequenceDiagram
   participant Flywheel.js
   pigpio -)GpioTimerService.js: tick<br>(interrupt based)
   GpioTimerService.js-)server.js: currentDt<br>(interrupt based)
-  server.js-)RowingStatistics.js: currentDt<br>(interrupt based)
+  server.js-)SessionManager.js: currentDt<br>(interrupt based)
+  SessionManager.js-)RowingStatistics.js: currentDt<br>(interrupt based)
   RowingStatistics.js->>Rower.js: currentDt<br>(interrupt based)
   Rower.js->>Flywheel.js: currentDt<br>(interrupt based)
   Flywheel.js-->>Rower.js: Angular metrics, Flywheel state<br>(interrupt based)
   Rower.js-->>RowingStatistics.js: Strokes, Linear metrics<br>(interrupt based)
-  RowingStatistics.js-)server.js: Metrics Updates<br>(State/Time based)
+  RowingStatistics.js-)SessionManager.js: Metrics Updates<br>(State/Time based)
+  SessionManager.js-)server.js: Metrics Updates<br>(State/Time based)
   server.js-)clients: Metrics Updates<br>(State/Time based)
 ```
 
@@ -92,9 +94,13 @@ sequenceDiagram
 * Handle user input (through webinterface and periphials) and instruct `RowingStatistics.js` to act accordingly;
 * Handle escalations from `RowingStatistics.js` (like reaching the end of the interval, or seeing the rower has stopped) and instruct the rest of the application, like the `WorkoutRecorder.js` accordingly.
 
+### SessionManager.js
+
+`SessionManager.js` recieves *currentDt* updates, forwards them to `RowingStatistics.js` and subsequently retrieves the resulting metrics-object from the `RowingStatistics.js`. It manages the state of the session (i.e. start, stop, intervals, etc.).
+
 ### RowingStatistics.js
 
-`RowingStatistics.js` recieves *currentDt* updates, forwards them to `Rower.js` and subsequently inspects `Rower.js` for the resulting strokestate and associated metrics. Based on this inspection, it updates the finite state machine of the sessionstate and the associated metrics (i.e. linear velocity, linear distance, power, etc.).
+`RowingStatistics.js` recieves *currentDt* updates, forwards them to `Rower.js` and subsequently inspects `Rower.js` for the resulting strokestate and associated metrics. Based on this inspection, it updates the finite state machine of the stroke state and the associated metrics (i.e. linear velocity, linear distance, power, etc.). It creates a metrics object that contains all the last known valid values of a metric, decoupling the presence of a metric from the stroke state (as many metrics are only defined in specific moments during the stroke), composes some metrics based on the trend in the underlying date through the drive (i.e. creating the force curve based on individual force measurements throughout the drive) and makes data presentable (i.e. respect the averaging across strokes). 
 
 #### sessionStates in RowingStatistics.js
 
