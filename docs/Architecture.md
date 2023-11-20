@@ -47,6 +47,7 @@ sequenceDiagram
   participant pigpio
   participant GpioTimerService.js
   participant server.js
+  participant SessionManager.js
   participant RowingStatistics.js
   participant Rower.js
   participant Flywheel.js
