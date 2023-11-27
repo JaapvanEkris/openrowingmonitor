@@ -1,167 +1,115 @@
-/* JavaScript program to find the median of BST in O(n) time and O(1) space*/
+class BinarySearchTreeNode {
+  constructor(key, value = key, parent = null) {
+    this.key = key;
+    this.value = value;
+    this.parent = parent;
+    this.left = null;
+    this.right = null;
+  }
 
-/* A binary search tree Node has data, pointer 
-to left child and a pointer to right child */
-class Node {
-  constructor() {
-    this.data = 0
-    this.left = null
-    this.right = null
+  get isLeaf() {
+    return this.left === null && this.right === null;
+  }
+
+  get hasChildren() {
+    return !this.isLeaf;
   }
 }
 
-// A utility function to create a new BST node 
-function newNode(item) { 
-  var temp = new Node()
-  temp.data = item
-  temp.left = null
-  temp.right = null
-  return temp
-  } 
- 
-/* A utility function to insert a new node with 
-given key in BST */
-function insert(node, key) {
-  /* If the tree is empty, return a new node */
-  if (node == null) return newNode(key)
+class BinarySearchTree {
+  constructor(key, value = key) {
+    this.root = new BinarySearchTreeNode(key, value);
+  }
 
-  /* Otherwise, recur down the tree */
-  if (key < node.data) 
-    node.left = insert(node.left, key)
-  else if (key > node.data)
-    node.right = insert(node.right, key)
+  *inOrderTraversal(node = this.root) {
+    if (node.left) yield* this.inOrderTraversal(node.left);
+    yield node;
+    if (node.right) yield* this.inOrderTraversal(node.right);
+  }
 
-  /* return the (unchanged) node pointer */
-  return node
-}
- 
-/* Function to count nodes in a binary search tree 
-using Morris Inorder traversal*/
-function countNodes(root) { 
-  var current, pre
- 
-  // Initialise count of nodes as 0 
-  var count = 0
- 
-  if (root == null)
-    return count
+  *postOrderTraversal(node = this.root) {
+    if (node.left) yield* this.postOrderTraversal(node.left);
+    if (node.right) yield* this.postOrderTraversal(node.right);
+    yield node;
+  }
 
-  current = root
-    while (current != null) { 
-      if (current.left == null) { 
-        // Count node if its left is NULL 
-        count++
+  *preOrderTraversal(node = this.root) {
+    yield node;
+    if (node.left) yield* this.preOrderTraversal(node.left);
+    if (node.right) yield* this.preOrderTraversal(node.right);
+  }
 
-         // Move to its right 
-         current = current.right
-      } else { 
-        /* Find the inorder predecessor of current */
-        pre = current.left
- 
-        while (pre.right != null && pre.right != current)
-          pre = pre.right; 
+  insert(key, value = key) {
+    let node = this.root;
+    while (true) {
+      if (node.key === key) return false;
+      if (node.key > key) {
+        if (node.left !== null) node = node.left;
+        else {
+          node.left = new BinarySearchTreeNode(key, value, node);
+          return true;
+        }
+      } else if (node.key < key) {
+        if (node.right !== null) node = node.right;
+        else {
+          node.right = new BinarySearchTreeNode(key, value, node);
+          return true;
+        }
+      }
+    }
+  }
 
-        /* Make current as right child of its inorder predecessor */
-        if (pre.right == null) { 
-          pre.right = current
-          current = current.left; 
-        } 
- 
-            /* Revert the changes made in if part to 
-            restore the original tree i.e., fix 
-            the right child of predecessor */
-            else
-            { 
-                pre.right = null; 
- 
-                // Increment count if the current 
-                // node is to be visited 
-                count++; 
-                current = current.right; 
-            } /* End of if condition pre->right == NULL */
-        } /* End of if condition current->left == NULL*/
-    } /* End of while */
- 
-    return count; 
-} /* Function to find median in O(n) time and O(1) space 
-using Morris Inorder traversal*/
-function findMedian(root) 
-{ 
-if (root == null) 
-        return 0; 
- 
-    var count = counNodes(root); 
-    var currCount = 0; 
-    var current = root, pre = null, prev = null; 
- 
-    while (current != null) 
-    { 
-        if (current.left == null) 
-        { 
-            // count current node 
-            currCount++; 
- 
-            // check if current node is the median 
-            // Odd case 
-            if (count % 2 != 0 && 
-            currCount == (count+1)/2) 
-                return current.data; 
- 
-            // Even case 
-            else if (count % 2 == 0 && 
-            currCount == (count/2)+1) 
-                return (prev.data + current.data)/2; 
- 
-            // Update prev for even no. of nodes 
-            prev = current; 
- 
-            //Move to the right 
-            current = current.right; 
-        } 
-        else
-        { 
-            /* Find the inorder predecessor of current */
-            pre = current.left; 
-            while (pre.right != null && 
-            pre.right != current) 
-                pre = pre.right; 
- 
-            /* Make current as right child of its
-            inorder predecessor */
-            if (pre.right == null) 
-            { 
-                pre.right = current; 
-                current = current.left; 
-            } 
- 
-            /* Revert the changes made in if
-            part to restore the original 
-            tree i.e., fix the right child of predecessor */
-            else
-            { 
-                pre.right = null; 
- 
-                prev = pre; 
- 
-                // Count current node 
-                currCount++; 
- 
-                // Check if the current node is the median 
-                if (count % 2 != 0 && 
-                currCount == (count+1)/2 ) 
-                    return current.data; 
- 
-                else if (count%2==0 && 
-                currCount == (count/2)+1) 
-                    return (prev.data+current.data)/2; 
- 
-                // update prev node for the case of even 
-                // no. of nodes 
-                prev = current; 
-                current = current.right; 
- 
-            } /* End of if condition pre->right == NULL */
-        } /* End of if condition current->left == NULL*/
-    } /* End of while */
-    return -1;
+  has(key) {
+    for (let node of this.postOrderTraversal()) {
+      if (node.key === key) return true;
+    }
+    return false;
+  }
+
+  find(key) {
+    for (let node of this.postOrderTraversal()) {
+      if (node.key === key) return node;
+    }
+    return undefined;
+  }
+
+  remove(key) {
+    const node = this.find(key);
+    if (!node) return false;
+    const isRoot = node.parent === null;
+    const isLeftChild = !isRoot ? node.parent.left === node : false;
+    const hasBothChildren = node.left !== null && node.right !== null;
+
+    if (node.isLeaf) {
+      if (!isRoot) {
+        if (isLeftChild) node.parent.left = null;
+        else node.parent.right = null;
+      } else {
+        this.root = null;
+      }
+      return true;
+    } else if (!hasBothChildren) {
+      const child = node.left !== null ? node.left : node.right;
+      if (!isRoot) {
+        if (isLeftChild) node.parent.left = child;
+        else node.parent.right = child;
+      } else {
+        this.root = child;
+      }
+      child.parent = node.parent;
+      return true;
+    } else {
+      const rightmostLeft = [...this.inOrderTraversal(node.left)].slice(-1)[0];
+      rightmostLeft.parent = node.parent;
+      if (!isRoot) {
+        if (isLeftChild) node.parent.left = rightmostLeft;
+        else node.parent.right = rightmostLeft;
+      } else {
+        this.root = rightmostLeft;
+      }
+      rightmostLeft.right = node.right;
+      node.right.parent = rightmostLeft;
+      return true;
+    }
+  }
 }
