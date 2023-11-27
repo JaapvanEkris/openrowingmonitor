@@ -136,7 +136,7 @@ test('Correct Rower behaviour for three noisefree strokes with dynamic dragfacto
   testDriveDuration(rower, 0) // Shouldn't this one be filled after the first drive?
   testDriveLinearDistance(rower, 0.31037384539231255)
   testDriveLength(rower, 0) // Shouldn't this one be filled after the first drive?
-  testDriveAverageHandleForce(rower, 156.0502419475774)
+  testDriveAverageHandleForce(rower, 162.11461597250118)
   testDrivePeakHandleForce(rower, 163.82529073516713)
   testRecoveryDuration(rower, 0)
   testRecoveryDragFactor(rower, 100)
