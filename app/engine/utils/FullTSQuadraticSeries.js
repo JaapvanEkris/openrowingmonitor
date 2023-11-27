@@ -37,6 +37,9 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
   function push (x, y) {
     const linearResidu = createTSLinearSeries(maxSeriesLength)
 
+    // Invariant: A[i] contains all a's (as in the general formula y = a * x^2 + b * x + c)
+    // belonging to the curves ENDING in the point (xi, yi)
+
     X.push(x)
     Y.push(y)
 
@@ -46,10 +49,6 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
       A.shift()
     }
 
-    // Invariant: the indices of the X and Y array now match up with the
-    // row numbers of the A array. So, the A of (X[0],Y[0]) and (X[1],Y[1]
-    // will be stored in A[0][.].
-
     // Add an empty array at the end to store futurs results for the most recent points
     A.push([])
 
@@ -57,8 +56,14 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
     if (X.length() > 2) {
       // There are at least two points in the X and Y arrays, so let's add the new datapoint
       let i = 0
+      let j = 0
       while (i < X.length() - 2) {
-        A[X.length() - 1].push(calculateA(i, X.length() - 1))
+        j = i + 1
+        while (j < X.length() - 1) {
+          A[i].push(calculateA(i, j, X.length() - 1)) // This should work better!!! //ToDo: implement this when the C2 settings are correct for low drag setup
+//          A[X.length() - 1].push(calculateA(i, j, X.length() - 1))
+          j++
+        }
         i++
       }
       _A = matrixMedian(A)
@@ -193,6 +198,22 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
     return Y.sum()
   }
 
+  function minimumX () {
+    return X.minimum()
+  }
+
+  function minimumY () {
+    return Y.minimum()
+  }
+
+  function maximumX () {
+    return X.maximum()
+  }
+
+  function maximumY () {
+    return Y.maximum()
+  }
+
   function xSeries () {
     return X.series()
   }
@@ -201,6 +222,7 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
     return Y.series()
   }
 
+/*
   function calculateA (pointOne, pointThree) {
     if ((pointOne + 1) < pointThree && X.get(pointOne) !== X.get(pointThree)) {
       const results = createSeries(maxSeriesLength)
@@ -210,7 +232,21 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
         results.push((X.get(pointOne) * (Y.get(pointThree) - Y.get(pointTwo)) + Y.get(pointOne) * (X.get(pointTwo) - X.get(pointThree)) + (X.get(pointThree) * Y.get(pointTwo) - X.get(pointTwo) * Y.get(pointThree))) / ((X.get(pointOne) - X.get(pointTwo)) * (X.get(pointOne) - X.get(pointThree)) * (X.get(pointTwo) - X.get(pointThree))))
         pointTwo += 1
       }
+      // Ideally, we would return results.series(), but this is way too CPU intensive for a Concept2
       return results.median()
+    } else {
+      log.error('TS Quadratic Regressor, Division by zero prevented in CalculateA!')
+      return 0
+    }
+  }
+*/
+
+  function calculateA (pointOne, pointTwo, pointThree) {
+    let result = 0
+    if (X.get(pointOne) !== X.get(pointTwo) && X.get(pointOne) !== X.get(pointThree) && X.get(pointTwo) !== X.get(pointThree)) {
+      // For the underlying math, see https://www.quora.com/How-do-I-find-a-quadratic-equation-from-points/answer/Robert-Paxson
+      result = (X.get(pointOne) * (Y.get(pointThree) - Y.get(pointTwo)) + Y.get(pointOne) * (X.get(pointTwo) - X.get(pointThree)) + (X.get(pointThree) * Y.get(pointTwo) - X.get(pointTwo) * Y.get(pointThree))) / ((X.get(pointOne) - X.get(pointTwo)) * (X.get(pointOne) - X.get(pointThree)) * (X.get(pointTwo) - X.get(pointThree)))
+      return result
     } else {
       log.error('TS Quadratic Regressor, Division by zero prevented in CalculateA!')
       return 0
@@ -259,6 +295,10 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
     yAtSeriesBegin,
     yAtSeriesEnd,
     yAtPosition,
+    minimumX,
+    minimumY,
+    maximumX,
+    maximumY,
     xSum,
     ySum,
     xSeries,
