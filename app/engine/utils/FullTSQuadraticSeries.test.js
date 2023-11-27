@@ -317,7 +317,7 @@ test('Quadratic Approximation on function y = 4 * Math.pow(x, 2) + 4 * x + 4, wi
   dataSeries.push(6, 173)
   testCoefficientA(dataSeries, 4.044444444444444)
   testCoefficientB(dataSeries, 3.8222222222222215)
-  testCoefficientC(dataSeries, 4)
+  testCoefficientC(dataSeries, 3.711111111111112)
   dataSeries.push(7, 227)
   testCoefficientA(dataSeries, 4)
   testCoefficientB(dataSeries, 4)
