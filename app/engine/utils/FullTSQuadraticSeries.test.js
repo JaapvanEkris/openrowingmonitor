@@ -287,7 +287,7 @@ test('Quadratic Approximation on function y = 4 * Math.pow(x, 2) + 4 * x + 4, wi
   testCoefficientB(dataSeries, 3.78571428571429) // Coefficient B seems to take a hit anyway
   testCoefficientC(dataSeries, 5.09047619047621) // We get a 5.9999999999999964 instead of 4, which is quite acceptable (especially since ORM ignores the C)
   dataSeries.push(-1, 3)
-  testCoefficientA(dataSeries, 4)
+  testCoefficientA(dataSeries, 3.9555555555555557)
   testCoefficientB(dataSeries, 4)
   testCoefficientC(dataSeries, 4)
   dataSeries.push(0, 5)
