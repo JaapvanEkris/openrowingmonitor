@@ -23,7 +23,7 @@ Here, we deliberatly use the optocoupler to split the signal, as it prevents int
 
 ### Concept2's signal
 
-The Concept2 produces a 15V signal [[6]](#6), which alternates between 0V and 15V [[7]](#7). This signal is produced by a 12-pole magnet [[8]](#8) which are attached to the flywheel, also doubling as a generator for the PM5. Although [[7]](#7) suggests a sinoid signal, another interpretation is that this a full-wave recified signal [[9]](#9). This later makes more sense given the lack of reversal of the polarity, which would be expected given the construction of the magnets and generator. 
+The Concept2 produces a 15V signal [[6]](#6), which alternates between 0V and 15V [[7]](#7). This signal is produced by a 12-pole magnet [[8]](#8) which are attached to the flywheel, also doubling as a generator for the PM5. Although [[7]](#7) suggests a sinoid signal, another interpretation is that this a full-wave recified signal [[9]](#9). This later makes more sense given the lack of reversal of the polarity, which would be expected given the construction of the magnets and generator.
 
 The shortest impulses measured on a scope are 15-16 pulses per 100 msec, when the rower rows 1:13/500m [[10]](#10), which implies an average time between impulses of 6.25ms, or a frequency 160Hz.
 
@@ -31,7 +31,7 @@ The shortest impulses measured on a scope are 15-16 pulses per 100 msec, when th
 
 To process the 15V signal for the 3.3V Raspberry Pi, a 24V to 3.3V DST-1R4P-P optocoupler/isolation board is used [[11]](#11), which switches at 12V [[12]](#12). As the optocoupler switches at 12V, it transforms the sinoid-like signal into the binary block signal needed for the Raspberry Pi switching, with sufficient signal length to detect it. The signal from the RowErg is a sinoid-like wave, where the DST-1R4P-P expects a block-wave. As the EL817C936 optocoupler used on this board will trigger on a treshold value, we estimate this doesn't affect accuracy. Due to a lack of equipment, we were not able to verify this assumption. To evade any dependencies on any assumptions on the sinoid-like shape of the signal, we explicitly choose to trigger on the upper part of the signal, removing any dependency on the behaviour on the lower part of the signal.
 
-Where the DST-1R4P-N can handle 20KHz, we chose to use a DST-1R4P-P which is rated for 80KHz, far exceeding the 160Hz produced by the RowErg. 
+Where the DST-1R4P-N can handle 20KHz, we chose to use a DST-1R4P-P which is rated for 80KHz, far exceeding the 160Hz produced by the RowErg.
 
 ### Settings used
 
@@ -143,7 +143,6 @@ This leads to the following results when rowing and feeding the PM5 and OpenRowi
 | 40 | 6,000 m | 120 |  | :. | :. | +.% | <!--- Session date 2023-xx-xx --->
 | 41 | 10,000 m | 120 |  | :. | :. | +.% | <!--- Session date 2023-xx-xx --->
 | 42 | 15,000 m | 120 |  | ::. | ::. | +.% | <!--- Session date 2023-xx-xx --->
-
 
 Here, a negative deviation indicates that the ORM algorithm was faster when compared to the PM5 data, a positive deviation indicates that the ORM algorithm was slower compared to the PM5 data. The strokerate was nearly identical along the row, and only varied slightly between 23 and 24 SPM). The total number of strokes across the monitors was sufficiently similar at similar times.
 
