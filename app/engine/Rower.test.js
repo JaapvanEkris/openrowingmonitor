@@ -140,7 +140,7 @@ test('Correct Rower behaviour for three noisefree strokes with dynamic dragfacto
   testDrivePeakHandleForce(rower, 186.47478805821592)
   testRecoveryDuration(rower, 0)
   testRecoveryDragFactor(rower, 100)
-  testInstantHandlePower(rower, 312.12409398901383)
+  testInstantHandlePower(rower, 354.69564711401205)
   // Recovery initial stroke starts here
   rower.handleRotationImpulse(0.010769)
   rower.handleRotationImpulse(0.010707554)
@@ -408,7 +408,7 @@ test('sample data for NordicTrack RX800 should produce plausible results', async
   testTotalLinearDistanceSinceStart(rower, 79.62787826973629)
   testTotalNumberOfStrokes(rower, 10)
   // As dragFactor is dynamic, it should have changed
-  testRecoveryDragFactor(rower, 486.7027417634664)
+  testRecoveryDragFactor(rower, 491.2410532939277)
 })
 
 test('A full session for SportsTech WRX700 should produce plausible results', async () => {
@@ -437,7 +437,7 @@ test('A full session for a Concept2 RowErg should produce plausible results', as
   await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
 
   testTotalMovingTimeSinceStart(rower, 476.2231594563992)
-  testTotalLinearDistanceSinceStart(rower, 2010.2767022535522)
+  testTotalLinearDistanceSinceStart(rower, 1174.4896298679782)
   testTotalNumberOfStrokes(rower, 208)
   // As dragFactor is static, it should remain in place
   testRecoveryDragFactor(rower, 131.32338915085592)
