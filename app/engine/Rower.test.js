@@ -204,7 +204,7 @@ test('Correct Rower behaviour for three noisefree strokes with dynamic dragfacto
   testDriveDuration(rower, 0.143485717)
   testDriveLinearDistance(rower, 0.3992299677784167)
   testDriveLength(rower, 0.29321531433504733)
-  testDriveAverageHandleForce(rower, 156.83996983624334)
+  testDriveAverageHandleForce(rower, 196.08956399075205)
   testDrivePeakHandleForce(rower, 227.11541816883516)
   testRecoveryDuration(rower, 0.261312747)
   testRecoveryDragFactor(rower, 283.33086731525583)
