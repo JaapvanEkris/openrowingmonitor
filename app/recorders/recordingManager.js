@@ -23,20 +23,46 @@ function createRecordingManager (config) {
   async function handleCommand (commandName) {
     switch (commandName) {
       case ('start'):
-        executeCommandsInParralel(commandName)
+        if (config.createRawDataFiles) {
+          await rawRecorder.createRawDataFile()
+        }
+        if (config.createRowingDataFile) {
+          await rowingDataRecorder.createRowingDataFile()
+        }
         break
       case ('startOrResume'):
-        executeCommandsInParralel(commandName)
+        if (config.createRawDataFiles) {
+          await rawRecorder.createRawDataFile()
+        }
+        if (config.createRowingDataFile) {
+          await rowingDataRecorder.createRowingDataFile()
+        }
         break
       case ('pause'):
-        executeCommandsInParralel(commandName)
+        if (config.createRawDataFiles) {
+          await rawRecorder.createRawDataFile()
+        }
+        if (config.createRowingDataFile) {
+          await rowingDataRecorder.createRowingDataFile()
+        }
         break
       case ('stop'):
-        executeCommandsInParralel(commandName)
+        // This may be extracted to a separate private function if used at several places
+        if (config.createRawDataFiles) {
+          await rawRecorder.createRawDataFile()
+        }
+        if (config.createRowingDataFile) {
+          await rowingDataRecorder.createRowingDataFile()
+        }
         break
       case ('reset'):
         startTime = undefined
-        executeCommandsInParralel(commandName)
+        if (config.createRawDataFiles) {
+          await rawRecorder.createRawDataFile()
+        }
+        if (config.createRowingDataFile) {
+          await rowingDataRecorder.createRowingDataFile()
+        }
         break
       case 'blePeripheralMode':
         break
@@ -55,7 +81,12 @@ function createRecordingManager (config) {
       case 'stravaAuthorizationCode':
         break
       case 'shutdown':
-        await executeCommandsInParralel(commandName)
+        if (config.createRawDataFiles) {
+          await rawRecorder.createRawDataFile()
+        }
+        if (config.createRowingDataFile) {
+          await rowingDataRecorder.createRowingDataFile()
+        }
         break
       default:
         log.error(`recordingMnager: Recieved unknown command: ${commandName}`)
@@ -76,32 +107,12 @@ function createRecordingManager (config) {
     logRecorder.recordRowingMetrics(metrics)
     if (config.createTcxFiles) { tcxRecorder.recordRowingMetrics(metrics) }
     if (config.createRowingDataFiles) { rowingDataRecorder.recordRowingMetrics(metrics) }
-
-    if (config.createRawDataFiles && (metrics.metricsContext.isPauseStart || metrics.metricsContext.isSessionStop)) {
-      // As the rawRecorder isn't aware of any state, we explicitly need to tell it rowing has stopped
-      rawRecorder.handleCommand('stop')
-    }
   }
 
   async function recordHeartRate (heartRate) {
     logRecorder.recordHeartRate(heartRate)
     if (config.createTcxFiles) { tcxRecorder.recordHeartRate(heartRate) }
     if (config.createRowingDataFiles) { rowingDataRecorder.recordHeartRate(heartRate) }
-  }
-
-  async function executeCommandsInParralel (commandName) {
-    const parallelCalls = []
-    parallelCalls.push(logRecorder.handleCommand(commandName))
-    if (config.createRawDataFiles) {
-      parallelCalls.push(rawRecorder.handleCommand(commandName))
-    }
-    if (config.createTcxFiles) {
-      parallelCalls.push(tcxRecorder.handleCommand(commandName))
-    }
-    if (config.createRowingDataFiles) {
-      parallelCalls.push(rowingDataRecorder.handleCommand(commandName))
-    }
-    await Promise.all(parallelCalls)
   }
 
   async function nameFilesAndCreateDirectory () {

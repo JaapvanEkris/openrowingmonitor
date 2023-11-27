@@ -5,16 +5,62 @@
   Merges the different config files and presents the configuration to the application
   Checks the config for plausibilit, fixes the errors when needed
 */
+import EventEmitter from 'node:events'
 import defaultConfig from '../../config/default.config.js'
 import { deepMerge } from './Helper.js'
 import log from 'loglevel'
 
-async function getConfig () {
-  let customConfig
-  try {
-    customConfig = await import('../../config/config.js')
-  } catch (exception) {}
-  return customConfig !== undefined ? deepMerge(defaultConfig, customConfig.default) : defaultConfig
+export async function createConfigManager () {
+  const emitter = new EventEmitter()
+
+  // TODO: this config with the backing object is not the best approach, it would be better to have dedicated getter and setter functions but servers compatibility reasons. This would be even more simpler if instead of the "old" object creating es6 classes would be used
+  // TODO: it would be even possible to have lazy loading of the config to the moment a config is read (though based on the current architecture this makes limited useful ness)
+  const _config = await loadConfig()
+  checkConfig(_config)
+
+  const config = {
+    ..._config,
+    get bluetoothMode () {
+      return _config.bluetoothMode
+    },
+    set bluetoothMode (newBleMode) {
+      _config.bluetoothMode = newBleMode
+
+      emitter.emit('blePeripheralModeChanged', newBleMode)
+
+      // TODO: This may be removed as currently serves compatibility reasons. But we can have specific events for each change event. This needs to be thought through in overall, what is more convenient. as fewer events has benefits,but then the specific peripheral (e.g. BLE or ANT, etc.) data needs to be added to the payload triggering the need for switch statements on the consumer side
+      emitter.emit('peripheralSettingChanged', {
+        name: 'blePeripheralMode',
+        mode: newBleMode
+      })
+    },
+    get heartRateMode () {
+      return _config.heartRateMode
+    },
+    get antplusMode () {
+      return _config.antplusMode
+    }
+  }
+
+  // the initial loading and merging of the config should be a private function. Should be done on creation of the service then the service can take over state management. this service can be easily extended in a way that changes to the settings objects are written to disk too and loaded on next startup
+  async function loadConfig () {
+    let customConfig
+    try {
+      customConfig = await import('../../config/config.js')
+    } catch (exception) {}
+    return customConfig !== undefined ? deepMerge(defaultConfig, customConfig.default) : defaultConfig
+  }
+
+  // TODO: returning the backing field here is not a good approach actually server compatibility reasons; here this should be renamed to getAllConfig and should return the list of the settings with getter only properties (like the config object here) so direct changes are prevented. Every change should go through the setters so we are aware of this event and can raise the necessary events and notifications
+
+  function getConfig () {
+    return _config
+  }
+
+  return Object.assign(emitter, {
+    config,
+    getConfig
+  })
 }
 
 function checkConfig (configToCheck) {
@@ -208,9 +254,3 @@ function checkRangeValue (parameterSection, parameterName, range, allowRepair, d
     }
   }
 }
-
-const config = await getConfig()
-
-checkConfig(config)
-
-export default config

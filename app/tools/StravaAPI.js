@@ -10,8 +10,8 @@ import { promisify } from 'util'
 import { createAuthorizedConnection } from './AuthorizedStravaConnection.js'
 const gzip = promisify(zlib.gzip)
 
-function createStravaAPI (getStravaAuthorizationCode) {
-  const authorizedStravaConnection = createAuthorizedConnection(getStravaAuthorizationCode)
+function createStravaAPI (getStravaAuthorizationCode, config) {
+  const authorizedStravaConnection = createAuthorizedConnection(getStravaAuthorizationCode, config)
 
   async function uploadActivityTcx (tcxRecord) {
     const form = new FormData()

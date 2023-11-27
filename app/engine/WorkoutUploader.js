@@ -21,7 +21,7 @@ function createWorkoutUploader (config, workoutRecorder) {
     })
   }
 
-  const stravaAPI = createStravaAPI(getStravaAuthorizationCode)
+  const stravaAPI = createStravaAPI(getStravaAuthorizationCode, config)
 
   function stravaAuthorizationCode (stravaAuthorizationCode) {
     if (stravaAuthorizationCodeResolver) {

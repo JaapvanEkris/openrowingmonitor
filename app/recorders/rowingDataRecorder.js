@@ -14,38 +14,8 @@ function createRowingDataRecorder (config) {
   let filename
   let startTime
   let heartRate = 0
-  let strokes = []
+  const strokes = []
   let allDataHasBeenWritten
-
-  // This function handles all incomming commands. As all commands are broadasted to all application parts,
-  // we need to filter here what the WorkoutRecorder will react to and what it will ignore
-  async function handleCommand (commandName) {
-    switch (commandName) {
-      case ('start'):
-        break
-      case ('startOrResume'):
-        break
-      case ('pause'):
-        createRowingDataFile()
-        break
-      case ('stop'):
-        createRowingDataFile()
-        break
-      case ('reset'):
-        await createRowingDataFile()
-        heartRate = 0
-        filename = ''
-        startTime = undefined
-        strokes = []
-        allDataHasBeenWritten = true
-        break
-      case 'shutdown':
-        await createRowingDataFile()
-        break
-      default:
-        log.error(`RowingDataRecorder: Recieved unknown command: ${commandName}`)
-    }
-  }
 
   function setBaseFileName (baseFileName) {
     filename = `${baseFileName}_rowingData.csv`
@@ -162,7 +132,6 @@ function createRowingDataRecorder (config) {
   }
 
   return {
-    handleCommand,
     setBaseFileName,
     recordRowingMetrics,
     recordHeartRate
