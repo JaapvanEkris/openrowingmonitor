@@ -60,8 +60,7 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
       while (i < X.length() - 2) {
         j = i + 1
         while (j < X.length() - 1) {
-          A[i].push(calculateA(i, j, X.length() - 1)) // This should work better!!! //ToDo: implement this when the C2 settings are correct for low drag setup
-//          A[X.length() - 1].push(calculateA(i, j, X.length() - 1))
+          A[i].push(calculateA(i, j, X.length() - 1))
           j++
         }
         i++
@@ -221,25 +220,6 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
   function ySeries () {
     return Y.series()
   }
-
-/*
-  function calculateA (pointOne, pointThree) {
-    if ((pointOne + 1) < pointThree && X.get(pointOne) !== X.get(pointThree)) {
-      const results = createSeries(maxSeriesLength)
-      let pointTwo = pointOne + 1
-      while (pointOne < pointTwo && pointTwo < pointThree && X.get(pointOne) !== X.get(pointTwo) && X.get(pointTwo) !== X.get(pointThree)) {
-        // For the underlying math, see https://www.quora.com/How-do-I-find-a-quadratic-equation-from-points/answer/Robert-Paxson
-        results.push((X.get(pointOne) * (Y.get(pointThree) - Y.get(pointTwo)) + Y.get(pointOne) * (X.get(pointTwo) - X.get(pointThree)) + (X.get(pointThree) * Y.get(pointTwo) - X.get(pointTwo) * Y.get(pointThree))) / ((X.get(pointOne) - X.get(pointTwo)) * (X.get(pointOne) - X.get(pointThree)) * (X.get(pointTwo) - X.get(pointThree))))
-        pointTwo += 1
-      }
-      // Ideally, we would return results.series(), but this is way too CPU intensive for a Concept2
-      return results.median()
-    } else {
-      log.error('TS Quadratic Regressor, Division by zero prevented in CalculateA!')
-      return 0
-    }
-  }
-*/
 
   function calculateA (pointOne, pointTwo, pointThree) {
     let result = 0
