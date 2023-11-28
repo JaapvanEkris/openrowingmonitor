@@ -13,7 +13,8 @@ function createLabelledBinarySearchTree () {
     if (tree === null) {
       tree = newNode(label, value)
     } else {
-      pushInTree(tree, label, value)
+      // pushInTree(tree, label, value)
+      tree = pushInTree(tree, label, value)
     }
   }
 
@@ -23,17 +24,18 @@ function createLabelledBinarySearchTree () {
       if (currentTree.leftNode === null) {
         currentTree.leftNode = newNode(label, value)
       } else {
-        pushInTree(currentTree.leftNode, label, value)
+        currentTree.leftNode = pushInTree(currentTree.leftNode, label, value)
       }
     } else {
       // The value should be on the right side of currentTree
       if (currentTree.rightNode === null) {
         currentTree.rightNode = newNode(label, value)
       } else {
-        pushInTree(currentTree.rightNode, label, value)
+        currentTree.rightNode = pushInTree(currentTree.rightNode, label, value)
       }
     }
     currentTree.numberOfLeafsAndNodes = currentTree.numberOfLeafsAndNodes + 1
+    return currentTree
   }
 
   function newNode (label, value) {
