@@ -249,7 +249,7 @@ function createLabelledBinarySearchTree () {
     if (currentTree.leftNode === null) {
       currentNodePosition = 1
     } else {
-      currentNodePosition = currentTree.leftNode.numberOfLeafsAndNodes
+      currentNodePosition = currentTree.leftNode.numberOfLeafsAndNodes + 1
     }
 
     switch (true) {
