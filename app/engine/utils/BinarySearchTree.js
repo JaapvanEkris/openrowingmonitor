@@ -55,7 +55,7 @@ function createLabelledBinarySearchTree () {
         return countNumberOfValuesAboveInTree(currentTree.leftNode, testedValue) + countNumberOfValuesAboveInTree(currentTree.rightNode, testedValue) + 1
       } else {
         // currentTree.value < testedValue, so we need to find values from the right branch
-        return pushInTree(currentTree.rightNode, testedValue)
+        return countNumberOfValuesAboveInTree(currentTree.rightNode, testedValue)
       }
     }
   }
