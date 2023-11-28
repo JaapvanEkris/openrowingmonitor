@@ -49,10 +49,10 @@ function createLabelledBinarySearchTree () {
   }
 
   function size () {
-    if (tree === null) {
-      return 0
-    } else {
+    if (tree !== null) {
       return tree.numberOfLeafsAndNodes
+    } else {
+      return 0
     }
   }
 
@@ -220,7 +220,43 @@ function createLabelledBinarySearchTree () {
   }
 
   function median () {
-    return 0
+    if (tree !== null && tree.numberOfLeafsAndNodes > 0) {
+      const mid = Math.floor(tree.numberOfLeafsAndNodes / 2)
+      return tree.numberOfLeafsAndNodes % 2 !== 0 ? valueAtInorderPosition(tree, mid + 1) : (valueAtInorderPosition(tree, mid) + valueAtInorderPosition(tree, mid + 1)) / 2
+    } else {
+      return 0
+    }
+  }
+
+  function valueAtInorderPosition (currentTree, position) {
+    switch (true) {
+      case (currentTree === null):
+        // We are now an empty tree, this shouldn't happen
+        return undefined
+        break
+      case (position <= 1):
+        // The current position is the one we are looking for
+        return currentTree.value
+        break
+      case (currentTree.leftNode === null && position > 1):
+        // The current node's left side is empty, but position > 1, so we need to move downwards
+        return valueAtInorderPosition(currentTree.rightNode, (position - 1))
+        break
+      case (currentTree.leftNode !== null && position > 1 && (currentTree.leftNode.numberOfLeafsAndNodes + 1) = position):
+        // The current node is the one we are looking for
+        return currentTree.value
+        break
+      case (currentTree.leftNode !== null && position > 1 && (currentTree.leftNode.numberOfLeafsAndNodes + 1) > position)):
+        // The position we look for is in the left side of the currentTree
+        return valueAtInorderPosition(currentTree.leftNode, position)
+        break
+      case (currentTree.leftNode !== null && position > 1 && (currentTree.leftNode.numberOfLeafsAndNodes + 1) < position) && currentTree.rightNode !== null):
+        // The position we look for is in the right side of the currentTree
+        return valueAtInorderPosition(currentTree.rightNode, (position - (currentTree.leftNode.numberOfLeafsAndNodes + 1)))
+        break
+      default:
+        return undefined
+    }
   }
 
   function orderedSeries () {
@@ -237,6 +273,7 @@ function createLabelledBinarySearchTree () {
   }
 
   function reset () {
+    tree = null
   }
 
   return {
