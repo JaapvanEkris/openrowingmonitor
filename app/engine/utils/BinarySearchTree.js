@@ -79,7 +79,6 @@ function createLabelledBinarySearchTree () {
     }
   }
 
-
   function median () {
     return 0
   }
