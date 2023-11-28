@@ -92,6 +92,14 @@ function createLabelledBinarySearchTree () {
     }
   }
 
+  function remove (label) {
+    return removeFromTree(tree, label)
+  }
+
+  function removeFromTree (currentTree, label) {
+    // ToDo
+  }
+
   function median () {
     return 0
   }
