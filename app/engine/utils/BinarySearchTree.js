@@ -108,7 +108,7 @@ function createLabelledBinarySearchTree () {
     }
 
     // Resolve the situation if we need to remove the node itself
-    if (currentTree.label = label) {
+    if (currentTree.label === label) {
       // We need to remove the current node, the underlying sub-trees determin how it is resolved
       switch (true) {
         case (currentTree.leftNode === null && currentTree.rightNode === null):
@@ -126,11 +126,27 @@ function createLabelledBinarySearchTree () {
         case (currentTree.leftNode !== null && currentTree.rightNode !== null):
           // As all underlying sub-trees are filled, we need to be a bit smarter
           // ToDo
-          currentTree.numberOfLeafsAndNodes = 1
           break
       }
-      return currentTree
     }
+
+    // Recalculate the underlying tree size
+    switch (true) {
+      case (currentTree.leftNode === null && currentTree.rightNode === null):
+        currentTree.numberOfLeafsAndNodes = 1
+        break
+      case (currentTree.leftNode !== null && currentTree.rightNode === null):
+        currentTree.numberOfLeafsAndNodes = currentTree.leftNode.numberOfLeafsAndNodes + 1
+        break
+      case (currentTree.leftNode === null && currentTree.rightNode !== null):
+        currentTree.numberOfLeafsAndNodes = currentTree.rightNode.numberOfLeafsAndNodes + 1
+        break
+      case (currentTree.leftNode !== null && currentTree.rightNode !== null):
+        currentTree.numberOfLeafsAndNodes = currentTree.leftNode.numberOfLeafsAndNodes + currentTree.rightNode.numberOfLeafsAndNodes + 1
+        break
+    }
+
+    return currentTree
   }
 
   function median () {
