@@ -100,6 +100,9 @@ function createLabelledBinarySearchTree () {
 
   function removeFromTree (currentTree, label) {
     // Clean up the underlying sub-trees first
+    if (currentTree === null) {
+      return null
+    }
     if (currentTree.leftNode !== null) {
       currentTree.leftNode = removeFromTree(currentTree.leftNode, label)
     }
