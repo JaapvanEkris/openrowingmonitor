@@ -52,7 +52,7 @@ function createLabelledBinarySearchTree () {
       // We encounter a filled node
       if (currentTree.value > testedValue) {
         // testedValue < currentTree.value, so we can find the tested value in the left and right branch
-        return countNumberOfValuesAboveInTree(currentTree.leftNode, testedValue) + countNumberOfValuesAboveInTree(currentTree.rightNode, testedValue) + 1
+        return (countNumberOfValuesAboveInTree(currentTree.leftNode, testedValue) + countNumberOfValuesAboveInTree(currentTree.rightNode, testedValue) + 1)
       } else {
         // currentTree.value < testedValue, so we need to find values from the right branch
         return countNumberOfValuesAboveInTree(currentTree.rightNode, testedValue)
@@ -71,7 +71,7 @@ function createLabelledBinarySearchTree () {
       // We encounter a filled node
       if (currentTree.value <= testedValue) {
         // testedValue <= currentTree.value, so we can only find the tested value in the left branch
-        return countNumberOfValuesEqualOrBelowInTree(currentTree.leftNode, testedValue) + countNumberOfValuesEqualOrBelowInTree(currentTree.rightNode, testedValue) + 1
+        return (countNumberOfValuesEqualOrBelowInTree(currentTree.leftNode, testedValue) + countNumberOfValuesEqualOrBelowInTree(currentTree.rightNode, testedValue) + 1)
       } else {
         // currentTree.value > testedValue, so we only need to look at the left branch
         return countNumberOfValuesEqualOrBelowInTree(currentTree.leftNode, testedValue)
