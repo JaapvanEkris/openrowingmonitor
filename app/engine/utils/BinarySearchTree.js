@@ -24,10 +24,10 @@ function createLabelledBinarySearchTree () {
       // We encounter a filled node
       if (currentTree.value >= value) {
         // value <= currentTree.value, so we need the value to the left branch
-        pushInTree (currentTree.leftNode, label, value)
+        pushInTree(currentTree.leftNode, label, value)
       } else {
         // currentTree.value < value, so we need to add the value to the right branch
-        pushInTree (currentTree.rightNode, label, value)
+        pushInTree(currentTree.rightNode, label, value)
       }
       currentTree.numberOfLeafsAndNodes = currentTree.numberOfLeafsAndNodes + 1
     }
