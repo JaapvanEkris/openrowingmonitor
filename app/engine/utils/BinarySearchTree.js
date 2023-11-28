@@ -7,11 +7,20 @@
 */
 
 function createLabelledBinarySearchTree () {
+  let tree = null
+  
   function push (label, value) {
+    if (tree === null) {
+      tree = newNode(label, value)
+    }
   }
 
   function size () {
-    return 0
+    if (tree === null) {
+      return 0
+    } else {
+      return tree.numberOfLeafsAndNodes
+    }
   }
 
   function numberOfValuesAbove (testedValue) {
@@ -40,6 +49,17 @@ function createLabelledBinarySearchTree () {
     median,
     orderedSeries,
     reset
+  }
+}
+
+function newNode (label, value) {
+  return {
+    label: label,
+    value: value,
+    leftNode: null,
+    rightNode: null,
+    numberOfLeafsAndNodes: 1
+    }
   }
 }
 
