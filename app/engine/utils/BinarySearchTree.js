@@ -8,7 +8,7 @@
 
 function createLabelledBinarySearchTree () {
   let tree = null
-  
+
   function push (label, value) {
     if (tree === null) {
       tree = newNode(label, value)
@@ -54,12 +54,12 @@ function createLabelledBinarySearchTree () {
 
 function newNode (label, value) {
   return {
-    label: label,
-    value: value,
+    label,
+    value,
     leftNode: null,
     rightNode: null,
     numberOfLeafsAndNodes: 1
-    }
   }
+}
 
 export { createLabelledBinarySearchTree }
