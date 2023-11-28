@@ -28,6 +28,7 @@ function createLabelledBinarySearchTree () {
   }
 
   function numberOfValuesEqualOrBelow (testedValue) {
+    return 0
   }
 
   function median () {
