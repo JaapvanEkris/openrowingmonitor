@@ -130,13 +130,13 @@ function createLabelledBinarySearchTree () {
       }
     }
 
-    // Recalculate the underlying tree size
+    /* Recalculate the underlying tree size
     switch (true) {
       case (currentTree === null):
         // We are now an empty leaf, nothing to do here
         break
       case (currentTree.leftNode === null && currentTree.rightNode === null):
-        // This is a filed leaf
+        // This is a filled leaf
         currentTree.numberOfLeafsAndNodes = 1
         break
       case (currentTree.leftNode !== null && currentTree.rightNode === null):
@@ -148,7 +148,7 @@ function createLabelledBinarySearchTree () {
       case (currentTree.leftNode !== null && currentTree.rightNode !== null):
         currentTree.numberOfLeafsAndNodes = currentTree.leftNode.numberOfLeafsAndNodes + currentTree.rightNode.numberOfLeafsAndNodes + 1
         break
-    }
+    }*/
 
     return currentTree
   }
