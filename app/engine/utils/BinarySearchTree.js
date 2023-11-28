@@ -250,7 +250,7 @@ function createLabelledBinarySearchTree () {
         // The position we look for is in the left side of the currentTree
         return valueAtInorderPosition(currentTree.leftNode, position)
         break
-      case (currentTree.leftNode !== null && position > 1 && (currentTree.leftNode.numberOfLeafsAndNodes + 1) < position) && currentTree.rightNode !== null):
+      case (currentTree.leftNode !== null && position > 1 && (currentTree.leftNode.numberOfLeafsAndNodes + 1) < position && currentTree.rightNode !== null):
         // The position we look for is in the right side of the currentTree
         return valueAtInorderPosition(currentTree.rightNode, (position - (currentTree.leftNode.numberOfLeafsAndNodes + 1)))
         break
