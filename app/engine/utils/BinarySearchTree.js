@@ -124,6 +124,7 @@ function createLabelledBinarySearchTree () {
 
   return {
     push,
+    remove,
     size,
     numberOfValuesAbove,
     numberOfValuesEqualOrBelow,
