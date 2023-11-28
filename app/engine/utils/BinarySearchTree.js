@@ -231,10 +231,10 @@ function createLabelledBinarySearchTree () {
   }
 
   function valueAtInorderPos (position) { // BE AWARE TESTING PURPOSSES ONLY
-    if (tree !== null && tree.numberOfLeafsAndNodes > 0) {
+    if (tree !== null && position >= 1) {
       return valueAtInorderPosition(tree, position)
     } else {
-      return 0
+      return undefined
     }
   }
 
