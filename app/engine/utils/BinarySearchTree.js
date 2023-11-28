@@ -246,10 +246,10 @@ function createLabelledBinarySearchTree () {
     }
 
     // First we need to find out what the InOrder Postion we currently are at
-    if (currentTree.leftNode === null) {
-      currentNodePosition = 1
-    } else {
+    if (currentTree.leftNode !== null) {
       currentNodePosition = currentTree.leftNode.numberOfLeafsAndNodes + 1
+    } else {
+      currentNodePosition = 1
     }
 
     switch (true) {
@@ -259,10 +259,10 @@ function createLabelledBinarySearchTree () {
       case (currentTree.leftNode === null):
         // The current node's left side is empty, but position <> currentNodePosition, so we have no choice but to move downwards
         return valueAtInorderPosition(currentTree.rightNode, (position - 1))
-      case (currentTree.leftNode !== null && position > 1 && currentNodePosition > position):
+      case (currentTree.leftNode !== null && currentNodePosition > position):
         // The position we look for is in the left side of the currentTree
         return valueAtInorderPosition(currentTree.leftNode, position)
-      case (currentTree.leftNode !== null && position > 1 && currentNodePosition < position && currentTree.rightNode !== null):
+      case (currentTree.leftNode !== null && currentNodePosition < position && currentTree.rightNode !== null):
         // The position we look for is in the right side of the currentTree
         return valueAtInorderPosition(currentTree.rightNode, (position - currentNodePosition))
       default:
