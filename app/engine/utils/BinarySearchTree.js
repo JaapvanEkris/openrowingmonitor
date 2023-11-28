@@ -239,25 +239,32 @@ function createLabelledBinarySearchTree () {
   }
 
   function valueAtInorderPosition (currentTree, position) {
+    let currentNodePosition
+    if (currentTree === null) {
+      // We are now an empty tree, this shouldn't happen
+      return undefined
+    }
+
+    // First we need to find out what the InOrder Postion we currently are at
+    if (currentTree.leftNode === null) {
+      currentNodePosition = 1
+    } else {
+      currentNodePosition = currentTree.leftNode.numberOfLeafsAndNodes
+    }
+
     switch (true) {
-      case (currentTree === null):
-        // We are now an empty tree, this shouldn't happen
-        return undefined
-      case (position <= 1):
+      case (position = currentNodePosition):
         // The current position is the one we are looking for
         return currentTree.value
       case (currentTree.leftNode === null && position > 1):
-        // The current node's left side is empty, but position > 1, so we need to move downwards
+        // The current node's left side is empty, but position > 1, so we have no choice but to move downwards
         return valueAtInorderPosition(currentTree.rightNode, (position - 1))
-      case (currentTree.leftNode !== null && position > 1 && (currentTree.leftNode.numberOfLeafsAndNodes + 1) === position):
-        // The current node is the one we are looking for
-        return currentTree.value
-      case (currentTree.leftNode !== null && position > 1 && (currentTree.leftNode.numberOfLeafsAndNodes + 1) > position):
+      case (currentTree.leftNode !== null && position > 1 && currentNodePosition > position):
         // The position we look for is in the left side of the currentTree
         return valueAtInorderPosition(currentTree.leftNode, position)
-      case (currentTree.leftNode !== null && position > 1 && (currentTree.leftNode.numberOfLeafsAndNodes + 1) < position && currentTree.rightNode !== null):
+      case (currentTree.leftNode !== null && position > 1 && currentNodePosition < position && currentTree.rightNode !== null):
         // The position we look for is in the right side of the currentTree
-        return valueAtInorderPosition(currentTree.rightNode, (position - (currentTree.leftNode.numberOfLeafsAndNodes + 1)))
+        return valueAtInorderPosition(currentTree.rightNode, (position - currentNodePosition))
       default:
         return undefined
     }
