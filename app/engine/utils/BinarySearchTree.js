@@ -233,27 +233,21 @@ function createLabelledBinarySearchTree () {
       case (currentTree === null):
         // We are now an empty tree, this shouldn't happen
         return undefined
-        break
       case (position <= 1):
         // The current position is the one we are looking for
         return currentTree.value
-        break
       case (currentTree.leftNode === null && position > 1):
         // The current node's left side is empty, but position > 1, so we need to move downwards
         return valueAtInorderPosition(currentTree.rightNode, (position - 1))
-        break
       case (currentTree.leftNode !== null && position > 1 && (currentTree.leftNode.numberOfLeafsAndNodes + 1) === position):
         // The current node is the one we are looking for
         return currentTree.value
-        break
       case (currentTree.leftNode !== null && position > 1 && (currentTree.leftNode.numberOfLeafsAndNodes + 1) > position):
         // The position we look for is in the left side of the currentTree
         return valueAtInorderPosition(currentTree.leftNode, position)
-        break
       case (currentTree.leftNode !== null && position > 1 && (currentTree.leftNode.numberOfLeafsAndNodes + 1) < position && currentTree.rightNode !== null):
         // The position we look for is in the right side of the currentTree
         return valueAtInorderPosition(currentTree.rightNode, (position - (currentTree.leftNode.numberOfLeafsAndNodes + 1)))
-        break
       default:
         return undefined
     }
