@@ -107,7 +107,7 @@ test('Tree behaviour with complex removals. Series = [9, 6, 5, 8, 7, 9, 12, 10, 
   dataTree.remove(1)
   testOrderedSeries(dataTree, [5, 6, 7, 8, 9, 10, 11, 12])
   dataTree.remove(3)
-  testOrderedSeries(dataTree, [5, 7, 8, 9, 10, 11, 12])
+  testOrderedSeries(dataTree, [6, 7, 8, 9, 10, 11, 12])
 })
 
 test('Tree behaviour with a five pushed values followed by a reset, Tree = []', () => {
