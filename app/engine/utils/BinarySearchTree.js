@@ -266,7 +266,7 @@ function createLabelledBinarySearchTree () {
         // The position we look for is in the right side of the currentTree
         return valueAtInorderPosition(currentTree.rightNode, (position - currentNodePosition))
       default:
-        return undefined
+        return 99999
     }
   }
 
