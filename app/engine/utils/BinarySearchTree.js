@@ -18,19 +18,22 @@ function createLabelledBinarySearchTree () {
   }
 
   function pushInTree (currentTree, label, value) {
-    if (currentTree === null) {
-      currentTree = newNode(label, value)
-    } else {
-      // We encounter a filled node
-      if (currentTree.value >= value) {
-        // value <= currentTree.value, so we need the value to the left branch
-        pushInTree(currentTree.leftNode, label, value)
+    if (value <= currentTree.value) {
+      // The value should be on the left side of currentTree
+      if (currentTree.leftNode === null) {
+        currentTree.leftNode = newNode(label, value)
       } else {
-        // currentTree.value < value, so we need to add the value to the right branch
+        pushInTree(currentTree.leftNode, label, value)
+      }
+    } else {
+      // The value should be on the right side of currentTree
+      if (currentTree.rightNode === null) {
+        currentTree.rightNode = newNode(label, value)
+      } else {
         pushInTree(currentTree.rightNode, label, value)
       }
-      currentTree.numberOfLeafsAndNodes = currentTree.numberOfLeafsAndNodes + 1
     }
+    currentTree.numberOfLeafsAndNodes = currentTree.numberOfLeafsAndNodes + 1
   }
 
   function newNode (label, value) {
