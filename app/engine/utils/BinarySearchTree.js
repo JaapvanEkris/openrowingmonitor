@@ -137,7 +137,7 @@ function createLabelledBinarySearchTree () {
             // The right sub-tree is smaller then the right one, lets use the closest successor to restore some balance
             currentTree.value = clostestSuccesor(currentTree.rightNode).value
             currentTree.label = clostestSuccesor(currentTree.rightNode).label
-            currentTree.rightNode = destroyClostestSuccesor(currentTree.rightNode)
+            currentTree.rightNode = destroyClostestSuccessor(currentTree.rightNode)
           }
           break
       }
@@ -184,7 +184,7 @@ function createLabelledBinarySearchTree () {
     if (currentTree.rightNode !== null) {
       // We haven't reached the end of the tree yet
       currentTree.rightNode = destroyClostestPredecessor(currentTree.rightNode)
-      currentTree.numberOfLeafsAndNodes = currentTree.numberOfLeafsAndNodes -1
+      currentTree.numberOfLeafsAndNodes = currentTree.numberOfLeafsAndNodes - 1
       return currentTree
     } else {
       // We reached the largest value in the tree
@@ -211,7 +211,7 @@ function createLabelledBinarySearchTree () {
     if (currentTree.leftNode !== null) {
       // We haven't reached the end of the tree yet
       currentTree.leftNode = destroyClostestSuccessor(currentTree.leftNode)
-      currentTree.numberOfLeafsAndNodes = currentTree.numberOfLeafsAndNodes -1
+      currentTree.numberOfLeafsAndNodes = currentTree.numberOfLeafsAndNodes - 1
       return currentTree
     } else {
       // We reached the smallest value in the tree
