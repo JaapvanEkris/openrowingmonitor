@@ -61,6 +61,5 @@ function newNode (label, value) {
     numberOfLeafsAndNodes: 1
     }
   }
-}
 
 export { createLabelledBinarySearchTree }
