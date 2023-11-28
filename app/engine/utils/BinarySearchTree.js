@@ -145,7 +145,7 @@ function createLabelledBinarySearchTree () {
 
     // Recalculate the tree size
     switch (true) {
-      case (currentTree === null)
+      case (currentTree === null):
         // We are now an empty leaf, nothing to do here
         break
       case (currentTree.leftNode === null && currentTree.rightNode === null):
