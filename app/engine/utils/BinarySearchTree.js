@@ -129,7 +129,7 @@ function createLabelledBinarySearchTree () {
           currentTree.numberOfLeafsAndNodes = 1
           break
       }
-      
+      return currentTree
     }
   }
 
