@@ -237,7 +237,7 @@ function createLabelledBinarySearchTree () {
       return 0
     }
   }
-  
+
   function valueAtInorderPosition (currentTree, position) {
     switch (true) {
       case (currentTree === null):
