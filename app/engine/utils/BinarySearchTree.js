@@ -253,11 +253,11 @@ function createLabelledBinarySearchTree () {
     }
 
     switch (true) {
-      case (position = currentNodePosition):
+      case (position === currentNodePosition):
         // The current position is the one we are looking for
         return currentTree.value
-      case (currentTree.leftNode === null && position > 1):
-        // The current node's left side is empty, but position > 1, so we have no choice but to move downwards
+      case (currentTree.leftNode === null):
+        // The current node's left side is empty, but position <> currentNodePosition, so we have no choice but to move downwards
         return valueAtInorderPosition(currentTree.rightNode, (position - 1))
       case (currentTree.leftNode !== null && position > 1 && currentNodePosition > position):
         // The position we look for is in the left side of the currentTree
@@ -266,7 +266,7 @@ function createLabelledBinarySearchTree () {
         // The position we look for is in the right side of the currentTree
         return valueAtInorderPosition(currentTree.rightNode, (position - currentNodePosition))
       default:
-        return 99999
+        return undefined
     }
   }
 
