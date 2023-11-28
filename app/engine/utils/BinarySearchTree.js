@@ -42,12 +42,43 @@ function createLabelledBinarySearchTree () {
   }
 
   function numberOfValuesAbove (testedValue) {
-    return 0
+    return countNumberOfValuesAboveInTree(tree, testedValue)
+  }
+
+  function countNumberOfValuesAboveInTree (currentTree, testedValue) {
+    if (currentTree === null) {
+      return 0
+    } else {
+      // We encounter a filled node
+      if (currentTree.value > testedValue) {
+        // testedValue < currentTree.value, so we can find the tested value in the left and right branch
+        return countNumberOfValuesAboveInTree(currentTree.leftNode, testedValue) + countNumberOfValuesAboveInTree(currentTree.rightNode, testedValue) + 1
+      } else {
+        // currentTree.value < testedValue, so we need to find values from the right branch
+        return pushInTree(currentTree.rightNode, testedValue)
+      }
+    }
   }
 
   function numberOfValuesEqualOrBelow (testedValue) {
-    return 0
+    return countNumberOfValuesEqualOrBelowInTree(tree, testedValue)
   }
+
+  function countNumberOfValuesEqualOrBelowInTree (currentTree, testedValue) {
+    if (currentTree === null) {
+      return 0
+    } else {
+      // We encounter a filled node
+      if (currentTree.value <= testedValue) {
+        // testedValue <= currentTree.value, so we can only find the tested value in the left branch
+        return countNumberOfValuesEqualOrBelowInTree(currentTree.leftNode, testedValue) + countNumberOfValuesEqualOrBelowInTree(currentTree.rightNode, testedValue) + 1
+      } else {
+        // currentTree.value > testedValue, so we only need to look at the left branch
+        return countNumberOfValuesEqualOrBelowInTree(currentTree.leftNode, testedValue)
+      }
+    }
+  }
+
 
   function median () {
     return 0
