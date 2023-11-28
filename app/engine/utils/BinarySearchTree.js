@@ -7,8 +7,6 @@
 */
 
 function createLabelledBinarySearchTree () {
-  const seriesArray = []
-  let seriesSum = 0
 
   function push (label, value) {
   }
@@ -24,10 +22,6 @@ function createLabelledBinarySearchTree () {
   function numberOfValuesEqualOrBelow (testedValue) {
   }
 
-  function sum () {
-    return seriesSum
-  }
-
   function median () {
     return 0
   }
@@ -37,7 +31,6 @@ function createLabelledBinarySearchTree () {
   }
 
   function reset () {
-    seriesSum = 0
   }
 
   return {
@@ -46,7 +39,7 @@ function createLabelledBinarySearchTree () {
     numberOfValuesAbove,
     numberOfValuesEqualOrBelow,
     median,
-    createLabelledBinarySearchTree,
+    orderedSeries,
     reset
   }
 }
