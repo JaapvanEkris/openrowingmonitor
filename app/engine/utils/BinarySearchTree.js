@@ -60,7 +60,7 @@ function createLabelledBinarySearchTree () {
 
   function countNumberOfValuesAboveInTree (currentTree, testedValue) {
     if (currentTree === null) {
-      return 1
+      return 0
     } else {
       // We encounter a filled node
       if (currentTree.value > testedValue) {
