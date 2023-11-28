@@ -104,6 +104,7 @@ function createLabelledBinarySearchTree () {
       // We encounter a filled node
       return [...orderedTree(currentTree.leftNode), currentTree.value, ...orderedTree(currentTree.leftNode)]
     }
+  }
 
   function reset () {
   }
