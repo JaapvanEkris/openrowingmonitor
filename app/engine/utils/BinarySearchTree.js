@@ -125,6 +125,7 @@ function createLabelledBinarySearchTree () {
           break
         case (currentTree.leftNode !== null && currentTree.rightNode !== null):
           // As all underlying sub-trees are filled, we need to be a bit smarter
+          // As there are two potential nodes to use, we grasp the opportunity to try to balance the tree a bit more as it increases performance
           // ToDo
           break
       }
@@ -148,7 +149,7 @@ function createLabelledBinarySearchTree () {
       case (currentTree.leftNode !== null && currentTree.rightNode !== null):
         currentTree.numberOfLeafsAndNodes = currentTree.leftNode.numberOfLeafsAndNodes + currentTree.rightNode.numberOfLeafsAndNodes + 1
         break
-    }*/
+    } */
 
     return currentTree
   }
