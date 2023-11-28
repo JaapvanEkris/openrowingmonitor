@@ -99,7 +99,7 @@ function createLabelledBinarySearchTree () {
   }
 
   function removeFromTree (currentTree, label) {
-    /* Clean up the underlying sub-trees first
+    // Clean up the underlying sub-trees first
     if (currentTree === null) {
       return null
     }
@@ -152,7 +152,7 @@ function createLabelledBinarySearchTree () {
       case (currentTree.leftNode !== null && currentTree.rightNode !== null):
         currentTree.numberOfLeafsAndNodes = currentTree.leftNode.numberOfLeafsAndNodes + currentTree.rightNode.numberOfLeafsAndNodes + 1
         break
-    } */
+    }
     return currentTree
   }
 
