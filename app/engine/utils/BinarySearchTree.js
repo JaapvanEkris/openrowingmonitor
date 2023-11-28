@@ -98,7 +98,7 @@ function createLabelledBinarySearchTree () {
   }
 
   function orderedTree (currentTree) {
-      if (currentTree === null) {
+    if (currentTree === null) {
       return []
     } else {
       // We encounter a filled node
