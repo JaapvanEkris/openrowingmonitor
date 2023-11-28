@@ -101,7 +101,7 @@ test('Tree behaviour with a five pushed values followed by a reset, Tree = []', 
 })
 
 function testSize (tree, expectedValue) {
-  assert.ok(tree.size() === expectedValue, `Expected size should be ${expectedValue}, encountered ${tree.length()}`)
+  assert.ok(tree.size() === expectedValue, `Expected size should be ${expectedValue}, encountered ${tree.size()}`)
 }
 
 function testNumberOfValuesAbove (tree, cutoff, expectedValue) {
