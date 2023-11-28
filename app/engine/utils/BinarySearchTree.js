@@ -102,10 +102,6 @@ function createLabelledBinarySearchTree () {
 
   function removeFromTree (currentTree, label) {
     // Clean up the underlying sub-trees first
-    /* if (currentTree === null) {
-      // Deze code zou hier overbodig moeten zijn!!!
-      return null
-    } */
     if (currentTree.leftNode !== null) {
       currentTree.leftNode = removeFromTree(currentTree.leftNode, label)
     }
@@ -113,7 +109,7 @@ function createLabelledBinarySearchTree () {
       currentTree.rightNode = removeFromTree(currentTree.rightNode, label)
     }
 
-    // Handle the situation when we need to remove the node itself
+    // Next, handle the situation when we need to remove the node itself
     if (currentTree.label === label) {
       // We need to remove the current node, the underlying sub-trees determin how it is resolved
       switch (true) {
@@ -131,15 +127,25 @@ function createLabelledBinarySearchTree () {
           break
         case (currentTree.leftNode !== null && currentTree.rightNode !== null):
           // As all underlying sub-trees are filled, we need to move a leaf to the now empty node. Here, we can be a bit smarter
-          // As there are two potential nodes to use, we try to balance the tree a bit more as this increases performance
-          // ToDo
+          // as there are two potential nodes to use, we try to balance the tree a bit more as this increases performance
+          if (currentTree.leftNode.numberOfLeafsAndNodes > currentTree.rightNode.numberOfLeafsAndNodes) {
+            // The left sub-tree is bigger then the right one, lets use the closest predecessor to restore some balance
+            currentTree.value = clostestPredecessor(currentTree.leftNode).value
+            currentTree.label = clostestPredecessor(currentTree.leftNode).label
+            currentTree.leftNode = destroyClostestPredecessor(currentTree.leftNode)
+          } else {
+            // The right sub-tree is smaller then the right one, lets use the closest successor to restore some balance
+            currentTree.value = clostestSuccesor(currentTree.rightNode).value
+            currentTree.label = clostestSuccesor(currentTree.rightNode).label
+            currentTree.rightNode = destroyClostestSuccesor(currentTree.rightNode)
+          }
           break
       }
     }
 
     // Recalculate the tree size
     switch (true) {
-      case (currentTree === null):
+      case 
         // We are now an empty leaf, nothing to do here
         break
       case (currentTree.leftNode === null && currentTree.rightNode === null):
@@ -157,6 +163,60 @@ function createLabelledBinarySearchTree () {
         break
     }
     return currentTree
+  }
+
+  function clostestPredecessor (currentTree) {
+    // This function finds the maximum value in a tree
+    if (currentTree.rightNode !== null) {
+      // We haven't reached the end of the tree yet
+      return clostestPredecessor(currentTree.rightNode)
+    } else {
+      // We reached the largest value in the tree
+      return {
+        label: currentTree.label,
+        value: currentTree.value
+      }
+    }
+  }
+
+  function destroyClostestPredecessor (currentTree) {
+    // This function finds the maximum value in a tree
+    if (currentTree.rightNode !== null) {
+      // We haven't reached the end of the tree yet
+      currentTree.rightNode = destroyClostestPredecessor(currentTree.rightNode)
+      currentTree.numberOfLeafsAndNodes = currentTree.numberOfLeafsAndNodes -1
+      return currentTree
+    } else {
+      // We reached the largest value in the tree
+      return currentTree.leftNode
+    }
+  }
+
+  function clostestSuccesor (currentTree) {
+    // This function finds the maximum value in a tree
+    if (currentTree.leftNode !== null) {
+      // We haven't reached the end of the tree yet
+      return clostestSuccesor(currentTree.leftNode)
+    } else {
+      // We reached the smallest value in the tree
+      return {
+        label: currentTree.label,
+        value: currentTree.value
+      }
+    }
+  }
+
+  function destroyClostestSuccessor (currentTree) {
+    // This function finds the maximum value in a tree
+    if (currentTree.leftNode !== null) {
+      // We haven't reached the end of the tree yet
+      currentTree.leftNode = destroyClostestSuccessor(currentTree.leftNode)
+      currentTree.numberOfLeafsAndNodes = currentTree.numberOfLeafsAndNodes -1
+      return currentTree
+    } else {
+      // We reached the smallest value in the tree
+      return currentTree.rightNode
+    }
   }
 
   function median () {
