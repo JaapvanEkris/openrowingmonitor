@@ -104,10 +104,13 @@ test('Tree behaviour with complex removals. Series = [9, 6, 5, 8, 7, 9, 12, 10, 
   dataTree.push(8, 10)
   dataTree.push(9, 11)
   testOrderedSeries(dataTree, [5, 6, 7, 8, 9, 9, 10, 11, 12])
+  testMedian(dataTree, 9)
   dataTree.remove(1)
   testOrderedSeries(dataTree, [5, 6, 7, 8, 9, 10, 11, 12])
+  testMedian(dataTree, 8.5)
   dataTree.remove(3)
   testOrderedSeries(dataTree, [6, 7, 8, 9, 10, 11, 12])
+  testMedian(dataTree, 9)
 })
 
 // Test based on https://levelup.gitconnected.com/deletion-in-binary-search-tree-with-javascript-fded82e1791c
@@ -121,12 +124,16 @@ test('Tree behaviour with complex removals. Series = [50, 30, 70, 20, 40, 60, 80
   dataTree.push(6, 60)
   dataTree.push(7, 80)
   testOrderedSeries(dataTree, [20, 30, 40, 50, 60, 70, 80])
+  testMedian(dataTree, 50)
   dataTree.remove(4)
   testOrderedSeries(dataTree, [30, 40, 50, 60, 70, 80])
+  testMedian(dataTree, 55)
   dataTree.remove(2)
   testOrderedSeries(dataTree, [40, 50, 60, 70, 80])
+  testMedian(dataTree, 60)
   dataTree.remove(1)
   testOrderedSeries(dataTree, [40, 60, 70, 80])
+  testMedian(dataTree, 65)
 })
 
 test('Tree behaviour with a five pushed values followed by a reset, Tree = []', () => {
