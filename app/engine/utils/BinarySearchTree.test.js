@@ -23,6 +23,7 @@ test('Tree behaviour with a single pushed value. Tree = [9]', () => {
   const dataTree = createLabelledBinarySearchTree()
   dataTree.push(1, 9)
   testSize(dataTree, 1)
+  testOrderedSeries(dataTree, [9])
   testNumberOfValuesAbove(dataTree, 0, 1)
   testNumberOfValuesEqualOrBelow(dataTree, 0, 0)
   testNumberOfValuesAbove(dataTree, 10, 0)
@@ -35,6 +36,7 @@ test('Tree behaviour with a second pushed value. Tree = [9, 3]', () => {
   dataTree.push(1, 9)
   dataTree.push(2, 3)
   testSize(dataTree, 2)
+  testOrderedSeries(dataTree, [3, 9])
   testNumberOfValuesAbove(dataTree, 0, 2)
   testNumberOfValuesEqualOrBelow(dataTree, 0, 0)
   testNumberOfValuesAbove(dataTree, 10, 0)
@@ -48,6 +50,7 @@ test('Tree behaviour with a third pushed value. Tree = [9, 3, 6]', () => {
   dataTree.push(2, 3)
   dataTree.push(3, 6)
   testSize(dataTree, 3)
+  testOrderedSeries(dataTree, [3, 6, 9])
   testNumberOfValuesAbove(dataTree, 0, 3)
   testNumberOfValuesEqualOrBelow(dataTree, 0, 0)
   testNumberOfValuesAbove(dataTree, 10, 0)
@@ -62,6 +65,7 @@ test('Tree behaviour with a fourth pushed value. Tree = [3, 6, 12]', () => {
   dataTree.push(3, 6)
   dataTree.push(4, 12)
   testSize(dataTree, 3)
+  testOrderedSeries(dataTree, [3, 6, 12])
   testNumberOfValuesAbove(dataTree, 0, 3)
   testNumberOfValuesEqualOrBelow(dataTree, 0, 0)
   testNumberOfValuesAbove(dataTree, 10, 1)
@@ -77,6 +81,7 @@ test('Tree behaviour with a fifth pushed value. Series = [6, 12, -3]', () => {
   dataTree.push(4, 12)
   dataTree.push(5, -3)
   testSize(dataTree, 3)
+  testOrderedSeries(dataTree, [-3, 6, 12])
   testNumberOfValuesAbove(dataTree, 0, 2)
   testNumberOfValuesEqualOrBelow(dataTree, 0, 1)
   testNumberOfValuesAbove(dataTree, 10, 1)
@@ -110,6 +115,10 @@ function testNumberOfValuesAbove (tree, cutoff, expectedValue) {
 
 function testNumberOfValuesEqualOrBelow (tree, cutoff, expectedValue) {
   assert.ok(tree.numberOfValuesEqualOrBelow(cutoff) === expectedValue, `Expected numberOfValuesEqualOrBelow(${cutoff}) to be ${expectedValue}, encountered ${tree.numberOfValuesEqualOrBelow(cutoff)}`)
+}
+
+function testOrderedSeries (tree, expectedValue) {
+  assert.ok(tree.orderedSeries() === expectedValue, `Expected median to be ${expectedValue}, encountered ${tree.orderedSeries()}`)
 }
 
 function testMedian (tree, expectedValue) {
