@@ -7,7 +7,6 @@
 */
 
 function createLabelledBinarySearchTree () {
-
   function push (label, value) {
   }
 
