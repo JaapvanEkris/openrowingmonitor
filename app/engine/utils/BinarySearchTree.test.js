@@ -92,6 +92,24 @@ test('Tree behaviour with a fifth pushed value. Series = [6, 12, -3]', () => {
   testMedian(dataTree, 6)
 })
 
+test('Tree behaviour with complex removals. Series = [6, 12, -3]', () => {
+  const dataTree = createLabelledBinarySearchTree()
+  dataTree.push(1, 9)
+  dataTree.push(2, 6)
+  dataTree.push(3, 5)
+  dataTree.push(4, 8)
+  dataTree.push(5, 7)
+  dataTree.push(6, 9)
+  dataTree.push(7, 12)
+  dataTree.push(8, 10)
+  dataTree.push(9, 11)
+  testOrderedSeries(dataTree, [5, 6, 7, 8, 9, 9, 10, 11, 12])
+  dataTree.remove(1)
+  testOrderedSeries(dataTree, [5, 6, 7, 8, 9, 10, 11, 12])
+  dataTree.remove(3)
+  testOrderedSeries(dataTree, [5, 7, 8, 9, 10, 11, 12])
+})
+
 test('Tree behaviour with a five pushed values followed by a reset, Tree = []', () => {
   const dataTree = createLabelledBinarySearchTree()
   dataTree.push(1, 9)
