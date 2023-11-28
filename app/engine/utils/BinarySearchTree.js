@@ -33,6 +33,16 @@ function createLabelledBinarySearchTree () {
     }
   }
 
+  function newNode (label, value) {
+    return {
+      label,
+      value,
+      leftNode: null,
+      rightNode: null,
+      numberOfLeafsAndNodes: 1
+    }
+  }
+
   function size () {
     if (tree === null) {
       return 0
@@ -84,8 +94,16 @@ function createLabelledBinarySearchTree () {
   }
 
   function orderedSeries () {
-    return 0
+    return orderedTree(tree)
   }
+
+  function orderedTree (currentTree) {
+      if (currentTree === null) {
+      return []
+    } else {
+      // We encounter a filled node
+      return [...orderedTree(currentTree.leftNode), currentTree.value, ...orderedTree(currentTree.leftNode)]
+    }
 
   function reset () {
   }
@@ -98,16 +116,6 @@ function createLabelledBinarySearchTree () {
     median,
     orderedSeries,
     reset
-  }
-}
-
-function newNode (label, value) {
-  return {
-    label,
-    value,
-    leftNode: null,
-    rightNode: null,
-    numberOfLeafsAndNodes: 1
   }
 }
 
