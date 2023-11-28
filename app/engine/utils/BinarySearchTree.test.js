@@ -121,7 +121,7 @@ function testNumberOfValuesEqualOrBelow (tree, cutoff, expectedValue) {
 }
 
 function testOrderedSeries (tree, expectedValue) {
-  assert.ok(tree.orderedSeries().toString() === expectedValue.toString(), `Expected median to be ${expectedValue}, encountered ${tree.orderedSeries()}`)
+  assert.ok(tree.orderedSeries().toString() === expectedValue.toString(), `Expected ordered series to be ${expectedValue}, encountered ${tree.orderedSeries()}`)
 }
 
 function testMedian (tree, expectedValue) {
