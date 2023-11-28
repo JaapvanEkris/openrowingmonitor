@@ -110,7 +110,7 @@ function createLabelledBinarySearchTree () {
       currentTree.rightNode = removeFromTree(currentTree.leftNode, label)
     }
 
-    /* Resolve the situation if we need to remove the node itself
+    // Handle the situation when we need to remove the node itself
     if (currentTree.label === label) {
       // We need to remove the current node, the underlying sub-trees determin how it is resolved
       switch (true) {
@@ -132,9 +132,9 @@ function createLabelledBinarySearchTree () {
           // ToDo
           break
       }
-    } */
+    }
 
-    // Recalculate the underlying tree size
+    // Recalculate the tree size
     switch (true) {
       case (currentTree === null):
         // We are now an empty leaf, nothing to do here
