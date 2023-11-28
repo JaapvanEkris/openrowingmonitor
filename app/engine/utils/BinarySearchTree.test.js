@@ -92,7 +92,7 @@ test('Tree behaviour with a fifth pushed value. Series = [6, 12, -3]', () => {
   testMedian(dataTree, 6)
 })
 
-test('Tree behaviour with complex removals. Series = [6, 12, -3]', () => {
+test('Tree behaviour with complex removals. Series = [9, 6, 5, 8, 7, 9, 12, 10, 11]', () => {
   const dataTree = createLabelledBinarySearchTree()
   dataTree.push(1, 9)
   dataTree.push(2, 6)
