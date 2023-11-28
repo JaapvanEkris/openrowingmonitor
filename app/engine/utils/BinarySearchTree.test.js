@@ -89,6 +89,7 @@ test('Tree behaviour with a fifth pushed value. Series = [6, 12, -3]', () => {
   testNumberOfValuesEqualOrBelow(dataTree, 0, 1)
   testNumberOfValuesAbove(dataTree, 10, 1)
   testNumberOfValuesEqualOrBelow(dataTree, 10, 2)
+  testValueAtInorderPos(dataTree, 2, 6)
   testMedian(dataTree, 6)
 })
 
@@ -104,12 +105,19 @@ test('Tree behaviour with complex removals. Series = [9, 6, 5, 8, 7, 9, 12, 10, 
   dataTree.push(8, 10)
   dataTree.push(9, 11)
   testOrderedSeries(dataTree, [5, 6, 7, 8, 9, 9, 10, 11, 12])
+  testSize(dataTree, 9)
+  testValueAtInorderPos(dataTree, 5, 9)
   testMedian(dataTree, 9)
   dataTree.remove(1)
   testOrderedSeries(dataTree, [5, 6, 7, 8, 9, 10, 11, 12])
+  testSize(dataTree, 8)
+  testValueAtInorderPos(dataTree, 4, 8)
+  testValueAtInorderPos(dataTree, 5, 9)
   testMedian(dataTree, 8.5)
   dataTree.remove(3)
   testOrderedSeries(dataTree, [6, 7, 8, 9, 10, 11, 12])
+  testSize(dataTree, 7)
+  testValueAtInorderPos(dataTree, 4, 9)
   testMedian(dataTree, 9)
 })
 
@@ -124,15 +132,24 @@ test('Tree behaviour with complex removals. Series = [50, 30, 70, 20, 40, 60, 80
   dataTree.push(6, 60)
   dataTree.push(7, 80)
   testOrderedSeries(dataTree, [20, 30, 40, 50, 60, 70, 80])
-  testMedian(dataTree, 50)
+  testSize(dataTree, 7)
+  testValueAtInorderPos(dataTree, 4, 50)
   dataTree.remove(4)
   testOrderedSeries(dataTree, [30, 40, 50, 60, 70, 80])
+  testSize(dataTree, 6)
+  testValueAtInorderPos(dataTree, 3, 50)
+  testValueAtInorderPos(dataTree, 4, 60)
   testMedian(dataTree, 55)
   dataTree.remove(2)
   testOrderedSeries(dataTree, [40, 50, 60, 70, 80])
+  testSize(dataTree, 5)
+  testValueAtInorderPos(dataTree, 3, 60)
   testMedian(dataTree, 60)
   dataTree.remove(1)
   testOrderedSeries(dataTree, [40, 60, 70, 80])
+  testSize(dataTree, 4)
+  testValueAtInorderPos(dataTree, 2, 60)
+  testValueAtInorderPos(dataTree, 3, 70)
   testMedian(dataTree, 65)
 })
 
@@ -166,6 +183,10 @@ function testNumberOfValuesEqualOrBelow (tree, cutoff, expectedValue) {
 
 function testOrderedSeries (tree, expectedValue) {
   assert.ok(tree.orderedSeries().toString() === expectedValue.toString(), `Expected ordered series to be ${expectedValue}, encountered ${tree.orderedSeries()}`)
+}
+
+function testValueAtInorderPos (tree, position, expectedValue) {
+  assert.ok(tree.valueAtInorderPos(position) === expectedValue, `Expected valueAtInorderPos(${position}) to be ${expectedValue}, encountered ${tree.valueAtInorderPos(position)}`)
 }
 
 function testMedian (tree, expectedValue) {
