@@ -112,15 +112,19 @@ function createLabelledBinarySearchTree () {
       // We need to remove the current node, the underlying sub-trees determin how it is resolved
       switch (true) {
         case (currentTree.leftNode === null && currentTree.rightNode === null):
+          // As the underlying sub-trees are empty as well, we return an empty tree
           currentTree = null
           break
         case (currentTree.leftNode !== null && currentTree.rightNode === null):
+          // As only the left node contains data, we can simply replace the removed node with the left sub-tree
           currentTree = currentTree.leftNode
           break
         case (currentTree.leftNode === null && currentTree.rightNode !== null):
+          // As only the right node contains data, we can simply replace the removed node with the right sub-tree
           currentTree = currentTree.rightNode
           break
         case (currentTree.leftNode !== null && currentTree.rightNode !== null):
+          // As all underlying sub-trees are filled, we need to be a bit smarter
           // ToDo
           currentTree.numberOfLeafsAndNodes = 1
           break
