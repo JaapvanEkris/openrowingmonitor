@@ -108,7 +108,7 @@ function testNumberOfValuesAbove (tree, cutoff, expectedValue) {
   assert.ok(tree.numberOfValuesAbove(cutoff) === expectedValue, `Expected numberOfValuesAbove(${cutoff}) to be ${expectedValue}, encountered ${tree.numberOfValuesAbove(cutoff)}`)
 }
 
-function testNumberOfValuesEqualOrBelow (series, cutoff, expectedValue) {
+function testNumberOfValuesEqualOrBelow (tree, cutoff, expectedValue) {
   assert.ok(tree.numberOfValuesEqualOrBelow(cutoff) === expectedValue, `Expected numberOfValuesEqualOrBelow(${cutoff}) to be ${expectedValue}, encountered ${tree.numberOfValuesEqualOrBelow(cutoff)}`)
 }
 
