@@ -95,11 +95,38 @@ function createLabelledBinarySearchTree () {
   }
 
   function remove (label) {
-    return removeFromTree(tree, label)
+    tree = removeFromTree(tree, label)
   }
 
   function removeFromTree (currentTree, label) {
-    // ToDo
+    // Clean up the underlying sub-trees first
+    if (currentTree.leftNode !== null) {
+      currentTree.leftNode = removeFromTree(currentTree.leftNode, label)
+    }
+    if (currentTree.rightNode !== null) {
+      currentTree.rightNode = removeFromTree(currentTree.leftNode, label)
+    }
+
+    // Resolve the situation if we need to remove the node itself
+    if (currentTree.label = label) {
+      // We need to remove the current node, the underlying sub-trees determin how it is resolved
+      switch (true) {
+        case (currentTree.leftNode === null && currentTree.rightNode === null):
+          currentTree = null
+          break
+        case (currentTree.leftNode !== null && currentTree.rightNode === null):
+          currentTree = currentTree.leftNode
+          break
+        case (currentTree.leftNode === null && currentTree.rightNode !== null):
+          currentTree = currentTree.rightNode
+          break
+        case (currentTree.leftNode !== null && currentTree.rightNode !== null):
+          // ToDo
+          currentTree.numberOfLeafsAndNodes = 1
+          break
+      }
+      
+    }
   }
 
   function median () {
