@@ -21,7 +21,7 @@ test('Series behaviour with an empty tree', () => {
 
 test('Tree behaviour with a single pushed value. Tree = [9]', () => {
   const dataTree = createLabelledBinarySearchTree()
-  dataTree.push(9)
+  dataTree.push(1, 9)
   testSize(dataTree, 1)
   testNumberOfValuesAbove(dataTree, 0, 1)
   testNumberOfValuesEqualOrBelow(dataTree, 0, 0)
@@ -32,8 +32,8 @@ test('Tree behaviour with a single pushed value. Tree = [9]', () => {
 
 test('Tree behaviour with a second pushed value. Tree = [9, 3]', () => {
   const dataTree = createLabelledBinarySearchTree()
-  dataTree.push(9)
-  dataTree.push(3)
+  dataTree.push(1, 9)
+  dataTree.push(2, 3)
   testSize(dataTree, 2)
   testNumberOfValuesAbove(dataTree, 0, 2)
   testNumberOfValuesEqualOrBelow(dataTree, 0, 0)
@@ -44,9 +44,9 @@ test('Tree behaviour with a second pushed value. Tree = [9, 3]', () => {
 
 test('Tree behaviour with a third pushed value. Tree = [9, 3, 6]', () => {
   const dataTree = createLabelledBinarySearchTree()
-  dataTree.push(9)
-  dataTree.push(3)
-  dataTree.push(6)
+  dataTree.push(1, 9)
+  dataTree.push(2, 3)
+  dataTree.push(3, 6)
   testSize(dataTree, 3)
   testNumberOfValuesAbove(dataTree, 0, 3)
   testNumberOfValuesEqualOrBelow(dataTree, 0, 0)
@@ -57,10 +57,10 @@ test('Tree behaviour with a third pushed value. Tree = [9, 3, 6]', () => {
 
 test('Tree behaviour with a fourth pushed value. Tree = [3, 6, 12]', () => {
   const dataTree = createLabelledBinarySearchTree()
-  dataTree.push(9)
-  dataTree.push(3)
-  dataTree.push(6)
-  dataTree.push(12)
+  dataTree.push(1, 9)
+  dataTree.push(2, 3)
+  dataTree.push(3, 6)
+  dataTree.push(4, 12)
   testSize(dataTree, 3)
   testNumberOfValuesAbove(dataTree, 0, 3)
   testNumberOfValuesEqualOrBelow(dataTree, 0, 0)
@@ -71,11 +71,11 @@ test('Tree behaviour with a fourth pushed value. Tree = [3, 6, 12]', () => {
 
 test('Tree behaviour with a fifth pushed value. Series = [6, 12, -3]', () => {
   const dataTree = createLabelledBinarySearchTree()
-  dataTree.push(9)
-  dataTree.push(3)
-  dataTree.push(6)
-  dataTree.push(12)
-  dataTree.push(-3)
+  dataTree.push(1, 9)
+  dataTree.push(2, 3)
+  dataTree.push(3, 6)
+  dataTree.push(4, 12)
+  dataTree.push(5, -3)
   testSize(dataTree, 3)
   testNumberOfValuesAbove(dataTree, 0, 2)
   testNumberOfValuesEqualOrBelow(dataTree, 0, 1)
@@ -86,11 +86,11 @@ test('Tree behaviour with a fifth pushed value. Series = [6, 12, -3]', () => {
 
 test('Tree behaviour with a five pushed values followed by a reset, Tree = []', () => {
   const dataTree = createLabelledBinarySearchTree()
-  dataTree.push(9)
-  dataTree.push(3)
-  dataTree.push(6)
-  dataTree.push(12)
-  dataTree.push(-3)
+  dataTree.push(1, 9)
+  dataTree.push(2, 3)
+  dataTree.push(3, 6)
+  dataTree.push(4, 12)
+  dataTree.push(5, -3)
   dataTree.reset()
   testSize(dataTree, 0)
   testNumberOfValuesAbove(dataTree, 0, 0)
