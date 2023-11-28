@@ -132,7 +132,11 @@ function createLabelledBinarySearchTree () {
 
     // Recalculate the underlying tree size
     switch (true) {
+      case (currentTree === null):
+        // We are now an empty leaf, nothing to do here
+        break
       case (currentTree.leftNode === null && currentTree.rightNode === null):
+        // This is a filed leaf
         currentTree.numberOfLeafsAndNodes = 1
         break
       case (currentTree.leftNode !== null && currentTree.rightNode === null):
