@@ -275,7 +275,7 @@ test('Correct Rower behaviour for three noisefree strokes with dynamic dragfacto
   testDriveAverageHandleForce(rower, 186.25689234608708)
   testDrivePeakHandleForce(rower, 278.33049460146106)
   testRecoveryDuration(rower, 0.2054092660000002)
-  testRecoveryDragFactor(rower, 283.33086731525583)
+  testRecoveryDragFactor(rower, 303.0202258405183)
   testInstantHandlePower(rower, 431.9361856957856)
   // Recovery third stroke starts here
   rower.handleRotationImpulse(0.010769)
@@ -307,7 +307,7 @@ test('Correct Rower behaviour for three noisefree strokes with dynamic dragfacto
   testDriveAverageHandleForce(rower, 177.6995123165446)
   testDrivePeakHandleForce(rower, 294.67568796679427)
   testRecoveryDuration(rower, 0.22775104700000026)
-  testRecoveryDragFactor(rower, 283.33086731525583)
+  testRecoveryDragFactor(rower, 303.0202258405183)
   testInstantHandlePower(rower, 0)
   // Dwelling state starts here
   rower.handleRotationImpulse(0.020769)
@@ -339,7 +339,7 @@ test('Correct Rower behaviour for three noisefree strokes with dynamic dragfacto
   testDriveAverageHandleForce(rower, 177.6995123165446)
   testDrivePeakHandleForce(rower, 294.67568796679427)
   testRecoveryDuration(rower, 0.21654112800000003)
-  testRecoveryDragFactor(rower, 283.33086731525583)
+  testRecoveryDragFactor(rower, 303.0202258405183)
   testInstantHandlePower(rower, 0)
 })
 
