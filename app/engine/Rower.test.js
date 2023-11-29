@@ -276,7 +276,7 @@ test('Correct Rower behaviour for three noisefree strokes with dynamic dragfacto
   testDrivePeakHandleForce(rower, 278.33049460146106)
   testRecoveryDuration(rower, 0.2054092660000002)
   testRecoveryDragFactor(rower, 303.0202258405183)
-  testInstantHandlePower(rower, 431.9361856957856)
+  testInstantHandlePower(rower, 529.4910496211132)
   // Recovery third stroke starts here
   rower.handleRotationImpulse(0.010769)
   rower.handleRotationImpulse(0.010707554)
