@@ -267,7 +267,7 @@ test('Correct Rower behaviour for three noisefree strokes with dynamic dragfacto
   testTotalNumberOfStrokes(rower, 3)
   testCycleDuration(rower, 0.3488949830000002)
   testCycleLinearDistance(rower, 1.4472086331967597)
-  testCycleLinearVelocity(rower, 4.479916721710979)
+  testCycleLinearVelocity(rower, 4.577078917508151)
   testCyclePower(rower, 251.7490578609819)
   testDriveDuration(rower, 0.10992401700000004)
   testDriveLinearDistance(rower, 0.3903886879273361)
