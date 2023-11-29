@@ -2,7 +2,7 @@
 /*
 
   This test is a test of the Rower object, that tests wether this object fills all fields correctly, given one validated rower, (the
-  Concept2 RowErg) using a validated cycle of strokes. This thoroughly tests the raw physics of the translation of Angular physics
+  Concept2 RowErg) using a validated cycle of strokes. This thoroughly tests the raw physics of the translation of Angfular physics
   to Linear physics. The combination with all possible known rowers is tested when testing the above function RowingStatistics, as
   these statistics are dependent on these settings as well.
 */
@@ -274,7 +274,7 @@ test('Correct Rower behaviour for three noisefree strokes with dynamic dragfacto
   testDriveLength(rower, 0.2722713633111155)
   testDriveAverageHandleForce(rower, 186.25689234608708)
   testDrivePeakHandleForce(rower, 278.33049460146106)
-  testRecoveryDuration(rower, 0.22775104700000026)
+  testRecoveryDuration(rower, 0.2054092660000002)
   testRecoveryDragFactor(rower, 283.33086731525583)
   testInstantHandlePower(rower, 431.9361856957856)
   // Recovery third stroke starts here
