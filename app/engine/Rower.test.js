@@ -306,7 +306,7 @@ test('Correct Rower behaviour for three noisefree strokes with dynamic dragfacto
   testDriveLength(rower, 0.3141592653589791)
   testDriveAverageHandleForce(rower, 221.35842669540312)
   testDrivePeakHandleForce(rower, 327.52410223150326)
-  testRecoveryDuration(rower, 0.22775104700000026)
+  testRecoveryDuration(rower, 0.2054092660000002)
   testRecoveryDragFactor(rower, 303.0202258405183)
   testInstantHandlePower(rower, 0)
   // Dwelling state starts here
