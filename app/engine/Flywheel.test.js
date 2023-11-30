@@ -10,25 +10,27 @@ import rowerProfiles from '../../config/rowerProfiles.js'
 
 import { createFlywheel } from './Flywheel.js'
 
-const baseConfig = {
+const baseConfig = { // Based on Concept 2 settings, as this is the validation system
   numOfImpulsesPerRevolution: 6,
-  smoothing: 1,
-  flankLength: 11,
-  numberOfErrorsAllowed: 2,
-  minimumStrokeQuality: 0.30,
-  minumumRecoverySlope: 0,
-  autoAdjustRecoverySlope: true,
-  autoAdjustRecoverySlopeMargin: 0.10,
-  minumumForceBeforeStroke: 50,
-  minimumRecoveryTime: 2,
-  minimumTimeBetweenImpulses: 0.005,
-  maximumTimeBetweenImpulses: 0.02,
+  sprocketRadius: 1.4,
+  maximumStrokeTimeBeforePause: 6.0,
+  dragFactor: 110,
   autoAdjustDragFactor: true,
+  minimumDragQuality: 0.95,
   dragFactorSmoothing: 3,
-  dragFactor: 100,
-  minimumDragQuality: 0.83,
-  flywheelInertia: 0.1,
-  sprocketRadius: 2
+  minimumTimeBetweenImpulses: 0.005,
+  maximumTimeBetweenImpulses: 0.020,
+  flankLength: 12,
+  smoothing: 1,
+  minimumStrokeQuality: 0.36,
+  minumumForceBeforeStroke: 10,
+  minumumRecoverySlope: 0.00070,
+  autoAdjustRecoverySlope: true,
+  autoAdjustRecoverySlopeMargin: 0.15,
+  minimumDriveTime: 0.40,
+  minimumRecoveryTime: 0.90,
+  flywheelInertia: 0.1031,
+  magicConstant: 2.8,
 }
 
 // Test behaviour for no datapoints
