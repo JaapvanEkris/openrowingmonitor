@@ -22,6 +22,7 @@
 
 import { createSeries } from './Series.js'
 import { createTSLinearSeries } from './FullTSLinearSeries.js'
+import { createLabelledBinarySearchTree } from './BinarySearchTree.js'
 
 import loglevel from 'loglevel'
 const log = loglevel.getLogger('RowingEngine')
@@ -29,7 +30,7 @@ const log = loglevel.getLogger('RowingEngine')
 function createTSQuadraticSeries (maxSeriesLength = 0) {
   const X = createSeries(maxSeriesLength)
   const Y = createSeries(maxSeriesLength)
-  const A = []
+  const A = createLabelledBinarySearchTree()
   let _A = 0
   let _B = 0
   let _C = 0
@@ -37,22 +38,18 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
   function push (x, y) {
     const linearResidu = createTSLinearSeries(maxSeriesLength)
 
-    // Invariant: A[i] contains all a's (as in the general formula y = a * x^2 + b * x + c)
-    // belonging to the curves ENDING in the point (xi, yi)
+    // Invariant: A contains all a's (as in the general formula y = a * x^2 + b * x + c)
+    // Where the a's are labeled in the Binary Search Tree with their xi when they BEGIN in the point (xi, yi)
+    if (maxSeriesLength > 0 && X.length() >= maxSeriesLength) {
+      // The maximum of the array has been reached, so when pushing the x,y the array gets shifted,
+      // thus we have to remove the a's belonging to the current position X0 as well before this value is trashed
+      A.remove(X.get(0))
+    }
 
     X.push(x)
     Y.push(y)
 
-    if (maxSeriesLength > 0 && A.length >= maxSeriesLength) {
-      // The maximum of the array has been reached, we have to create room
-      // in the 2D array by removing the first row from the A-table
-      A.shift()
-    }
-
-    // Add an empty array at the end to store futurs results for the most recent points
-    A.push([])
-
-    // Calculate the coefficients of this new point
+    // Calculate the coefficient a for the new interval by adding the newly added datapoint
     if (X.length() > 2) {
       // There are at least two points in the X and Y arrays, so let's add the new datapoint
       let i = 0
@@ -60,13 +57,14 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
       while (i < X.length() - 2) {
         j = i + 1
         while (j < X.length() - 1) {
-          A[i].push(calculateA(i, j, X.length() - 1))
+          A.push(X.get(i), calculateA(i, j, X.length() - 1))
           j++
         }
         i++
       }
-      _A = matrixMedian(A)
+      _A = A.median()
 
+      // Calculate the remaining two coefficients for this new interval
       i = 0
       linearResidu.reset()
       while (i < X.length() - 1) {
@@ -233,21 +231,10 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
     }
   }
 
-  function matrixMedian (inputMatrix) {
-    if (inputMatrix.length > 1) {
-      const sortedArray = [...inputMatrix.flat()].sort((a, b) => a - b)
-      const mid = Math.floor(sortedArray.length / 2)
-      return (sortedArray.length % 2 !== 0 ? sortedArray[mid] : ((sortedArray[mid - 1] + sortedArray[mid]) / 2))
-    } else {
-      log.error('TS Quadratic Regressor, Median calculation on empty matrix attempted!')
-      return 0
-    }
-  }
-
   function reset () {
     X.reset()
     Y.reset()
-    A.splice(0, A.length)
+    A.reset()
     _A = 0
     _B = 0
     _C = 0
