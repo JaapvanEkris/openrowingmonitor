@@ -14,28 +14,27 @@ import { deepMerge } from '../tools/Helper.js'
 
 import { createRower } from './Rower.js'
 
-const baseConfig = {
+const baseConfig = { // Based on Concept 2 settings, as this is the validation system
   numOfImpulsesPerRevolution: 6,
-  smoothing: 1,
-  flankLength: 11,
-  numberOfErrorsAllowed: 2,
-  minimumStrokeQuality: 0.30,
-  minumumRecoverySlope: 0,
-  autoAdjustRecoverySlope: true,
-  autoAdjustRecoverySlopeMargin: 0.10,
-  minumumForceBeforeStroke: 50,
-  minimumRecoveryTime: 0.9,
-  minimumDriveTime: 0.4,
+  sprocketRadius: 1.4,
   maximumStrokeTimeBeforePause: 6.0,
-  minimumTimeBetweenImpulses: 0.005,
-  maximumTimeBetweenImpulses: 0.02,
+  dragFactor: 110,
   autoAdjustDragFactor: true,
+  minimumDragQuality: 0.95,
   dragFactorSmoothing: 3,
-  dragFactor: 100,
-  minimumDragQuality: 0.83,
-  flywheelInertia: 0.1,
-  magicConstant: 2.8,
-  sprocketRadius: 2
+  minimumTimeBetweenImpulses: 0.005,
+  maximumTimeBetweenImpulses: 0.020,
+  flankLength: 12,
+  smoothing: 1,
+  minimumStrokeQuality: 0.36,
+  minumumForceBeforeStroke: 10,
+  minumumRecoverySlope: 0.00070,
+  autoAdjustRecoverySlope: true,
+  autoAdjustRecoverySlopeMargin: 0.15,
+  minimumDriveTime: 0.40,
+  minimumRecoveryTime: 0.90,
+  flywheelInertia: 0.1031,
+  magicConstant: 2.8
 }
 
 // Test behaviour for no datapoints
@@ -62,30 +61,28 @@ test('Correct rower behaviour at initialisation', () => {
 // Test behaviour for one datapoint
 
 // Test behaviour for three perfect identical strokes, including settingling behaviour of metrics
-test('Correct Rower behaviour for three noisefree strokes with dynamic dragfactor and stroke detection', () => {
-  const specificConfig = {
-    numOfImpulsesPerRevolution: 6,
-    smoothing: 1,
-    flankLength: 11,
-    numberOfErrorsAllowed: 2,
-    minimumStrokeQuality: 0.30,
-    minumumRecoverySlope: 0,
-    autoAdjustRecoverySlope: true,
-    autoAdjustRecoverySlopeMargin: 0.10,
-    minumumForceBeforeStroke: 50,
-    minimumDriveTime: 0.1,
-    minimumRecoveryTime: 0.2,
-    maximumStrokeTimeBeforePause: 0.2,
-    minimumTimeBetweenImpulses: 0.005,
-    maximumTimeBetweenImpulses: 0.02,
-    autoAdjustDragFactor: true,
-    dragFactorSmoothing: 3,
-    dragFactor: 100,
-    minimumDragQuality: 0.83,
-    flywheelInertia: 0.1,
-    magicConstant: 2.8,
-    sprocketRadius: 2
-  }
+const baseConfig = { // Based on Concept 2 settings, as this is the validation system
+  numOfImpulsesPerRevolution: 6,
+  sprocketRadius: 1.4,
+  maximumStrokeTimeBeforePause: 6.0,
+  dragFactor: 110,
+  autoAdjustDragFactor: true,
+  minimumDragQuality: 0.95,
+  dragFactorSmoothing: 3,
+  minimumTimeBetweenImpulses: 0.005,
+  maximumTimeBetweenImpulses: 0.020,
+  flankLength: 12,
+  smoothing: 1,
+  minimumStrokeQuality: 0.36,
+  minumumForceBeforeStroke: 10,
+  minumumRecoverySlope: 0.00070,
+  autoAdjustRecoverySlope: true,
+  autoAdjustRecoverySlopeMargin: 0.15,
+  minimumDriveTime: 0.40,
+  minimumRecoveryTime: 0.90,
+  flywheelInertia: 0.1031,
+  magicConstant: 2.8
+}
 
   const rower = createRower(specificConfig)
   testStrokeState(rower, 'WaitingForDrive')
