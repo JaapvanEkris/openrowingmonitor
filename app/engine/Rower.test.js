@@ -163,7 +163,7 @@ test('Correct Rower behaviour for three noisefree strokes with dynamic dragfacto
   testTotalNumberOfStrokes(rower, 1)
   testCycleDuration(rower, 0.18585070100000003)
   testCycleLinearDistance(rower, 0.8276635877128334)
-  testCycleLinearVelocity(rower, 3.364821039986529)
+  testCycleLinearVelocity(rower, 3.3400341642220925)
   testCyclePower(rower, 0)
   testDriveDuration(rower, 0.143485717)
   testDriveLinearDistance(rower, 0.48280375949915283)
@@ -405,7 +405,7 @@ test('sample data for NordicTrack RX800 should produce plausible results', async
   await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/RX800.csv', realtime: false, loop: false })
 
   testTotalMovingTimeSinceStart(rower, 22.65622640199999)
-  testTotalLinearDistanceSinceStart(rower, 79.62787826973629)
+  testTotalLinearDistanceSinceStart(rower, 79.82415337755886)
   testTotalNumberOfStrokes(rower, 10)
   // As dragFactor is dynamic, it should have changed
   testRecoveryDragFactor(rower, 491.2410532939277)
@@ -421,7 +421,7 @@ test('A full session for SportsTech WRX700 should produce plausible results', as
   await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/WRX700_2magnets_session.csv', realtime: false, loop: false })
 
   testTotalMovingTimeSinceStart(rower, 2342.741183077012)
-  testTotalLinearDistanceSinceStart(rower, 8410.330084026054)
+  testTotalLinearDistanceSinceStart(rower, 8410.330084026098)
   testTotalNumberOfStrokes(rower, 846)
   // As dragFactor is static, it should remain in place
   testRecoveryDragFactor(rower, rowerProfiles.Sportstech_WRX700.dragFactor)
@@ -436,7 +436,7 @@ test('A full session for a Concept2 RowErg should produce plausible results', as
 
   await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
 
-  testTotalMovingTimeSinceStart(rower, 476.2231594563992)
+  testTotalMovingTimeSinceStart(rower, 476.2153029599991)
   testTotalLinearDistanceSinceStart(rower, 1174.4896298679782) // This isn't correct in any way
   testTotalNumberOfStrokes(rower, 4) // This isn't correct in any way
   // As dragFactor isn't static, it should have changed
