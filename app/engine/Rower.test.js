@@ -61,30 +61,8 @@ test('Correct rower behaviour at initialisation', () => {
 // Test behaviour for one datapoint
 
 // Test behaviour for three perfect identical strokes, including settingling behaviour of metrics
-const baseConfig = { // Based on Concept 2 settings, as this is the validation system
-  numOfImpulsesPerRevolution: 6,
-  sprocketRadius: 1.4,
-  maximumStrokeTimeBeforePause: 6.0,
-  dragFactor: 110,
-  autoAdjustDragFactor: true,
-  minimumDragQuality: 0.95,
-  dragFactorSmoothing: 3,
-  minimumTimeBetweenImpulses: 0.005,
-  maximumTimeBetweenImpulses: 0.020,
-  flankLength: 12,
-  smoothing: 1,
-  minimumStrokeQuality: 0.36,
-  minumumForceBeforeStroke: 10,
-  minumumRecoverySlope: 0.00070,
-  autoAdjustRecoverySlope: true,
-  autoAdjustRecoverySlopeMargin: 0.15,
-  minimumDriveTime: 0.40,
-  minimumRecoveryTime: 0.90,
-  flywheelInertia: 0.1031,
-  magicConstant: 2.8
-}
-
-  const rower = createRower(specificConfig)
+test('Test behaviour for three perfect identical strokes, including settingling behaviour of metrics', () => {
+  const rower = createRower(baseConfig)
   testStrokeState(rower, 'WaitingForDrive')
   testTotalMovingTimeSinceStart(rower, 0)
   testTotalLinearDistanceSinceStart(rower, 0)
