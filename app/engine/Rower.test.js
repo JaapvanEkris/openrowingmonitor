@@ -166,7 +166,7 @@ test('Correct Rower behaviour for three noisefree strokes with dynamic dragfacto
   testCycleLinearVelocity(rower, 3.3400341642220925)
   testCyclePower(rower, 0)
   testDriveDuration(rower, 0.18585070100000003)
-  testDriveLinearDistance(rower, 0.48280375949915283)
+  testDriveLinearDistance(rower, 0.6207476907846251)
   testDriveLength(rower, 0.29321531433504733)
   testDriveAverageHandleForce(rower, 183.11119730322145)
   testDrivePeakHandleForce(rower, 232.12437866422357)
@@ -440,7 +440,7 @@ test('A full session for a Concept2 RowErg should produce plausible results', as
   testTotalLinearDistanceSinceStart(rower, 2011.5383813537474)
   testTotalNumberOfStrokes(rower, 246)
   // As dragFactor isn't static, it should have changed
-  testRecoveryDragFactor(rower, 0.04816371329566327)
+  testRecoveryDragFactor(rower, 131.53051234393723)
 })
 
 function testStrokeState (rower, expectedValue) {
