@@ -30,7 +30,7 @@ const baseConfig = { // Based on Concept 2 settings, as this is the validation s
   minimumDriveTime: 0.40,
   minimumRecoveryTime: 0.90,
   flywheelInertia: 0.1031,
-  magicConstant: 2.8,
+  magicConstant: 2.8
 }
 
 // Test behaviour for no datapoints
