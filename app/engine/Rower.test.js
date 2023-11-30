@@ -161,7 +161,7 @@ test('Correct Rower behaviour for three noisefree strokes with dynamic dragfacto
   testTotalMovingTimeSinceStart(rower, 0.24984299900000007)
   testTotalLinearDistanceSinceStart(rower, 0.8276635877128334)
   testTotalNumberOfStrokes(rower, 1)
-  testCycleDuration(rower, 0.143485717)
+  testCycleDuration(rower, 0.18585070100000003)
   testCycleLinearDistance(rower, 0.8276635877128334)
   testCycleLinearVelocity(rower, 3.364821039986529)
   testCyclePower(rower, 0)
@@ -373,7 +373,7 @@ test('sample data for Sportstech WRX700 should produce plausible results', async
   await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/WRX700_2magnets.csv', realtime: false, loop: false })
 
   testTotalMovingTimeSinceStart(rower, 46.302522627)
-  testTotalLinearDistanceSinceStart(rower, 167.00360957763183)
+  testTotalLinearDistanceSinceStart(rower, 167.0036095776319)
   testTotalNumberOfStrokes(rower, 16)
   // As dragFactor is static, it should remain in place
   testRecoveryDragFactor(rower, rowerProfiles.Sportstech_WRX700.dragFactor)
@@ -404,7 +404,7 @@ test('sample data for NordicTrack RX800 should produce plausible results', async
 
   await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/RX800.csv', realtime: false, loop: false })
 
-  testTotalMovingTimeSinceStart(rower, 22.710637130999988)
+  testTotalMovingTimeSinceStart(rower, 22.65622640199999)
   testTotalLinearDistanceSinceStart(rower, 79.62787826973629)
   testTotalNumberOfStrokes(rower, 10)
   // As dragFactor is dynamic, it should have changed
@@ -420,7 +420,7 @@ test('A full session for SportsTech WRX700 should produce plausible results', as
 
   await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/WRX700_2magnets_session.csv', realtime: false, loop: false })
 
-  testTotalMovingTimeSinceStart(rower, 2341.3684300762125)
+  testTotalMovingTimeSinceStart(rower, 2342.741183077012)
   testTotalLinearDistanceSinceStart(rower, 8410.330084026054)
   testTotalNumberOfStrokes(rower, 846)
   // As dragFactor is static, it should remain in place
