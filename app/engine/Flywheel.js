@@ -1,6 +1,6 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/jaapvanekris/openrowingmonitor
+  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
 
   This models the flywheel with all of its attributes, which we can also test for being powered
 
@@ -29,7 +29,7 @@ const log = loglevel.getLogger('RowingEngine')
 
 function createFlywheel (rowerSettings) {
   const angularDisplacementPerImpulse = (2.0 * Math.PI) / rowerSettings.numOfImpulsesPerRevolution
-  const flankLength = Math.max(3, rowerSettings.flankLength)
+  const flankLength = rowerSettings.flankLength
   const minimumDragFactorSamples = Math.floor(rowerSettings.minimumRecoveryTime / rowerSettings.maximumTimeBetweenImpulses)
   const minumumTorqueBeforeStroke = rowerSettings.minumumForceBeforeStroke * (rowerSettings.sprocketRadius / 100)
   const currentDt = createStreamFilter(rowerSettings.smoothing, rowerSettings.maximumTimeBetweenImpulses)
@@ -48,7 +48,6 @@ function createFlywheel (rowerSettings) {
   let _angularAccelerationBeforeFlank
   let _torqueAtBeginFlank
   let _torqueBeforeFlank
-  let lastKnownGoodDatapoint
   let inRecoveryPhase
   let maintainMetrics
   let totalNumberOfImpulses
@@ -57,18 +56,25 @@ function createFlywheel (rowerSettings) {
   let currentRawTime
   let currentAngularDistance
   reset()
-  maintainMetrics = true
 
   function pushValue (dataPoint) {
-    if (dataPoint <= rowerSettings.minimumTimeBetweenImpulses || dataPoint > (1.7 * lastKnownGoodDatapoint)) {
-      // Remove the completely deviating currentDt's, which typically are found after a long pause
-      // TODO: Omgaan met waarden boven 2 * rowerSettings.maximumTimeBetweenImpulses
-      // TODO: Omgaan met waarden boven 2 * vorige waarde --> extra impuls er tussen!
-      dataPoint = 1.7 * lastKnownGoodDatapoint
+    if (isNaN(dataPoint) || dataPoint < 0 || dataPoint > rowerSettings.maximumStrokeTimeBeforePause) {
+      // This typicaly happends after a pause, we need to fix this as it throws off all time calculations
+      log.debug(`*** WARNING: currentDt of ${dataPoint} sec isn't between 0 and maximumStrokeTimeBeforePause (${rowerSettings.maximumStrokeTimeBeforePause} sec)`)
+      dataPoint = currentDt.clean()
+    }
+
+    if (dataPoint > rowerSettings.maximumTimeBetweenImpulses && maintainMetrics) {
+      // This shouldn't happen, but let's log it to clarify there is some issue going on here
+      log.debug(`*** WARNING: currentDt of ${dataPoint} sec is above maximumTimeBetweenImpulses (${rowerSettings.maximumTimeBetweenImpulses} sec)`)
+    }
+
+    if (dataPoint < rowerSettings.minimumTimeBetweenImpulses && maintainMetrics) {
+      // This shouldn't happen, but let's log it to clarify there is some issue going on here
+      log.debug(`*** WARNING: currentDt of ${dataPoint} sec is below minimumTimeBetweenImpulses (${rowerSettings.minimumTimeBetweenImpulses} sec)`)
     }
 
     currentDt.push(dataPoint)
-    lastKnownGoodDatapoint = currentDt.clean()
 
     if (maintainMetrics && (_deltaTime.length() >= flankLength)) {
       // If we maintain metrics, update the angular position, spinning time of the flywheel and the associated metrics,
@@ -125,8 +131,6 @@ function createFlywheel (rowerSettings) {
 
     // And finally calculate the torque
     _torqueAtBeginFlank = (rowerSettings.flywheelInertia * _angularAccelerationAtBeginFlank + drag.clean() * Math.pow(_angularVelocityAtBeginFlank, 2))
-
-    // fs.appendFile('exports/RegressionData.csv', `${totalTimeSpinning};${_deltaTimeBeforeFlank};${_angularVelocityBeforeFlank};${_angularAccelerationBeforeFlank};${expAngAcc.median()};${_torqueBeforeFlank}\n`, (err) => { if (err) log.error(err) })  // REMOVE ME!!!!
   }
 
   function maintainStateOnly () {
@@ -214,9 +218,21 @@ function createFlywheel (rowerSettings) {
   }
 
   function isDwelling () {
-    // Check if the flywheel is spinning down beyond a recovry phase indicating that the rower has stopped rowing
-    // We conclude this based on all CurrentDt's in the flank are above the maximum, indicating a spinning down flywheel
-    if (deltaTimeSlopeAbove(0) && deltaTimesAbove(rowerSettings.maximumTimeBetweenImpulses)) {
+    // Check if the flywheel is spinning down beyond a recovery phase indicating that the rower has stopped rowing
+    // We conclude this based on
+    // * A decelerating flywheel as the slope of the CurrentDt's goes up
+    // * All CurrentDt's in the flank are above the maximum
+    if (_deltaTime.slope() > 0 && deltaTimesAbove(rowerSettings.maximumTimeBetweenImpulses)) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  function isAboveMinimumSpeed () {
+    // Check if the flywheel has reached its minimum speed. We conclude this based on all CurrentDt's in the flank are below
+    // the maximum, indicating a sufficiently fast flywheel
+    if (deltaTimesEqualorBelow(rowerSettings.maximumTimeBetweenImpulses)) {
       return true
     } else {
       return false
@@ -224,8 +240,10 @@ function createFlywheel (rowerSettings) {
   }
 
   function isUnpowered () {
-    if ((deltaTimeSlopeAbove(minumumRecoverySlope.clean()) || torqueAbsent()) && _deltaTime.length() >= flankLength) {
+//    if ((deltaTimeSlopeAbove(minumumRecoverySlope.clean()) || torqueAbsent()) && _deltaTime.length() >= flankLength) {
+    if (deltaTimeSlopeAbove(minumumRecoverySlope.clean()) && torqueAbsent() && _deltaTime.length() >= flankLength) { //ToDo: implement this when the C2 settings are correct for low drag setup
       // We reached the minimum number of increasing currentDt values
+      // log.info(`*** INFO: recovery detected based on due to slope exceeding recoveryslope = ${deltaTimeSlopeAbove(minumumRecoverySlope.clean())}, exceeding minumumForceBeforeStroke = ${torqueAbsent()}`)
       return true
     } else {
       return false
@@ -241,7 +259,17 @@ function createFlywheel (rowerSettings) {
   }
 
   function deltaTimesAbove (threshold) {
-    if (_deltaTime.numberOfYValuesEqualOrBelow(threshold) <= rowerSettings.numberOfErrorsAllowed && _deltaTime.length() >= flankLength) {
+    // if (_deltaTime.numberOfYValuesAbove(threshold) === flankLength) {
+    if (_deltaTime.minimumY() >= threshold && _deltaTime.length() >= flankLength) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  function deltaTimesEqualorBelow (threshold) {
+    // if (_deltaTime.numberOfYValuesEqualOrBelow(threshold) === flankLength) {
+    if (_deltaTime.maximumY() <= threshold && _deltaTime.length() >= flankLength) {
       return true
     } else {
       return false
@@ -252,7 +280,7 @@ function createFlywheel (rowerSettings) {
     // This is a typical indication that the flywheel is accelerating. We use the slope of successive currentDt's
     // A (more) negative slope indicates a powered flywheel. When set to 0, it determines whether the DeltaT's are decreasing
     // When set to a value below 0, it will become more stringent. In automatic, a percentage of the current slope (i.e. dragfactor) is used
-    if (_deltaTime.slope() < threshold && _deltaTime.goodnessOfFit() >= strokedetectionMinimalGoodnessOfFit && _deltaTime.length() >= flankLength) {
+    if (_deltaTime.slope() < threshold && _deltaTime.length() >= flankLength) {
       return true
     } else {
       return false
@@ -306,7 +334,6 @@ function createFlywheel (rowerSettings) {
     currentRawTime = 0
     currentAngularDistance = 0
     _deltaTime.push(0, 0)
-    lastKnownGoodDatapoint = rowerSettings.maximumTimeBetweenImpulses
     _angularDistance.push(0, 0)
     _deltaTimeBeforeFlank = 0
     _angularVelocityBeforeFlank = 0
@@ -329,6 +356,7 @@ function createFlywheel (rowerSettings) {
     torque,
     dragFactor,
     isDwelling,
+    isAboveMinimumSpeed,
     isUnpowered,
     isPowered
   }
