@@ -240,8 +240,7 @@ function createFlywheel (rowerSettings) {
   }
 
   function isUnpowered () {
-//    if ((deltaTimeSlopeAbove(minumumRecoverySlope.clean()) || torqueAbsent()) && _deltaTime.length() >= flankLength) {
-    if (deltaTimeSlopeAbove(minumumRecoverySlope.clean()) && torqueAbsent() && _deltaTime.length() >= flankLength) { //ToDo: implement this when the C2 settings are correct for low drag setup
+    if (deltaTimeSlopeAbove(minumumRecoverySlope.clean()) && torqueAbsent() && _deltaTime.length() >= flankLength) {
       // We reached the minimum number of increasing currentDt values
       // log.info(`*** INFO: recovery detected based on due to slope exceeding recoveryslope = ${deltaTimeSlopeAbove(minumumRecoverySlope.clean())}, exceeding minumumForceBeforeStroke = ${torqueAbsent()}`)
       return true
