@@ -1,6 +1,6 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/jaapvanekris/openrowingmonitor
+  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
 
   The LinearSeries is a datatype that represents a Linear Series. It allows
   values to be retrieved (like a FiFo buffer, or Queue) but it also includes
@@ -12,8 +12,8 @@
   is unlimited (will only expand). The latter is activated by calling the creation with
   an empty argument.
 
-  please note that it is up to the calling function to handle resetting the Time Series
-  when needed through the resetTimeSeries() call.
+  please note that for unlimited series it is up to the calling function to handle resetting
+  the Linear Series when needed through the reset() call.
 
   A key constraint is to prevent heavy calculations at the end (due to large
   array based curve fitting) as this function is also used to calculate
@@ -21,8 +21,6 @@
 
   This implementation uses concepts that are described here:
   https://www.colorado.edu/amath/sites/default/files/attached-files/ch12_0.pdf
-
-  The array is ordered such that x[0] is the oldest, and x[x.length-1] is the youngest
 */
 
 import { createSeries } from './Series.js'
@@ -148,6 +146,22 @@ function createOLSLinearSeries (maxSeriesLength = 0) {
     return Y.sum()
   }
 
+  function minimumX () {
+    return X.minimum()
+  }
+
+  function minimumY () {
+    return Y.minimum()
+  }
+
+  function maximumX () {
+    return X.maximum()
+  }
+
+  function maximumY () {
+    return Y.maximum()
+  }
+
   function xSeries () {
     return X.series()
   }
@@ -196,6 +210,10 @@ function createOLSLinearSeries (maxSeriesLength = 0) {
     yAtSeriesEnd,
     xSum,
     ySum,
+    minimumX,
+    minimumY,
+    maximumX,
+    maximumY,
     xSeries,
     ySeries,
     reset
