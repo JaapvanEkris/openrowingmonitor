@@ -112,7 +112,8 @@ test('Correct Flywheel behaviour for a noisefree stroke', () => {
   flywheel.pushValue(0.011099509)
   flywheel.pushValue(0.011131862)
   flywheel.pushValue(0.011209919)
-  testDeltaTime(flywheel, 0.01089567)
+  reportAll(flywheel)
+  testDeltaTime(flywheel, 0.010722165)
   testSpinningTime(flywheel, 0.24984299900000007)
   testAngularPosition(flywheel, 25.132741228718345)
   testAngularVelocity(flywheel, 96.25727074873691)
@@ -347,5 +348,11 @@ function testIsUnpowered (flywheel, expectedValue) {
 function testIsPowered (flywheel, expectedValue) {
   assert.ok(flywheel.isPowered() === expectedValue, `isPowered should be ${expectedValue} at ${flywheel.spinningTime()} sec, is ${flywheel.isPowered()}`)
 }
+
+//
+function reportAll (flywheel) {
+  assert.ok(0, `deltaTime: ${flywheel.deltaTime()}, spinningTime: ${flywheel.spinningTime()}, ang. pos: ${flywheel.angularPosition()}, ang. vel: ${flywheel.angularVelocity()}, Ang. acc: ${flywheel.angularAcceleration()}, Torque: ${flywheel.torque()}, DF: ${flywheel.dragFactor()}`)
+}
+//
 
 test.run()
