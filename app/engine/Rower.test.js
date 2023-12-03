@@ -27,7 +27,7 @@ const baseConfig = { // Based on Concept 2 settings, as this is the validation s
   flankLength: 12,
   smoothing: 1,
   minimumStrokeQuality: 0.36,
-  minumumForceBeforeStroke: 10,
+  minumumForceBeforeStroke: 20, // Modification to standard settings to shorten test cases
   minumumRecoverySlope: 0.00070,
   autoAdjustRecoverySlope: true,
   autoAdjustRecoverySlopeMargin: 0.15,
@@ -199,7 +199,6 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   rower.handleRotationImpulse(0.011090787)
   rower.handleRotationImpulse(0.011099509)
   rower.handleRotationImpulse(0.011131862)
-  reportAll(rower)
   rower.handleRotationImpulse(0.011209919)
   testStrokeState(rower, 'Recovery')
   testTotalMovingTimeSinceStart(rower, 0.6101840930000001)
