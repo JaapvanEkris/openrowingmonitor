@@ -130,7 +130,7 @@ export default {
     numOfImpulsesPerRevolution: 2,
     minimumTimeBetweenImpulses: 0.005,
     maximumTimeBetweenImpulses: 0.5,
-    minumumRecoverySlope: 0.125,
+    minumumRecoverySlope: 0,
     flywheelInertia: 0.72,
     dragFactor: 32000
   },
