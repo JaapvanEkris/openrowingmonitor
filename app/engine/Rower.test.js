@@ -17,7 +17,7 @@ import { createRower } from './Rower.js'
 const baseConfig = { // Based on Concept 2 settings, as this is the validation system
   numOfImpulsesPerRevolution: 6,
   sprocketRadius: 1.4,
-  maximumStrokeTimeBeforePause: 0.6, // Modification to standard settings to shorten test cases
+  maximumStrokeTimeBeforePause: 0.3, // Modification to standard settings to shorten test cases
   dragFactor: 110,
   autoAdjustDragFactor: true,
   minimumDragQuality: 0.95,
