@@ -31,8 +31,8 @@ const baseConfig = { // Based on Concept 2 settings, as this is the validation s
   minumumRecoverySlope: 0.00070,
   autoAdjustRecoverySlope: true,
   autoAdjustRecoverySlopeMargin: 0.15,
-  minimumDriveTime: 0.40,
-  minimumRecoveryTime: 0.90,
+  minimumDriveTime: 0.04, // Modification to standard settings to shorten test cases
+  minimumRecoveryTime: 0.09, // Modification to standard settings to shorten test cases
   flywheelInertia: 0.1031,
   magicConstant: 2.8
 }
@@ -44,7 +44,7 @@ test('Correct rower behaviour at initialisation', () => {
   testTotalMovingTimeSinceStart(rower, 0)
   testTotalNumberOfStrokes(rower, 0)
   testTotalLinearDistanceSinceStart(rower, 0)
-  testCycleDuration(rower, 1.3) // Default value
+  testCycleDuration(rower, 0.13) // Default value
   testCycleLinearDistance(rower, 0)
   testCycleLinearVelocity(rower, 0)
   testCyclePower(rower, 0)
@@ -67,7 +67,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testTotalMovingTimeSinceStart(rower, 0)
   testTotalLinearDistanceSinceStart(rower, 0)
   testTotalNumberOfStrokes(rower, 0)
-  testCycleDuration(rower, 1.3) // Default value
+  testCycleDuration(rower, 0.13) // Default value
   testCycleLinearDistance(rower, 0)
   testCycleLinearVelocity(rower, 0)
   testCyclePower(rower, 0)
@@ -104,19 +104,19 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   reportAll(rower)
   testTotalMovingTimeSinceStart(rower, 0.077918634)
   testTotalLinearDistanceSinceStart(rower, 0.31037384539231255)
-  testTotalNumberOfStrokes(rower, 1)
-  testCycleDuration(rower, 0.30000000000000004)
-  testCycleLinearDistance(rower, 0.31037384539231255)
-  testCycleLinearVelocity(rower, 0) // Shouldn't this one be filled after the first drive?
-  testCyclePower(rower, 0) // Shouldn't this one be filled after the first drive?
+  testTotalNumberOfStrokes(rower, 0)
+  testCycleDuration(rower, 0.13) // still default value
+  testCycleLinearDistance(rower, 0.2847935546277449) // Known issue: this shouldn't be filled at this time as the cycle isn't completed yet
+  testCycleLinearVelocity(rower, 0) // This isn't filled after the first drive, as we haven't survived a complete cycle yet
+  testCyclePower(rower, 0) // This isn't filled after the first drive, as we haven't survived a complete cycle yet
   testDriveDuration(rower, 0) // Shouldn't this one be filled after the first drive?
-  testDriveLinearDistance(rower, 0.31037384539231255)
+  testDriveLinearDistance(rower, 0.2847935546277449)
   testDriveLength(rower, 0) // Shouldn't this one be filled after the first drive?
-  testDriveAverageHandleForce(rower, 162.11461597250118)
-  testDrivePeakHandleForce(rower, 186.47478805821592)
+  testDriveAverageHandleForce(rower, 238.6094780226749)
+  testDrivePeakHandleForce(rower, 260.62688094548827)
   testRecoveryDuration(rower, 0)
   testRecoveryDragFactor(rower, 110)
-  testInstantHandlePower(rower, 354.69564711401205)
+  testInstantHandlePower(rower, 345.5148307784195)
   // Recovery initial stroke starts here
   rower.handleRotationImpulse(0.010769)
   rower.handleRotationImpulse(0.010707554)
