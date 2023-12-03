@@ -39,12 +39,12 @@ const baseConfig = { // Based on Concept 2 settings, as this is the validation s
 
 // Test behaviour for no datapoints
 test('Correct rower behaviour at initialisation', () => {
-  const rower = createRower(baseConfig)
+  const rowerOne = createRower(baseConfig)
   testStrokeState(rower, 'WaitingForDrive')
   testTotalMovingTimeSinceStart(rower, 0)
   testTotalNumberOfStrokes(rower, 0)
   testTotalLinearDistanceSinceStart(rower, 0)
-  testCycleDuration(rower, 1.3)
+  testCycleDuration(rower, 1.3) // Default value
   testCycleLinearDistance(rower, 0)
   testCycleLinearVelocity(rower, 0)
   testCyclePower(rower, 0)
@@ -68,7 +68,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testTotalMovingTimeSinceStart(rower, 0)
   testTotalLinearDistanceSinceStart(rower, 0)
   testTotalNumberOfStrokes(rower, 0)
-  testCycleDuration(rower, 0.30000000000000004)
+  testCycleDuration(rower, 1.3) // Default value
   testCycleLinearDistance(rower, 0)
   testCycleLinearVelocity(rower, 0)
   testCyclePower(rower, 0)
