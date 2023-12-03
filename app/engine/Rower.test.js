@@ -63,6 +63,7 @@ test('Correct rower behaviour at initialisation', () => {
 // Test behaviour for three perfect identical strokes, including settingling behaviour of metrics
 test('Test behaviour for three perfect identical strokes, including settingling behaviour of metrics', () => {
   const rower = createRower(baseConfig)
+  rower.reset()
   testStrokeState(rower, 'WaitingForDrive')
   testTotalMovingTimeSinceStart(rower, 0)
   testTotalLinearDistanceSinceStart(rower, 0)
@@ -348,7 +349,7 @@ test('sample data for Sportstech WRX700 should produce plausible results', async
   await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/WRX700_2magnets.csv', realtime: false, loop: false })
 
   testTotalMovingTimeSinceStart(rower, 46.302522627)
-  testTotalLinearDistanceSinceStart(rower, 167.0036095776319)
+  testTotalLinearDistanceSinceStart(rower, 167.00360957763186)
   testTotalNumberOfStrokes(rower, 16)
   // As dragFactor is static, it should remain in place
   testRecoveryDragFactor(rower, rowerProfiles.Sportstech_WRX700.dragFactor)
