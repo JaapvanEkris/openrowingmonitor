@@ -33,9 +33,7 @@ export default {
     // STROKE DETECTION SETTINGS
     // Flank length determines the minimum number of consecutive increasing/decreasing measuments that are needed before the stroke detection
     // considers a drive phase change
-    // numberOfErrorsAllowed allows for a more noisy approach, but shouldn't be needed
     flankLength: 3,
-    numberOfErrorsAllowed: 1,
 
     // This is the minimum force that has to be on the handle before ORM considers it a stroke, in Newtons. So this is about 2 Kg or 4.4 Lbs.
     minumumForceBeforeStroke: 20,
