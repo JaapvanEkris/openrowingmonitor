@@ -231,18 +231,22 @@ function createRower (rowerSettings) {
   }
 
   function cycleDuration () {
+    // ToDo: return 0 in the situation where the cycle hasn't completed yet
     return _cycleDuration
   }
 
   function cycleLinearDistance () {
+    // ToDo: return 0 in the situation where the cycle hasn't completed yet
     return _driveLinearDistance + _recoveryLinearDistance
   }
 
   function cycleLinearVelocity () {
+    // ToDo: return 0 in the situation where the cycle hasn't completed yet
     return _cycleLinearVelocity
   }
 
   function cyclePower () {
+    // ToDo: return 0 in the situation where the cycle hasn't completed yet
     return _cyclePower
   }
 
