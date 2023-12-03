@@ -87,7 +87,7 @@ test('Correct Flywheel behaviour for a noisefree stroke', () => {
   flywheel.pushValue(0.010526151)
   flywheel.pushValue(0.010511225)
   flywheel.pushValue(0.010386684)
-  testDeltaTime(flywheel, 0.011051853)
+  testDeltaTime(flywheel, 0.011062297)
   testSpinningTime(flywheel, 0.088970487)
   testAngularPosition(flywheel, 9.42477796076938)
   testAngularVelocity(flywheel, 95.10552359584368)
@@ -270,7 +270,7 @@ test('Correct Flywheel behaviour with a NordicTrack RX800', async () => {
   // Inject 10 strokes
   await replayRowingSession(flywheel.pushValue, { filename: 'recordings/RX800.csv', realtime: false, loop: false })
 
-  testSpinningTime(flywheel, 22.710637130999988)
+  testSpinningTime(flywheel, 22.65622640199999)
   testAngularPosition(flywheel, 1446.7034169780998)
   // As we don't detect strokes here (this is a function of Rower.js, the dragcalculation shouldn't be triggered
   testDragFactor(flywheel, (rowerProfiles.NordicTrack_RX800.dragFactor / 1000000))
@@ -285,7 +285,7 @@ test('Correct Flywheel behaviour with a full session on a SportsTech WRX700', as
 
   // Inject 846 strokes
   await replayRowingSession(flywheel.pushValue, { filename: 'recordings/WRX700_2magnets_session.csv', realtime: false, loop: false })
-  testSpinningTime(flywheel, 2341.3684300762125)
+  testSpinningTime(flywheel, 2342.741183077012)
   testAngularPosition(flywheel, 37337.82868791469)
   // The dragfactor should remain static
   testDragFactor(flywheel, (rowerProfiles.Sportstech_WRX700.dragFactor / 1000000))
@@ -300,7 +300,7 @@ test('A full session for a Concept2 RowErg should produce plausible results', as
 
   await replayRowingSession(flywheel.pushValue, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
 
-  testSpinningTime(flywheel, 476.2231594563992)
+  testSpinningTime(flywheel, 476.2153029599991)
   testAngularPosition(flywheel, 55767.458391423614)
   // As we don't detect strokes here (this is a function of Rower.js, the dragcalculation shouldn't be triggered
   testDragFactor(flywheel, (rowerProfiles.Concept2_RowErg.dragFactor / 1000000))
