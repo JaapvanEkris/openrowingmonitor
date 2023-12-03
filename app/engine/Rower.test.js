@@ -103,7 +103,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testStrokeState(rower, 'Drive')
   testTotalMovingTimeSinceStart(rower, 0.077918634)
   testTotalLinearDistanceSinceStart(rower, 0.2847935546277449)
-  testTotalNumberOfStrokes(rower, 0)
+  testTotalNumberOfStrokes(rower, 1)
   testCycleDuration(rower, 0.13) // still default value
   testCycleLinearDistance(rower, 0.2847935546277449) // Known issue: this shouldn't be filled at this time as the cycle isn't completed yet
   testCycleLinearVelocity(rower, 0) // This isn't filled after the first drive, as we haven't survived a complete cycle yet
