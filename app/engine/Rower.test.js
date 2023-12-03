@@ -215,7 +215,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDrivePeakHandleForce(rower, 513.9568545390476)
   testRecoveryDuration(rower, 0.174176144)
   testRecoveryDragFactor(rower, 357.09220007725366)
-  testInstantHandlePower(rower, 17.123762811950446  )
+  testInstantHandlePower(rower, 17.123762811950446)
   // Drive third stroke starts here
   rower.handleRotationImpulse(0.011221636)
   rower.handleRotationImpulse(0.011175504)
