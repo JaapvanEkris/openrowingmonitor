@@ -10,7 +10,7 @@ import child_process from 'child_process'
 import { promisify } from 'util'
 import log from 'loglevel'
 import config from './tools/ConfigManager.js'
-import { createRowingStatistics } from './engine/RowingStatistics.js'
+import { createSessionManager } from './engine/SessionManager.js'
 import { createWebServer } from './WebServer.js'
 import { createPeripheralManager } from './peripherals/PeripheralManager.js'
 import { createRecordingManager } from './recorders/recordingManager.js'
@@ -49,7 +49,7 @@ if (config.appPriority) {
 // When set, the GUI will behave similar to a PM5 in that it counts down from the target to 0
 const intervalSettings = []
 
-/* an example of the workout setting that RowingStatistics will obey: a 1 minute warmup, a 2K timed piece followed by a 1 minute cooldown
+/* an example of the workout setting that the sessionManager will obey: a 1 minute warmup, a 2K timed piece followed by a 1 minute cooldown
 // This should normally come from the PM5 interface or the webinterface
 intervalSettings[0] = {
   targetDistance: 0,
@@ -72,7 +72,7 @@ const peripheralManager = createPeripheralManager(config)
 
 peripheralManager.on('control', (event) => {
   log.debug(`peripheral requested ${event?.req?.name}`)
-  rowingStatistics.handleCommand(event?.req?.name)
+  sessionManager.handleCommand(event?.req?.name)
   recordingManager.handleCommand(event?.req?.name)
   peripheralManager.handleCommand(event?.req?.name)
   webServer.handleCommand(event?.req?.name)
@@ -81,7 +81,7 @@ peripheralManager.on('control', (event) => {
 
 peripheralManager.on('heartRateMeasurement', (heartRateMeasurement) => {
   recordingManager.recordHeartRate(heartRateMeasurement)
-  rowingStatistics.handleHeartRateMeasurement(heartRateMeasurement)
+  sessionManager.handleHeartRateMeasurement(heartRateMeasurement)
   webServer.presentHeartRate(heartRateMeasurement)
 })
 
@@ -90,59 +90,50 @@ gpioTimerService.on('message', handleRotationImpulse)
 
 // Be aware, both the GPIO as well as the replayer use this as an entrypoint!
 function handleRotationImpulse (dataPoint) {
-  rowingStatistics.handleRotationImpulse(dataPoint)
   recordingManager.recordRotationImpulse(dataPoint)
+  sessionManager.handleRotationImpulse(dataPoint)
 }
 
-const rowingStatistics = createRowingStatistics(config)
-
-// ToDo: merge updating all consumers into this single handler, and remove all specific message handlers (consumers know what to do)
-rowingStatistics.on('metricsUpdate', (metrics) => {
-  webServer.presentRowingMetrics(metrics)
-  recordingManager.recordMetrics(metrics)
-  // peripheralManager.notifyMetrics(metrics)
-})
-
-rowingStatistics.on('driveFinished', (metrics) => {
-  webServer.presentRowingMetrics(metrics)
-  recordingManager.recordMetrics(metrics)
-  peripheralManager.notifyMetrics('strokeStateChanged', metrics)
-})
-
-rowingStatistics.on('recoveryFinished', (metrics) => {
-  webServer.presentRowingMetrics(metrics)
-  peripheralManager.notifyMetrics('strokeFinished', metrics)
-  recordingManager.recordMetrics(metrics)
-})
-
-rowingStatistics.on('peripheralMetricsUpdate', (metrics) => {
-  peripheralManager.notifyMetrics('metricsUpdate', metrics)
-})
-
-rowingStatistics.on('rowingPaused', (metrics) => {
-  webServer.presentRowingMetrics(metrics)
-  recordingManager.recordMetrics(metrics)
-  peripheralManager.notifyMetrics('metricsUpdate', metrics)
-})
-
-rowingStatistics.on('intervalTargetReached', (metrics) => {
-  // This is called when the RowingStatistics conclude the intervaltarget is reached
-  // Update all screens to reflect this change, as targetTime and targetDistance have changed
-  // ToDo: recording this event in the recordings accordingly should be done as well
-  webServer.presentRowingMetrics(metrics)
-  recordingManager.recordMetrics(metrics)
-  peripheralManager.notifyMetrics('metricsUpdate', metrics)
-})
-
-rowingStatistics.on('rowingStopped', (metrics) => {
-  // This is called when the rowingmachine is stopped for some reason, could be reaching the end of the session,
-  // could be user intervention
-  recordingManager.recordMetrics(metrics)
-  webServer.presentRowingMetrics(metrics)
-  peripheralManager.notifyMetrics('metricsUpdate', metrics)
-})
-
 const recordingManager = createRecordingManager(config)
+const sessionManager = createSessionManager(config)
+
+sessionManager.on('metricsUpdate', (metrics) => {
+  webServer.presentRowingMetrics(metrics)
+  recordingManager.recordMetrics(metrics)
+  // ToDo: move underlying decissions into all individual peripheralManager's peripherals
+  // BE AWARE: This construct has an implicit filter as the regular in-stroke metricsUpdates will not be sent to the peripheralManager, as it is caught by the default
+  // As peripheralMetricsUpdate is needed (which still is triggered by the sessionmanager), we can not remove this setup here until all peripherals do their own timing and filtering
+  switch (true) {
+    case (metrics.metricsContext.isSessionStop == true):
+      // This is called when the rowingmachine is stopped for some reason, could be reaching the end of the session,
+      // could be user intervention
+      peripheralManager.notifyMetrics('metricsUpdate', metrics)
+      break
+    case (metrics.metricsContext.isIntervalStart == true):
+      // This is called when the sessionManager concludes the intervaltarget is reached
+      // Update all screens to reflect this change, as targetTime and targetDistance have changed
+      // ToDo: recording this event in the recordings accordingly should be done as well
+      peripheralManager.notifyMetrics('metricsUpdate', metrics)
+      break
+    case (metrics.metricsContext.isPauseStart == true):
+      peripheralManager.notifyMetrics('strokeStateChanged', metrics)
+      break
+    case (metrics.metricsContext.isRecoveryStart == true):
+      peripheralManager.notifyMetrics('strokeStateChanged', metrics)
+      break
+    case (metrics.metricsContext.isDriveStart == true):
+      peripheralManager.notifyMetrics('strokeFinished', metrics)
+      break
+    default:
+      // Nothing to do here
+  }
+})
+
+// ToDo: REMOVE THIS AS SOON AS PERIPHERALS CAN DO THEIR OWN CACHING AND TIMING
+sessionManager.on('peripheralMetricsUpdate', (metrics) => {									 
+  peripheralManager.notifyMetrics('metricsUpdate', metrics)
+})
+
 const workoutUploader = createWorkoutUploader(config, recordingManager)
 
 workoutUploader.on('authorizeStrava', (data, client) => {
@@ -155,7 +146,7 @@ webServer.on('messageReceived', async (message, client) => {
   if (message.command === 'shutdown' && shutdownEnabled) {
     await shutdown()
   } else {
-    rowingStatistics.handleCommand(message.command)
+    sessionManager.handleCommand(message.command)
     recordingManager.handleCommand(message.command)
     peripheralManager.handleCommand(message.command)
     webServer.handleCommand(message.command)
@@ -172,9 +163,9 @@ webServer.on('messageReceived', async (message, client) => {
 })
 
 if (intervalSettings.length > 0) {
-  // There is an interval defined at startup, let's inform RowingStatistics
-  // Please note: keep this AFTER the init of the webserver, otherwise it will not show this info!
-  rowingStatistics.setIntervalParameters(intervalSettings)
+  // There is an interval defined at startup, let's inform the sessionManager
+  // ToDo: update these settings when the PM5 or webinterface tells us to
+  sessionManager.setIntervalParameters(intervalSettings)
 } else {
   log.info('Starting a just row session, no time or distance target set')
 }
@@ -182,6 +173,9 @@ if (intervalSettings.length > 0) {
 // This shuts down the pi, use with caution!
 async function shutdown () {
   if (shutdownEnabled) {
+    // As we are shutting down, we need to make sure things are closed down nicely
+    await recordingManager.handleCommand('shutdown')
+    await peripheralManager.handleCommand('shutdown')
     console.info('shutting down device...')
     try {
       const { stdout, stderr } = await exec(config.shutdownCommand)
