@@ -2,11 +2,12 @@
 /*
   Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
 
-  This Module calculates the training specific metrics.
+  This Module manages the session and the session state
 */
 import { EventEmitter } from 'events'
 import { createRowingStatistics } from './RowingStatistics.js'
 import { createOLSLinearSeries } from './utils/OLSLinearSeries.js'
+import { secondsToTimeString } from '../tools/Helper.js'
 
 import loglevel from 'loglevel'
 const log = loglevel.getLogger('RowingEngine')
@@ -52,23 +53,23 @@ function createSessionManager (config) {
         sessionState = 'WaitingForStart'
         break
       case ('startOrResume'):
-       allowResumeTraining()
+        allowResumeTraining()
         sessionState = 'WaitingForStart'
         break
       case ('pause'):
         pauseTraining()
         metrics = rowingStatistics.getMetrics() // as the pause button is forced, we need to fetch the zero'ed metrics
-        metricsContext.isPauseStart = true
+        metrics.metricsContext.isPauseStart = true
         sessionState = 'Paused'
         break
       case ('stop'):
         stopTraining()
-        metricsContext.isSessionStop = true
+        metrics.metricsContext.isSessionStop = true
         sessionState = 'Stopped'
         break
       case ('reset'):
         resetTraining()
-        metricsContext.isPauseStart = true
+        metrics.metricsContext.isPauseStart = true
         sessionState = 'WaitingForStart'
         break
       case 'blePeripheralMode':
@@ -89,7 +90,7 @@ function createSessionManager (config) {
         break
       case 'shutdown':
         stopTraining()
-        metricsContext.isSessionStop = true
+        metrics.metricsContext.isSessionStop = true
         sessionState = 'Stopped'
         break
       default:
@@ -210,10 +211,10 @@ function createSessionManager (config) {
 
   // Basic metricContext structure
   function resetMetricsContext () {
-    metrics.metricsContext.isSessionStart = false,
-    metrics.metricsContext.isIntervalStart = false,
-    metrics.metricsContext.isPauseStart = false,
-    metrics.metricsContext.isPauseEnd = false,
+    metrics.metricsContext.isSessionStart = false
+    metrics.metricsContext.isIntervalStart = false
+    metrics.metricsContext.isPauseStart = false
+    metrics.metricsContext.isPauseEnd = false
     metrics.metricsContext.isSessionStop = false
   }
 
@@ -275,7 +276,7 @@ function createSessionManager (config) {
         case (intervalSettings[currentIntervalNumber].targetCalories > 0):
           // A calorie target is set
           intervalType = 'Calories'
-          //ToDo!!!
+          // ToDo, define the Calorie based interval as well!!!
           log.info(`Interval settings for interval ${currentIntervalNumber + 1} of ${intervalSettings.length}: calorie target ${intervalSettings[currentIntervalNumber].targetCalories} calories`)
           break
         default:
