@@ -10,7 +10,6 @@ import { createStreamFilter } from './utils/StreamFilter.js'
 import { createCurveAligner } from './utils/CurveAligner.js'
 
 import loglevel from 'loglevel'
-import { secondsToTimeString } from '../tools/Helper.js'
 const log = loglevel.getLogger('RowingEngine')
 
 function createRowingStatistics (config) {
@@ -223,7 +222,7 @@ function createRowingStatistics (config) {
       cycleDistance: cycleDistance.reliable() && cycleDistance.raw() > 0 && cycleLinearVelocity.raw() > 0 && metricsContext.isMoving === true ? cycleDistance.clean() : 0, // meters
       cycleLinearVelocity: cycleLinearVelocity.reliable() && cycleLinearVelocity.clean() > 0 && cycleLinearVelocity.raw() > 0 && metricsContext.isMoving === true ? cycleLinearVelocity.clean() : 0, // m/s
       cyclePace: cycleLinearVelocity.reliable() && cycleLinearVelocity.raw() > 0 ? cyclePace : Infinity, // seconds/50  0m
-      cyclePower: cyclePower.reliable() && cyclePower.clean() > 0 && cycleLinearVelocity.raw() > 0 && metricsContext.isMoving  === true ? cyclePower.clean() : 0, // watts
+      cyclePower: cyclePower.reliable() && cyclePower.clean() > 0 && cycleLinearVelocity.raw() > 0 && metricsContext.isMoving === true ? cyclePower.clean() : 0, // watts
       driveLastStartTime: driveLastStartTime > 0 ? driveLastStartTime : 0,
       driveDuration: driveDuration.reliable() && driveDuration.clean() >= config.rowerSettings.minimumDriveTime && totalNumberOfStrokes > 0 && metricsContext.isMoving === true ? driveDuration.clean() : NaN, // seconds
       driveLength: driveLength.reliable() && driveLength.clean() > 0 && metricsContext.isMoving === true ? driveLength.clean() : NaN, // meters of chain movement
@@ -235,7 +234,7 @@ function createRowingStatistics (config) {
       driveHandlePowerCurve: drivePeakHandleForce.clean() > 0 && metricsContext.isMoving === true ? driveHandlePowerCurve.lastCompleteCurve() : [],
       recoveryDuration: recoveryDuration.reliable() && recoveryDuration.clean() >= config.rowerSettings.minimumRecoveryTime && totalNumberOfStrokes > 0 && metricsContext.isMoving === true ? recoveryDuration.clean() : NaN, // seconds
       dragFactor: dragFactor > 0 ? dragFactor : config.rowerSettings.dragFactor, // Dragfactor
-      instantPower: instantPower > 0 && rower.strokeState() === 'Drive' ? instantPower : 0,
+      instantPower: instantPower > 0 && rower.strokeState() === 'Drive' ? instantPower : 0
     }
   }
 
