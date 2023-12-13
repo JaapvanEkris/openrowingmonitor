@@ -104,24 +104,24 @@ sessionManager.on('metricsUpdate', (metrics) => {
   // BE AWARE: This construct has an implicit filter as the regular in-stroke metricsUpdates will not be sent to the peripheralManager, as it is caught by the default
   // As peripheralMetricsUpdate is needed (which still is triggered by the sessionmanager), we can not remove this setup here until all peripherals do their own timing and filtering
   switch (true) {
-    case (metrics.metricsContext.isSessionStop == true):
+    case (metrics.metricsContext.isSessionStop === true):
       // This is called when the rowingmachine is stopped for some reason, could be reaching the end of the session,
       // could be user intervention
       peripheralManager.notifyMetrics('metricsUpdate', metrics)
       break
-    case (metrics.metricsContext.isIntervalStart == true):
+    case (metrics.metricsContext.isIntervalStart === true):
       // This is called when the sessionManager concludes the intervaltarget is reached
       // Update all screens to reflect this change, as targetTime and targetDistance have changed
       // ToDo: recording this event in the recordings accordingly should be done as well
       peripheralManager.notifyMetrics('metricsUpdate', metrics)
       break
-    case (metrics.metricsContext.isPauseStart == true):
+    case (metrics.metricsContext.isPauseStart === true):
       peripheralManager.notifyMetrics('strokeStateChanged', metrics)
       break
-    case (metrics.metricsContext.isRecoveryStart == true):
+    case (metrics.metricsContext.isRecoveryStart === true):
       peripheralManager.notifyMetrics('strokeStateChanged', metrics)
       break
-    case (metrics.metricsContext.isDriveStart == true):
+    case (metrics.metricsContext.isDriveStart === true):
       peripheralManager.notifyMetrics('strokeFinished', metrics)
       break
     default:
@@ -130,7 +130,7 @@ sessionManager.on('metricsUpdate', (metrics) => {
 })
 
 // ToDo: REMOVE THIS AS SOON AS PERIPHERALS CAN DO THEIR OWN CACHING AND TIMING
-sessionManager.on('peripheralMetricsUpdate', (metrics) => {									 
+sessionManager.on('peripheralMetricsUpdate', (metrics) => {
   peripheralManager.notifyMetrics('metricsUpdate', metrics)
 })
 
