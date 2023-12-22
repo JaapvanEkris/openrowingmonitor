@@ -75,16 +75,60 @@ export default class PM5RowingService extends bleno.PrimaryService {
     this.multiplexedCharacteristic = multiplexedCharacteristic
   }
 
-  notifyData (type, data) {
-    if (type === 'strokeFinished' || type === 'metricsUpdate') {
-      this.generalStatus.notify(data)
-      this.additionalStatus.notify(data)
-      this.additionalStatus2.notify(data)
-      this.strokeData.notify(data)
-      this.additionalStrokeData.notify(data)
-    } else if (type === 'strokeStateChanged') {
-      // the stroke state is delivered via the GeneralStatus Characteristic, so we only need to notify that one
-      this.generalStatus.notify(data)
+ notifyData (type, metrics) {
+    if (metrics.metricsContext === undefined) return
+    switch (true) {
+      case (metrics.metricsContext.isSessionStart):
+        this.generalStatus.notify(metrics)
+        this.additionalStatus.notify(metrics)
+        this.additionalStatus2.notify(metrics)
+        this.strokeData.notify(metrics)
+        this.additionalStrokeData.notify(metrics)
+        break
+      case (metrics.metricsContext.isSessionStop):
+        this.generalStatus.notify(metrics)
+        this.additionalStatus.notify(metrics)
+        this.additionalStatus2.notify(metrics)
+        this.strokeData.notify(metrics)
+        this.additionalStrokeData.notify(metrics)
+        break
+      case (metrics.metricsContext.isIntervalStart):
+        this.generalStatus.notify(metrics)
+        this.additionalStatus.notify(metrics)
+        this.additionalStatus2.notify(metrics)
+        this.strokeData.notify(metrics)
+        this.additionalStrokeData.notify(metrics)
+        break
+      case (metrics.metricsContext.isPauseStart):
+        this.generalStatus.notify(metrics)
+        this.additionalStatus.notify(metrics)
+        this.additionalStatus2.notify(metrics)
+        this.strokeData.notify(metrics)
+        this.additionalStrokeData.notify(metrics)
+        break
+      case (metrics.metricsContext.isPauseEnd):
+        this.generalStatus.notify(metrics)
+        this.additionalStatus.notify(metrics)
+        this.additionalStatus2.notify(metrics)
+        this.strokeData.notify(metrics)
+        this.additionalStrokeData.notify(metrics)
+        break
+      case (metrics.metricsContext.isDriveStart):
+        this.generalStatus.notify(metrics)
+        this.additionalStatus.notify(metrics)
+        this.additionalStatus2.notify(metrics)
+        this.strokeData.notify(metrics)
+        this.additionalStrokeData.notify(metrics)
+        break
+      case (metrics.metricsContext.isRecoveryStart):
+        this.generalStatus.notify(metrics)
+        break
+      default:
+        this.generalStatus.notify(metrics)
+        this.additionalStatus.notify(metrics)
+        this.additionalStatus2.notify(metrics)
+        this.strokeData.notify(metrics)
+        this.additionalStrokeData.notify(metrics)
     }
   }
 }
