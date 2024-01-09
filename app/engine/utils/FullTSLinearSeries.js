@@ -31,7 +31,6 @@ function createTSLinearSeries (maxSeriesLength = 0) {
 
   let _A = 0
   let _B = 0
-  let _goodnessOfFit = 0
 
   function push (x, y) {
     // Invariant: A contains all a's (as in the general formula y = a * x^2 + b * x + c)
@@ -61,7 +60,20 @@ function createTSLinearSeries (maxSeriesLength = 0) {
     } else {
       _A = 0
     }
-    _B = Y.average() - (_A * X.average())
+
+    // Calculate all the intercepts for the newly added point and the newly calculated A
+    const B = createLabelledBinarySearchTree()
+    if (X.length() > 1) {
+      // There are at least two points in the X and Y arrays, so let's calculate the intercept
+      let i = 0
+      while (i < X.length() - 1) {
+        // Please note , as we need to recreate the B-tree for each newly added datapoint anyway, the label i isn't relevant
+        B.push(i, (Y.get(i) - (_A * X.get(i))))
+        i++
+      }
+    }
+
+    _B = B.median()
   }
 
   function slope () {
@@ -88,8 +100,21 @@ function createTSLinearSeries (maxSeriesLength = 0) {
 
   function goodnessOfFit () {
     // This function returns the R^2 as a goodness of fit indicator
+    let i = 0
+    let ssr = 0
+    let sst = 0
     if (X.length() >= 2) {
-      return _goodnessOfFit
+      while (i < X.length() - 1) {
+        ssr += Math.pow((Y.get(i) - projectX(X.get(i))), 2)
+        sst += Math.pow((Y.get(i) - Y.average()), 2)
+        i++
+      }
+      if (sst !== 0) {
+        const _goodnessOfFit = 1 - (ssr / sst)
+        return _goodnessOfFit
+      } else {
+        return 0
+      }
     } else {
       return 0
     }
@@ -151,6 +176,14 @@ function createTSLinearSeries (maxSeriesLength = 0) {
     return Y.sum()
   }
 
+  function xAverage () {
+    return X.average()
+  }
+
+  function yAverage () {
+    return Y.average()
+  }
+
   function xSeries () {
     return X.series()
   }
@@ -174,7 +207,6 @@ function createTSLinearSeries (maxSeriesLength = 0) {
     A.reset()
     _A = 0
     _B = 0
-    _goodnessOfFit = 0
   }
 
   return {
@@ -197,6 +229,8 @@ function createTSLinearSeries (maxSeriesLength = 0) {
     yAtSeriesEnd,
     xSum,
     ySum,
+    xAverage,
+    yAverage,
     xSeries,
     ySeries,
     reset
