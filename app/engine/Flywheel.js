@@ -22,9 +22,10 @@
 
 import loglevel from 'loglevel'
 import { createStreamFilter } from './utils/StreamFilter.js'
-import { createSeries } from './utils/Series.js'
 import { createOLSLinearSeries } from './utils/OLSLinearSeries.js'
 import { createTSQuadraticSeries } from './utils/FullTSQuadraticSeries.js'
+import { createWeighedSeries } from './utils/WeighedSeries.js'
+
 const log = loglevel.getLogger('RowingEngine')
 
 function createFlywheel (rowerSettings) {
@@ -116,18 +117,20 @@ function createFlywheel (rowerSettings) {
     }
 
     // Let's make room for a new set of values for angular velocity and acceleration
-    _angularVelocityMatrix[_angularVelocityMatrix.length] = createSeries(flankLength)
-    _angularAccelerationMatrix[_angularAccelerationMatrix.length] = createSeries(flankLength)
+    _angularVelocityMatrix[_angularVelocityMatrix.length] = createWeighedSeries()
+    _angularAccelerationMatrix[_angularAccelerationMatrix.length] = createWeighedSeries()
 
     let i = 0
+    const goodnessOfFit = _angularDistance.goodnessOfFit()
+
     while (i < _angularVelocityMatrix.length) {
-      _angularVelocityMatrix[i].push(_angularDistance.firstDerivativeAtPosition(i))
-      _angularAccelerationMatrix[i].push(_angularDistance.secondDerivativeAtPosition(i))
+      _angularVelocityMatrix[i].push(_angularDistance.firstDerivativeAtPosition(i), goodnessOfFit)
+      _angularAccelerationMatrix[i].push(_angularDistance.secondDerivativeAtPosition(i), goodnessOfFit)
       i++
     }
 
-    _angularVelocityAtBeginFlank = _angularVelocityMatrix[0].median()
-    _angularAccelerationAtBeginFlank = _angularAccelerationMatrix[0].median()
+    _angularVelocityAtBeginFlank = _angularVelocityMatrix[0].weighedAverage()
+    _angularAccelerationAtBeginFlank = _angularAccelerationMatrix[0].weighedAverage()
 
     // And finally calculate the torque
     _torqueAtBeginFlank = (rowerSettings.flywheelInertia * _angularAccelerationAtBeginFlank + drag.clean() * Math.pow(_angularVelocityAtBeginFlank, 2))
@@ -258,7 +261,6 @@ function createFlywheel (rowerSettings) {
   }
 
   function deltaTimesAbove (threshold) {
-    // if (_deltaTime.numberOfYValuesAbove(threshold) === flankLength) {
     if (_deltaTime.minimumY() >= threshold && _deltaTime.length() >= flankLength) {
       return true
     } else {
@@ -267,7 +269,6 @@ function createFlywheel (rowerSettings) {
   }
 
   function deltaTimesEqualorBelow (threshold) {
-    // if (_deltaTime.numberOfYValuesEqualOrBelow(threshold) === flankLength) {
     if (_deltaTime.maximumY() <= threshold && _deltaTime.length() >= flankLength) {
       return true
     } else {
@@ -357,7 +358,8 @@ function createFlywheel (rowerSettings) {
     isDwelling,
     isAboveMinimumSpeed,
     isUnpowered,
-    isPowered
+    isPowered,
+    reset
   }
 }
 
