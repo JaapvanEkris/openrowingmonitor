@@ -2,7 +2,7 @@
 /*
   Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
 
-  The TSLinearSeries is a datatype that represents a Quadratic Series. It allows
+  The FullTSQuadraticSeries is a datatype that represents a Quadratic Series. It allows
   values to be retrieved (like a FiFo buffer, or Queue) but it also includes
   a Theil-Sen Quadratic Regressor to determine the coefficients of this dataseries.
 
@@ -36,13 +36,12 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
   let _C = 0
 
   function push (x, y) {
-    const linearResidu = createTSLinearSeries(maxSeriesLength)
-
     // Invariant: A contains all a's (as in the general formula y = a * x^2 + b * x + c)
-    // Where the a's are labeled in the Binary Search Tree with their xi when they BEGIN in the point (xi, yi)
+    // Where the a's are labeled in the Binary Search Tree with their Xi when they BEGIN in the point (Xi, Yi)
+
     if (maxSeriesLength > 0 && X.length() >= maxSeriesLength) {
-      // The maximum of the array has been reached, so when pushing the x,y the array gets shifted,
-      // thus we have to remove the a's belonging to the current position X0 as well before this value is trashed
+      // The maximum of the array has been reached, so when pushing the new datapoint (x,y), the array will get shifted,
+      // thus we have to remove all the A's that start with the old position X0 BEFORE this value gets thrown away
       A.remove(X.get(0))
     }
 
@@ -50,38 +49,50 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
     Y.push(y)
 
     // Calculate the coefficient a for the new interval by adding the newly added datapoint
-    if (X.length() > 2) {
-      // There are at least two points in the X and Y arrays, so let's add the new datapoint
-      let i = 0
-      let j = 0
-      while (i < X.length() - 2) {
-        j = i + 1
-        while (j < X.length() - 1) {
-          A.push(X.get(i), calculateA(i, j, X.length() - 1))
-          j++
-        }
-        i++
-      }
-      _A = A.median()
+    let i = 0
+    let j = 0
+    const linearResidu = createTSLinearSeries(maxSeriesLength)
 
-      // Calculate the remaining two coefficients for this new interval
-      i = 0
-      linearResidu.reset()
-      while (i < X.length() - 1) {
-        linearResidu.push(X.get(i), Y.get(i) - (_A * Math.pow(X.get(i), 2)))
-        i++
-      }
-      _B = linearResidu.coefficientA()
-      _C = linearResidu.coefficientB()
-    } else {
-      _A = 0
-      _B = 0
-      _C = 0
+    switch (true) {
+      case (X.length() > 2):
+        // There are now at least three datapoints in the X and Y arrays, so let's calculate the A portion belonging for the new datapoint via Quadratic Theil-Sen regression
+        // First we calculate the A for the formula
+        while (i < X.length() - 2) {
+          j = i + 1
+          while (j < X.length() - 1) {
+            A.push(X.get(i), calculateA(i, j, X.length() - 1))
+            j++
+          }
+          i++
+        }
+        _A = A.median()
+
+        // Next, we calculate the B and C via Linear regression over the residu
+        i = 0
+        while (i < X.length() - 1) {
+          linearResidu.push(X.get(i), Y.get(i) - (_A * Math.pow(X.get(i), 2)))
+          i++
+        }
+        _B = linearResidu.coefficientA()
+        _C = linearResidu.coefficientB()
+        break
+      case (X.length() === 2 && X.get(1) - X.get(0) !== 0):
+        // There are only two datapoints, so we need to be creative to get to a quadratic solution
+        // As we know this is part of a 'linear' acceleration, we know that the second derivative should obey 2 * _A = angular acceleration = 2 * angular distance / (delta t)^2
+        _A = (Y.get(1) - Y.get(0)) / Math.pow(X.get(1) - X.get(0), 2)
+        // As the first derivative should match angular velocity (= angular acceleration * (delta t))
+        _B = -2 * _A * X.get(0)
+        _C = 0
+        break
+      default:
+        _A = 0
+        _B = 0
+        _C = 0
     }
   }
 
   function firstDerivativeAtPosition (position) {
-    if (X.length() > 2 && position < X.length()) {
+    if (X.length() > 1 && position < X.length()) {
       return ((_A * 2 * X.get(position)) + _B)
     } else {
       return 0
@@ -89,7 +100,7 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
   }
 
   function secondDerivativeAtPosition (position) {
-    if (X.length() > 2 && position < X.length()) {
+    if (X.length() > 1 && position < X.length()) {
       return (_A * 2)
     } else {
       return 0
@@ -129,17 +140,27 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
 
   function goodnessOfFit () {
     // This function returns the R^2 as a goodness of fit indicator
-    // ToDo: calculate the goodness of fit when called
+    let i = 0
+    let ssr = 0
+    let sst = 0
     if (X.length() >= 2) {
-      // return _goodnessOfFit
-      return 1
+      while (i < X.length() - 1) {
+        ssr += Math.pow((Y.get(i) - projectX(X.get(i))), 2)
+        sst += Math.pow((Y.get(i) - Y.average()), 2)
+        i++
+      }
+      if (sst !== 0) {
+        const _goodnessOfFit = 1 - (ssr / sst)
+        return _goodnessOfFit
+      } else {
+        return 0
+      }
     } else {
       return 0
     }
   }
 
   function projectX (x) {
-    const _C = coefficientC()
     if (X.length() > 2) {
       return ((_A * x * x) + (_B * x) + _C)
     } else {
@@ -211,6 +232,14 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
     return Y.maximum()
   }
 
+  function xAverage () {
+    return X.average()
+  }
+
+  function yAverage () {
+    return Y.average()
+  }
+
   function xSeries () {
     return X.series()
   }
@@ -266,6 +295,8 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
     minimumY,
     maximumX,
     maximumY,
+    xAverage,
+    yAverage,
     xSum,
     ySum,
     xSeries,
