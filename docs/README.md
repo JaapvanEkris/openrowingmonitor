@@ -1,11 +1,10 @@
 # Open Rowing Monitor
 
-[![Node.js CI](https://github.com/laberning/openrowingmonitor/actions/workflows/node.js.yml/badge.svg)](https://github.com/laberning/openrowingmonitor/actions/workflows/node.js.yml)
-[![CodeQL](https://github.com/laberning/openrowingmonitor/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/laberning/openrowingmonitor/actions/workflows/codeql-analysis.yml)
-[![pages-build-deployment](https://github.com/laberning/openrowingmonitor/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/laberning/openrowingmonitor/actions/workflows/pages/pages-build-deployment)
+[![Node.js CI](https://github.com/JaapvanEkris/openrowingmonitor/actions/workflows/node.js.yml/badge.svg)](https://github.com/JaapvanEkris/openrowingmonitor/actions/workflows/node.js.yml)
+[![CodeQL](https://github.com/JaapvanEkris/openrowingmonitor/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/JaapvanEkris/openrowingmonitor/actions/workflows/codeql-analysis.yml)
 
 <!-- markdownlint-disable-next-line no-inline-html -->
-<img width="200" height="200" align="left" src="img/openrowingmonitor_icon.png" class="dropcap">
+<img width="200" height="200" align="left" src="img/openrowingmonitor_icon.png" alt="Open Rowing Monitor logo" class="dropcap">
 
 Open Rowing Monitor is a free and open source performance monitor for rowing machines. It upgrades almost any rowing machine into a smart trainer that can be used with training applications and games.
 
@@ -18,13 +17,13 @@ Open Rowing Monitor should run fine with any rowing machine that uses some kind 
 Open Rowing Monitor aims to provide you with metrics directly, connect to watches, apps and games via bluetooth or ANT+ and allow you to export your data to the analysis tool of your choice. These features have been tested intensily, where most features have survived flawlessly over 3 million meters of rowing with different types of rowing machines.
 
 <!-- markdownlint-disable-next-line no-inline-html -->
-<img src="img/openrowingmonitor_frontend.png" width="700"><br clear="left">
+<img src="img/openrowingmonitor_frontend.png" alt="Image showing the main Open Rowing Monitor screen" title="The main screen" width="700"><br clear="left">
 
 The following items describe most of the current features in more detail.
 
 ### Rowing Metrics
 
-Open Rowing Monitor implements a physics model to simulate the typical metrics of a rowing boat based on the pull on the handle. The physics model can be tuned to the specifics of a rower by changing some model parameters in the configuration file, where we also provide these [settings for machines known to us](Supported_Rowers.md). The underlying V1 physics engine has been validated against a Concept2 PM5 in 250 sessions (totalling 1.8 million meters), and results deviate less than 0.05% for every rowing session.
+Open Rowing Monitor implements a physics model to simulate the typical metrics of a rowing boat based on the pull on the handle. The physics model can be tuned to the specifics of a rower by changing some model parameters in the configuration file, where we also provide these [settings for machines known to us](Supported_Rowers.md). The underlying V1 physics engine has been validated against a Concept2 PM5 in over 300 sessions (totalling 2.5 million meters), and results deviate less than 0.05% for every individual rowing session.
 
 Open Rowing Monitor can display the following key metrics on the user interface:
 
@@ -50,7 +49,7 @@ It calculates and can export many other key rowing metrics, including Recovery H
 The web interface visualizes the basic rowing metrics on any device that can run a web browser (i.e. a smartphone that you attach to your rowing machine while training). It shows the rowing statistics in realtime. You can set up the user interface as you like, with the metrics you find important:
 
 <!-- markdownlint-disable-next-line no-inline-html -->
-<img src="img/Metrics_Selection.png" width="700"><br clear="left">
+<img src="img/Metrics_Selection.png" title="The metrics selection screen" alt="Image showing the metrics selection screen" width="700"><br clear="left">
 
 Via the Action tile, it can also be used to reset the training metrics and to select the type of bluetooth and ANT+ connection.
 
@@ -91,7 +90,7 @@ Uploading your sessions to Strava is an integrated feature, for all other platfo
 You will need a Raspberry Pi Zero W, Raspberry Pi Zero 2 W, Raspberry Pi 3 or a Raspberry Pi 4 with a fresh installation of Raspberry Pi OS Lite for this (the 64Bit kernel is preferred). Connect to the device with SSH and initiate the following command to install Open Rowing Monitor as an automatically starting system service:
 
 ```zsh
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/laberning/openrowingmonitor/HEAD/install/install.sh)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/JaapvanEkris/openrowingmonitor/v1beta_updates/install/install.sh)"
 ```
 
 Also have a look at the [Detailed Installation Instructions](installation.md) for more information on the software installation and for instructions on how to connect the rowing machine.
