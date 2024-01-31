@@ -32,7 +32,6 @@
   },
   "dependencies": {
     "@abandonware/bleno": "^0.6.1",
-    "@abandonware/bluetooth-hci-socket": "^0.5.3-10"
     "@abandonware/noble": "^1.9.2-23",
     "chart.js": "^4.4.1",
     "chartjs-plugin-datalabels": "^2.2.0",
@@ -47,7 +46,11 @@
     "ws": "8.5.0",
     "xml2js": "^0.6.2"
   },
-  "//fix1Comment": "a hacky fix to not install the optional dependency xpc-connect which has a security issue",
+  "//fix1Comment": "version 0.5.3-8 currently does not work with bleno",
+  "optionalDependencies": {
+    "@abandonware/bluetooth-hci-socket": "^0.5.3-10"
+  },
+  "//fix2Comment": "a hacky fix to not install the optional dependency xpc-connect which has a security issue",
   "overrides": {
     "@abandonware/bleno": {
       "xpc-connect@": "npm:debug"
