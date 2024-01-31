@@ -30,7 +30,7 @@ This guide roughly explains how to set up the rowing software and hardware.
 Connect to the device with SSH and initiate the following command to set up all required dependencies and to install Open Rowing Monitor as an automatically starting system service:
 
 ```zsh
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/laberning/openrowingmonitor/HEAD/install/install.sh)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/JaapvanEkris/openrowingmonitor/v1beta_updates/install/install.sh)"
 ```
 
 ### Updating to a new version
@@ -68,8 +68,8 @@ Basically all that's left to do is hook up your sensor to the GPIO pins of the R
 
 Open Rowing Monitor reads the sensor signal from GPIO port 17 and expects it to pull on GND if the sensor is closed. To get a stable reading you should add a pull-up resistor to that pin. I prefer to use the internal resistor of the Raspberry Pi to keep the wiring simple but of course you can also go with an external circuit.
 
-![Internal wiring of Raspberry Pi](img/raspberrypi_internal_wiring.jpg)
-*Internal wiring of Raspberry Pi*
+<!-- markdownlint-disable-next-line no-inline-html -->
+<img src="img/raspberrypi_internal_wiring.jpg" alt="Image showing the internal wiring of Raspberry Pi" title="Internal wiring of the Raspberry Pi" width="700"><br clear="left">
 
 The internal pull-up can be enabled as described [here](https://www.raspberrypi.org/documentation/configuration/config-txt/gpio.md). So its as simple as adding the following to `/boot/config.txt` and then rebooting the device.
 
@@ -85,12 +85,13 @@ How to connect this to your rowing machine is specific to your device. You need 
 
 If your machine isn't listed, you can still follow this generic manual for hardware setup, and [adjust the software settings following the settings adjustment guide](rower_settings.md).
 
-![Connecting the reed sensor](img/raspberrypi_reedsensor_wiring.jpg)
-*Connecting the reed sensor*
+<!-- markdownlint-disable-next-line no-inline-html -->
+<img src="img/raspberrypi_reedsensor_wiring.jpg" alt="Image showing the connection of the reed sensor" title="Connecting the reed sensor" width="700"><br clear="left">
 
 If you do not have and does not have something like this or if the sensor is not accessible, you can still build something similar quite easily. Some ideas on what to use:
 
 * Reed sensor (i.e. of an old bike tachometer)
+* HAL effect sensor
 * PAS sensor (i.e. from an E-bike)
 * Optical chopper wheel
 
