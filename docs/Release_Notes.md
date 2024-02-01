@@ -4,7 +4,7 @@
 
 Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz](https://github.com/Abasz)
 
-### New functionality
+### New functionality in 0.9.0
 
 - Added support for ANT+ rowing metrics broadcast
 - Allow the user to change the GUI layout and metrics, including displaying the force curve
@@ -12,7 +12,7 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz]
 - Added the option for more complex workouts, as a hook for the PM5 and webinterface (these are a ToDo where the PM5 workout interface is still in development)
 - Added reporting of PM5 Interval-types to the PM5
 
-### Bugfixes and robustness improvements
+### Bugfixes and robustness improvements in 0.9.0
 
 - Added a configuration sanity check which logs obvious errors and (if possible) repairs settings, after several users messed up their config and got completely stuck.
 - The configuration sanity check also provides an automated upgrade path for 0.8.2 (old config) users to 0.9.0 (new config), as all the newly added configuration items between these two versions are automatically detected, logged and repaired.
@@ -29,7 +29,7 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz]
 
 Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz](https://github.com/Abasz)
 
-### New Functionality
+### New Functionality in 0.8.4
 
 - New Metrics: Force curve, Peak force, average force, power curve, handle speed curve, VO2Max (early beta), Heart Rate Recovery. All have over 1000 kilometers of testing under their belt, and have sown to work reliably;
 - Improved metrics through BLE: Based on the new engine, many metrics are added to both FTMS Rower and PM5, making it as complete as it can be. Most metrics also have over a 1000 km of testing with EXR, and both types of interface have been used with EXR intensly.
@@ -38,7 +38,7 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz]
 - Switch to 64Bit: ORM supports the 64 Bit core, which has a PREEEMPT-kernel. The setup-script accepts this as well, as this should be the preferred kernel to use. The PREEMPT-kernel is optimized for low latency measurements, like IoT applications. As PREEMPT kernels can handle a lot higher priority for the GPIO-thread, this setting has been switched from a binary setting to a priority setting.
 - An initial stub for session mangement: As a first step towards sessions and splits, a session object in Server.js is added as a placeholder for session targets. If unfilled, the code will act as in version 0.8.2: you can row without any limitations. If a target is set, it will termintate the session at the exact right time. As is with the PM5, ORM counts down if a target is set. The current stub isn't ideal yet, as we want the user to be able to set these targets through the webGUI or through BLE. However, it is a first step towards functional completeness as it lays a preliminary foundation for such functionality.
 
-### Bugfixes and robustness improvements
+### Bugfixes and robustness improvements in 0.8.4
 
 - Totally renewed rowing engine: Linear and Quadratic Regression models are now the core of the rowing engine. This model is much more robust against noise, and thus removing the need for any noise filtering from OpenRowingMonitor for any of the known rowers. In the over 1000 kilometers of testing, it has proven to work extremely reliable and robust;
 - Improved logging: the logging has been more focussed on helping the user fix a bad setting. I removed several metrics, but added several others as they tell much more about the underlying state of the engine and its settings (for example the drive time and drive length). Goal is to have users be able to tune their engine based on the log.
@@ -49,7 +49,7 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz]
 
 Main contributor: [Lars Berning](https://github.com/laberning)
 
-### New Functionality
+### New Functionality in 0.8.2
 
 - Added Strava support
 
@@ -57,10 +57,10 @@ Main contributor: [Lars Berning](https://github.com/laberning)
 
 Main contributor: [Jaap van Ekris](https://github.com/JaapvanEkris)
 
-### Bugfixes and robustness improvements
+### Bugfixes and robustness improvements in 0.8.1
 
 - Refactoring of the Rowing Engine, as [Dave Vernooy's engine (ErgWare)](https://dvernooy.github.io/projects/ergware/) is good, but its variable naming leaves a bit to be desired.
 
-## From 0.7.0 (March 2021)
+## 0.7.0 (March 2021)
 
 Initial release, Main contributor: [Lars Berning](https://github.com/laberning), based on [Dave Vernooy's physics engine (ErgWare)](https://dvernooy.github.io/projects/ergware/)
