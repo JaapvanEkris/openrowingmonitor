@@ -87,19 +87,13 @@ Uploading your sessions to Strava is an integrated feature, for all other platfo
 
 ## Installation
 
-You will need a Raspberry Pi Zero W, Raspberry Pi Zero 2 W, Raspberry Pi 3 or a Raspberry Pi 4 with a fresh installation of Raspberry Pi OS Lite for this (the 64Bit kernel is preferred). Connect to the device with SSH and initiate the following command to install Open Rowing Monitor as an automatically starting system service:
-
-```zsh
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/JaapvanEkris/openrowingmonitor/v1beta_updates/install/install.sh)"
-```
-
-Also have a look at the [Detailed Installation Instructions](installation.md) for more information on the software installation and for instructions on how to connect the rowing machine.
+You will need a Raspberry Pi Zero W, Raspberry Pi Zero 2 W, Raspberry Pi 3 or a Raspberry Pi 4 with a fresh installation of Raspberry Pi OS Lite for this (the 64Bit kernel is preferred). Connect to the device with SSH have a look at the [Detailed Installation Instructions](installation.md) for more information on the software installation and for instructions on how to connect the rowing machine. Don't have a Raspberry Pi, but do have an ESP32 lying about? No problem, our sister project ported [Open Rowing Monitor for the ESP32](https://github.com/Abasz/ESPRowingMonitor), which works well (although uses a bit less accurate math due to platform limitations).
 
 ## How it all started
 
-Lars originally started this project, because his rowing machine (Sportstech WRX700) has a very simple computer and he wanted to build something with a clean interface that calculates more realistic metrics. Also, this was a good reason to learn a bit more about Bluetooth and all its specifics.
+[Lars Berning](https://github.com/laberning) originally started this project, because his rowing machine (Sportstech WRX700) had a very simple monitor and he wanted to build something with a clean interface that calculates more realistic metrics. Also, this was a good reason to learn a bit more about Bluetooth and all its specifics.
 
-The original proof of concept version started as a sketch on an Arduino, but the web frontend and BLE needed the much more powerful Raspberry Pi. Maybe using a Raspberry Pi for this small IoT-project is a bit of an overkill, but it has the capacity for further features such as syncing training data or rowing games. And it has USB-Ports that you can use to charge your phone while rowing :-)
+The original proof of concept version started as a sketch on an Arduino, but the web frontend and BLE needed the much more powerful Raspberry Pi. Maybe using a Raspberry Pi for this small IoT-project was a bit of an overkill, but it has the capacity for more complex math and features such as syncing training data. There is a much appreciated sister project that ported [Open Rowing Monitor for the ESP32](https://github.com/Abasz/ESPRowingMonitor).
 
 ## Further information
 
