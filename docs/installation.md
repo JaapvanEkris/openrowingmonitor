@@ -33,21 +33,101 @@ Connect to the device with SSH and initiate the following command to set up all 
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/JaapvanEkris/openrowingmonitor/v1beta_updates/install/install.sh)"
 ```
 
-### Updating to a new version
+### Check if OpenRowingMonitor runs without issue
 
-Open Rowing Monitor does not provide proper releases (yet), but you can update to the latest development version with this command:
+Next, check you need to do is to check the status of the Open Rowing Monitor service, which you can do with the command:
 
-```zsh
-updateopenrowingmonitor.sh
-```
+  ```zsh
+  sudo systemctl status openrowingmonitor
+  ```
 
-### Running Open Rowing Monitor without root permissions (optional)
+Which typically results in the following response (with some additional logging):
 
-The default installation will run Open Rowing Monitor with root permissions. You can also run it as normal user by modifying the following system services:
+  ```zsh
+  ● openrowingmonitor.service - Open Rowing Monitor
+       Loaded: loaded (/lib/systemd/system/openrowingmonitor.service; enabled; vendor preset: enabled)
+       Active: active (running) since Sun 2022-09-04 10:27:31 CEST; 12h ago
+     Main PID: 755 (npm start)
+        Tasks: 48 (limit: 8986)
+          CPU: 6min 48.869s
+       CGroup: /system.slice/openrowingmonitor.service
+               ├─755 npm start
+               ├─808 sh /tmp/start-6f31a085.sh
+               ├─809 node app/server.js
+               ├─866 /usr/bin/node ./app/gpio/GpioTimerService.js
+               └─872 /usr/bin/node ./app/ble/CentralService.js
+  ```
 
-#### To use BLE and open the Web-Server on port 80
+Please check if there are no errors reported.
 
-Issue the following command:
+Please note that the process identification numbers will differ.
+
+You can also look at the the log output of the OpenRowingMonitor-service by putting the following in the command-line:
+
+  ```zsh
+  sudo journalctl -u openrowingmonitor
+  ```
+
+This allows you to see the current state of the rower. Typically this will show:
+
+  ```zsh
+  Sep 12 20:37:45 roeimachine systemd[1]: Started Open Rowing Monitor.
+  Sep 12 20:38:03 roeimachine npm[751]: > openrowingmonitor@0.9.0 start
+  Sep 12 20:38:03 roeimachine npm[751]: > node app/server.js
+  Sep 12 20:38:06 roeimachine npm[802]: ==== Open Rowing Monitor 0.9.0 ====
+  Sep 12 20:38:06 roeimachine npm[802]: Setting priority for the main server thread to -5
+  Sep 12 20:38:06 roeimachine npm[802]: Session settings: distance limit none meters, time limit none seconds
+  Sep 12 20:38:06 roeimachine npm[802]: bluetooth profile: Concept2 PM5
+  Sep 12 20:38:06 roeimachine npm[802]: webserver running on port 80
+  Sep 12 20:38:06 roeimachine npm[862]: Setting priority for the Gpio-service to -7
+  Sep 12 20:38:09 roeimachine npm[802]: websocket client connected
+  ```
+Please check if there are no errors reported. The above snippet shows that OpenRowingMonitor is running, and that bluetooth and the webserver are alive, and that the webclient has connected.
+
+### Check if OpenRowingMonitor screen runs without issue (if installed)
+
+Next, check you need to do is to check the status of the Open Rowing Monitor service, which you can do with the command:
+
+  ```zsh
+  sudo systemctl status webbrowserkiosk
+  ```
+
+Which typically results in the following response (with some additional logging):
+
+  ```zsh
+● webbrowserkiosk.service - X11 Web Browser Kiosk
+     Loaded: loaded (/lib/systemd/system/webbrowserkiosk.service; enabled; vendor preset: enabled)
+     Active: active (running) since Wed 2024-01-31 23:46:27 CET; 11h ago
+   Main PID: 746 (xinit)
+      Tasks: 82 (limit: 8755)
+        CPU: 2min 50.292s
+     CGroup: /system.slice/webbrowserkiosk.service
+             ├─746 xinit /opt/openrowingmonitor/install/webbrowserkiosk.sh -- -nocursor
+             ├─747 /usr/lib/xorg/Xorg :0 -nocursor
+             ├─769 sh /opt/openrowingmonitor/install/webbrowserkiosk.sh
+             ├─774 /usr/bin/openbox --startup /usr/lib/aarch64-linux-gnu/openbox-autostart OPENBOX
+             ├─777 /usr/lib/chromium-browser/chromium-browser --enable-pinch --disable-infobars --disable-features=AudioServiceSandbox --kiosk --noerrdialogs --ignore-certificate-errors --disable-session-crashed-bubble --disable-pinch ->
+             ├─804 /usr/lib/chromium-browser/chrome_crashpad_handler --monitor-self --monitor-self-annotation=ptype=crashpad-handler --database=/home/pi/.config/chromium/Crash Reports --annotation=channel=Built on Debian , running on De>
+             ├─806 /usr/lib/chromium-browser/chrome_crashpad_handler --no-periodic-tasks --monitor-self-annotation=ptype=crashpad-handler --database=/home/pi/.config/chromium/Crash Reports --annotation=channel=Built on Debian , running >
+             ├─810 /usr/lib/chromium-browser/chromium-browser --type=zygote --no-zygote-sandbox --crashpad-handler-pid=0 --enable-crash-reporter=,Built on Debian , running on Debian 11 --noerrdialogs --change-stack-guard-on-fork=enable
+             ├─811 /usr/lib/chromium-browser/chromium-browser --type=zygote --crashpad-handler-pid=0 --enable-crash-reporter=,Built on Debian , running on Debian 11 --noerrdialogs --change-stack-guard-on-fork=enable
+             ├─820 /usr/lib/chromium-browser/chromium-browser --type=zygote --crashpad-handler-pid=0 --enable-crash-reporter=,Built on Debian , running on Debian 11 --noerrdialogs --change-stack-guard-on-fork=enable
+             ├─845 /usr/lib/chromium-browser/chromium-browser --type=gpu-process --enable-low-end-device-mode --ozone-platform=x11 --crashpad-handler-pid=0 --enable-crash-reporter=,Built on Debian , running on Debian 11 --noerrdialogs ->
+             ├─850 /usr/lib/chromium-browser/chromium-browser --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-US --service-sandbox-type=none --ignore-certificate-errors --ignore-certificate-errors --crashpad-han>
+             ├─858 /usr/lib/chromium-browser/chromium-browser --type=utility --utility-sub-type=storage.mojom.StorageService --lang=en-US --service-sandbox-type=utility --ignore-certificate-errors --ignore-certificate-errors --crashpad->
+             ├─877 /usr/lib/chromium-browser/chromium-browser --type=broker
+             └─884 /usr/lib/chromium-browser/chromium-browser --type=renderer --crashpad-handler-pid=0 --enable-crash-reporter=,Built on Debian , running on Debian 11 --noerrdialogs --change-stack-guard-on-fork=enable --first-renderer-p>
+  ```
+
+Please check if there are no errors reported.
+
+Please note that the process identification numbers will differ.
+
+### To use BLE and open the Web-Server on port 80
+
+#### Running Open Rowing Monitor without root permissions (optional)
+
+The default installation will run Open Rowing Monitor with root permissions. You can also run it as normal user by issueing the following command:
 
 ```zsh
 sudo setcap cap_net_bind_service,cap_net_raw=+eip $(eval readlink -f `which node`)
@@ -99,6 +179,28 @@ If you do not have and does not have something like this or if the sensor is not
 
 You should now adjust the rower specific parameters in `config/config.js` to suit your rowing machine. You should select a specific rower from the `rowerProfiles.js`, or create your own settings following this [guide for creating the rower specific settings](rower_settings.md). Also have a look at `config/default.config.js` to see what additional config parameters are available to suit your needs.
 
+Once all parameters are set, look at the the log output of the OpenRowingMonitor-service by putting the following in the command-line:
+
+  ```zsh
+  sudo journalctl -u openrowingmonitor
+  ```
+
+This allows you to see the current state of the rower. Typically this will show:
+
+  ```zsh
+  Sep 12 20:37:45 roeimachine systemd[1]: Started Open Rowing Monitor.
+  Sep 12 20:38:03 roeimachine npm[751]: > openrowingmonitor@0.9.0 start
+  Sep 12 20:38:03 roeimachine npm[751]: > node app/server.js
+  Sep 12 20:38:06 roeimachine npm[802]: ==== Open Rowing Monitor 0.9.0 ====
+  Sep 12 20:38:06 roeimachine npm[802]: Setting priority for the main server thread to -5
+  Sep 12 20:38:06 roeimachine npm[802]: Session settings: distance limit none meters, time limit none seconds
+  Sep 12 20:38:06 roeimachine npm[802]: bluetooth profile: Concept2 PM5
+  Sep 12 20:38:06 roeimachine npm[802]: webserver running on port 80
+  Sep 12 20:38:06 roeimachine npm[862]: Setting priority for the Gpio-service to -7
+  Sep 12 20:38:09 roeimachine npm[802]: websocket client connected
+  ```
+Please check if there are no errors reported, especially for configuration parameters. OpenRowingMonitor will report if it detects abnormal or missing parameters.
+
 ### Setting up Strava upload
 
 Part of the specific parameters in `config/config.js` are the Strava settings. To use this, you have to create a Strava API Application as described [here](https://developers.strava.com/docs/getting-started/#account) and use the corresponding values. When creating your Strava API application, set the "Authorization Callback Domain" to the IP address of your Raspberry Pi.
@@ -108,4 +210,13 @@ Once you get your Strava credentials, you can add them in `config/config.js`:
 ```js
 stravaClientId: "StravaClientID",
 stravaClientSecret: "client_secret_string_from_the_Strava_API",
+```
+
+
+## Updating OpenRowingMonitor to a new version
+
+Open Rowing Monitor does not provide proper releases (yet), but you can update to the latest development version with this command:
+
+```zsh
+updateopenrowingmonitor.sh
 ```
