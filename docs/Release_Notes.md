@@ -1,6 +1,6 @@
 # From 0.8.4 to 0.9.0 (January 2024)
 
-## New functionality:
+## New functionality
 
 - Added support for ANT+ rowing metrics broadcast
 - Allow the user to change the GUI layout and metrics, including displaying the force curve
@@ -8,7 +8,7 @@
 - Added the option for more complex workouts, as a hook for the PM5 and webinterface (these are a ToDo where the PM5 workout interface is still in development)
 - Added reporting of PM5 Interval-types to the PM5
 
-## Added some bugfixes/robustness improvements:
+## Bugfixes and robustness improvements
 
 - Added a configuration sanity check which logs obvious errors and (if possible) repairs settings, after several users messed up their config and got completely stuck.
 - The configuration sanity check also provides an automated upgrade path for 0.8.3 (old config) users to 0.9.0 (new config), as all the newly added configuration items between these two versions are automatically detected, logged and repaired.
@@ -19,6 +19,7 @@
 - Improved the structure of the peripherals to allow a more robust BLE and ANT use
 - Improved the accuracy, responsiveness and efficiency of both the Linear and Quadratic the Theil-Sen algorithms. For larger 'flankLength' machines, this will result in 50% reduction in CPU use, while increasing the responsiveness and accuracy of the forcecurve and powercurve.
 - Drag calculation and recovery slope calculation are now down with Linear Theil-Sen algorithm, making this calculation more robust against outliers
+- Validation of the engine against a PM5 for over 3000KM, where the deviation is a maximum of 0.03%
 
 # From 0.8.2 to 0.8.4 (January 2023)
 
@@ -36,8 +37,14 @@ This new version brought some major changes to the rowing engine:
 - Improved logging: the logging has been more focussed on helping the user fix a bad setting. I removed several metrics, but added several others as they tell much more about the underlying state of the engine and its settings (for example the drive time and drive length). Goal is to have users be able to tune their engine based on the log.
 - Switch to 64Bit: ORM supports the 64 Bit core, which has a PREEEMPT-kernel. The setup-script accepts this as well, as this should be the preferred kernel to use. The PREEMPT-kernel is optimized for low latency measurements, like IoT applications. As PREEMPT kernels can handle a lot higher priority for the GPIO-thread, this setting has been switched from a binary setting to a priority setting.
 
-#From 0.8.1 to 0.8.2 (Febuary 2022)
+# From 0.8.1 to 0.8.2 (Febuary 2022)
+
+## New Functionality
+
 - Added Strava support
 
-#From 0.8.0 to 0.8.1 (Febuary 2022)
+# From 0.8.0 to 0.8.1 (Febuary 2022)
+
+## Bugfixes and robustness improvements
+
 - Refactoring of the Rowing Engine, as [Dave Vernooy's engine (ErgWare)](https://dvernooy.github.io/projects/ergware/) is good, but its variable naming leaves a bit to be desired.
