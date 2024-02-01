@@ -2,6 +2,8 @@
 
 ## From 0.8.4 to 0.9.0 (January 2024)
 
+Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz](https://github.com/Abasz)
+
 ### New functionality
 
 - Added support for ANT+ rowing metrics broadcast
@@ -25,6 +27,8 @@
 
 ## From 0.8.2 to 0.8.4 (January 2023)
 
+Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz](https://github.com/Abasz)
+
 ### New Functionality
 
 - New Metrics: Force curve, Peak force, average force, power curve, handle speed curve, VO2Max (early beta), Heart Rate Recovery. All have over 1000 kilometers of testing under their belt, and have sown to work reliably;
@@ -35,6 +39,7 @@
 - An initial stub for session mangement: As a first step towards sessions and splits, a session object in Server.js is added as a placeholder for session targets. If unfilled, the code will act as in version 0.8.2: you can row without any limitations. If a target is set, it will termintate the session at the exact right time. As is with the PM5, ORM counts down if a target is set. The current stub isn't ideal yet, as we want the user to be able to set these targets through the webGUI or through BLE. However, it is a first step towards functional completeness as it lays a preliminary foundation for such functionality.
 
 ### Bugfixes and robustness improvements
+
 - Totally renewed rowing engine: Linear and Quadratic Regression models are now the core of the rowing engine. This model is much more robust against noise, and thus removing the need for any noise filtering from OpenRowingMonitor for any of the known rowers. In the over 1000 kilometers of testing, it has proven to work extremely reliable and robust;
 - Improved logging: the logging has been more focussed on helping the user fix a bad setting. I removed several metrics, but added several others as they tell much more about the underlying state of the engine and its settings (for example the drive time and drive length). Goal is to have users be able to tune their engine based on the log.
 - Finite State Machine based state management: OpenRowingEngine will now maintain an explicit state for the rower, and RowingStatistics will maintain an explicit state for the session. Aside reducing the code complexity significantly, it greatly impoved robustness.
@@ -42,12 +47,20 @@
 
 ## From 0.8.1 to 0.8.2 (Febuary 2022)
 
+Main contributor: [Lars Berning](https://github.com/laberning)
+
 ### New Functionality
 
 - Added Strava support
 
 ## From 0.8.0 to 0.8.1 (September 2021)
 
+Main contributor: [Jaap van Ekris](https://github.com/JaapvanEkris)
+
 ### Bugfixes and robustness improvements
 
 - Refactoring of the Rowing Engine, as [Dave Vernooy's engine (ErgWare)](https://dvernooy.github.io/projects/ergware/) is good, but its variable naming leaves a bit to be desired.
+
+## From 0.7.0 (March 2021)
+
+Initial release, Main contributor: [Lars Berning](https://github.com/laberning), based on [Dave Vernooy's physics engine (ErgWare)](https://dvernooy.github.io/projects/ergware/)
