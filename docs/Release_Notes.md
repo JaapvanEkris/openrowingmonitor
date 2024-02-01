@@ -1,5 +1,6 @@
-#From 0.8.4 to 0.9.0 (January 2024)
-New functionality:
+# From 0.8.4 to 0.9.0 (January 2024)
+
+## New functionality:
 
 - Added support for ANT+ rowing metrics broadcast
 - Allow the user to change the GUI layout and metrics, including displaying the force curve
@@ -7,7 +8,7 @@ New functionality:
 - Added the option for more complex workouts, as a hook for the PM5 and webinterface (these are a ToDo where the PM5 workout interface is still in development)
 - Added reporting of PM5 Interval-types to the PM5
 
-Added some bugfixes/robustness improvements:
+## Added some bugfixes/robustness improvements:
 
 - Added a configuration sanity check which logs obvious errors and (if possible) repairs settings, after several users messed up their config and got completely stuck.
 - The configuration sanity check also provides an automated upgrade path for 0.8.3 (old config) users to 0.9.0 (new config), as all the newly added configuration items between these two versions are automatically detected, logged and repaired.
@@ -19,9 +20,11 @@ Added some bugfixes/robustness improvements:
 - Improved the accuracy, responsiveness and efficiency of both the Linear and Quadratic the Theil-Sen algorithms. For larger 'flankLength' machines, this will result in 50% reduction in CPU use, while increasing the responsiveness and accuracy of the forcecurve and powercurve.
 - Drag calculation and recovery slope calculation are now down with Linear Theil-Sen algorithm, making this calculation more robust against outliers
 
-#From 0.8.2 to 0.8.4 (January 2023)
+# From 0.8.2 to 0.8.4 (January 2023)
 
-This new version will bring some major changes to the rowing engine:
+## New Functionality
+
+This new version brought some major changes to the rowing engine:
 
 - Totally renewed rowing engine: Linear and Quadratic Regression models are now the core of the rowing engine. This model is much more robust against noise, and thus removing the need for any noise filtering from OpenRowingMonitor or any of the known rowers. In the over 1000 kilometers of testing, it has proven to work extremely reliable and robust;
 - Simpler set-up: I had the explicit aim to get a better out-of-the-box experience for new users. I tried to trim the number of required settings, and for many cases I’ve succeeded: several settings are brought down to their key elements (like a minimal handle force, which can be set more easily fror all rowers) or can be told by looking at the logs (like the recovery slope). For several other settings, their need to set them perfectly has been reduced, requiring less tweaking before Open Rowing Monitor starts producing good data. To support this, there also is a new setup document, to help users set up their own rower;
@@ -37,4 +40,4 @@ This new version will bring some major changes to the rowing engine:
 - Added Strava support
 
 #From 0.8.0 to 0.8.1 (Febuary 2022)
-- Refactopring of the Rowing Engine
+- Refactoring of the Rowing Engine, as [Dave Vernooy's engine (ErgWare)](https://dvernooy.github.io/projects/ergware/) is good, but its variable naming leaves a bit to be desired.
