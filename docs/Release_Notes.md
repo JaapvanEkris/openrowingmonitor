@@ -38,6 +38,7 @@
 - Totally renewed rowing engine: Linear and Quadratic Regression models are now the core of the rowing engine. This model is much more robust against noise, and thus removing the need for any noise filtering from OpenRowingMonitor for any of the known rowers. In the over 1000 kilometers of testing, it has proven to work extremely reliable and robust;
 - Improved logging: the logging has been more focussed on helping the user fix a bad setting. I removed several metrics, but added several others as they tell much more about the underlying state of the engine and its settings (for example the drive time and drive length). Goal is to have users be able to tune their engine based on the log.
 - Finite State Machine based state management: OpenRowingEngine will now maintain an explicit state for the rower, and RowingStatistics will maintain an explicit state for the session. Aside reducing the code complexity significantly, it greatly impoved robustness.
+- Added a new GPIO-library, making measurement of the flywheel data much more accurate and allowing to "debounce" the measurements, as many sensors have this issue
 
 ## From 0.8.1 to 0.8.2 (Febuary 2022)
 
