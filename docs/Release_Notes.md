@@ -1,6 +1,8 @@
-# From 0.8.4 to 0.9.0 (January 2024)
+# OpenRowingMonitor Release Notes
 
-## New functionality
+## From 0.8.4 to 0.9.0 (January 2024)
+
+### New functionality
 
 - Added support for ANT+ rowing metrics broadcast
 - Allow the user to change the GUI layout and metrics, including displaying the force curve
@@ -8,10 +10,10 @@
 - Added the option for more complex workouts, as a hook for the PM5 and webinterface (these are a ToDo where the PM5 workout interface is still in development)
 - Added reporting of PM5 Interval-types to the PM5
 
-## Bugfixes and robustness improvements
+### Bugfixes and robustness improvements
 
 - Added a configuration sanity check which logs obvious errors and (if possible) repairs settings, after several users messed up their config and got completely stuck.
-- The configuration sanity check also provides an automated upgrade path for 0.8.3 (old config) users to 0.9.0 (new config), as all the newly added configuration items between these two versions are automatically detected, logged and repaired.
+- The configuration sanity check also provides an automated upgrade path for 0.8.2 (old config) users to 0.9.0 (new config), as all the newly added configuration items between these two versions are automatically detected, logged and repaired.
 - Added restart limits to prevent infinite boot loops of the app crashing and rebooting when there is a config error
 - Fixed the GPIO tick rollover, which led to a minor hickup in data in rows over 30 minutes
 - Made Flywheel.js more robust against faulty GPIO data
@@ -21,9 +23,9 @@
 - Drag calculation and recovery slope calculation are now down with Linear Theil-Sen algorithm, making this calculation more robust against outliers
 - Validation of the engine against a PM5 for over 3000KM, where the deviation is a maximum of 0.03%
 
-# From 0.8.2 to 0.8.4 (January 2023)
+## From 0.8.2 to 0.8.4 (January 2023)
 
-## New Functionality
+### New Functionality
 
 - New Metrics: Force curve, Peak force, average force, power curve, handle speed curve, VO2Max (early beta), Heart Rate Recovery. All have over 1000 kilometers of testing under their belt, and have sown to work reliably;
 - Improved metrics through BLE: Based on the new engine, many metrics are added to both FTMS Rower and PM5, making it as complete as it can be. Most metrics also have over a 1000 km of testing with EXR, and both types of interface have been used with EXR intensly.
@@ -32,19 +34,19 @@
 - Switch to 64Bit: ORM supports the 64 Bit core, which has a PREEEMPT-kernel. The setup-script accepts this as well, as this should be the preferred kernel to use. The PREEMPT-kernel is optimized for low latency measurements, like IoT applications. As PREEMPT kernels can handle a lot higher priority for the GPIO-thread, this setting has been switched from a binary setting to a priority setting.
 - An initial stub for session mangement: As a first step towards sessions and splits, a session object in Server.js is added as a placeholder for session targets. If unfilled, the code will act as in version 0.8.2: you can row without any limitations. If a target is set, it will termintate the session at the exact right time. As is with the PM5, ORM counts down if a target is set. The current stub isn't ideal yet, as we want the user to be able to set these targets through the webGUI or through BLE. However, it is a first step towards functional completeness as it lays a preliminary foundation for such functionality.
 
-## Bugfixes and robustness improvements
+### Bugfixes and robustness improvements
 - Totally renewed rowing engine: Linear and Quadratic Regression models are now the core of the rowing engine. This model is much more robust against noise, and thus removing the need for any noise filtering from OpenRowingMonitor for any of the known rowers. In the over 1000 kilometers of testing, it has proven to work extremely reliable and robust;
 - Improved logging: the logging has been more focussed on helping the user fix a bad setting. I removed several metrics, but added several others as they tell much more about the underlying state of the engine and its settings (for example the drive time and drive length). Goal is to have users be able to tune their engine based on the log.
 - Finite State Machine based state management: OpenRowingEngine will now maintain an explicit state for the rower, and RowingStatistics will maintain an explicit state for the session. Aside reducing the code complexity significantly, it greatly impoved robustness.
 
-# From 0.8.1 to 0.8.2 (Febuary 2022)
+## From 0.8.1 to 0.8.2 (Febuary 2022)
 
-## New Functionality
+### New Functionality
 
 - Added Strava support
 
-# From 0.8.0 to 0.8.1 (Febuary 2022)
+## From 0.8.0 to 0.8.1 (Febuary 2022)
 
-## Bugfixes and robustness improvements
+### Bugfixes and robustness improvements
 
 - Refactoring of the Rowing Engine, as [Dave Vernooy's engine (ErgWare)](https://dvernooy.github.io/projects/ergware/) is good, but its variable naming leaves a bit to be desired.
