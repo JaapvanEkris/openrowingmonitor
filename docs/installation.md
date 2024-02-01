@@ -82,6 +82,7 @@ This allows you to see the current state of the rower. Typically this will show:
   Sep 12 20:38:06 roeimachine npm[862]: Setting priority for the Gpio-service to -7
   Sep 12 20:38:09 roeimachine npm[802]: websocket client connected
   ```
+
 Please check if there are no errors reported. The above snippet shows that OpenRowingMonitor is running, and that bluetooth and the webserver are alive, and that the webclient has connected.
 
 ### Check if OpenRowingMonitor screen runs without issue (if installed)
@@ -199,6 +200,7 @@ This allows you to see the current state of the rower. Typically this will show:
   Sep 12 20:38:06 roeimachine npm[862]: Setting priority for the Gpio-service to -7
   Sep 12 20:38:09 roeimachine npm[802]: websocket client connected
   ```
+
 Please check if there are no errors reported, especially for configuration parameters. OpenRowingMonitor will report if it detects abnormal or missing parameters.
 
 ### Setting up Strava upload
@@ -211,7 +213,6 @@ Once you get your Strava credentials, you can add them in `config/config.js`:
 stravaClientId: "StravaClientID",
 stravaClientSecret: "client_secret_string_from_the_Strava_API",
 ```
-
 
 ## Updating OpenRowingMonitor to a new version
 
