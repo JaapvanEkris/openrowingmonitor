@@ -45,7 +45,7 @@
 
 - Added Strava support
 
-## From 0.8.0 to 0.8.1 (Febuary 2022)
+## From 0.8.0 to 0.8.1 (September 2021)
 
 ### Bugfixes and robustness improvements
 
