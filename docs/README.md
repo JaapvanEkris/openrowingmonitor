@@ -97,9 +97,9 @@ The original proof of concept version started as a sketch on an Arduino, but the
 
 ## Further information
 
-This project is already in a very usable stage, but some things are still a bit rough on the edges. More functionality will be added in the future, so check the [Development Roadmap](backlog.md) if you are curious. Contributions are welcome, please read the [Contributing Guidelines](CONTRIBUTING.md) first.
+This project is already in a very stable stage, as it is used daily by many rowers. You can see its development [here in the Release notes](Release_Notes.md). However, being open source, it might contain some things that are still a bit rough on the edges. More functionality will be added in the future, so check the [Development Roadmap](backlog.md) if you are curious. Contributions are welcome, please read the [Contributing Guidelines](CONTRIBUTING.md) first.
 
-Feel free to leave a message in the [GitHub Discussions](https://github.com/laberning/openrowingmonitor/discussions) if you have any questions or ideas related to this project.
+Feel free to leave a message in the [GitHub Discussions](https://github.com/JaapvanEkris/openrowingmonitor/discussions) if you have any questions or ideas related to this project.
 
 Check the advanced information on the [Physics behind Open Rowing Monitor](physics_openrowingmonitor.md).
 
