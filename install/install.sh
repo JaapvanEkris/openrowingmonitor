@@ -178,7 +178,10 @@ sudo git reset --hard origin/v1beta_updates
 echo "export PATH=\"\$PATH:$INSTALL_DIR/bin\"" >> ~/.bashrc
 
 # otherwise node-gyp would fail while building the system dependencies
-sudo npm config set user 0
+# On newer nodejs versions (> Node 16) we solve this via the .npmrc file 
+if [[ $ARCHITECTURE == "armv6l" ]]; then
+  sudo npm config set user 0
+fi
 
 print
 print "Downloading and compiling Runtime dependencies..."
