@@ -226,8 +226,6 @@ if $INIT_GUI; then
   print "If the screen resolution or the screen borders are not correct, run 'sudo raspi-config' and modify the display options."
 fi
 
-cd $CURRENT_DIR
-
 print
 print "sudo systemctl status openrowingmonitor"
 sudo systemctl status openrowingmonitor
@@ -237,3 +235,5 @@ print "Open Rowing Monitor should now be up and running."
 print "You can now adjust the configuration in $INSTALL_DIR/config/config.js either via ssh or via the network share"
 print
 print "Please reboot the device for all features and settings to take effect."
+
+cd $CURRENT_DIR
