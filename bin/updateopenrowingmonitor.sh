@@ -117,16 +117,26 @@ if getopts "b:" arg; then
     cancel "Branch \"$OPTARG\" does not exist in the repository, can not switch"
   fi
 
+  ARCHITECTURE=$(uname -m)
+  if [[ $ARCHITECTURE == "armv6l" ]] && [[ $OPTARG != "v1beta_updates_Pi_Zero_W" ]]; then
+    cancel "Branch \"$OPTARG\" doesn't worn on a Pi Zero W, please use branch 'v1beta_updates_Pi_Zero_W'"
+  fi
+
   if ask "Do you want to switch from branch \"$CURRENT_BRANCH\" to branch \"$OPTARG\"?" Y; then
     print "Switching to branch \"$OPTARG\"..."
     CURRENT_BRANCH=$OPTARG
     switch_branch
   else
     cancel "Stopping update - please run without -b parameter to do a regular update"
-  fi
+  fi 
 else
   print "Checking for new version..."
   REMOTE_VERSION=$(git ls-remote $GIT_REMOTE refs/heads/$CURRENT_BRANCH | awk '{print $1;}')
+
+  ARCHITECTURE=$(uname -m)
+  if [[ $ARCHITECTURE == "armv6l" ]] && [[ $CURRENT_BRANCH != "v1beta_updates_Pi_Zero_W" ]]; then
+    cancel "Branch \"$OPTARG\" doesn't worn on a Pi Zero W, please use branch 'v1beta_updates_Pi_Zero_W'"
+  fi
 
   if [ "$LOCAL_VERSION" = "$REMOTE_VERSION" ]; then
       print "You are using the latest version of Open Rowing Monitor from branch \"$CURRENT_BRANCH\"."
