@@ -138,7 +138,7 @@ curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
 print
-print "Installing Open Rowing Monitor..."
+print "Installing Open Rowing Monitor, branch $BRANCH..."
 
 if ! [[ -d "${INSTALL_DIR}" ]]; then
   sudo mkdir -p $INSTALL_DIR
