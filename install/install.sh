@@ -207,7 +207,7 @@ if $INIT_GUI; then
     sudo systemctl enable webbrowserkiosk
     sudo systemctl restart webbrowserkiosk
     print "sudo systemctl status webbrowserkiosk"
-    sudo systemctl status webbrowserkiosk
+    sudo systemctl status webbrowserkiosk --no-pager
   else
     # This currently is a copy of the bullseye install, as Bookworm's Wayland install is twice as big as it still includes the X11 server
     # When we can install Wayland in a normal way, this will change as Wayland has a better kiosk mode
@@ -219,7 +219,7 @@ if $INIT_GUI; then
     sudo systemctl enable webbrowserkiosk
     sudo systemctl restart webbrowserkiosk
     print "sudo systemctl status webbrowserkiosk"
-    sudo systemctl status webbrowserkiosk
+    sudo systemctl status webbrowserkiosk --no-pager
   fi
   print
   print "Installation of Graphical User Interface finished."
@@ -228,7 +228,7 @@ fi
 
 print
 print "sudo systemctl status openrowingmonitor"
-sudo systemctl status openrowingmonitor
+sudo systemctl status openrowingmonitor --no-pager
 print
 print "Installation of Open Rowing Monitor finished."
 print "Open Rowing Monitor should now be up and running."
