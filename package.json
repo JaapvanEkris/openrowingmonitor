@@ -31,10 +31,11 @@
     "pre-commit": "npm run lint && npm test"
   },
   "//fix1Comment": "We install lit@2.8.0 as lit@3.0.0 breaks the webpage displaying metrics",
+  "//fix2Comment": "We hold back bleno, bluetooth-hci-socket and noble, as upgrading destroys HRM compatibility",
   "dependencies": {
-    "@abandonware/bleno": "^0.6.1",
-    "@abandonware/bluetooth-hci-socket": "^0.5.3-10",
-    "@abandonware/noble": "^1.9.2-23",
+    "@abandonware/bleno": "^0.5.1-4",
+    "@abandonware/bluetooth-hci-socket": "^0.5.3-7",
+    "@abandonware/noble": "^1.9.2-15",
     "chart.js": "^4.4.1",
     "chartjs-plugin-datalabels": "^2.2.0",
     "finalhandler": "^1.2.0",
@@ -48,8 +49,8 @@
     "ws": "^8.16.0",
     "xml2js": "^0.6.2"
   },
-  "//fix2Comment": "We list node-gyp@10.0.1 as an explicit dev dependency as omitting it results in node-gyp@7.1.2 being installed, which breaks the build on Node.js v20",
-  "//fix3Comment": "We stick with rollup@2.79.1 and rollup-plugin-summary@1.4.3 as rollup@3.0.0 and rollup-plugin-summary@2.0.0 break the install process",
+  "//fix3Comment": "We list node-gyp@10.0.1 as an explicit dev dependency as omitting it results in node-gyp@7.1.2 being installed, which breaks the build on Node.js v20",
+  "//fix4Comment": "We stick with rollup@2.79.1 and rollup-plugin-summary@1.4.3 as rollup@3.0.0 and rollup-plugin-summary@2.0.0 break the install process",
   "devDependencies": {
     "@babel/eslint-parser": "^7.23.10",
     "@babel/plugin-proposal-decorators": "^7.23.9",
