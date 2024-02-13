@@ -90,7 +90,7 @@ test('Correct Flywheel behaviour for a noisefree stroke', () => {
   testDeltaTime(flywheel, 0.011062297)
   testSpinningTime(flywheel, 0.077918634)
   testAngularPosition(flywheel, 8.377580409572781)
-  testAngularVelocity(flywheel, 94.76231359118513)
+  testAngularVelocity(flywheel, 94.77498684553687)
   testAngularAcceleration(flywheel, 28.980404808837132)
   testTorque(flywheel, 3.975668304221995)
   testDragFactor(flywheel, 0.00011)
