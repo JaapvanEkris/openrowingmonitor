@@ -76,14 +76,6 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
         _B = linearResidu.coefficientA()
         _C = linearResidu.coefficientB()
         break
-      case (X.length() === 2):
-        // There are only two datapoints, so we need to be creative to get to a quadratic solution (please note, this is NOT A GENERIC MATHEMATICAL SOLUTION)
-        // As we know this is part of a 'linear' acceleration, we know that the second derivative should obey 2 * _A = angular acceleration = 2 * angular distance / (delta t)^2
-        _A = (Y.get(1) - Y.get(0)) / Math.pow(X.get(1) - X.get(0), 2)
-        // As the first derivative should match angular velocity (= angular acceleration * (delta t))
-        _B = -2 * _A * (X.get(1) - X.get(0))
-        _C = Y.get(1)
-        break
       default:
         _A = 0
         _B = 0
@@ -144,7 +136,7 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
     let sse = 0
     let sst = 0
     let _goodnessOfFit = 0
-    if (X.length() >= 2) {
+    if (X.length() > 2) {
       while (i < X.length()) {
         sse += Math.pow((Y.get(i) - projectX(X.get(i))), 2)
         sst += Math.pow((Y.get(i) - Y.average()), 2)
