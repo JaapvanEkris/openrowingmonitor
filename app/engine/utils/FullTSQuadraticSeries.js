@@ -143,6 +143,7 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
     let i = 0
     let sse = 0
     let sst = 0
+    let _goodnessOfFit = 0
     if (X.length() >= 2) {
       while (i < X.length()) {
         sse += Math.pow((Y.get(i) - projectX(X.get(i))), 2)
@@ -151,23 +152,23 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
       }
       switch (true) {
         case (sse === 0):
-          return 1
+          _goodnessOfFit = 1
           break
         case (sse > sst):
           // This is a pretty bad fit as the error is bigger than just using the line for the average y as intercept
-          return 0
+          _goodnessOfFit = 0
           break
         case (sst !== 0):
-          const _goodnessOfFit = 1 - (sse / sst)
-          return _goodnessOfFit
+          _goodnessOfFit = 1 - (sse / sst)
           break
         default:
           // When SST = 0, R2 isn't defined
-          return 0
+          _goodnessOfFit = 0
       }
     } else {
-      return 0
+      _goodnessOfFit = 0
     }
+    return _goodnessOfFit
   }
 
   function projectX (x) {
