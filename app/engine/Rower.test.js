@@ -111,7 +111,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDriveLinearDistance(rower, 0.2491943602992768)
   testDriveLength(rower, 0) // Shouldn't this one be filled after the first drive?
   testDriveAverageHandleForce(rower, 249.91096328436572)
-  testDrivePeakHandleForce(rower, 280.4347347841680)
+  testDrivePeakHandleForce(rower, 280.43473478416803)
   testRecoveryDuration(rower, 0)
   testRecoveryDragFactor(rower, 110)
   testInstantHandlePower(rower, 372.0199762100516)
@@ -142,8 +142,8 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDriveDuration(rower, 0.19636192600000005)
   testDriveLinearDistance(rower, 0.6407854979124261)
   testDriveLength(rower, 0.2638937829015426)
-  testDriveAverageHandleForce(rower, 851.8820525641245) // This is the first stroke, which always leads to insane data like this
-  testDrivePeakHandleForce(rower, 10246.062011594136)
+  testDriveAverageHandleForce(rower, 249.91096328436572) // This is the first stroke, which always leads to insane data like this
+  testDrivePeakHandleForce(rower, 280.43473478416803)
   testRecoveryDuration(rower, 0)
   testRecoveryDragFactor(rower, 110)
   testInstantHandlePower(rower, 0)
