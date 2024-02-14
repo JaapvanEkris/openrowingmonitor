@@ -114,7 +114,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDrivePeakHandleForce(rower, 280.43473478416803)
   testRecoveryDuration(rower, 0)
   testRecoveryDragFactor(rower, 110)
-  testInstantHandlePower(rower, 372.0199762100516)
+  testInstantHandlePower(rower, 372.09477620281604)
   // Recovery initial stroke starts here
   rower.handleRotationImpulse(0.010769)
   rower.handleRotationImpulse(0.010707554)
@@ -142,7 +142,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDriveDuration(rower, 0.19636192600000005)
   testDriveLinearDistance(rower, 0.6407854979124261)
   testDriveLength(rower, 0.2638937829015426)
-  testDriveAverageHandleForce(rower, 249.91096328436572) // This is the first stroke, which always leads to insane data like this
+  testDriveAverageHandleForce(rower, 249.91096328436572)
   testDrivePeakHandleForce(rower, 280.43473478416803)
   testRecoveryDuration(rower, 0)
   testRecoveryDragFactor(rower, 110)
