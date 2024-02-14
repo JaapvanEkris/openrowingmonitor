@@ -143,7 +143,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDriveLinearDistance(rower, 0.6407854979124261)
   testDriveLength(rower, 0.2638937829015426)
   testDriveAverageHandleForce(rower, 247.35502383653122)
-  testDrivePeakHandleForce(rower, 280.43473478416803)
+  testDrivePeakHandleForce(rower, 325.1619554833936)
   testRecoveryDuration(rower, 0)
   testRecoveryDragFactor(rower, 110)
   testInstantHandlePower(rower, 0)
