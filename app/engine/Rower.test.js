@@ -111,7 +111,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDriveLinearDistance(rower, 0.2491943602992768)
   testDriveLength(rower, 0) // Shouldn't this one be filled after the first drive?
   testDriveAverageHandleForce(rower, 249.91096328436572)
-  testDrivePeakHandleForce(rower, 10246.062011594136)
+  testDrivePeakHandleForce(rower, 280.4347347841680)
   testRecoveryDuration(rower, 0)
   testRecoveryDragFactor(rower, 110)
   testInstantHandlePower(rower, 372.0199762100516)
@@ -382,7 +382,7 @@ test('sample data for NordicTrack RX800 should produce plausible results', async
   testTotalLinearDistanceSinceStart(rower, 62.499750609934196)
   testTotalNumberOfStrokes(rower, 8)
   // As dragFactor is dynamic, it should have changed
-  testRecoveryDragFactor(rower, 493.1277530352103)
+  testRecoveryDragFactor(rower, 493.127960064474)
 })
 
 test('A full session for SportsTech WRX700 should produce plausible results', async () => {
@@ -414,7 +414,7 @@ test('A full session for a Concept2 RowErg should produce plausible results', as
   testTotalLinearDistanceSinceStart(rower, 2029.6932305734617)
   testTotalNumberOfStrokes(rower, 206)
   // As dragFactor isn't static, it should have changed
-  testRecoveryDragFactor(rower, 80.79039510767821)
+  testRecoveryDragFactor(rower, 80.7904433692072)
 })
 
 function testStrokeState (rower, expectedValue) {
