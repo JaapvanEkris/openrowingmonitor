@@ -609,19 +609,17 @@ function testGoodnessOfFitEquals (series, expectedValue) {
   assert.ok(series.goodnessOfFit() === expectedValue, `Expected goodnessOfFit at X-position ${series.xAtSeriesEnd()} is ${expectedValue}, encountered ${series.goodnessOfFit()}`)
 }
 
-function testGoodnessOfFitBetween (series, expectedValueAbove, expectedValueBelow) {
+function testGoodnessOfFitBetween (series, expectedValueAbove, expectedValueBelow) { // eslint-disable-line no-unused-vars
   assert.ok(series.goodnessOfFit() > expectedValueAbove, `Expected goodnessOfFit at X-position ${series.xAtSeriesEnd()} above ${expectedValueAbove}, encountered ${series.goodnessOfFit()}`)
   assert.ok(series.goodnessOfFit() < expectedValueBelow, `Expected goodnessOfFit at X-position ${series.xAtSeriesEnd()} below ${expectedValueBelow}, encountered ${series.goodnessOfFit()}`)
 }
 
-/*
-function testSlope (series, position, expectedValue) {
+function testSlope (series, position, expectedValue) { // eslint-disable-line no-unused-vars
   assert.ok(series.slope(position) === expectedValue, `Expected value for Slope-${position} at X-position ${series.xAtSeriesEnd()} (slope at X-position ${series.xAtPosition(position)}) is ${expectedValue}, encountered a ${series.slope(position)}`)
 }
 
-function reportAll (series) {
+function reportAll (series) { // eslint-disable-line no-unused-vars
   assert.ok(series.coefficientA() === 99, `time: ${series.xAtSeriesEnd()}, coefficientA: ${series.coefficientA()}, coefficientB: ${series.coefficientB()}, coefficientC: ${series.coefficientC()}, Slope-10: ${series.slope(10)}, Slope-9: ${series.slope(9)}, Slope-8: ${series.slope(8)}, Slope-7: ${series.slope(7)}, Slope-6: ${series.slope(6)}, Slope-5: ${series.slope(5)}, Slope-4: ${series.slope(4)}, Slope-3: ${series.slope(3)}, Slope-2: ${series.slope(2)}, Slope-1: ${series.slope(1)}, Slope-0: ${series.slope(0)}`)
 }
-*/
 
 test.run()
