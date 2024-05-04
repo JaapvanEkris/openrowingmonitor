@@ -142,21 +142,23 @@ print "Installing Open Rowing Monitor, branch $BRANCH..."
 
 if ! [[ -d "${INSTALL_DIR}" ]]; then
   sudo mkdir -p $INSTALL_DIR
+
+  cd $INSTALL_DIR
+
+  # get project code from repository
+  sudo git init -q
+  # older versions of git would use 'master' instead of 'main' for the default branch
+  sudo git checkout -q -b $BRANCH
+  sudo git config remote.origin.url $GIT_REMOTE
+  sudo git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
+  # prevent altering line endings
+  sudo git config core.autocrlf false
+  sudo git fetch --force origin
+  sudo git fetch --force --tags origin
+  sudo git reset --hard origin/$BRANCH
 fi
 
 cd $INSTALL_DIR
-
-# get project code from repository
-sudo git init -q
-# older versions of git would use 'master' instead of 'main' for the default branch
-sudo git checkout -q -b $BRANCH
-sudo git config remote.origin.url $GIT_REMOTE
-sudo git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
-# prevent altering line endings
-sudo git config core.autocrlf false
-sudo git fetch --force origin
-sudo git fetch --force --tags origin
-sudo git reset --hard origin/$BRANCH
 
 # add bin directory to the system path
 echo "export PATH=\"\$PATH:$INSTALL_DIR/bin\"" >> ~/.bashrc
