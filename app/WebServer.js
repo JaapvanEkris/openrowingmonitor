@@ -1,6 +1,6 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Creates the WebServer which serves the static assets and communicates with the clients
   via WebSockets
@@ -12,10 +12,13 @@ import serveStatic from 'serve-static'
 import log from 'loglevel'
 import EventEmitter from 'events'
 
-function createWebServer () {
+function createWebServer (config) {
   const emitter = new EventEmitter()
   const port = process.env.PORT || 80
   const serve = serveStatic('./build', { index: ['index.html'] })
+  let timeOfLastMetricsUpdate = 0
+  let lastKnownMetrics
+  let heartRate
 
   const server = http.createServer((req, res) => {
     serve(req, res, finalhandler(req, res))
@@ -30,7 +33,7 @@ function createWebServer () {
 
   wss.on('connection', function connection (client) {
     log.debug('websocket client connected')
-    emitter.emit('clientConnected', client)
+    notifyClient(client, 'config', getConfig())
     client.on('message', function incoming (data) {
       try {
         const message = JSON.parse(data)
@@ -48,6 +51,95 @@ function createWebServer () {
     })
   })
 
+  // This function handles all incomming commands. As all commands are broadasted to all application parts,
+  // we need to filter here what the PeripheralManager will react to and what it will ignore
+  function handleCommand (commandName) {
+    switch (commandName) {
+      case ('start'):
+        break
+      case ('startOrResume'):
+        break
+      case ('pause'):
+        break
+      case ('stop'):
+        break
+      case ('reset'):
+        break
+      case 'blePeripheralMode':
+        notifyClients('config', getConfig())
+        break
+      case 'switchBlePeripheralMode':
+        break
+      case 'antPeripheralMode':
+        notifyClients('config', getConfig())
+        break
+      case 'switchAntPeripheralMode':
+        break
+      case 'hrmPeripheralMode':
+        notifyClients('config', getConfig())
+        break
+      case 'switchHrmMode':
+        break
+      case 'uploadTraining':
+        break
+      case 'stravaAuthorizationCode':
+        break
+      case 'shutdown':
+        break
+      default:
+        log.error(`WebServer: Recieved unknown command: ${commandName}`)
+    }
+  }
+
+  function presentRowingMetrics (metrics) {
+    if (metrics.metricsContext === undefined) return
+    addHeartRateToMetrics(metrics)
+    switch (true) {
+      case (metrics.metricsContext.isSessionStart):
+        notifyClients('metrics', metrics)
+        break
+      case (metrics.metricsContext.isSessionStop):
+        notifyClients('metrics', metrics)
+        break
+      case (metrics.metricsContext.isIntervalStart):
+        notifyClients('metrics', metrics)
+        break
+      case (metrics.metricsContext.isPauseStart):
+        notifyClients('metrics', metrics)
+        break
+      case (metrics.metricsContext.isPauseEnd):
+        notifyClients('metrics', metrics)
+        break
+      case (metrics.metricsContext.isDriveStart):
+        notifyClients('metrics', metrics)
+        break
+      case (metrics.metricsContext.isRecoveryStart):
+        notifyClients('metrics', metrics)
+        break
+      case ((Date.now() - timeOfLastMetricsUpdate) > config.webUpdateInterval):
+        // Normal metrics update, only config.webUpdateInterval ms after the last broadcast
+        notifyClients('metrics', metrics)
+    }
+    lastKnownMetrics = metrics
+  }
+
+  // Make sure that the GUI is updated with the latest metrics even when no fresh data arrives
+  setInterval(timeBasedPresenter, config.webUpdateInterval * 2)
+  function timeBasedPresenter () {
+    if (lastKnownMetrics !== undefined && (Date.now() - timeOfLastMetricsUpdate) > config.webUpdateInterval) {
+      notifyClients('metrics', lastKnownMetrics)
+    }
+  }
+
+  // initiated when a new heart rate value is received from heart rate sensor
+  async function presentHeartRate (value) {
+    heartRate = value.heartrate
+    if ((Date.now() - timeOfLastMetricsUpdate) > config.webUpdateInterval) {
+      addHeartRateToMetrics(lastKnownMetrics)
+      notifyClients('metrics', lastKnownMetrics)
+    }
+  }
+
   function notifyClient (client, type, data) {
     const messageString = JSON.stringify({ type, data })
     if (wss.clients.has(client)) {
@@ -61,6 +153,7 @@ function createWebServer () {
 
   function notifyClients (type, data) {
     const messageString = JSON.stringify({ type, data })
+    if (type === 'metrics') timeOfLastMetricsUpdate = Date.now()
     wss.clients.forEach(function each (client) {
       if (client.readyState === WebSocket.OPEN) {
         client.send(messageString)
@@ -68,9 +161,30 @@ function createWebServer () {
     })
   }
 
+  function addHeartRateToMetrics (metrics) {
+    if (heartRate !== undefined) {
+      metrics.heartrate = heartRate
+    } else {
+      metrics.heartrate = undefined
+    }
+  }
+
+  function getConfig () {
+    return {
+      blePeripheralMode: config.bluetoothMode,
+      antPeripheralMode: config.antPlusMode,
+      hrmPeripheralMode: config.heartRateMode,
+      stravaUploadEnabled: !!config.stravaClientId && !!config.stravaClientSecret,
+      shutdownEnabled: !!config.shutdownCommand
+    }
+  }
+
   return Object.assign(emitter, {
     notifyClient,
-    notifyClients
+    notifyClients,
+    presentRowingMetrics,
+    presentHeartRate,
+    handleCommand
   })
 }
 
