@@ -20,8 +20,8 @@ At the highest level, we recognise the following functional components, with the
 ```mermaid
 flowchart LR
 A(GpioTimerService.js) -->|currentDt| B(server.js)
-B(server.js) -->|currentDt| D(RowingStatistics.js)
-D(RowingStatistics.js) -->|Rowing metrics| B(server.js)
+B(server.js) -->|currentDt| D(SessionManager.js)
+D(SessionManager.js) -->|Rowing metrics| B(server.js)
 C(PeripheralManager.js) -->|Heart rate data| B(server.js)
 B(server.js) -->|Rowing metrics| E(PeripheralManager.js)
 B(server.js) -->|Heart rate data| E(PeripheralManager.js)
