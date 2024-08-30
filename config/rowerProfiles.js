@@ -36,13 +36,13 @@ export default {
 
     // STROKE DETECTION SETTINGS
     // This is the minimum force that has to be on the handle before ORM considers it a stroke, in Newtons. So this is about 2 Kg or 4.4 Lbs.
-    minumumForceBeforeStroke: 20,
+    minimumForceBeforeStroke: 20,
 
     // The minimal inclination of the currentDt's before it is considered a recovery. When set to 0, it will look for a pure increase/decrease
-    minumumRecoverySlope: 0,
+    minimumRecoverySlope: 0,
 
     // The minimum quality level of the stroke detection: 1.0 is perfect, 0.1 pretty bad. Normally around 0.33. Setting this too high will stop
-    // the recovery phase from being detected through the slope angle (i.e. it will completely rely on the absence of the minumumForceBeforeStroke).
+    // the recovery phase from being detected through the slope angle (i.e. it will completely rely on the absence of the minimumForceBeforeStroke).
     minimumStrokeQuality: 0.34,
 
     // ORM can automatically calculate the recovery slope and adjust it dynamically. For this to work, autoAdjustDragFactor MUST be set to true
@@ -105,7 +105,7 @@ export default {
     minimumTimeBetweenImpulses: 0.007,
     smoothing: 1,
     flankLength: 6,
-    minumumForceBeforeStroke: 2,
+    minimumForceBeforeStroke: 2,
     minimumStrokeQuality: 0.6,
     minimumDriveTime: 0.200, // minimum time of the drive phase
     minimumRecoveryTime: 0.600, // minimum time of the recovery phase
@@ -125,8 +125,8 @@ export default {
     maximumTimeBetweenImpulses: 0.040,
     smoothing: 1,
     flankLength: 6,
-    minumumForceBeforeStroke: 50,
-    minumumRecoverySlope: 0.00070,
+    minimumForceBeforeStroke: 50,
+    minimumRecoverySlope: 0.00070,
     minimumStrokeQuality: 0.36,
     autoAdjustRecoverySlope: true,
     autoAdjustRecoverySlopeMargin: 0.01,
@@ -155,8 +155,8 @@ export default {
     flankLength: 12,
     smoothing: 1,
     minimumStrokeQuality: 0.36,
-    minumumForceBeforeStroke: 11,
-    minumumRecoverySlope: 0.00070,
+    minimumForceBeforeStroke: 11,
+    minimumRecoverySlope: 0.00070,
     autoAdjustRecoverySlope: true,
     autoAdjustRecoverySlopeMargin: 0.01,
     minimumDriveTime: 0.40,
@@ -184,10 +184,10 @@ export default {
     // new engine settings
     sprocketRadius: 1.5,
     minimumStrokeQuality: 0.50,
-    minumumRecoverySlope: 0.00070,
+    minimumRecoverySlope: 0.00070,
     autoAdjustRecoverySlope: true,
     autoAdjustRecoverySlopeMargin: 0.035,
-    minumumForceBeforeStroke: 20,
+    minimumForceBeforeStroke: 20,
     minimumDriveTime: 0.46,
     minimumRecoveryTime: 0.80,
     minimumDragQuality: 0.83,
@@ -208,10 +208,10 @@ export default {
     dragFactor: 225,
     flankLength: 11,
     minimumStrokeQuality: 0.34,
-    minumumRecoverySlope: 0.001,
+    minimumRecoverySlope: 0.001,
     autoAdjustRecoverySlope: true,
     autoAdjustRecoverySlopeMargin: 0.036,
-    minumumForceBeforeStroke: 80,
+    minimumForceBeforeStroke: 80,
     minimumDriveTime: 0.30,
     minimumRecoveryTime: 0.90
   },
@@ -221,7 +221,7 @@ export default {
     numOfImpulsesPerRevolution: 2,
     minimumTimeBetweenImpulses: 0.005,
     maximumTimeBetweenImpulses: 0.5,
-    minumumRecoverySlope: 0,
+    minimumRecoverySlope: 0,
     flywheelInertia: 0.72,
     dragFactor: 32000
   }
