@@ -13,7 +13,7 @@ We have chosen to use Raspian as OS, as it is easily installed by the user, it p
 
 The choice has been made to use JavaScript to build te application, as many of the needed components (like GPIO and Bluetooth Low Energy) components are readily available. The choice for a runtime interpreted language is traditionally at odds with the low latency requirements that is close to physical hardware. The performance of the app depends heavily on the performance of node.js, which itself isn't optimized for low-latency and high frequency environments. However, in practice, we haven't run into any situations where CPU-load has proven to be too much or processing has been frustrated by latency, even when using full Theil-Senn quadratic regression models on larger flanks (which is O(n<sup>2</sup>)).
 
-## Main functional components
+## Main functional components and flow between them
 
 At the highest level, we recognise the following functional components, with their primary dataflows:
 
@@ -38,7 +38,11 @@ L(WebServer.js) -->|Rowing metrics| M(Client.js)
 
 Here, *currentDt* stands for the time between the impulses of the sensor, as measured by the pigpio in 'ticks' (i.e. microseconds sinds OS start).
 
-We first describe the relation between these main functional components by describing the flow of the key pieces of information in more detail: the flywheel and heartrate measurements. We first follow the flow of the flywheel data, which is provided by the interrupt driven `GpioTimerService.js`. The only information retrieved by Open Rowing Monitor is *CurrentDt*: the time between impulses. This data element is transformed in meaningful metrics in the following manner:
+We first describe the relation between these main functional components by describing the flow of the key pieces of information in more detail: the flywheel and heartrate measurements, as well as the command structure. 
+
+### Rowing metrics flow
+
+We first follow the flow of the flywheel data, which is provided by the interrupt driven `GpioTimerService.js`. The only information retrieved by Open Rowing Monitor is *CurrentDt*: the time between impulses. This data element is transformed in meaningful metrics in the following manner:
 
 ```mermaid
 sequenceDiagram
@@ -46,21 +50,26 @@ sequenceDiagram
   participant pigpio
   participant GpioTimerService.js
   participant server.js
+  participant SessionManager.js
   participant RowingStatistics.js
   participant Rower.js
   participant Flywheel.js
   pigpio -)GpioTimerService.js: tick<br>(interrupt based)
   GpioTimerService.js-)server.js: currentDt<br>(interrupt based)
-  server.js-)RowingStatistics.js: currentDt<br>(interrupt based)
+  server.js-)SessionManager.js: currentDt<br>(interrupt based)
+  SessionManager.js-)RowingStatistics.js: currentDt<br>(interrupt based)
   RowingStatistics.js->>Rower.js: currentDt<br>(interrupt based)
   Rower.js->>Flywheel.js: currentDt<br>(interrupt based)
   Flywheel.js-->>Rower.js: Angular metrics, Flywheel state<br>(interrupt based)
   Rower.js-->>RowingStatistics.js: Strokes, Linear metrics<br>(interrupt based)
-  RowingStatistics.js-)server.js: Metrics Updates<br>(State/Time based)
+  RowingStatistics.js-)SessionManager.js: Metrics Updates<br>(interrupt based)
+  SessionManager.js-)server.js: Metrics Updates<br>(interrupt based/Time based)
   server.js-)clients: Metrics Updates<br>(State/Time based)
 ```
 
-The clients (both the webbased screens and periphal bluetooth devices) are updated based on both a set interval and when the stroke or session state changes. Open Rowing Monitor therefore consists out of two subsystems: an solely interruptdriven part that processes flywheel and heartrate interrupts, and the time/state based needs of the clients. It is the responsibility of `RowingStatistics.js` to manage this: it monitors the timers, session state and guarantees that it can present the clients with the freshest data availble.
+The clients (both the webserver and periphal bluetooth devices) are updated based on the updates of metrics. Open Rowing Monitor therefore consists out of two subsystems: an solely interruptdriven part that processes flywheel and heartrate interrupts, and the time/state based needs of the clients. It is the responsibility of `SessionManager.js` to provide a steady stream of updated metrics as it monitors the timers, session state and guarantees that it can present the clients with the freshest data available. It is the responsibility of the clients themselves to act based on the metric updates, and guard against their internal timers. If a broadcast has to be made periodically, say ANT+ updates every 400ms, the ANT+-peripheral should buffer metrics and determine when the broadcast is due. This is needed as more complex broadcast patterns, like the PM5 which mixes time and event based updates, are too complex to manage from a single point.
+
+### Heartrate data flow
 
 Secondly, the heartrate data follows the same path, but requires significantly less processing:
 
@@ -69,22 +78,23 @@ sequenceDiagram
   participant clients
   participant heartrateMonitor
   participant server.js
-  participant RowingStatistics.js
   heartrateMonitor-)server.js: heartrate data<br>(interrupt based)
-  server.js-)RowingStatistics.js: heartrate data<br>(interrupt based)
-  RowingStatistics.js-)server.js: Metrics Updates<br>(State/Time based)
-  server.js-)clients: Metrics Updates<br>(State/Time based)
+  server.js-)clients: Metrics Updates<br>(interrupt based)
 ```
 
-### pigpio
+### Command flow
+
+### Key components
+
+#### pigpio
 
 `pigpio` is a wrapper around the [pigpio C library](https://github.com/joan2937/pigpio), which is an extreme high frequency monitor of the pigpio port. As the pigpio npm is just a wrapper around the C library, all time measurement is done by the high cyclic C library, making it extremely accurate. It can be configured to ignore too short pulses (thus providing a basis for debounce) and it reports the `tick` (i.e. the number of microseconds since OS bootup) when it concludes the signal is valid. It reporting is detached from its measurement, and we deliberatly use the *Alert* instead of the *Interrupt* as their documentation indicates that both types of messaging provide an identical accuracy of the `tick`, but *Alerts* do provide the functionality of a debounce filter. As the C-implementation of `pigpio` determines the accuracy of the `tick`, this is the only true time critical element of Open Rowing Monitor. Latency in this process will present itself as noise in the measurements of *CurrentDt*.
 
-### GpioTimerService.js
+#### GpioTimerService.js
 
 `GpioTimerService.js` is a small independent process, acting as a data handler to the signals from `pigpio`. It translates the *Alerts* with their `tick` into a stream of times between these *Alerts* (which we call *CurrentDt*). The interrupthandler is still triggered to run with extreme low latency as the called `gpio` process will inherit its nice-level, which is extremely time critical. To Open Rowing Monitor it provides a stream of measurements that needed to be handled.
 
-### Server.js
+#### Server.js
 
 `Server.js` orchestrates all information flows and starts/stops processes when needed. It will:
 
@@ -94,13 +104,13 @@ sequenceDiagram
 * Handle user input (through webinterface and periphials) and instruct `RowingStatistics.js` to act accordingly;
 * Handle escalations from `RowingStatistics.js` (like reaching the end of the interval, or seeing the rower has stopped) and instruct the rest of the application, like the `WorkoutRecorder.js` accordingly.
 
-### RowingStatistics.js
+#### SessionManager.js
 
-`RowingStatistics.js` recieves *currentDt* updates, forwards them to `Rower.js` and subsequently inspects `Rower.js` for the resulting strokestate and associated metrics. Based on this inspection, it updates the finite state machine of the sessionstate and the associated metrics (i.e. linear velocity, linear distance, power, etc.).
+`SessionManager.js` recieves *currentDt* updates, forwards them to `RowingStatistics.js` and subsequently recieves the resulting metrics. Based on state presented, it updates the finite state machine of the sessionstate and the associated metrics.
 
-#### sessionStates in RowingStatistics.js
+##### sessionStates in SessionManager.js
 
-`RowingStatistics.js` maintains the following sessionstates:
+`SessionManager.js` maintains the following sessionstates:
 
 ```mermaid
 stateDiagram-v2
@@ -120,25 +130,34 @@ stateDiagram-v2
 
 Please note: `handleRotationImpulse` implements all these state transitions, where the state transitions for the end of an interval and the end of a session are handled individually as the metrics updates differ slightly.
 
-#### metrics maintained in RowingStatistics.js
-
-The goal is to translate the linear rowing metrics into meaningful information for the consumers of data updating both session state and the underlying metrics. As `Rower.js` can only provide a limited set of absolute metrics at a time (as most are stroke state dependent) and is unaware of previous strokes and the context of the interval, `RowingStatistics.js` will consume this data, combine it with other datasources like the heartrate and transform it into a consistent and more stable set of metrics useable for presentation. As `RowingStatistics.js` also is the bridge between the interrupt-driven and time/state driven part of the application, it buffers data as well, providing a complete set of metrics regardless of stroke state. Adittionally, `RowingStatistics.js` also smoothens data across strokes to remove eratic behaviour of metrics due to small measurement errors.
-
 In a nutshell:
 
-* `RowingStatistics.js` is the bridge/buffer between the interrupt-drive processing of data and the time/state based reporting of the metrics,
-* `RowingStatistics.js` maintains the session state, thus determines whether the rowing machine is 'Rowing', or 'WaitingForDrive', etc.,
-* `RowingStatistics.js` applies a moving median filter across strokes to make metrics less volatile and thus better suited for presentation,
-* `RowingStatistics.js` calculates derived metrics (like Calories) and trands (like Calories per hour),
-* `RowingStatistics.js` maintains the workout intervals, guards interval and session boundaries, and will chop up the metrics-stream accordingly, where `Rower.js` will just move on without looking at these artifical boundaries.
+* `SessionManager.js` maintains the session state, thus determines whether the rowing machine is 'Rowing', or 'WaitingForDrive', etc.,
+* `RowingStatistics.js` maintains the workout intervals, guards interval and session boundaries, and will chop up the metrics-stream accordingly, where `RowingStatistics.js` will just move on without looking at these artifical boundaries.
 
 In total, this takes full control of the displayed metrics in a specific interval.
 
-### Rower.js
+
+#### RowingStatistics.js
+
+`RowingStatistics.js` recieves *currentDt* updates, forwards them to `Rower.js` and subsequently inspects `Rower.js` for the resulting strokestate and associated metrics. Based on this inspection, it updates the finite state machine of the sessionstate and the associated metrics (i.e. linear velocity, linear distance, power, etc.).
+
+##### metrics maintained in RowingStatistics.js
+
+The goal is to translate the linear rowing metrics into meaningful information for the consumers of data updating both session state and the underlying metrics. As `Rower.js` can only provide a limited set of absolute metrics at a time (as most are stroke state dependent) and is unaware of previous strokes and the context of the interval, `RowingStatistics.js` will consume this data and transform it into a consistent and more stable set of metrics useable for presentation. `RowingStatistics.js` also buffers data as well, providing a complete set of metrics regardless of stroke state. Adittionally, `RowingStatistics.js` also smoothens data across strokes to remove eratic behaviour of metrics due to small measurement errors.
+
+In a nutshell:
+
+* `RowingStatistics.js` applies a moving median filter across strokes to make metrics less volatile and thus better suited for presentation,
+* `RowingStatistics.js` calculates derived metrics (like Calories) and trands (like Calories per hour),
+
+In total, this takes full control of the displayed metrics in a specific stroke.
+
+#### Rower.js
 
 `Rower.js` recieves *currentDt* updates, forwards them to `Flywheel.js` and subsequently inspects `Flywheel.js` for the resulting state and angular metrics, transforming it to a strokestate and linear metrics.
 
-#### strokeStates in Rower.js
+##### strokeStates in Rower.js
 
 `Rower.js` can have the following strokeStates:
 
@@ -158,11 +177,11 @@ stateDiagram-v2
 
 Please note: the `Stopped` state is only used for external events (i.e. `RowingStatistics.js` calling the stopMoving() command), which will stop `Rower.js` from processing data. This is a different state than `WaitingForDrive`, which can automatically move into `Drive` by accelerating the flywheel. This is typically used for a forced exact stop of a rowing session (i.e. reaching the end of an interval).
 
-#### Linear metrics in Rower.js
+##### Linear metrics in Rower.js
 
 `Rower.js` inspects the flywheel behaviour on each impuls and translates the flywheel state into the strokestate (i.e. 'WaitingForDrive', 'Drive', 'Recovery', 'Stopped') through a finite state machine. Based on the angular metrics (i.e.e drag, angular velocity, angular acceleration) it also calculates the updated associated linear metrics (i.e. linear velocity, linear distance, power, etc.). As most metrics can only be calculated at (specific) phase ends, it will only report the metrics it can claculate. Aside temporal metrics (Linear Velocity, Power, etc.) it also maintains several absolute metrics (like total moving time and total linear distance travelled). It only updates metrics that can be updated meaningful, and it will not resend (potentially stale) data that isn't updated.
 
-### Flywheel.js
+#### Flywheel.js
 
 `Flywheel.js` recieves *currentDt* updates and translates that into a state of the flywheel and associated angular metrics. It provides a model of the key parameters of the Flywheel, to provide the rest of OpenRowingMonitor with essential physical metrics and state regarding the flywheel, without the need for considering all kinds of parameterisation. Therefore, `Flywheel.js` will provide all metrics in regular physical quantities, abstracting away from the measurement system and the associated parameters, allowing the rest of OpenRowingMonitor to focus on processing that data.
 
