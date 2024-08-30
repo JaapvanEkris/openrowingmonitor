@@ -16,8 +16,8 @@ import { createWebServer } from './WebServer.js'
 import { createPeripheralManager } from './peripherals/PeripheralManager.js'
 // eslint-disable-next-line no-unused-vars
 import { replayRowingSession } from './recorders/RowingRecorder.js'
-import { createWorkoutRecorder } from './engine/WorkoutRecorder.js'
-import { createWorkoutUploader } from './engine/WorkoutUploader.js'
+import { createWorkoutRecorder } from './recorders/WorkoutRecorder.js'
+import { createWorkoutUploader } from './recorders/WorkoutUploader.js'
 import { secondsToTimeString } from './tools/Helper.js'
 const exec = promisify(child_process.exec)
 
