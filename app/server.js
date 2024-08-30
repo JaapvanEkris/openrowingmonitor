@@ -15,7 +15,7 @@ import { createRowingStatistics } from './engine/RowingStatistics.js'
 import { createWebServer } from './WebServer.js'
 import { createPeripheralManager } from './peripherals/PeripheralManager.js'
 // eslint-disable-next-line no-unused-vars
-import { replayRowingSession } from './tools/RowingRecorder.js'
+import { replayRowingSession } from './recorders/RowingRecorder.js'
 import { createWorkoutRecorder } from './engine/WorkoutRecorder.js'
 import { createWorkoutUploader } from './engine/WorkoutUploader.js'
 import { secondsToTimeString } from './tools/Helper.js'
