@@ -6,7 +6,7 @@
 */
 import log from 'loglevel'
 import EventEmitter from 'events'
-import { createStravaAPI } from '../tools/StravaAPI.js'
+import { createStravaAPI } from './StravaAPI.js'
 import config from '../tools/ConfigManager.js'
 
 function createWorkoutUploader (workoutRecorder) {
