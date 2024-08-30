@@ -43,6 +43,5 @@ async function wait (ms) {
 }
 
 export {
-  recordRowingSession,
   replayRowingSession
 }
