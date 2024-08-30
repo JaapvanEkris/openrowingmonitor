@@ -38,7 +38,7 @@ L(WebServer.js) -->|Rowing metrics| M(Client.js)
 
 Here, *currentDt* stands for the time between the impulses of the sensor, as measured by the pigpio in 'ticks' (i.e. microseconds sinds OS start).
 
-We first describe the relation between these main functional components by describing the flow of the key pieces of information in more detail: the flywheel and heartrate measurements, as well as the command structure. 
+We first describe the relation between these main functional components by describing the flow of the key pieces of information in more detail: the flywheel and heartrate measurements, as well as the command structure.
 
 ### Rowing metrics flow
 
@@ -135,8 +135,7 @@ In a nutshell:
 * `SessionManager.js` maintains the session state, thus determines whether the rowing machine is 'Rowing', or 'WaitingForDrive', etc.,
 * `RowingStatistics.js` maintains the workout intervals, guards interval and session boundaries, and will chop up the metrics-stream accordingly, where `RowingStatistics.js` will just move on without looking at these artifical boundaries.
 
-In total, this takes full control of the displayed metrics in a specific interval.
-
+In total, this takes full control of the displayed metrics in a specific interval (i.e. distance or time to set interval target, etc.).
 
 #### RowingStatistics.js
 
