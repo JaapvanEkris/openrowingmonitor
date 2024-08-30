@@ -7,7 +7,7 @@
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 import rowerProfiles from '../../config/rowerProfiles.js'
-import { replayRowingSession } from '../tools/RowingRecorder.js'
+import { replayRowingSession } from '../recorders/RowingRecorder.js'
 import { deepMerge } from '../tools/Helper.js'
 
 import { createRower } from './Rower.js'
