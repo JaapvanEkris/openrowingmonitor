@@ -5,7 +5,7 @@
   This Module calculates the training specific VO2Max metrics. It is based on formula's found on the web (see function definitions).
 */
 
-import { createBucketedLinearSeries } from './utils/BucketedLinearSeries.js'
+import { createBucketedLinearSeries } from '../engine/utils/BucketedLinearSeries.js'
 
 import loglevel from 'loglevel'
 const log = loglevel.getLogger('RowingEngine')
@@ -54,6 +54,7 @@ function createVO2max (config) {
     // This implements the extrapolation-based VO2Max determination
     // Which is based on the extrapolated maximum power output based on the correlation between heartrate and power,
     // Underlying formula's can be found here: https://sites.udel.edu/coe-engex/2019/03/16/how-accurate-is-your-garmins-vo2max-estimate/
+    // and https://sportcoaching.co.nz/how-does-garmin-calculate-vo2-max/
     let ProjectedVO2max
     let i = 0
     while (i < metrics.length && metrics[i].totalMovingTime < offset) {
