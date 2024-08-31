@@ -1,23 +1,20 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
-  This seems to be the central service to get information about the workout
-  This Primary Service provides a lot of stuff that we most certainly do not need to simulate a
-  simple PM5 service.
+  This is the central service to get information about the workout
 
-  todo: figure out to which services some common applications subscribe and then just implement those
-  // fluid simulation uses GeneralStatus STROKESTATE_DRIVING
-  // cloud simulation uses MULTIPLEXER, AdditionalStatus -> currentPace
-  // EXR: subscribes to: 'general status', 'additional status', 'additional status 2', 'additional stroke data'
-  Might implement:
-  * GeneralStatus
-  * AdditionalStatus
-  * AdditionalStatus2
-  * (StrokeData)
-  * AdditionalStrokeData
-  * and of course the multiplexer
+  ToDo: Check if all messages are correctly with respect to the rowing stroke. It seems a bit overkill to broadcast a longNotifyData every second,
+        as most metrics broadcast haven't changed
+
+  ToDo: figure out to which services some common applications subscribe and then just implement those
+
+  Critical messages:
+  - fluid simulation uses GeneralStatus STROKESTATE_DRIVING
+  - cloud simulation uses MULTIPLEXER, AdditionalStatus -> currentPace
+  - EXR: subscribes to: 'general status', 'additional status', 'additional status 2', 'additional stroke data'
 */
+
 import bleno from '@abandonware/bleno'
 import { getFullUUID } from './Pm5Constants.js'
 import MultiplexedCharacteristic from './characteristic/MultiplexedCharacteristic.js'
@@ -28,14 +25,28 @@ import AdditionalStrokeData from './characteristic/AdditionalStrokeData.js'
 import StrokeData from './characteristic/StrokeData.js'
 import StaticNotifyCharacteristic from '../common/StaticNotifyCharacteristic.js'
 
+let lastKnownMetrics
+let broadcastInterval = 1000
+let timer
+
 export default class PM5RowingService extends bleno.PrimaryService {
-  constructor () {
+  constructor (config) {
     const multiplexedCharacteristic = new MultiplexedCharacteristic()
     const generalStatus = new GeneralStatus(multiplexedCharacteristic)
     const additionalStatus = new AdditionalStatus(multiplexedCharacteristic)
     const additionalStatus2 = new AdditionalStatus2(multiplexedCharacteristic)
     const strokeData = new StrokeData(multiplexedCharacteristic)
     const additionalStrokeData = new AdditionalStrokeData(multiplexedCharacteristic)
+    broadcastInterval = config.peripheralUpdateInterval
+    lastKnownMetrics = {
+      sessiontype: 'JustRow',
+      sessionStatus: 'WaitingForStart',
+      strokeState: 'WaitingForDrive',
+      totalMovingTime: 0,
+      totalLinearDistance: 0,
+      dragFactor: config.rowerSettings.dragFactor
+    }
+
     super({
       uuid: getFullUUID('0030'),
       characteristics: [
@@ -73,18 +84,57 @@ export default class PM5RowingService extends bleno.PrimaryService {
     this.strokeData = strokeData
     this.additionalStrokeData = additionalStrokeData
     this.multiplexedCharacteristic = multiplexedCharacteristic
+
+    timer = setTimeout(this.onBroadcastInterval.bind(this), broadcastInterval)
   }
 
-  notifyData (type, data) {
-    if (type === 'strokeFinished' || type === 'metricsUpdate') {
-      this.generalStatus.notify(data)
-      this.additionalStatus.notify(data)
-      this.additionalStatus2.notify(data)
-      this.strokeData.notify(data)
-      this.additionalStrokeData.notify(data)
-    } else if (type === 'strokeStateChanged') {
-      // the stroke state is delivered via the GeneralStatus Characteristic, so we only need to notify that one
-      this.generalStatus.notify(data)
+  notifyData (metrics) {
+    if (metrics.metricsContext === undefined) return
+    lastKnownMetrics = metrics
+    switch (true) {
+      case (metrics.metricsContext.isSessionStart):
+        this.longNotifyData(metrics)
+        break
+      case (metrics.metricsContext.isSessionStop):
+        this.longNotifyData(metrics)
+        break
+      case (metrics.metricsContext.isIntervalStart):
+        this.longNotifyData(metrics)
+        break
+      case (metrics.metricsContext.isPauseStart):
+        this.longNotifyData(metrics)
+        break
+      case (metrics.metricsContext.isPauseEnd):
+        this.longNotifyData(metrics)
+        break
+      case (metrics.metricsContext.isDriveStart):
+        this.longNotifyData(metrics)
+        break
+      case (metrics.metricsContext.isRecoveryStart):
+        this.shortNotifyData(metrics)
+        break
+      default:
+        // Do nothing
     }
+  }
+
+  onBroadcastInterval () {
+    this.longNotifyData(lastKnownMetrics)
+  }
+
+  shortNotifyData (metrics) {
+    clearTimeout(timer)
+    this.generalStatus.notify(metrics)
+    timer = setTimeout(this.onBroadcastInterval.bind(this), broadcastInterval)
+  }
+
+  longNotifyData (metrics) {
+    clearTimeout(timer)
+    this.generalStatus.notify(metrics)
+    this.additionalStatus.notify(metrics)
+    this.additionalStatus2.notify(metrics)
+    this.strokeData.notify(metrics)
+    this.additionalStrokeData.notify(metrics)
+    timer = setTimeout(this.onBroadcastInterval.bind(this), broadcastInterval)
   }
 }
