@@ -3,18 +3,19 @@
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Creates a Bluetooth Low Energy (BLE) Peripheral with all the Services that are required for
-  a Cycling Power Profile
+  a Cycling Speed and Cadence Profile
 */
 import bleno from '@abandonware/bleno'
 import config from '../../tools/ConfigManager.js'
 import log from 'loglevel'
-import CyclingPowerService from './cps/CyclingPowerMeterService.js'
 import DeviceInformationService from './common/DeviceInformationService.js'
+import CyclingSpeedCadenceService from './csc/CyclingSpeedCadenceService.js'
 import AdvertisingDataBuilder from './common/AdvertisingDataBuilder.js'
 
-function createCpsPeripheral () {
-  const peripheralName = `${config.ftmsRowerPeripheralName} (CPS)`
-  const cyclingPowerService = new CyclingPowerService((event) => log.debug('CPS Control Point', event))
+function createCscPeripheral () {
+  const peripheralName = `${config.ftmsRowerPeripheralName} (CSC)`
+  const cyclingSpeedCadenceService = new CyclingSpeedCadenceService((event) => log.debug('CSC Control Point', event))
+
   const broadcastInterval = config.peripheralUpdateInterval
   let lastKnownMetrics = {
     sessiontype: 'JustRow',
@@ -34,7 +35,7 @@ function createCpsPeripheral () {
     if (!error) {
       bleno.setServices(
         [
-          cyclingPowerService,
+          cyclingSpeedCadenceService,
           new DeviceInformationService()
         ],
         (error) => {
@@ -83,8 +84,8 @@ function createCpsPeripheral () {
   function triggerAdvertising (eventState) {
     const activeState = eventState || bleno.state
     if (activeState === 'poweredOn') {
-      const cpsAppearance = 1156
-      const advertisingData = new AdvertisingDataBuilder([cyclingPowerService.uuid], cpsAppearance, peripheralName)
+      const cscAppearance = 1157
+      const advertisingData = new AdvertisingDataBuilder([cyclingSpeedCadenceService.uuid], cscAppearance, peripheralName)
 
       bleno.startAdvertisingWithEIRData(
         advertisingData.buildAppearanceData(),
@@ -98,18 +99,18 @@ function createCpsPeripheral () {
     }
   }
 
-  // Broadcast the last known metrics
+  // present current rowing metrics to FTMS central
   function onBroadcastInterval () {
-    cyclingPowerService.notifyData(lastKnownMetrics)
+    cyclingSpeedCadenceService.notifyData(lastKnownMetrics)
     timer = setTimeout(onBroadcastInterval, broadcastInterval)
   }
 
-  // Records the last known rowing metrics to be available when the broadcast comes
+  // Records the last known rowing metrics to FTMS central
   function notifyData (data) {
     lastKnownMetrics = data
   }
 
-  // CPS does not have status characteristic
+  // CSC does not have status characteristic
   function notifyStatus (status) {
   }
 
@@ -121,4 +122,4 @@ function createCpsPeripheral () {
   }
 }
 
-export { createCpsPeripheral }
+export { createCscPeripheral }
