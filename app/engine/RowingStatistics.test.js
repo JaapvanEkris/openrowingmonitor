@@ -40,23 +40,13 @@ const baseRowingProfile = { // Based on Concept 2 settings, as this is the valid
   magicConstant: 2.8
 }
 
-baseConfig = {
+const baseConfig = {
   loglevel: {
     default: 'silent',
     RowingEngine: 'silent'
   },
   numOfPhasesForAveragingScreenData: 2,
-  userSettings: {
-    restingHR: 40,
-    maxHR: 190,
-    minPower: 50,
-    maxPower: 500,
-    distanceCorrectionFactor: 5,
-    weight: 80,
-    sex: 'male',
-    highlyTrained: false
-    },
-    rowerSettings: baseRowingProfile
+  rowerSettings: baseRowingProfile
 }
 
 // Test behaviour for no datapoints
@@ -360,7 +350,16 @@ test('Test behaviour for three perfect identical strokes, including settingling 
 // Test behaviour with real-life data
 
 test('sample data for Sportstech WRX700 should produce plausible results', async () => {
-  const rowingStatistics = createRowingStatistics(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Sportstech_WRX700))
+  const rowerProfile = deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Sportstech_WRX700)
+  const testConfig = {
+    loglevel: {
+      default: 'silent',
+      RowingEngine: 'silent'
+    },
+    numOfPhasesForAveragingScreenData: 2,
+    rowerSettings: rowerProfile
+  }
+  const rowingStatistics = createRowingStatistics(testConfig)
   testTotalMovingTimeSinceStart(rowingStatistics, 0)
   testTotalLinearDistanceSinceStart(rowingStatistics, 0)
   testTotalNumberOfStrokes(rowingStatistics, 0)
@@ -376,7 +375,16 @@ test('sample data for Sportstech WRX700 should produce plausible results', async
 })
 
 test('sample data for DKN R-320 should produce plausible results', async () => {
-  const rowingStatistics = createRowingStatistics(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.DKN_R320))
+  const rowerProfile = deepMerge(rowerProfiles.DEFAULT, rowerProfiles.DKN_R320)
+  const testConfig = {
+    loglevel: {
+      default: 'silent',
+      RowingEngine: 'silent'
+    },
+    numOfPhasesForAveragingScreenData: 2,
+    rowerSettings: rowerProfile
+  }
+  const rowingStatistics = createRowingStatistics(testConfig)
   testTotalMovingTimeSinceStart(rowingStatistics, 0)
   testTotalLinearDistanceSinceStart(rowingStatistics, 0)
   testTotalNumberOfStrokes(rowingStatistics, 0)
@@ -392,7 +400,16 @@ test('sample data for DKN R-320 should produce plausible results', async () => {
 })
 
 test('sample data for NordicTrack RX800 should produce plausible results', async () => {
-  const rowingStatistics = createRowingStatistics(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.NordicTrack_RX800))
+  const rowerProfile = deepMerge(rowerProfiles.DEFAULT, rowerProfiles.NordicTrack_RX800)
+  const testConfig = {
+    loglevel: {
+      default: 'silent',
+      RowingEngine: 'silent'
+    },
+    numOfPhasesForAveragingScreenData: 2,
+    rowerSettings: rowerProfile
+  }
+  const rowingStatistics = createRowingStatistics(testConfig)
   testTotalMovingTimeSinceStart(rowingStatistics, 0)
   testTotalLinearDistanceSinceStart(rowingStatistics, 0)
   testTotalNumberOfStrokes(rowingStatistics, 0)
@@ -408,7 +425,16 @@ test('sample data for NordicTrack RX800 should produce plausible results', async
 })
 
 test('A full session for SportsTech WRX700 should produce plausible results', async () => {
-  const rowingStatistics = createRowingStatistics(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Sportstech_WRX700))
+  const rowerProfile = deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Sportstech_WRX700)
+  const testConfig = {
+    loglevel: {
+      default: 'silent',
+      RowingEngine: 'silent'
+    },
+    numOfPhasesForAveragingScreenData: 2,
+    rowerSettings: rowerProfile
+  }
+  const rowingStatistics = createRowingStatistics(testConfig)
   testTotalMovingTimeSinceStart(rowingStatistics, 0)
   testTotalLinearDistanceSinceStart(rowingStatistics, 0)
   testTotalNumberOfStrokes(rowingStatistics, 0)
@@ -424,7 +450,16 @@ test('A full session for SportsTech WRX700 should produce plausible results', as
 })
 
 test('A full session for a Concept2 Model C should produce plausible results', async () => {
-  const rowingStatistics = createRowingStatistics(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Concept2_Model_C))
+  const rowerProfile = deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Concept2_Model_C)
+  const testConfig = {
+    loglevel: {
+      default: 'silent',
+      RowingEngine: 'silent'
+    },
+    numOfPhasesForAveragingScreenData: 2,
+    rowerSettings: rowerProfile
+  }
+  const rowingStatistics = createRowingStatistics(testConfig)
   testTotalMovingTimeSinceStart(rowingStatistics, 0)
   testTotalLinearDistanceSinceStart(rowingStatistics, 0)
   testTotalNumberOfStrokes(rowingStatistics, 0)
@@ -440,7 +475,16 @@ test('A full session for a Concept2 Model C should produce plausible results', a
 })
 
 test('A full session for a Concept2 RowErg should produce plausible results', async () => {
-  const rowingStatistics = createRowingStatistics(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Concept2_RowErg))
+  const rowerProfile = deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Concept2_RowErg)
+  const testConfig = {
+    loglevel: {
+      default: 'silent',
+      RowingEngine: 'silent'
+    },
+    numOfPhasesForAveragingScreenData: 2,
+    rowerSettings: rowerProfile
+  }
+  const rowingStatistics = createRowingStatistics(testConfig)
   testTotalMovingTimeSinceStart(rowingStatistics, 0)
   testTotalLinearDistanceSinceStart(rowingStatistics, 0)
   testTotalNumberOfStrokes(rowingStatistics, 0)
