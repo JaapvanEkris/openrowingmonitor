@@ -17,36 +17,34 @@ import { deepMerge } from '../tools/Helper.js'
 
 import { createRowingStatistics } from './RowingStatistics.js'
 
-const baseRowingProfile = { // Based on Concept 2 settings, as this is the validation system
-  numOfImpulsesPerRevolution: 6,
-  sprocketRadius: 1.4,
-  maximumStrokeTimeBeforePause: 0.3, // Modification to standard settings to shorten test cases
-  dragFactor: 110,
-  autoAdjustDragFactor: true,
-  minimumDragQuality: 0.95,
-  dragFactorSmoothing: 3,
-  minimumTimeBetweenImpulses: 0.005,
-  maximumTimeBetweenImpulses: 0.017,
-  flankLength: 12,
-  smoothing: 1,
-  minimumStrokeQuality: 0.36,
-  minimumForceBeforeStroke: 20, // Modification to standard settings to shorten test cases
-  minimumRecoverySlope: 0.00070,
-  autoAdjustRecoverySlope: false, // Modification to standard settings to shorten test cases
-  autoAdjustRecoverySlopeMargin: 0.04,
-  minimumDriveTime: 0.04, // Modification to standard settings to shorten test cases
-  minimumRecoveryTime: 0.09, // Modification to standard settings to shorten test cases
-  flywheelInertia: 0.10138,
-  magicConstant: 2.8
-}
-
 const baseConfig = {
   loglevel: {
     default: 'silent',
     RowingEngine: 'silent'
   },
   numOfPhasesForAveragingScreenData: 2,
-  rowerSettings: baseRowingProfile
+  rowerSettings: { // Based on Concept 2 settings, as this is the validation system
+    numOfImpulsesPerRevolution: 6,
+    sprocketRadius: 1.4,
+    maximumStrokeTimeBeforePause: 0.3, // Modification to standard settings to shorten test cases
+    dragFactor: 110,
+    autoAdjustDragFactor: true,
+    minimumDragQuality: 0.95,
+    dragFactorSmoothing: 3,
+    minimumTimeBetweenImpulses: 0.005,
+    maximumTimeBetweenImpulses: 0.017,
+    flankLength: 12,
+    smoothing: 1,
+    minimumStrokeQuality: 0.36,
+    minimumForceBeforeStroke: 20, // Modification to standard settings to shorten test cases
+    minimumRecoverySlope: 0.00070,
+    autoAdjustRecoverySlope: false, // Modification to standard settings to shorten test cases
+    autoAdjustRecoverySlopeMargin: 0.04,
+    minimumDriveTime: 0.04, // Modification to standard settings to shorten test cases
+    minimumRecoveryTime: 0.09, // Modification to standard settings to shorten test cases
+    flywheelInertia: 0.10138,
+    magicConstant: 2.8
+  }
 }
 
 // Test behaviour for no datapoints
