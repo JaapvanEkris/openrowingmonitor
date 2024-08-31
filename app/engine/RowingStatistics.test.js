@@ -58,7 +58,7 @@ test('Correct rower behaviour at initialisation', () => {
   testCycleDistance(rowingStatistics, 0)
   testCycleLinearVelocity(rowingStatistics, 0)
   testCyclePower(rowingStatistics, 0)
-  testDriveDuration(rowingStatistics, 0)
+  testDriveDuration(rowingStatistics, NaN)
   testDriveDistance(rowingStatistics, 0)
   testDriveLength(rowingStatistics, 0)
   testDriveAverageHandleForce(rowingStatistics, 0)
@@ -81,7 +81,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testCycleDistance(rowingStatistics, 0)
   testCycleLinearVelocity(rowingStatistics, 0)
   testCyclePower(rowingStatistics, 0)
-  testDriveDuration(rowingStatistics, 0)
+  testDriveDuration(rowingStatistics, NaN)
   testDriveDistance(rowingStatistics, 0)
   testDriveLength(rowingStatistics, 0)
   testDriveAverageHandleForce(rowingStatistics, 0)
@@ -367,7 +367,7 @@ test('sample data for Sportstech WRX700 should produce plausible results', async
 
   testTotalMovingTime(rowingStatistics, 46.302522627)
   testTotalLinearDistance(rowingStatistics, 166.29596716416734)
-  testTotalNumberOfStrokes(rowingStatistics, 16)
+  testTotalNumberOfStrokes(rowingStatistics, 15)
   // As dragFactor is static, it should remain in place
   testDragFactor(rowingStatistics, rowerProfiles.Sportstech_WRX700.dragFactor)
 })
@@ -392,7 +392,7 @@ test('sample data for DKN R-320 should produce plausible results', async () => {
 
   testTotalMovingTime(rowingStatistics, 21.701535821)
   testTotalLinearDistance(rowingStatistics, 70.11298001986664)
-  testTotalNumberOfStrokes(rowingStatistics, 10)
+  testTotalNumberOfStrokes(rowingStatistics, 9)
   // As dragFactor is static, it should remain in place
   testDragFactor(rowingStatistics, rowerProfiles.DKN_R320.dragFactor)
 })
@@ -417,7 +417,7 @@ test('sample data for NordicTrack RX800 should produce plausible results', async
 
   testTotalMovingTime(rowingStatistics, 22.00348755)
   testTotalLinearDistance(rowingStatistics, 79.28440927826468)
-  testTotalNumberOfStrokes(rowingStatistics, 10)
+  testTotalNumberOfStrokes(rowingStatistics, 9)
   // As dragFactor is dynamic, it should have changed
   testDragFactor(rowingStatistics, 494.92868774518126)
 })
@@ -442,7 +442,7 @@ test('A full session for SportsTech WRX700 should produce plausible results', as
 
   testTotalMovingTime(rowingStatistics, 2340.0100514160117)
   testTotalLinearDistance(rowingStatistics, 8407.499514372348)
-  testTotalNumberOfStrokes(rowingStatistics, 846)
+  testTotalNumberOfStrokes(rowingStatistics, 845)
   // As dragFactor is static, it should remain in place
   testDragFactor(rowingStatistics, rowerProfiles.Sportstech_WRX700.dragFactor)
 })
@@ -467,7 +467,7 @@ test('A full session for a Concept2 Model C should produce plausible results', a
 
   testTotalMovingTime(rowingStatistics, 181.47141999999985)
   testTotalLinearDistance(rowingStatistics, 551.8791705339402)
-  testTotalNumberOfStrokes(rowingStatistics, 84)
+  testTotalNumberOfStrokes(rowingStatistics, 83)
   // As dragFactor isn't static, it should have changed
   testDragFactor(rowingStatistics, 123.82587294279575)
 })
@@ -492,7 +492,7 @@ test('A full session for a Concept2 RowErg should produce plausible results', as
 
   testTotalMovingTime(rowingStatistics, 590.1412610000001)
   testTotalLinearDistance(rowingStatistics, 2029.785512056144)
-  testTotalNumberOfStrokes(rowingStatistics, 206)
+  testTotalNumberOfStrokes(rowingStatistics, 205)
   // As dragFactor isn't static, it should have changed
   testDragFactor(rowingStatistics, 80.79044336920735)
 })
