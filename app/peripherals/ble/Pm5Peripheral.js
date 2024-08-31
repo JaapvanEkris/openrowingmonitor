@@ -1,6 +1,6 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Creates a Bluetooth Low Energy (BLE) Peripheral with all the Services that are used by the
   Concept2 PM5 rowing machine.
@@ -15,12 +15,12 @@ import log from 'loglevel'
 import Pm5ControlService from './pm5/Pm5ControlService.js'
 import Pm5RowingService from './pm5/Pm5RowingService.js'
 
-function createPm5Peripheral (controlCallback, options) {
+function createPm5Peripheral (controlCallback, config, options) {
   const peripheralName = pm5Constants.name
   const deviceInformationService = new DeviceInformationService()
   const gapService = new GapService()
   const controlService = new Pm5ControlService()
-  const rowingService = new Pm5RowingService()
+  const rowingService = new Pm5RowingService(config)
 
   bleno.on('stateChange', (state) => {
     triggerAdvertising(state)
@@ -88,8 +88,8 @@ function createPm5Peripheral (controlCallback, options) {
   }
 
   // present current rowing metrics to C2-PM5 central
-  function notifyData (type, data) {
-    rowingService.notifyData(type, data)
+  function notifyData (data) {
+    rowingService.notifyData(data)
   }
 
   // present current rowing status to C2-PM5 central
