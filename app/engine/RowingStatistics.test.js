@@ -51,20 +51,20 @@ const baseConfig = {
 test('Correct rower behaviour at initialisation', () => {
   const rowingStatistics = createRowingStatistics(baseConfig)
   testStrokeState(rowingStatistics, 'WaitingForDrive')
-  testTotalMovingTimeSinceStart(rowingStatistics, 0)
+  testTotalMovingTime(rowingStatistics, 0)
   testTotalNumberOfStrokes(rowingStatistics, 0)
-  testTotalLinearDistanceSinceStart(rowingStatistics, 0)
+  testTotalLinearDistance(rowingStatistics, 0)
   testCycleDuration(rowingStatistics, 0.13) // Default value
-  testCycleLinearDistance(rowingStatistics, 0)
+  testCycleDistance(rowingStatistics, 0)
   testCycleLinearVelocity(rowingStatistics, 0)
   testCyclePower(rowingStatistics, 0)
   testDriveDuration(rowingStatistics, 0)
-  testDriveLinearDistance(rowingStatistics, 0)
+  testDriveDistance(rowingStatistics, 0)
   testDriveLength(rowingStatistics, 0)
   testDriveAverageHandleForce(rowingStatistics, 0)
   testDrivePeakHandleForce(rowingStatistics, 0)
   testRecoveryDuration(rowingStatistics, 0)
-  testRecoveryDragFactor(rowingStatistics, 110)
+  testDragFactor(rowingStatistics, 110)
   testInstantHandlePower(rowingStatistics, 0)
 })
 
@@ -74,20 +74,20 @@ test('Correct rower behaviour at initialisation', () => {
 test('Test behaviour for three perfect identical strokes, including settingling behaviour of metrics', () => {
   const rowingStatistics = createRowingStatistics(baseConfig)
   testStrokeState(rowingStatistics, 'WaitingForDrive')
-  testTotalMovingTimeSinceStart(rowingStatistics, 0)
-  testTotalLinearDistanceSinceStart(rowingStatistics, 0)
+  testTotalMovingTime(rowingStatistics, 0)
+  testTotalLinearDistance(rowingStatistics, 0)
   testTotalNumberOfStrokes(rowingStatistics, 0)
   testCycleDuration(rowingStatistics, 0.13) // Default value
-  testCycleLinearDistance(rowingStatistics, 0)
+  testCycleDistance(rowingStatistics, 0)
   testCycleLinearVelocity(rowingStatistics, 0)
   testCyclePower(rowingStatistics, 0)
   testDriveDuration(rowingStatistics, 0)
-  testDriveLinearDistance(rowingStatistics, 0)
+  testDriveDistance(rowingStatistics, 0)
   testDriveLength(rowingStatistics, 0)
   testDriveAverageHandleForce(rowingStatistics, 0)
   testDrivePeakHandleForce(rowingStatistics, 0)
   testRecoveryDuration(rowingStatistics, 0)
-  testRecoveryDragFactor(rowingStatistics, 110)
+  testDragFactor(rowingStatistics, 110)
   testInstantHandlePower(rowingStatistics, 0)
   // Drive initial stroke starts here
   rowingStatistics.handleRotationImpulse(0.011221636)
@@ -110,20 +110,20 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   rowingStatistics.handleRotationImpulse(0.010511225)
   rowingStatistics.handleRotationImpulse(0.010386684)
   testStrokeState(rowingStatistics, 'Drive')
-  testTotalMovingTimeSinceStart(rowingStatistics, 0.077918634)
-  testTotalLinearDistanceSinceStart(rowingStatistics, 0.2847935546277449)
+  testTotalMovingTime(rowingStatistics, 0.077918634)
+  testTotalLinearDistance(rowingStatistics, 0.2847935546277449)
   testTotalNumberOfStrokes(rowingStatistics, 1)
   testCycleDuration(rowingStatistics, 0.13) // still default value
-  testCycleLinearDistance(rowingStatistics, 0.2847935546277449)
+  testCycleDistance(rowingStatistics, 0.2847935546277449)
   testCycleLinearVelocity(rowingStatistics, 0) // This isn't filled after the first drive, as we haven't survived a complete cycle yet
   testCyclePower(rowingStatistics, 0) // This isn't filled after the first drive, as we haven't survived a complete cycle yet
   testDriveDuration(rowingStatistics, 0) // Shouldn't this one be filled after the first drive?
-  testDriveLinearDistance(rowingStatistics, 0.2847935546277449)
+  testDriveDistance(rowingStatistics, 0.2847935546277449)
   testDriveLength(rowingStatistics, 0) // Shouldn't this one be filled after the first drive?
   testDriveAverageHandleForce(rowingStatistics, 249.91096328436572)
   testDrivePeakHandleForce(rowingStatistics, 280.43473478416803)
   testRecoveryDuration(rowingStatistics, 0)
-  testRecoveryDragFactor(rowingStatistics, 110)
+  testDragFactor(rowingStatistics, 110)
   testInstantHandlePower(rowingStatistics, 372.09477620281604)
   // Recovery initial stroke starts here
   rowingStatistics.handleRotationImpulse(0.010769)
@@ -142,20 +142,20 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   rowingStatistics.handleRotationImpulse(0.011131862)
   rowingStatistics.handleRotationImpulse(0.011209919)
   testStrokeState(rowingStatistics, 'Recovery')
-  testTotalMovingTimeSinceStart(rowingStatistics, 0.23894732900000007)
-  testTotalLinearDistanceSinceStart(rowingStatistics, 0.8187814695547666)
+  testTotalMovingTime(rowingStatistics, 0.23894732900000007)
+  testTotalLinearDistance(rowingStatistics, 0.8187814695547666)
   testTotalNumberOfStrokes(rowingStatistics, 1)
   testCycleDuration(rowingStatistics, 0.143485717)
-  testCycleLinearDistance(rowingStatistics, 0.8187814695547666)
+  testCycleDistance(rowingStatistics, 0.8187814695547666)
   testCycleLinearVelocity(rowingStatistics, 3.4734378516473075)
   testCyclePower(rowingStatistics, 117.33744556320872)
   testDriveDuration(rowingStatistics, 0.143485717)
-  testDriveLinearDistance(rowingStatistics, 0.4983887205985536)
+  testDriveDistance(rowingStatistics, 0.4983887205985536)
   testDriveLength(rowingStatistics, 0.20525072003453312)
   testDriveAverageHandleForce(rowingStatistics, 276.20193475035796)
   testDrivePeakHandleForce(rowingStatistics, 325.1619554833936)
   testRecoveryDuration(rowingStatistics, 0)
-  testRecoveryDragFactor(rowingStatistics, 110)
+  testDragFactor(rowingStatistics, 110)
   testInstantHandlePower(rowingStatistics, 0)
   // Drive seconds stroke starts here
   rowingStatistics.handleRotationImpulse(0.011221636)
@@ -178,20 +178,20 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   rowingStatistics.handleRotationImpulse(0.010511225)
   rowingStatistics.handleRotationImpulse(0.010386684)
   testStrokeState(rowingStatistics, 'Drive')
-  testTotalMovingTimeSinceStart(rowingStatistics, 0.44915539800000004)
-  testTotalLinearDistanceSinceStart(rowingStatistics, 1.6138554294533207)
+  testTotalMovingTime(rowingStatistics, 0.44915539800000004)
+  testTotalLinearDistance(rowingStatistics, 1.6138554294533207)
   testTotalNumberOfStrokes(rowingStatistics, 2)
   testCycleDuration(rowingStatistics, 0.34889498300000005)
-  testCycleLinearDistance(rowingStatistics, 1.115466708854767)
+  testCycleDistance(rowingStatistics, 1.115466708854767)
   testCycleLinearVelocity(rowingStatistics, 3.3671261270026562)
   testCyclePower(rowingStatistics, 106.8897805121993)
   testDriveDuration(rowingStatistics, 0.143485717)
-  testDriveLinearDistance(rowingStatistics, 0.43908201661387286)
+  testDriveDistance(rowingStatistics, 0.43908201661387286)
   testDriveLength(rowingStatistics, 0.20525072003453312)
   testDriveAverageHandleForce(rowingStatistics, 236.59556700196183)
   testDrivePeakHandleForce(rowingStatistics, 380.1396336099103)
   testRecoveryDuration(rowingStatistics, 0.20540926600000003)
-  testRecoveryDragFactor(rowingStatistics, 283.12720365097886)
+  testDragFactor(rowingStatistics, 283.12720365097886)
   testInstantHandlePower(rowingStatistics, 504.63602120716615)
   // Recovery second stroke starts here
   rowingStatistics.handleRotationImpulse(0.010769)
@@ -210,20 +210,20 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   rowingStatistics.handleRotationImpulse(0.011131862)
   rowingStatistics.handleRotationImpulse(0.011209919)
   testStrokeState(rowingStatistics, 'Recovery')
-  testTotalMovingTimeSinceStart(rowingStatistics, 0.6101840930000001)
-  testTotalLinearDistanceSinceStart(rowingStatistics, 2.345658790476442)
+  testTotalMovingTime(rowingStatistics, 0.6101840930000001)
+  testTotalLinearDistance(rowingStatistics, 2.345658790476442)
   testTotalNumberOfStrokes(rowingStatistics, 2)
   testCycleDuration(rowingStatistics, 0.44526865700000007)
-  testCycleLinearDistance(rowingStatistics, 1.1708853776369939)
+  testCycleDistance(rowingStatistics, 1.1708853776369939)
   testCycleLinearVelocity(rowingStatistics, 4.4922598720661)
   testCyclePower(rowingStatistics, 253.83566752220202)
   testDriveDuration(rowingStatistics, 0.23985939100000003)
-  testDriveLinearDistance(rowingStatistics, 1.0733115961672446)
+  testDriveDistance(rowingStatistics, 1.0733115961672446)
   testDriveLength(rowingStatistics, 0.32253684576855207)
   testDriveAverageHandleForce(rowingStatistics, 285.0923064376231)
   testDrivePeakHandleForce(rowingStatistics, 439.7407274840117)
   testRecoveryDuration(rowingStatistics, 0.20540926600000003)
-  testRecoveryDragFactor(rowingStatistics, 283.12720365097886) // As we decelerate the flywheel quite fast, this is expected
+  testDragFactor(rowingStatistics, 283.12720365097886) // As we decelerate the flywheel quite fast, this is expected
   testInstantHandlePower(rowingStatistics, 0)
   // Drive third stroke starts here
   rowingStatistics.handleRotationImpulse(0.011221636)
@@ -246,20 +246,20 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   rowingStatistics.handleRotationImpulse(0.010511225)
   rowingStatistics.handleRotationImpulse(0.010386684)
   testStrokeState(rowingStatistics, 'Drive')
-  testTotalMovingTimeSinceStart(rowingStatistics, 0.8203921620000004)
-  testTotalLinearDistanceSinceStart(rowingStatistics, 3.272609714439062)
+  testTotalMovingTime(rowingStatistics, 0.8203921620000004)
+  testTotalLinearDistance(rowingStatistics, 3.272609714439062)
   testTotalNumberOfStrokes(rowingStatistics, 3)
   testCycleDuration(rowingStatistics, 0.3379838680000002)
-  testCycleLinearDistance(rowingStatistics, 1.0245247054323694)
+  testCycleDistance(rowingStatistics, 1.0245247054323694)
   testCycleLinearVelocity(rowingStatistics, 4.474750885983458)
   testCyclePower(rowingStatistics, 250.879178806138)
   testDriveDuration(rowingStatistics, 0.23985939100000003)
-  testDriveLinearDistance(rowingStatistics, 0.5854426888184969)
+  testDriveDistance(rowingStatistics, 0.5854426888184969)
   testDriveLength(rowingStatistics, 0.32253684576855207)
   testDriveAverageHandleForce(rowingStatistics, 194.28476369698888)
   testDrivePeakHandleForce(rowingStatistics, 380.1396336085015)
   testRecoveryDuration(rowingStatistics, 0.09812447700000015)
-  testRecoveryDragFactor(rowingStatistics, 283.12720365097886)
+  testDragFactor(rowingStatistics, 283.12720365097886)
   testInstantHandlePower(rowingStatistics, 504.63602120535336)
   // Recovery third stroke starts here
   rowingStatistics.handleRotationImpulse(0.010769)
@@ -278,20 +278,20 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   rowingStatistics.handleRotationImpulse(0.011131862)
   rowingStatistics.handleRotationImpulse(0.011209919)
   testStrokeState(rowingStatistics, 'Recovery')
-  testTotalMovingTimeSinceStart(rowingStatistics, 0.9814208570000005)
-  testTotalLinearDistanceSinceStart(rowingStatistics, 4.004413075462183)
+  testTotalMovingTime(rowingStatistics, 0.9814208570000005)
+  testTotalLinearDistance(rowingStatistics, 4.004413075462183)
   testTotalNumberOfStrokes(rowingStatistics, 3)
   testCycleDuration(rowingStatistics, 0.3712367640000004)
-  testCycleLinearDistance(rowingStatistics, 1.3172460498416183)
+  testCycleDistance(rowingStatistics, 1.3172460498416183)
   testCycleLinearVelocity(rowingStatistics, 4.468184312116618)
   testCyclePower(rowingStatistics, 249.7763239131314)
   testDriveDuration(rowingStatistics, 0.27311228700000023)
-  testDriveLinearDistance(rowingStatistics, 1.2196722683718682)
+  testDriveDistance(rowingStatistics, 1.2196722683718682)
   testDriveLength(rowingStatistics, 0.36651914291880905)
   testDriveAverageHandleForce(rowingStatistics, 254.91449219500532)
   testDrivePeakHandleForce(rowingStatistics, 439.74072748282515)
   testRecoveryDuration(rowingStatistics, 0.09812447700000015)
-  testRecoveryDragFactor(rowingStatistics, 283.12720365097886)
+  testDragFactor(rowingStatistics, 283.12720365097886)
   testInstantHandlePower(rowingStatistics, 0)
   // Dwelling state starts here
   rowingStatistics.handleRotationImpulse(0.020769)
@@ -310,20 +310,20 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   rowingStatistics.handleRotationImpulse(0.021131862)
   rowingStatistics.handleRotationImpulse(0.021209919)
   testStrokeState(rowingStatistics, 'WaitingForDrive')
-  testTotalMovingTimeSinceStart(rowingStatistics, 1.1344792920000004)
+  testTotalMovingTime(rowingStatistics, 1.1344792920000004)
   testTotalNumberOfStrokes(rowingStatistics, 3)
-  testTotalLinearDistanceSinceStart(rowingStatistics, 4.638642655015554)
+  testTotalLinearDistance(rowingStatistics, 4.638642655015554)
   testCycleDuration(rowingStatistics, 0.4476004410000002)
-  testCycleLinearDistance(rowingStatistics, 1.9514756293949895)
+  testCycleDistance(rowingStatistics, 1.9514756293949895)
   testCycleLinearVelocity(rowingStatistics, 4.359860828186693)
   testCyclePower(rowingStatistics, 232.04697446513617)
   testDriveDuration(rowingStatistics, 0.27311228700000023)
-  testDriveLinearDistance(rowingStatistics, 1.2196722683718682)
+  testDriveDistance(rowingStatistics, 1.2196722683718682)
   testDriveLength(rowingStatistics, 0.36651914291880905)
   testDriveAverageHandleForce(rowingStatistics, 254.91449219500532)
   testDrivePeakHandleForce(rowingStatistics, 439.74072748282515)
   testRecoveryDuration(rowingStatistics, 0.17448815399999995)
-  testRecoveryDragFactor(rowingStatistics, 283.12720365097886)
+  testDragFactor(rowingStatistics, 283.12720365097886)
   testInstantHandlePower(rowingStatistics, 0)
 })
 
@@ -358,18 +358,18 @@ test('sample data for Sportstech WRX700 should produce plausible results', async
     rowerSettings: rowerProfile
   }
   const rowingStatistics = createRowingStatistics(testConfig)
-  testTotalMovingTimeSinceStart(rowingStatistics, 0)
-  testTotalLinearDistanceSinceStart(rowingStatistics, 0)
+  testTotalMovingTime(rowingStatistics, 0)
+  testTotalLinearDistance(rowingStatistics, 0)
   testTotalNumberOfStrokes(rowingStatistics, 0)
-  testRecoveryDragFactor(rowingStatistics, rowerProfiles.Sportstech_WRX700.dragFactor)
+  testDragFactor(rowingStatistics, rowerProfiles.Sportstech_WRX700.dragFactor)
 
   await replayRowingSession(rowingStatistics.handleRotationImpulse, { filename: 'recordings/WRX700_2magnets.csv', realtime: false, loop: false })
 
-  testTotalMovingTimeSinceStart(rowingStatistics, 46.302522627)
-  testTotalLinearDistanceSinceStart(rowingStatistics, 166.29596716416734)
+  testTotalMovingTime(rowingStatistics, 46.302522627)
+  testTotalLinearDistance(rowingStatistics, 166.29596716416734)
   testTotalNumberOfStrokes(rowingStatistics, 16)
   // As dragFactor is static, it should remain in place
-  testRecoveryDragFactor(rowingStatistics, rowerProfiles.Sportstech_WRX700.dragFactor)
+  testDragFactor(rowingStatistics, rowerProfiles.Sportstech_WRX700.dragFactor)
 })
 
 test('sample data for DKN R-320 should produce plausible results', async () => {
@@ -383,18 +383,18 @@ test('sample data for DKN R-320 should produce plausible results', async () => {
     rowerSettings: rowerProfile
   }
   const rowingStatistics = createRowingStatistics(testConfig)
-  testTotalMovingTimeSinceStart(rowingStatistics, 0)
-  testTotalLinearDistanceSinceStart(rowingStatistics, 0)
+  testTotalMovingTime(rowingStatistics, 0)
+  testTotalLinearDistance(rowingStatistics, 0)
   testTotalNumberOfStrokes(rowingStatistics, 0)
-  testRecoveryDragFactor(rowingStatistics, rowerProfiles.DKN_R320.dragFactor)
+  testDragFactor(rowingStatistics, rowerProfiles.DKN_R320.dragFactor)
 
   await replayRowingSession(rowingStatistics.handleRotationImpulse, { filename: 'recordings/DKNR320.csv', realtime: false, loop: false })
 
-  testTotalMovingTimeSinceStart(rowingStatistics, 21.701535821)
-  testTotalLinearDistanceSinceStart(rowingStatistics, 70.11298001986664)
+  testTotalMovingTime(rowingStatistics, 21.701535821)
+  testTotalLinearDistance(rowingStatistics, 70.11298001986664)
   testTotalNumberOfStrokes(rowingStatistics, 10)
   // As dragFactor is static, it should remain in place
-  testRecoveryDragFactor(rowingStatistics, rowerProfiles.DKN_R320.dragFactor)
+  testDragFactor(rowingStatistics, rowerProfiles.DKN_R320.dragFactor)
 })
 
 test('sample data for NordicTrack RX800 should produce plausible results', async () => {
@@ -408,18 +408,18 @@ test('sample data for NordicTrack RX800 should produce plausible results', async
     rowerSettings: rowerProfile
   }
   const rowingStatistics = createRowingStatistics(testConfig)
-  testTotalMovingTimeSinceStart(rowingStatistics, 0)
-  testTotalLinearDistanceSinceStart(rowingStatistics, 0)
+  testTotalMovingTime(rowingStatistics, 0)
+  testTotalLinearDistance(rowingStatistics, 0)
   testTotalNumberOfStrokes(rowingStatistics, 0)
-  testRecoveryDragFactor(rowingStatistics, rowerProfiles.NordicTrack_RX800.dragFactor)
+  testDragFactor(rowingStatistics, rowerProfiles.NordicTrack_RX800.dragFactor)
 
   await replayRowingSession(rowingStatistics.handleRotationImpulse, { filename: 'recordings/RX800.csv', realtime: false, loop: false })
 
-  testTotalMovingTimeSinceStart(rowingStatistics, 22.00348755)
-  testTotalLinearDistanceSinceStart(rowingStatistics, 79.28440927826468)
+  testTotalMovingTime(rowingStatistics, 22.00348755)
+  testTotalLinearDistance(rowingStatistics, 79.28440927826468)
   testTotalNumberOfStrokes(rowingStatistics, 10)
   // As dragFactor is dynamic, it should have changed
-  testRecoveryDragFactor(rowingStatistics, 494.92868774518126)
+  testDragFactor(rowingStatistics, 494.92868774518126)
 })
 
 test('A full session for SportsTech WRX700 should produce plausible results', async () => {
@@ -433,18 +433,18 @@ test('A full session for SportsTech WRX700 should produce plausible results', as
     rowerSettings: rowerProfile
   }
   const rowingStatistics = createRowingStatistics(testConfig)
-  testTotalMovingTimeSinceStart(rowingStatistics, 0)
-  testTotalLinearDistanceSinceStart(rowingStatistics, 0)
+  testTotalMovingTime(rowingStatistics, 0)
+  testTotalLinearDistance(rowingStatistics, 0)
   testTotalNumberOfStrokes(rowingStatistics, 0)
-  testRecoveryDragFactor(rowingStatistics, rowerProfiles.Sportstech_WRX700.dragFactor)
+  testDragFactor(rowingStatistics, rowerProfiles.Sportstech_WRX700.dragFactor)
 
   await replayRowingSession(rowingStatistics.handleRotationImpulse, { filename: 'recordings/WRX700_2magnets_session.csv', realtime: false, loop: false })
 
-  testTotalMovingTimeSinceStart(rowingStatistics, 2340.0100514160117)
-  testTotalLinearDistanceSinceStart(rowingStatistics, 8407.499514372348)
+  testTotalMovingTime(rowingStatistics, 2340.0100514160117)
+  testTotalLinearDistance(rowingStatistics, 8407.499514372348)
   testTotalNumberOfStrokes(rowingStatistics, 846)
   // As dragFactor is static, it should remain in place
-  testRecoveryDragFactor(rowingStatistics, rowerProfiles.Sportstech_WRX700.dragFactor)
+  testDragFactor(rowingStatistics, rowerProfiles.Sportstech_WRX700.dragFactor)
 })
 
 test('A full session for a Concept2 Model C should produce plausible results', async () => {
@@ -458,18 +458,18 @@ test('A full session for a Concept2 Model C should produce plausible results', a
     rowerSettings: rowerProfile
   }
   const rowingStatistics = createRowingStatistics(testConfig)
-  testTotalMovingTimeSinceStart(rowingStatistics, 0)
-  testTotalLinearDistanceSinceStart(rowingStatistics, 0)
+  testTotalMovingTime(rowingStatistics, 0)
+  testTotalLinearDistance(rowingStatistics, 0)
   testTotalNumberOfStrokes(rowingStatistics, 0)
-  testRecoveryDragFactor(rowingStatistics, (rowerProfiles.Concept2_Model_C.dragFactor))
+  testDragFactor(rowingStatistics, (rowerProfiles.Concept2_Model_C.dragFactor))
 
   await replayRowingSession(rowingStatistics.handleRotationImpulse, { filename: 'recordings/Concept2_Model_C.csv', realtime: false, loop: false })
 
-  testTotalMovingTimeSinceStart(rowingStatistics, 181.47141999999985)
-  testTotalLinearDistanceSinceStart(rowingStatistics, 551.8791705339402)
+  testTotalMovingTime(rowingStatistics, 181.47141999999985)
+  testTotalLinearDistance(rowingStatistics, 551.8791705339402)
   testTotalNumberOfStrokes(rowingStatistics, 84)
   // As dragFactor isn't static, it should have changed
-  testRecoveryDragFactor(rowingStatistics, 123.82587294279575)
+  testDragFactor(rowingStatistics, 123.82587294279575)
 })
 
 test('A full session for a Concept2 RowErg should produce plausible results', async () => {
@@ -483,87 +483,87 @@ test('A full session for a Concept2 RowErg should produce plausible results', as
     rowerSettings: rowerProfile
   }
   const rowingStatistics = createRowingStatistics(testConfig)
-  testTotalMovingTimeSinceStart(rowingStatistics, 0)
-  testTotalLinearDistanceSinceStart(rowingStatistics, 0)
+  testTotalMovingTime(rowingStatistics, 0)
+  testTotalLinearDistance(rowingStatistics, 0)
   testTotalNumberOfStrokes(rowingStatistics, 0)
-  testRecoveryDragFactor(rowingStatistics, rowerProfiles.Concept2_RowErg.dragFactor)
+  testDragFactor(rowingStatistics, rowerProfiles.Concept2_RowErg.dragFactor)
 
   await replayRowingSession(rowingStatistics.handleRotationImpulse, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
 
-  testTotalMovingTimeSinceStart(rowingStatistics, 590.1412610000001)
-  testTotalLinearDistanceSinceStart(rowingStatistics, 2029.785512056144)
+  testTotalMovingTime(rowingStatistics, 590.1412610000001)
+  testTotalLinearDistance(rowingStatistics, 2029.785512056144)
   testTotalNumberOfStrokes(rowingStatistics, 206)
   // As dragFactor isn't static, it should have changed
-  testRecoveryDragFactor(rowingStatistics, 80.79044336920735)
+  testDragFactor(rowingStatistics, 80.79044336920735)
 })
 
 function testStrokeState (rowingStatistics, expectedValue) {
-  assert.ok(rowingStatistics.getMetrics().strokeState === expectedValue, `strokeState should be ${expectedValue} at ${rowingStatistics.getMetrics().totalMovingTimeSinceStart} sec, is ${rowingStatistics.getMetrics().strokeState}`)
+  assert.ok(rowingStatistics.getMetrics().strokeState === expectedValue, `strokeState should be ${expectedValue} at ${rowingStatistics.getMetrics().totalMovingTime} sec, is ${rowingStatistics.getMetrics().strokeState}`)
 }
 
-function testTotalMovingTimeSinceStart (rowingStatistics, expectedValue) {
-  assert.ok(rowingStatistics.getMetrics().totalMovingTimeSinceStart === expectedValue, `totalMovingTimeSinceStart should be ${expectedValue} sec at ${rowingStatistics.getMetrics().totalMovingTimeSinceStart} sec, is ${rowingStatistics.getMetrics().totalMovingTimeSinceStart}`)
+function testTotalMovingTime (rowingStatistics, expectedValue) {
+  assert.ok(rowingStatistics.getMetrics().totalMovingTime === expectedValue, `totalMovingTime should be ${expectedValue} sec at ${rowingStatistics.getMetrics().totalMovingTime} sec, is ${rowingStatistics.getMetrics().totalMovingTime}`)
 }
 
 function testTotalNumberOfStrokes (rowingStatistics, expectedValue) {
   // Please note there is a stroke 0
-  assert.ok(rowingStatistics.getMetrics().totalNumberOfStrokes + 1 === expectedValue, `totalNumberOfStrokes should be ${expectedValue} at ${rowingStatistics.getMetrics().totalMovingTimeSinceStart} sec, is ${rowingStatistics.getMetrics().totalNumberOfStrokes + 1}`)
+  assert.ok(rowingStatistics.getMetrics().totalNumberOfStrokes + 1 === expectedValue, `totalNumberOfStrokes should be ${expectedValue} at ${rowingStatistics.getMetrics().totalMovingTime} sec, is ${rowingStatistics.getMetrics().totalNumberOfStrokes + 1}`)
 }
 
-function testTotalLinearDistanceSinceStart (rowingStatistics, expectedValue) {
-  assert.ok(rowingStatistics.getMetrics().totalLinearDistanceSinceStart === expectedValue, `totalLinearDistanceSinceStart should be ${expectedValue} meters at ${rowingStatistics.getMetrics().totalMovingTimeSinceStart} sec, is ${rowingStatistics.getMetrics().totalLinearDistanceSinceStart}`)
+function testTotalLinearDistance (rowingStatistics, expectedValue) {
+  assert.ok(rowingStatistics.getMetrics().totalLinearDistance === expectedValue, `totalLinearDistance should be ${expectedValue} meters at ${rowingStatistics.getMetrics().totalMovingTime} sec, is ${rowingStatistics.getMetrics().totalLinearDistance}`)
 }
 
 function testCycleDuration (rowingStatistics, expectedValue) {
-  assert.ok(rowingStatistics.getMetrics().cycleDuration === expectedValue, `cycleDuration should be ${expectedValue} sec at ${rowingStatistics.getMetrics().totalMovingTimeSinceStart} sec, is ${rowingStatistics.getMetrics().cycleDuration}`)
+  assert.ok(rowingStatistics.getMetrics().cycleDuration === expectedValue, `cycleDuration should be ${expectedValue} sec at ${rowingStatistics.getMetrics().totalMovingTime} sec, is ${rowingStatistics.getMetrics().cycleDuration}`)
 }
 
-function testCycleLinearDistance (rowingStatistics, expectedValue) {
-  assert.ok(rowingStatistics.getMetrics().cycleLinearDistance === expectedValue, `cycleLinearDistance should be ${expectedValue} meters at ${rowingStatistics.getMetrics().totalMovingTimeSinceStart} sec, is ${rowingStatistics.getMetrics().cycleLinearDistance}`)
+function testCycleDistance (rowingStatistics, expectedValue) {
+  assert.ok(rowingStatistics.getMetrics().cycleDistance === expectedValue, `cycleDistance should be ${expectedValue} meters at ${rowingStatistics.getMetrics().totalMovingTime} sec, is ${rowingStatistics.getMetrics().cycleDistance}`)
 }
 
 function testCycleLinearVelocity (rowingStatistics, expectedValue) {
-  assert.ok(rowingStatistics.getMetrics().cycleLinearVelocity === expectedValue, `cycleLinearVelocity should be ${expectedValue} m/s at ${rowingStatistics.getMetrics().totalMovingTimeSinceStart} sec, is ${rowingStatistics.getMetrics().cycleLinearVelocity}`)
+  assert.ok(rowingStatistics.getMetrics().cycleLinearVelocity === expectedValue, `cycleLinearVelocity should be ${expectedValue} m/s at ${rowingStatistics.getMetrics().totalMovingTime} sec, is ${rowingStatistics.getMetrics().cycleLinearVelocity}`)
 }
 
 function testCyclePower (rowingStatistics, expectedValue) {
-  assert.ok(rowingStatistics.getMetrics().cyclePower === expectedValue, `cyclePower should be ${expectedValue} Watt at ${rowingStatistics.getMetrics().totalMovingTimeSinceStart} sec, is ${rowingStatistics.getMetrics().cyclePower}`)
+  assert.ok(rowingStatistics.getMetrics().cyclePower === expectedValue, `cyclePower should be ${expectedValue} Watt at ${rowingStatistics.getMetrics().totalMovingTime} sec, is ${rowingStatistics.getMetrics().cyclePower}`)
 }
 
 function testDriveDuration (rowingStatistics, expectedValue) {
-  assert.ok(rowingStatistics.getMetrics().driveDuration === expectedValue, `driveDuration should be ${expectedValue} sec at ${rowingStatistics.getMetrics().totalMovingTimeSinceStart} sec, is ${rowingStatistics.getMetrics().driveDuration}`)
+  assert.ok(rowingStatistics.getMetrics().driveDuration === expectedValue, `driveDuration should be ${expectedValue} sec at ${rowingStatistics.getMetrics().totalMovingTime} sec, is ${rowingStatistics.getMetrics().driveDuration}`)
 }
 
-function testDriveLinearDistance (rowingStatistics, expectedValue) {
-  assert.ok(rowingStatistics.getMetrics().driveLinearDistance === expectedValue, `driveLinearDistance should be ${expectedValue} meters at ${rowingStatistics.getMetrics().totalMovingTimeSinceStart} sec, is ${rowingStatistics.getMetrics().driveLinearDistance}`)
+function testDriveDistance (rowingStatistics, expectedValue) {
+  assert.ok(rowingStatistics.getMetrics().driveDistance === expectedValue, `DriveDistance should be ${expectedValue} meters at ${rowingStatistics.getMetrics().totalMovingTime} sec, is ${rowingStatistics.getMetrics().driveDistance}`)
 }
 
 function testDriveLength (rowingStatistics, expectedValue) {
-  assert.ok(rowingStatistics.getMetrics().driveLength === expectedValue, `driveLength should be ${expectedValue} meters at ${rowingStatistics.getMetrics().totalMovingTimeSinceStart} sec, is ${rowingStatistics.getMetrics().driveLength}`)
+  assert.ok(rowingStatistics.getMetrics().driveLength === expectedValue, `driveLength should be ${expectedValue} meters at ${rowingStatistics.getMetrics().totalMovingTime} sec, is ${rowingStatistics.getMetrics().driveLength}`)
 }
 
 function testDriveAverageHandleForce (rowingStatistics, expectedValue) {
-  assert.ok(rowingStatistics.getMetrics().driveAverageHandleForce === expectedValue, `driveAverageHandleForce should be ${expectedValue} N at ${rowingStatistics.getMetrics().totalMovingTimeSinceStart} sec, is ${rowingStatistics.getMetrics().driveAverageHandleForce}`)
+  assert.ok(rowingStatistics.getMetrics().driveAverageHandleForce === expectedValue, `driveAverageHandleForce should be ${expectedValue} N at ${rowingStatistics.getMetrics().totalMovingTime} sec, is ${rowingStatistics.getMetrics().driveAverageHandleForce}`)
 }
 
 function testDrivePeakHandleForce (rowingStatistics, expectedValue) {
-  assert.ok(rowingStatistics.getMetrics().drivePeakHandleForce === expectedValue, `drivePeakHandleForce should be ${expectedValue} N at ${rowingStatistics.getMetrics().totalMovingTimeSinceStart} sec, is ${rowingStatistics.getMetrics().drivePeakHandleForce}`)
+  assert.ok(rowingStatistics.getMetrics().drivePeakHandleForce === expectedValue, `drivePeakHandleForce should be ${expectedValue} N at ${rowingStatistics.getMetrics().totalMovingTime} sec, is ${rowingStatistics.getMetrics().drivePeakHandleForce}`)
 }
 
 function testRecoveryDuration (rowingStatistics, expectedValue) {
-  assert.ok(rowingStatistics.getMetrics().recoveryDuration === expectedValue, `recoveryDuration should be ${expectedValue} sec at ${rowingStatistics.getMetrics().totalMovingTimeSinceStart} sec, is ${rowingStatistics.getMetrics().recoveryDuration}`)
+  assert.ok(rowingStatistics.getMetrics().recoveryDuration === expectedValue, `recoveryDuration should be ${expectedValue} sec at ${rowingStatistics.getMetrics().totalMovingTime} sec, is ${rowingStatistics.getMetrics().recoveryDuration}`)
 }
 
-function testRecoveryDragFactor (rowingStatistics, expectedValue) {
-  assert.ok(rowingStatistics.getMetrics().recoveryDragFactor === expectedValue, `recoveryDragFactor should be ${expectedValue} N*m*s^2 at ${rowingStatistics.getMetrics().totalMovingTimeSinceStart} sec, is ${rowingStatistics.getMetrics().recoveryDragFactor}`)
+function testDragFactor (rowingStatistics, expectedValue) {
+  assert.ok(rowingStatistics.getMetrics().dragFactor === expectedValue, `dragFactor should be ${expectedValue} N*m*s^2 at ${rowingStatistics.getMetrics().totalMovingTime} sec, is ${rowingStatistics.getMetrics().dragFactor}`)
 }
 
 function testInstantHandlePower (rowingStatistics, expectedValue) {
-  assert.ok(rowingStatistics.getMetrics().instantHandlePower === expectedValue, `instantHandlePower should be ${expectedValue} Watt at ${rowingStatistics.getMetrics().totalMovingTimeSinceStart} sec, is ${rowingStatistics.getMetrics().instantHandlePower}`)
+  assert.ok(rowingStatistics.getMetrics().instantHandlePower === expectedValue, `instantHandlePower should be ${expectedValue} Watt at ${rowingStatistics.getMetrics().totalMovingTime} sec, is ${rowingStatistics.getMetrics().instantHandlePower}`)
 }
 
 function reportAll (rowingStatistics) { // eslint-disable-line no-unused-vars
-  assert.ok(0, `time: ${rowingStatistics.getMetrics().totalMovingTimeSinceStart}, state ${rowingStatistics.getMetrics().strokeState}, No Strokes: ${rowingStatistics.getMetrics().totalNumberOfStrokes + 1}, Lin Distance: ${rowingStatistics.getMetrics().totalLinearDistanceSinceStart}, cycle dur: ${rowingStatistics.getMetrics().cycleDuration}, cycle Lin Dist: ${rowingStatistics.getMetrics().cycleLinearDistance}, Lin Velocity: ${rowingStatistics.getMetrics().cycleLinearVelocity}, Power: ${rowingStatistics.getMetrics().cyclePower}, Drive Dur: ${rowingStatistics.getMetrics().driveDuration}, Drive Lin. Dist. ${rowingStatistics.driveLinearDistance}, Drive Length: ${rowingStatistics.getMetrics().driveLength}, Av. Handle Force: ${rowingStatistics.getMetrics().driveAverageHandleForce}, Peak Handle Force: ${rowingStatistics.getMetrics().drivePeakHandleForce}, Rec. Dur: ${rowingStatistics.getMetrics().recoveryDuration}, Dragfactor: ${rowingStatistics.getMetrics().recoveryDragFactor}, Inst Handle Power: ${rowingStatistics.getMetrics().instantHandlePower}`)
+  assert.ok(0, `time: ${rowingStatistics.getMetrics().totalMovingTime}, state ${rowingStatistics.getMetrics().strokeState}, No Strokes: ${rowingStatistics.getMetrics().totalNumberOfStrokes + 1}, Lin Distance: ${rowingStatistics.getMetrics().totalLinearDistance}, cycle dur: ${rowingStatistics.getMetrics().cycleDuration}, cycle Lin Dist: ${rowingStatistics.getMetrics().cycleLinearDistance}, Lin Velocity: ${rowingStatistics.getMetrics().cycleLinearVelocity}, Power: ${rowingStatistics.getMetrics().cyclePower}, Drive Dur: ${rowingStatistics.getMetrics().driveDuration}, Drive Lin. Dist. ${rowingStatistics.driveDistance}, Drive Length: ${rowingStatistics.getMetrics().driveLength}, Av. Handle Force: ${rowingStatistics.getMetrics().driveAverageHandleForce}, Peak Handle Force: ${rowingStatistics.getMetrics().drivePeakHandleForce}, Rec. Dur: ${rowingStatistics.getMetrics().recoveryDuration}, Dragfactor: ${rowingStatistics.getMetrics().dragFactor}, Inst Handle Power: ${rowingStatistics.getMetrics().instantHandlePower}`)
 }
 
 test.run()
