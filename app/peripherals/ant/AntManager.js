@@ -1,6 +1,6 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   This manager creates a module to listen to ANT+ devices.
   This currently can be used to get the heart rate from ANT+ heart rate sensors.
