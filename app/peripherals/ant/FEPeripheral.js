@@ -1,15 +1,14 @@
 'use strict'
+/*
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
+
+  Creates a ANT+ Peripheral with all the datapages that are required for
+  an indoor rower
+*/
 
 import log from 'loglevel'
 import { Messages } from 'incyclist-ant-plus'
 import { PeripheralConstants } from '../PeripheralConstants.js'
-
-/*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
-
-  Creates a Bluetooth Low Energy (BLE) Peripheral with all the Services that are required for
-  a Cycling Speed and Cadence Profile
-*/
 
 function createFEPeripheral (antManager) {
   const antStick = antManager.getAntStick()
@@ -162,19 +161,17 @@ function createFEPeripheral (antManager) {
     antStick.write(message)
   }
 
-  function notifyData (type, data) {
-    if (type === 'strokeFinished' || type === 'metricsUpdate') {
-      sessionData = {
-        ...sessionData,
-        accumulatedDistance: data.totalLinearDistance & 0xFF,
-        accumulatedStrokes: data.totalNumberOfStrokes & 0xFF,
-        accumulatedTime: Math.trunc(data.totalMovingTime * 4) & 0xFF,
-        cycleLinearVelocity: Math.round(data.cycleLinearVelocity * 1000),
-        strokeRate: Math.round(data.cycleStrokeRate) & 0xFF,
-        instantaneousPower: Math.round(data.cyclePower) & 0xFFFF,
-        distancePerStroke: Math.round(data.cycleDistance * 100),
-        sessionStatus: data.sessionStatus
-      }
+  function notifyData (data) {
+    sessionData = {
+      ...sessionData,
+      accumulatedDistance: data.totalLinearDistance & 0xFF,
+      accumulatedStrokes: data.totalNumberOfStrokes & 0xFF,
+      accumulatedTime: Math.trunc(data.totalMovingTime * 4) & 0xFF,
+      cycleLinearVelocity: Math.round(data.cycleLinearVelocity * 1000),
+      strokeRate: Math.round(data.cycleStrokeRate) & 0xFF,
+      instantaneousPower: Math.round(data.cyclePower) & 0xFFFF,
+      distancePerStroke: Math.round(data.cycleDistance * 100),
+      sessionStatus: data.sessionStatus
     }
   }
 
