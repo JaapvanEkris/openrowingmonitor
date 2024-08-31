@@ -1,20 +1,30 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Creates a Bluetooth Low Energy (BLE) Peripheral with all the Services that are required for
-  a Cycling Speed and Cadence Profile
+  a Cycling Power Profile
 */
 import bleno from '@abandonware/bleno'
 import config from '../../tools/ConfigManager.js'
 import log from 'loglevel'
+import CyclingPowerService from './cps/CyclingPowerMeterService.js'
 import DeviceInformationService from './common/DeviceInformationService.js'
-import CyclingSpeedCadenceService from './csc/CyclingSpeedCadenceService.js'
 import AdvertisingDataBuilder from './common/AdvertisingDataBuilder.js'
 
-function createCscPeripheral () {
-  const peripheralName = `${config.ftmsRowerPeripheralName} (CSC)`
-  const cyclingSpeedCadenceService = new CyclingSpeedCadenceService((event) => log.debug('CSC Control Point', event))
+function createCpsPeripheral () {
+  const peripheralName = `${config.ftmsRowerPeripheralName} (CPS)`
+  const cyclingPowerService = new CyclingPowerService((event) => log.debug('CPS Control Point', event))
+  const broadcastInterval = config.peripheralUpdateInterval
+  let lastKnownMetrics = {
+    sessiontype: 'JustRow',
+    sessionStatus: 'WaitingForStart',
+    strokeState: 'WaitingForDrive',
+    totalMovingTime: 0,
+    totalLinearDistance: 0,
+    dragFactor: config.rowerSettings.dragFactor
+  }
+  let timer = setTimeout(onBroadcastInterval, broadcastInterval)
 
   bleno.on('stateChange', (state) => {
     triggerAdvertising(state)
@@ -24,7 +34,7 @@ function createCscPeripheral () {
     if (!error) {
       bleno.setServices(
         [
-          cyclingSpeedCadenceService,
+          cyclingPowerService,
           new DeviceInformationService()
         ],
         (error) => {
@@ -62,6 +72,7 @@ function createCscPeripheral () {
   })
 
   function destroy () {
+    clearTimeout(timer)
     return new Promise((resolve) => {
       bleno.disconnect()
       bleno.removeAllListeners()
@@ -72,8 +83,8 @@ function createCscPeripheral () {
   function triggerAdvertising (eventState) {
     const activeState = eventState || bleno.state
     if (activeState === 'poweredOn') {
-      const cscAppearance = 1157
-      const advertisingData = new AdvertisingDataBuilder([cyclingSpeedCadenceService.uuid], cscAppearance, peripheralName)
+      const cpsAppearance = 1156
+      const advertisingData = new AdvertisingDataBuilder([cyclingPowerService.uuid], cpsAppearance, peripheralName)
 
       bleno.startAdvertisingWithEIRData(
         advertisingData.buildAppearanceData(),
@@ -87,13 +98,18 @@ function createCscPeripheral () {
     }
   }
 
-  function notifyData (type, data) {
-    if (type === 'strokeFinished' || type === 'metricsUpdate') {
-      cyclingSpeedCadenceService.notifyData(data)
-    }
+  // Broadcast the last known metrics
+  function onBroadcastInterval () {
+    cyclingPowerService.notifyData(lastKnownMetrics)
+    timer = setTimeout(onBroadcastInterval, broadcastInterval)
   }
 
-  // CSC does not have status characteristic
+  // Records the last known rowing metrics to be available when the broadcast comes
+  function notifyData (data) {
+    lastKnownMetrics = data
+  }
+
+  // CPS does not have status characteristic
   function notifyStatus (status) {
   }
 
@@ -105,4 +121,4 @@ function createCscPeripheral () {
   }
 }
 
-export { createCscPeripheral }
+export { createCpsPeripheral }
