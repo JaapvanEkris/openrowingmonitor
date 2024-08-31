@@ -1,6 +1,6 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Implements the Fitness Machine Service (FTMS) according to specs.
   Either presents a FTMS Rower (for rower applications that can use parameters such as Stroke Rate) or
@@ -46,8 +46,8 @@ export default class FitnessMachineService extends bleno.PrimaryService {
     this.statusCharacteristic = statusCharacteristic
   }
 
-  notifyData (event) {
-    this.dataCharacteristic.notify(event)
+  notifyData (data) {
+    this.dataCharacteristic.notify(data)
   }
 
   notifyStatus (event) {
