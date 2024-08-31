@@ -1,6 +1,6 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Creates a Bluetooth Low Energy (BLE) Peripheral with all the Services that are required for
   a Fitness Machine Device
@@ -22,6 +22,16 @@ function createFtmsPeripheral (controlCallback, options) {
   const peripheralName = options?.simulateIndoorBike ? config.ftmsBikePeripheralName : config.ftmsRowerPeripheralName
   const fitnessMachineService = new FitnessMachineService(options, controlPointCallback)
   const deviceInformationService = new DeviceInformationService()
+  const broadcastInterval = config.peripheralUpdateInterval
+  let lastKnownMetrics = {
+    sessiontype: 'JustRow',
+    sessionStatus: 'WaitingForStart',
+    strokeState: 'WaitingForDrive',
+    totalMovingTime: 0,
+    totalLinearDistance: 0,
+    dragFactor: config.rowerSettings.dragFactor
+  }
+  let timer = setTimeout(onBroadcastInterval, broadcastInterval)
 
   bleno.on('stateChange', (state) => {
     triggerAdvertising(state)
@@ -75,6 +85,7 @@ function createFtmsPeripheral (controlCallback, options) {
   }
 
   function destroy () {
+    clearTimeout(timer)
     return new Promise((resolve) => {
       bleno.disconnect()
       bleno.removeAllListeners()
@@ -101,11 +112,15 @@ function createFtmsPeripheral (controlCallback, options) {
     }
   }
 
-  // present current rowing metrics to FTMS central
-  function notifyData (type, data) {
-    if (type === 'strokeFinished' || type === 'metricsUpdate') {
-      fitnessMachineService.notifyData(data)
-    }
+  // Broadcast the last known metrics
+  function onBroadcastInterval () {
+    fitnessMachineService.notifyData(lastKnownMetrics)
+    timer = setTimeout(onBroadcastInterval, broadcastInterval)
+  }
+
+  // Records the last known rowing metrics to be available when the broadcast comes
+  function notifyData (data) {
+    lastKnownMetrics = data
   }
 
   // present current rowing status to FTMS central
