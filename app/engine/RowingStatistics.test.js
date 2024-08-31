@@ -507,7 +507,7 @@ function testTotalMovingTime (rowingStatistics, expectedValue) {
 
 function testTotalNumberOfStrokes (rowingStatistics, expectedValue) {
   // Please note there is a stroke 0
-  assert.ok(rowingStatistics.getMetrics().totalNumberOfStrokes + 1 === expectedValue, `totalNumberOfStrokes should be ${expectedValue} at ${rowingStatistics.getMetrics().totalMovingTime} sec, is ${rowingStatistics.getMetrics().totalNumberOfStrokes + 1}`)
+  assert.ok(rowingStatistics.getMetrics().totalNumberOfStrokes === expectedValue, `totalNumberOfStrokes should be ${expectedValue} at ${rowingStatistics.getMetrics().totalMovingTime} sec, is ${rowingStatistics.getMetrics().totalNumberOfStrokes}`)
 }
 
 function testTotalLinearDistance (rowingStatistics, expectedValue) {
