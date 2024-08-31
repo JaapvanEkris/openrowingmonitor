@@ -17,7 +17,7 @@ import { deepMerge } from '../tools/Helper.js'
 
 import { createRowingStatistics } from './RowingStatistics.js'
 
-const baseConfig = { // Based on Concept 2 settings, as this is the validation system
+const baseRowingProfile = { // Based on Concept 2 settings, as this is the validation system
   numOfImpulsesPerRevolution: 6,
   sprocketRadius: 1.4,
   maximumStrokeTimeBeforePause: 0.3, // Modification to standard settings to shorten test cases
@@ -38,6 +38,25 @@ const baseConfig = { // Based on Concept 2 settings, as this is the validation s
   minimumRecoveryTime: 0.09, // Modification to standard settings to shorten test cases
   flywheelInertia: 0.10138,
   magicConstant: 2.8
+}
+
+baseConfig = {
+  loglevel: {
+    default: 'silent',
+    RowingEngine: 'silent'
+  },
+  numOfPhasesForAveragingScreenData: 2,
+  userSettings: {
+    restingHR: 40,
+    maxHR: 190,
+    minPower: 50,
+    maxPower: 500,
+    distanceCorrectionFactor: 5,
+    weight: 80,
+    sex: 'male',
+    highlyTrained: false
+    },
+    rowerSettings: baseRowingProfile
 }
 
 // Test behaviour for no datapoints
