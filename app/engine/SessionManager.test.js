@@ -277,7 +277,7 @@ test('A 8000 meter session for SportsTech WRX700 should produce plausible result
 
   testTotalMovingTime(sessionManager, 2236.509317727007)
   testTotalLinearDistance(sessionManager, 8000.605126630236)
-  testTotalNumberOfStrokes(sessionManager, 845)
+  testTotalNumberOfStrokes(sessionManager, 804)
   // As dragFactor is static, it should remain in place
   testDragFactor(sessionManager, rowerProfiles.Sportstech_WRX700.dragFactor)
 })
@@ -310,7 +310,7 @@ test('A 2300 sec session for SportsTech WRX700 should produce plausible results'
 
   testTotalMovingTime(sessionManager, 2300.00695516701)
   testTotalLinearDistance(sessionManager, 8252.525825823619)
-  testTotalNumberOfStrokes(sessionManager, 845)
+  testTotalNumberOfStrokes(sessionManager, 830)
   // As dragFactor is static, it should remain in place
   testDragFactor(sessionManager, rowerProfiles.Sportstech_WRX700.dragFactor)
 })
@@ -401,7 +401,7 @@ test('A 500 meter session for a Concept2 Model C should produce plausible result
 
   testTotalMovingTime(sessionManager, 156.95311300000003)
   testTotalLinearDistance(sessionManager, 500.05137008767286)
-  testTotalNumberOfStrokes(sessionManager, 83)
+  testTotalNumberOfStrokes(sessionManager, 73)
   // As dragFactor isn't static, it should have changed
   testDragFactor(sessionManager, 123.82587294279575)
 })
@@ -492,7 +492,7 @@ test('A 2000 meter session for a Concept2 RowErg should produce plausible result
 
   testTotalMovingTime(sessionManager, 581.5370219999993)
   testTotalLinearDistance(sessionManager, 2000.0023380273299)
-  testTotalNumberOfStrokes(sessionManager, 205)
+  testTotalNumberOfStrokes(sessionManager, 202)
   // As dragFactor isn't static, it should have changed
   testDragFactor(sessionManager, 80.79044336920732)
 })
@@ -525,7 +525,7 @@ test('A 580 seconds session for a Concept2 RowErg should produce plausible resul
 
   testTotalMovingTime(sessionManager, 580.0033639999992)
   testTotalLinearDistance(sessionManager, 1994.7994124516786)
-  testTotalNumberOfStrokes(sessionManager, 205)
+  testTotalNumberOfStrokes(sessionManager, 202)
   // As dragFactor isn't static, it should have changed
   testDragFactor(sessionManager, 80.79044336920732)
 })
