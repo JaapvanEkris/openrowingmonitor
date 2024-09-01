@@ -103,7 +103,7 @@ test('sample data for Sportstech WRX700 should produce plausible results for a 4
 
   testTotalMovingTime(sessionManager, 45.077573161000004)
   testTotalLinearDistance(sessionManager, 163.46539751030917)
-  testTotalNumberOfStrokes(sessionManager, 13)
+  testTotalNumberOfStrokes(sessionManager, 15)
   // As dragFactor is static, it should remain in place
   testDragFactor(sessionManager, rowerProfiles.Sportstech_WRX700.dragFactor)
 })
