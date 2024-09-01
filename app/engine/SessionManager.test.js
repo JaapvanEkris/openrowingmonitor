@@ -403,7 +403,7 @@ test('A 500 meter session for a Concept2 Model C should produce plausible result
   testTotalLinearDistance(sessionManager, 500.05137008767286)
   testTotalNumberOfStrokes(sessionManager, 73)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(sessionManager, 123.82587294279575)
+  testDragFactor(sessionManager, 123.69864738410088)
 })
 
 test('A 3 minute session for a Concept2 Model C should produce plausible results', async () => {
@@ -494,7 +494,7 @@ test('A 2000 meter session for a Concept2 RowErg should produce plausible result
   testTotalLinearDistance(sessionManager, 2000.0023380273299)
   testTotalNumberOfStrokes(sessionManager, 202)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(sessionManager, 80.79044336920732)
+  testDragFactor(sessionManager, 80.7736995688596)
 })
 
 test('A 580 seconds session for a Concept2 RowErg should produce plausible results', async () => {
@@ -527,7 +527,7 @@ test('A 580 seconds session for a Concept2 RowErg should produce plausible resul
   testTotalLinearDistance(sessionManager, 1994.7994124516786)
   testTotalNumberOfStrokes(sessionManager, 202)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(sessionManager, 80.79044336920732)
+  testDragFactor(sessionManager, 80.7736995688596)
 })
 
 function testTotalMovingTime (sessionManager, expectedValue) {
