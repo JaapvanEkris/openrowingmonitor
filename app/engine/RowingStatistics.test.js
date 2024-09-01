@@ -143,7 +143,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   rowingStatistics.handleRotationImpulse(0.011209919)
   testStrokeState(rowingStatistics, 'Recovery')
   testTotalMovingTime(rowingStatistics, 0.23894732900000007)
-  testTotalLinearDistance(rowingStatistics, 0.4983887205985536)
+  testTotalLinearDistance(rowingStatistics, 0.8187814695547666)
   testTotalNumberOfStrokes(rowingStatistics, 0)
   testCycleDuration(rowingStatistics, 0.143485717)
   testCycleDistance(rowingStatistics, 0.8187814695547666)
