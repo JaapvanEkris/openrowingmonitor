@@ -152,14 +152,21 @@ export function createRower (rowerSettings) {
     // Here, we conclude the Drive Phase
     // The FSM guarantees that we have a credible driveDuration and cycletime
     _driveDuration = flywheel.spinningTime() - drivePhaseStartTime
-    _cycleDuration = _recoveryDuration + _driveDuration
     drivePhaseAngularDisplacement = flywheel.angularPosition() - drivePhaseStartAngularPosition
     _driveLength = drivePhaseAngularDisplacement * sprocketRadius
     _driveLinearDistance = calculateLinearDistance(drivePhaseAngularDisplacement, _driveDuration)
     totalLinearDistance += _driveLinearDistance
-    _cyclePower = calculateCyclePower()
-    _cycleLinearVelocity = calculateLinearVelocity(drivePhaseAngularDisplacement + recoveryPhaseAngularDisplacement, _cycleDuration)
     preliminaryTotalLinearDistance = totalLinearDistance
+    if (_driveDuration >= rowerSettings.minimumDriveTime && _recoveryDuration >= rowerSettings.minimumRecoveryTime) {
+      _cycleDuration = _recoveryDuration + _driveDuration
+      _cycleLinearVelocity = calculateLinearVelocity(drivePhaseAngularDisplacement + recoveryPhaseAngularDisplacement, _cycleDuration)
+      _cyclePower = calculateCyclePower()
+    } else {
+      _cycleDuration = undefined
+      _cycleLinearVelocity = undefined
+      _cyclePower = undefined
+    }
+
   }
 
   function startRecoveryPhase () {
@@ -180,13 +187,19 @@ export function createRower (rowerSettings) {
     // First, we conclude the recovery phase
     // The FSM guarantees that we have a credible recoveryDuration and cycletime
     _recoveryDuration = flywheel.spinningTime() - recoveryPhaseStartTime
-    _cycleDuration = _recoveryDuration + _driveDuration
     recoveryPhaseAngularDisplacement = flywheel.angularPosition() - recoveryPhaseStartAngularPosition
     _recoveryLinearDistance = calculateLinearDistance(recoveryPhaseAngularDisplacement, _recoveryDuration)
     totalLinearDistance += _recoveryLinearDistance
     preliminaryTotalLinearDistance = totalLinearDistance
-    _cycleLinearVelocity = calculateLinearVelocity(drivePhaseAngularDisplacement + recoveryPhaseAngularDisplacement, _cycleDuration)
-    _cyclePower = calculateCyclePower()
+    if (_driveDuration >= rowerSettings.minimumDriveTime && _recoveryDuration >= rowerSettings.minimumRecoveryTime) {
+      _cycleDuration = _recoveryDuration + _driveDuration
+      _cycleLinearVelocity = calculateLinearVelocity(drivePhaseAngularDisplacement + recoveryPhaseAngularDisplacement, _cycleDuration)
+      _cyclePower = calculateCyclePower()
+    } else {
+      _cycleDuration = undefined
+      _cycleLinearVelocity = undefined
+      _cyclePower = undefined
+    }
     flywheel.markRecoveryPhaseCompleted()
   }
 
