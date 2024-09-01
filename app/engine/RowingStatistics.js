@@ -221,7 +221,7 @@ function createRowingStatistics (config) {
       cycleStrokeRate: cycleDuration.reliable() && cycleDuration.clean() > minimumStrokeTime && cycleLinearVelocity.raw() > 0 && metricsContext.isMoving === true ? (60.0 / cycleDuration.clean()) : 0, // strokeRate in SPM
       cycleDistance: cycleDistance.reliable() && cycleDistance.raw() > 0 && cycleLinearVelocity.raw() > 0 && metricsContext.isMoving === true ? cycleDistance.clean() : undefined, // meters
       cycleLinearVelocity: cycleLinearVelocity.reliable() && cycleLinearVelocity.clean() > 0 && cycleLinearVelocity.raw() > 0 && metricsContext.isMoving === true ? cycleLinearVelocity.clean() : undefined, // m/s
-      cyclePace: cycleLinearVelocity.reliable() && cycleLinearVelocity.raw() > 0 ? cyclePace : infinity, // seconds/500m
+      cyclePace: cycleLinearVelocity.reliable() && cycleLinearVelocity.raw() > 0 ? cyclePace : Infinity, // seconds/500m
       cyclePower: cyclePower.reliable() && cyclePower.clean() > 0 && cycleLinearVelocity.raw() > 0 && metricsContext.isMoving === true ? cyclePower.clean() : 0, // watts
       driveLastStartTime: driveLastStartTime > 0 ? driveLastStartTime : 0,
       driveDuration: driveDuration.reliable() && driveDuration.clean() >= config.rowerSettings.minimumDriveTime && totalNumberOfStrokes > 0 && metricsContext.isMoving === true ? driveDuration.clean() : undefined, // seconds
