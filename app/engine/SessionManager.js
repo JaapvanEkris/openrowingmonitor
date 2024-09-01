@@ -347,7 +347,8 @@ function createSessionManager (config) {
     handleCommand,
     handleHeartRateMeasurement,
     handleRotationImpulse,
-    setIntervalParameters
+    setIntervalParameters,
+    getMetrics
   })
 }
 
