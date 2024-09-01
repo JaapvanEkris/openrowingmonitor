@@ -323,8 +323,8 @@ function createSessionManager (config) {
 
   function enrichMetrics () {
     metrics.sessiontype = intervalType
-    metrics.sessionStatus = sessionState // OPRUIMEN VAN NAAMCONVERSIE
-    // toevoegen: split number
+    metrics.sessionStatus = sessionState // ToDo: REMOVE NAME CONVERSION
+    // ToDo: Add split number
     metrics.intervalNumber = Math.max(noSpontaneousPauses + currentIntervalNumber + 1, 0) // Interval number, for both planned and unplanned intervals
     metrics.intervalMovingTime = metrics.totalMovingTime - intervalPrevAccumulatedTime
     metrics.intervalTargetTime = intervalTargetTime > intervalPrevAccumulatedTime ? intervalTargetTime - intervalPrevAccumulatedTime : 0
@@ -336,6 +336,11 @@ function createSessionManager (config) {
     metrics.cycleProjectedEndLinearDistance = intervalTargetTime > 0 ? distanceOverTime.projectX(intervalTargetTime) : intervalTargetDistance
     metrics.heartrate = heartrate > 30 ? heartrate : 0 // OPRUIMEN VAN DEZE INJECTIE
     metrics.heartRateBatteryLevel = heartRateBatteryLevel // OPRUIMEN VAN DEZE INJECTIE
+  }
+
+  function getMetrics () { // TESTING PURPOSSES ONLY!
+    enrichMetrics()
+    return metrics
   }
 
   return Object.assign(emitter, {
