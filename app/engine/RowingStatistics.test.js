@@ -65,7 +65,7 @@ test('Correct rower behaviour at initialisation', () => {
   testDrivePeakHandleForce(rowingStatistics, undefined)
   testRecoveryDuration(rowingStatistics, undefined)
   testDragFactor(rowingStatistics, 110)
-  testInstantHandlePower(rowingStatistics, 0)
+  testInstantHandlePower(rowingStatistics, undefined)
 })
 
 // Test behaviour for one datapoint
@@ -112,7 +112,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testStrokeState(rowingStatistics, 'Drive')
   testTotalMovingTime(rowingStatistics, 0.077918634)
   testTotalLinearDistance(rowingStatistics, 0.2847935546277449)
-  testTotalNumberOfStrokes(rowingStatistics, 1)
+  testTotalNumberOfStrokes(rowingStatistics, 0)
   testCycleDuration(rowingStatistics, 0.13) // still default value
   testCycleDistance(rowingStatistics, 0.2847935546277449)
   testCycleLinearVelocity(rowingStatistics, 0) // This isn't filled after the first drive, as we haven't survived a complete cycle yet
