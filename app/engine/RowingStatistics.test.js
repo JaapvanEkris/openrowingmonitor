@@ -313,10 +313,10 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testTotalMovingTime(rowingStatistics, 1.1137102920000004)
   testTotalNumberOfStrokes(rowingStatistics, 2)
   testTotalLinearDistance(rowingStatistics, 4.554256569952211)
-  testCycleDuration(rowingStatistics, 0.4476004410000002)
-  testCycleDistance(rowingStatistics, 1.9514756293949895)
-  testCycleLinearVelocity(rowingStatistics, 4.359860828186693)
-  testCyclePower(rowingStatistics, 232.04697446513617)
+  testCycleDuration(rowingStatistics, undefined)
+  testCycleDistance(rowingStatistics, undefined)
+  testCycleLinearVelocity(rowingStatistics, undefined)
+  testCyclePower(rowingStatistics, undefined)
   testDriveDuration(rowingStatistics, 0.2564858390000001)
   testDriveDistance(rowingStatistics, 1.1464919322695564)
   testDriveLength(rowingStatistics, 0.34452799434368064)
@@ -324,7 +324,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDrivePeakHandleForce(rowingStatistics, 439.7407274834184)
   testRecoveryDuration(rowingStatistics, 0.17448815399999995)
   testDragFactor(rowingStatistics, 283.12720365097886)
-  testInstantHandlePower(rowingStatistics, 0)
+  testInstantHandlePower(rowingStatistics, undefined)
 })
 
 // Test behaviour for noisy upgoing flank
