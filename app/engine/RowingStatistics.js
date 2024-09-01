@@ -168,7 +168,7 @@ function createRowingStatistics (config) {
 
   function updateCycleMetrics () {
     distanceOverTime.push(rower.totalMovingTimeSinceStart(), rower.totalLinearDistanceSinceStart())
-    if (rower.cycleDuration() < maximumStrokeTime && rower.cycleDuration() > minimumStrokeTime) {
+    if (rower.cycleDuration() !== undefined && rower.cycleDuration() < maximumStrokeTime && rower.cycleDuration() > minimumStrokeTime) {
       // stroke duration has to be credible to be accepted
       cycleDuration.push(rower.cycleDuration())
       cycleDistance.push(rower.cycleLinearDistance())
