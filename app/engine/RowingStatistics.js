@@ -180,23 +180,26 @@ function createRowingStatistics (config) {
   }
 
   function handleDriveEnd () {
-    driveDuration.push(rower.driveDuration())
-    driveLength.push(rower.driveLength())
-    driveDistance.push(rower.driveLinearDistance())
-    driveAverageHandleForce.push(rower.driveAverageHandleForce())
-    drivePeakHandleForce.push(rower.drivePeakHandleForce())
-    driveHandleForceCurve.push(rower.driveHandleForceCurve())
-    driveHandleVelocityCurve.push(rower.driveHandleVelocityCurve())
-    driveHandlePowerCurve.push(rower.driveHandlePowerCurve())
+    if (rower.driveDuration() !== undefined) {
+      driveDuration.push(rower.driveDuration())
+      driveLength.push(rower.driveLength())
+      driveDistance.push(rower.driveLinearDistance())
+      driveAverageHandleForce.push(rower.driveAverageHandleForce())
+      drivePeakHandleForce.push(rower.drivePeakHandleForce())
+      driveHandleForceCurve.push(rower.driveHandleForceCurve())
+      driveHandleVelocityCurve.push(rower.driveHandleVelocityCurve())
+      driveHandlePowerCurve.push(rower.driveHandlePowerCurve())
+    }
   }
 
   // initiated when the stroke state changes
   function handleRecoveryEnd () {
     totalNumberOfStrokes = rower.totalNumberOfStrokes()
     driveLastStartTime = rower.driveLastStartTime()
-    recoveryDuration.push(rower.recoveryDuration())
-    dragFactor = rower.recoveryDragFactor()
-
+    if (rower.recoveryDuration() !== undefined) {
+      recoveryDuration.push(rower.recoveryDuration())
+      dragFactor = rower.recoveryDragFactor()
+    }
     // based on: http://eodg.atm.ox.ac.uk/user/dudhia/rowing/physics/ergometer.html#section11
     strokeCalories = (4 * cyclePower.clean() + 350) * (cycleDuration.clean()) / 4200
     strokeWork = cyclePower.clean() * cycleDuration.clean()
