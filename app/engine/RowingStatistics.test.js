@@ -113,16 +113,16 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testTotalMovingTime(rowingStatistics, 0.077918634)
   testTotalLinearDistance(rowingStatistics, 0.2847935546277449)
   testTotalNumberOfStrokes(rowingStatistics, 0)
-  testCycleDuration(rowingStatistics, 0.13) // still default value
-  testCycleDistance(rowingStatistics, 0.2847935546277449)
-  testCycleLinearVelocity(rowingStatistics, 0) // This isn't filled after the first drive, as we haven't survived a complete cycle yet
-  testCyclePower(rowingStatistics, 0) // This isn't filled after the first drive, as we haven't survived a complete cycle yet
-  testDriveDuration(rowingStatistics, 0) // Shouldn't this one be filled after the first drive?
-  testDriveDistance(rowingStatistics, 0.2847935546277449)
-  testDriveLength(rowingStatistics, 0) // Shouldn't this one be filled after the first drive?
+  testCycleDuration(rowingStatistics, undefined) // still default value
+  testCycleDistance(rowingStatistics, undefined)
+  testCycleLinearVelocity(rowingStatistics, undefined) // This isn't filled after the first drive, as we haven't survived a complete cycle yet
+  testCyclePower(rowingStatistics, undefined) // This isn't filled after the first drive, as we haven't survived a complete cycle yet
+  testDriveDuration(rowingStatistics, undefined) // Shouldn't this one be filled after the first drive?
+  testDriveDistance(rowingStatistics, undefined)
+  testDriveLength(rowingStatistics, undefined) // Shouldn't this one be filled after the first drive?
   testDriveAverageHandleForce(rowingStatistics, 249.91096328436572)
   testDrivePeakHandleForce(rowingStatistics, 280.43473478416803)
-  testRecoveryDuration(rowingStatistics, 0)
+  testRecoveryDuration(rowingStatistics, undefined)
   testDragFactor(rowingStatistics, 110)
   testInstantHandlePower(rowingStatistics, 372.09477620281604)
   // Recovery initial stroke starts here
