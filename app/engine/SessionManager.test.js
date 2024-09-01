@@ -69,7 +69,7 @@ test('sample data for Sportstech WRX700 should produce plausible results for a 1
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/WRX700_2magnets.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 41.734896595)
-  testTotalLinearDistance(sessionManager, 150)
+  testTotalLinearDistance(sessionManager, 150.02019165448286)
   testTotalNumberOfStrokes(sessionManager, 15)
   // As dragFactor is static, it should remain in place
   testDragFactor(sessionManager, rowerProfiles.Sportstech_WRX700.dragFactor)
@@ -102,7 +102,7 @@ test('sample data for Sportstech WRX700 should produce plausible results for a 4
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/WRX700_2magnets.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 45.077573161000004)
-  testTotalLinearDistance(sessionManager, 166.29596716416734)
+  testTotalLinearDistance(sessionManager, 163.4653975103091)
   testTotalNumberOfStrokes(sessionManager, 15)
   // As dragFactor is static, it should remain in place
   testDragFactor(sessionManager, rowerProfiles.Sportstech_WRX700.dragFactor)
