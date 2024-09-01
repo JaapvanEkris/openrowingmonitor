@@ -166,7 +166,6 @@ export function createRower (rowerSettings) {
       _cycleLinearVelocity = undefined
       _cyclePower = undefined
     }
-
   }
 
   function startRecoveryPhase () {
