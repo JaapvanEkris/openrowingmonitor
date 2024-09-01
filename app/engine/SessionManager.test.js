@@ -158,7 +158,6 @@ test('sample data for NordicTrack RX800 should produce plausible results without
   testDragFactor(sessionManager, 494.92868774518126)
 })
 
-
 test('sample data for NordicTrack RX800 should produce plausible results for a 20 seconds session', async () => {
   const rowerProfile = deepMerge(rowerProfiles.DEFAULT, rowerProfiles.NordicTrack_RX800)
   const testConfig = {
@@ -191,7 +190,6 @@ test('sample data for NordicTrack RX800 should produce plausible results for a 2
   // As dragFactor is dynamic, it should have changed
   testDragFactor(sessionManager, 494.92868774518126)
 })
-
 
 test('sample data for NordicTrack RX800 should produce plausible results for a 75 meter session', async () => {
   const rowerProfile = deepMerge(rowerProfiles.DEFAULT, rowerProfiles.NordicTrack_RX800)
@@ -250,7 +248,6 @@ test('A full unlimited session for SportsTech WRX700 should produce plausible re
   // As dragFactor is static, it should remain in place
   testDragFactor(sessionManager, rowerProfiles.Sportstech_WRX700.dragFactor)
 })
-
 
 test('A 8000 meter session for SportsTech WRX700 should produce plausible results', async () => {
   const rowerProfile = deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Sportstech_WRX700)
