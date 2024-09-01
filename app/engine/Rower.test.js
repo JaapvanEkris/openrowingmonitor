@@ -105,7 +105,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testTotalLinearDistanceSinceStart(rower, 0.2847935546277449)
   testTotalNumberOfStrokes(rower, 1)
   testCycleDuration(rower, undefined) // still default value
-  testCycleLinearDistance(rower, 0.2847935546277449)
+  testCycleLinearDistance(rower, undefined)
   testCycleLinearVelocity(rower, undefined) // This isn't filled after the first drive, as we haven't survived a complete cycle yet
   testCyclePower(rower, undefined) // This isn't filled after the first drive, as we haven't survived a complete cycle yet
   testDriveDuration(rower, 0) // Shouldn't this one be filled after the first drive?
