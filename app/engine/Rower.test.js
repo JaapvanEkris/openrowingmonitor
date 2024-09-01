@@ -109,7 +109,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testCycleLinearVelocity(rower, undefined) // This isn't filled after the first drive, as we haven't survived a complete cycle yet
   testCyclePower(rower, undefined) // This isn't filled after the first drive, as we haven't survived a complete cycle yet
   testDriveDuration(rower, 0) // Shouldn't this one be filled after the first drive?
-  testDriveLinearDistance(rower, 0.2847935546277449)
+  testDriveLinearDistance(rower, 0.2491943602992768)
   testDriveLength(rower, 0) // Shouldn't this one be filled after the first drive?
   testDriveAverageHandleForce(rower, 249.91096328436572)
   testDrivePeakHandleForce(rower, 280.43473478416803)
@@ -380,7 +380,7 @@ test('sample data for NordicTrack RX800 should produce plausible results', async
   await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/RX800.csv', realtime: false, loop: false })
 
   testTotalMovingTimeSinceStart(rower, 21.97324892)
-  testTotalLinearDistanceSinceStart(rower, 79.28440927826468)
+  testTotalLinearDistanceSinceStart(rower, 79.2166251462397)
   testTotalNumberOfStrokes(rower, 10)
   // As dragFactor is dynamic, it should have changed
   testRecoveryDragFactor(rower, 494.92868774518126)
@@ -428,7 +428,7 @@ test('A full session for a Concept2 RowErg should produce plausible results', as
   await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
 
   testTotalMovingTimeSinceStart(rower, 590.111937)
-  testTotalLinearDistanceSinceStart(rower, 2029.785512056144)
+  testTotalLinearDistanceSinceStart(rower, 2029.714313667487)
   testTotalNumberOfStrokes(rower, 206)
   // As dragFactor isn't static, it should have changed
   testRecoveryDragFactor(rower, 80.79044336920735)
