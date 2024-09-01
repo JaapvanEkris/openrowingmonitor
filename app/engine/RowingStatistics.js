@@ -222,7 +222,7 @@ function createRowingStatistics (config) {
       cycleDistance: cycleDistance.reliable() && cycleDistance.raw() > 0 && cycleLinearVelocity.raw() > 0 && metricsContext.isMoving === true ? cycleDistance.clean() : undefined, // meters
       cycleLinearVelocity: cycleLinearVelocity.reliable() && cycleLinearVelocity.clean() > 0 && cycleLinearVelocity.raw() > 0 && metricsContext.isMoving === true ? cycleLinearVelocity.clean() : undefined, // m/s
       cyclePace: cycleLinearVelocity.reliable() && cycleLinearVelocity.raw() > 0 ? cyclePace : Infinity, // seconds/500m
-      cyclePower: cyclePower.reliable() && cyclePower.clean() > 0 && cycleLinearVelocity.raw() > 0 && metricsContext.isMoving === true ? cyclePower.clean() : 0, // watts
+      cyclePower: cyclePower.reliable() && cyclePower.clean() > 0 && cycleLinearVelocity.raw() > 0 && metricsContext.isMoving === true ? cyclePower.clean() : undefined, // watts
       driveLastStartTime: driveLastStartTime > 0 ? driveLastStartTime : 0,
       driveDuration: driveDuration.reliable() && driveDuration.clean() >= config.rowerSettings.minimumDriveTime && totalNumberOfStrokes > 0 && metricsContext.isMoving === true ? driveDuration.clean() : undefined, // seconds
       driveLength: driveLength.reliable() && driveLength.clean() > 0 && metricsContext.isMoving === true ? driveLength.clean() : undefined, // meters of chain movement
