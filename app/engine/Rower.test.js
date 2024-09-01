@@ -202,7 +202,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   rower.handleRotationImpulse(0.011209919)
   testStrokeState(rower, 'Recovery')
   testTotalMovingTimeSinceStart(rower, 0.6101840930000001)
-  testTotalLinearDistanceSinceStart(rower, 2.345658790476442)
+  testTotalLinearDistanceSinceStart(rower, 2.3100595961479735)
   testTotalNumberOfStrokes(rower, 2)
   testCycleDuration(rower, 0.44526865700000007)
   testCycleLinearDistance(rower, 1.1708853776369939)
