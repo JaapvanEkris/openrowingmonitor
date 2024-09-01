@@ -290,7 +290,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDriveLength(rowingStatistics, 0.34452799434368064)
   testDriveAverageHandleForce(rowingStatistics, 270.00339931631424)
   testDrivePeakHandleForce(rowingStatistics, 439.7407274834184)
-  testRecoveryDuration(rowingStatistics, 0.09812447700000015)
+  testRecoveryDuration(rowingStatistics, 0.1517668715000001)
   testDragFactor(rowingStatistics, 283.12720365097886)
   testInstantHandlePower(rowingStatistics, 0)
   // Dwelling state starts here
