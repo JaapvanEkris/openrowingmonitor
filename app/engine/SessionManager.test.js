@@ -54,7 +54,7 @@ test('sample data for Sportstech WRX700 should produce plausible results for a 1
   }
   const sessionManager = createSessionManager(testConfig)
 
-  let intervalSettings = []
+  const intervalSettings = []
   intervalSettings[0] = {
     targetDistance: 150,
     targetTime: 0
@@ -87,7 +87,7 @@ test('sample data for Sportstech WRX700 should produce plausible results for a 4
   }
   const sessionManager = createSessionManager(testConfig)
 
-  let intervalSettings = []
+  const intervalSettings = []
   intervalSettings[0] = {
     targetDistance: 0,
     targetTime: 45
