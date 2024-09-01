@@ -218,7 +218,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testCycleLinearVelocity(rowingStatistics, undefined)
   testCyclePower(rowingStatistics, undefined)
   testDriveDuration(rowingStatistics, 0.19167255400000002)
-  testDriveDistance(rowingStatistics, undefined)
+  testDriveDistance(rowingStatistics, 0.7858501583828991)
   testDriveLength(rowingStatistics, undefined)
   testDriveAverageHandleForce(rowingStatistics, 285.0923064376231)
   testDrivePeakHandleForce(rowingStatistics, 439.7407274840117)
