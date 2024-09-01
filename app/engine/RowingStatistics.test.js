@@ -120,8 +120,8 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDriveDuration(rowingStatistics, undefined) // Shouldn't this one be filled after the first drive?
   testDriveDistance(rowingStatistics, undefined)
   testDriveLength(rowingStatistics, undefined) // Shouldn't this one be filled after the first drive?
-  testDriveAverageHandleForce(rowingStatistics, 249.91096328436572)
-  testDrivePeakHandleForce(rowingStatistics, 280.43473478416803)
+  testDriveAverageHandleForce(rowingStatistics, undefined)
+  testDrivePeakHandleForce(rowingStatistics, undefined)
   testRecoveryDuration(rowingStatistics, undefined)
   testDragFactor(rowingStatistics, 110)
   testInstantHandlePower(rowingStatistics, 372.09477620281604)
