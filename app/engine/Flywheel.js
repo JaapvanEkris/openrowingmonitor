@@ -71,9 +71,15 @@ export function createFlywheel (rowerSettings) {
       log.debug(`*** WARNING: currentDt of ${dataPoint} sec is above maximumTimeBetweenImpulses (${rowerSettings.maximumTimeBetweenImpulses} sec)`)
     }
 
-    if (dataPoint < rowerSettings.minimumTimeBetweenImpulses && maintainMetrics) {
-      // This shouldn't happen, but let's log it to clarify there is some issue going on here
-      log.debug(`*** WARNING: currentDt of ${dataPoint} sec is below minimumTimeBetweenImpulses (${rowerSettings.minimumTimeBetweenImpulses} sec)`)
+    if (dataPoint < rowerSettings.minimumTimeBetweenImpulses) {
+      if (_deltaTime.length() >= flankLength && maintainMetrics) {
+        // We are in a normal operational mode, so this shouldn't happen, but let's log it to clarify there is some issue going on here, but accept the value as the TS estimator can handle it
+        log.debug(`*** WARNING: currentDt of ${dataPoint} sec is below minimumTimeBetweenImpulses (${rowerSettings.minimumTimeBetweenImpulses} sec)`)
+      } else {
+        // This is probably due to the start-up noise of a slow but accelerating flywheel as the flink isn't filled or we aren't maintaining metrics
+        log.debug(`*** WARNING: currentDt of ${dataPoint} sec is below minimumTimeBetweenImpulses (${rowerSettings.minimumTimeBetweenImpulses} sec) in a startup phase, value skipped, consider udjusting the gpio debounce filter`)
+        return
+      }
     }
 
     currentDt.push(dataPoint)
@@ -234,9 +240,9 @@ export function createFlywheel (rowerSettings) {
   }
 
   function isAboveMinimumSpeed () {
-    // Check if the flywheel has reached its minimum speed. We conclude this based on the first element in the flank
+    // Check if the flywheel has reached its minimum speed, and that it isn't flywheel noise. We conclude this based on the first element in the flank
     // as this angular velocity is created by all curves that are in that flank and having an acceleration in the rest of the flank
-    if (_angularVelocityAtBeginFlank >= minimumAngularVelocity) {
+    if ((_angularVelocityAtBeginFlank >= minimumAngularVelocity) && (_deltaTime.Y.atSeriesBegin() <= rowerSettings.maximumTimeBetweenImpulses) && (_deltaTime.Y.atSeriesBegin() > rowerSettings.minimumTimeBetweenImpulses))
       return true
     } else {
       return false
