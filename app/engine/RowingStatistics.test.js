@@ -54,10 +54,10 @@ test('Correct rower behaviour at initialisation', () => {
   testTotalMovingTime(rowingStatistics, 0)
   testTotalNumberOfStrokes(rowingStatistics, 0)
   testTotalLinearDistance(rowingStatistics, 0)
-  testCycleDuration(rowingStatistics, 0.13) // Default value
-  testCycleDistance(rowingStatistics, 0)
-  testCycleLinearVelocity(rowingStatistics, 0)
-  testCyclePower(rowingStatistics, 0)
+  testCycleDuration(rowingStatistics, undefined) // Default value
+  testCycleDistance(rowingStatistics, undefined)
+  testCycleLinearVelocity(rowingStatistics, undefined)
+  testCyclePower(rowingStatistics, undefined)
   testDriveDuration(rowingStatistics, undefined)
   testDriveDistance(rowingStatistics, undefined)
   testDriveLength(rowingStatistics, undefined)
@@ -77,10 +77,10 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testTotalMovingTime(rowingStatistics, 0)
   testTotalLinearDistance(rowingStatistics, 0)
   testTotalNumberOfStrokes(rowingStatistics, 0)
-  testCycleDuration(rowingStatistics, 0.13) // Default value
-  testCycleDistance(rowingStatistics, 0)
-  testCycleLinearVelocity(rowingStatistics, 0)
-  testCyclePower(rowingStatistics, 0)
+  testCycleDuration(rowingStatistics, undefined) // Default value
+  testCycleDistance(rowingStatistics, undefined)
+  testCycleLinearVelocity(rowingStatistics, undefined)
+  testCyclePower(rowingStatistics, undefined)
   testDriveDuration(rowingStatistics, undefined)
   testDriveDistance(rowingStatistics, undefined)
   testDriveLength(rowingStatistics, undefined)
