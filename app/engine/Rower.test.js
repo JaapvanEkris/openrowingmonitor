@@ -50,7 +50,7 @@ test('Correct rower behaviour at initialisation', () => {
   testCycleLinearVelocity(rower, undefined)
   testCyclePower(rower, undefined)
   testDriveDuration(rower, 0)
-  testDriveLinearDistance(rower, undefined)
+  testDriveLinearDistance(rower, 0)
   testDriveLength(rower, 0)
   testDriveAverageHandleForce(rower, 0)
   testDrivePeakHandleForce(rower, 0)
@@ -104,10 +104,10 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testTotalMovingTimeSinceStart(rower, 0.077918634)
   testTotalLinearDistanceSinceStart(rower, 0.2847935546277449)
   testTotalNumberOfStrokes(rower, 1)
-  testCycleDuration(rower, 0.13) // still default value
+  testCycleDuration(rower, undefined) // still default value
   testCycleLinearDistance(rower, 0.2847935546277449)
-  testCycleLinearVelocity(rower, 0) // This isn't filled after the first drive, as we haven't survived a complete cycle yet
-  testCyclePower(rower, 0) // This isn't filled after the first drive, as we haven't survived a complete cycle yet
+  testCycleLinearVelocity(rower, undefined) // This isn't filled after the first drive, as we haven't survived a complete cycle yet
+  testCyclePower(rower, undefined) // This isn't filled after the first drive, as we haven't survived a complete cycle yet
   testDriveDuration(rower, 0) // Shouldn't this one be filled after the first drive?
   testDriveLinearDistance(rower, 0.2847935546277449)
   testDriveLength(rower, 0) // Shouldn't this one be filled after the first drive?
