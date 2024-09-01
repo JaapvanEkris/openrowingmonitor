@@ -257,23 +257,35 @@ export function createRower (rowerSettings) {
   }
 
   function cycleDuration () {
-    // ToDo: return 0 in the situation where the first cycle hasn't completed yet
-    return _cycleDuration
+    if (_driveDuration >= rowerSettings.minimumDriveTime && _recoveryDuration >= rowerSettings.minimumRecoveryTime) {
+      return _cycleDuration
+    } else {
+      return undefined
+    }
   }
 
   function cycleLinearDistance () {
-    // ToDo: return 0 in the situation where the first cycle hasn't completed yet
-    return _driveLinearDistance + _recoveryLinearDistance
+    if (_driveDuration >= rowerSettings.minimumDriveTime && _recoveryDuration >= rowerSettings.minimumRecoveryTime) {
+      return _driveLinearDistance + _recoveryLinearDistance
+    } else {
+      return undefined
+    }
   }
 
   function cycleLinearVelocity () {
-    // ToDo: return 0 in the situation where the first cycle hasn't completed yet
-    return _cycleLinearVelocity
+    if (_driveDuration >= rowerSettings.minimumDriveTime && _recoveryDuration >= rowerSettings.minimumRecoveryTime) {
+      return _cycleLinearVelocity
+    } else {
+      return undefined
+    }
   }
 
   function cyclePower () {
-    // ToDo: return 0 in the situation where the first cycle hasn't completed yet
-    return _cyclePower
+    if (_driveDuration >= rowerSettings.minimumDriveTime && _recoveryDuration >= rowerSettings.minimumRecoveryTime) {
+      return _cyclePower
+    } else {
+      return undefined
+    }
   }
 
   function driveDuration () {
