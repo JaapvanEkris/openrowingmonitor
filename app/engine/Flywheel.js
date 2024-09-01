@@ -242,7 +242,7 @@ export function createFlywheel (rowerSettings) {
   function isAboveMinimumSpeed () {
     // Check if the flywheel has reached its minimum speed, and that it isn't flywheel noise. We conclude this based on the first element in the flank
     // as this angular velocity is created by all curves that are in that flank and having an acceleration in the rest of the flank
-    if ((_angularVelocityAtBeginFlank >= minimumAngularVelocity) && (_deltaTime.Y.atSeriesBegin() <= rowerSettings.maximumTimeBetweenImpulses) && (_deltaTime.Y.atSeriesBegin() > rowerSettings.minimumTimeBetweenImpulses))
+    if ((_angularVelocityAtBeginFlank >= minimumAngularVelocity) && (_deltaTime.Y.atSeriesBegin() <= rowerSettings.maximumTimeBetweenImpulses) && (_deltaTime.Y.atSeriesBegin() > rowerSettings.minimumTimeBetweenImpulses)) {
       return true
     } else {
       return false
