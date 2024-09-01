@@ -114,7 +114,7 @@ test('A full session for SportsTech WRX700 should produce plausible results', as
   testTotalLinearDistance(sessionManager, 8406.791871958883)
   testTotalNumberOfStrokes(sessionManager, 845)
   // As dragFactor is static, it should remain in place
-  testDragFactor(rowingStatistics, rowerProfiles.Sportstech_WRX700.dragFactor)
+  testDragFactor(sessionManager, rowerProfiles.Sportstech_WRX700.dragFactor)
 })
 
 test('A full session for a Concept2 Model C should produce plausible results', async () => {
