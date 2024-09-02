@@ -196,11 +196,11 @@ function createTCXRecorder (config) {
                       const trackpoint = {
                         Time: trackPointTime.toISOString(),
                         DistanceMeters: stroke.totalLinearDistance.toFixed(2),
-                        Cadence: Math.round(stroke.cycleStrokeRate),
+                        Cadence: (stroke.cycleStrokeRate > 0 ? Math.round(stroke.cycleStrokeRate) : 0),
                         Extensions: {
                           'ns2:TPX': {
-                            'ns2:Speed': stroke.cycleLinearVelocity.toFixed(2),
-                            'ns2:Watts': Math.round(stroke.cyclePower)
+                            'ns2:Speed': (stroke.cycleLinearVelocity > 0 ? stroke.cycleLinearVelocity.toFixed(2) : 0),
+                            'ns2:Watts': (stroke.cyclePower > 0 ? Math.round(stroke.cyclePower) : 0)
                           }
                         }
                       }
