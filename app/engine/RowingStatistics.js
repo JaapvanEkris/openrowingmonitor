@@ -225,11 +225,11 @@ function createRowingStatistics (config) {
       totalCalories: calories.Y.atSeriesEnd() > 0 ? calories.Y.atSeriesEnd() : 0, // kcal
       totalCaloriesPerMinute: totalMovingTime > 60 ? caloriesPerPeriod(totalMovingTime - 60, totalMovingTime) : caloriesPerPeriod(0, 60),
       totalCaloriesPerHour: totalMovingTime > 3600 ? caloriesPerPeriod(totalMovingTime - 3600, totalMovingTime) : caloriesPerPeriod(0, 3600),
-      cycleDuration: cycleDuration.reliable() && cycleDuration.clean() > minimumStrokeTime && cycleDuration.clean() < maximumStrokeTime && cycleLinearVelocity.raw() > 0 && metricsContext.isMoving === true ? cycleDuration.clean() : undefined, // seconds
-      cycleStrokeRate: cycleDuration.reliable() && cycleDuration.clean() > minimumStrokeTime && cycleLinearVelocity.raw() > 0 && metricsContext.isMoving === true ? (60.0 / cycleDuration.clean()) : 0, // strokeRate in SPM
+      cycleDuration: cycleDuration.reliable() && cycleDuration.clean() > minimumStrokeTime && cycleDuration.clean() < maximumStrokeTime && cycleLinearVelocity.raw() > 0 && totalNumberOfStrokes > 0 && metricsContext.isMoving === true ? cycleDuration.clean() : undefined, // seconds
+      cycleStrokeRate: cycleDuration.reliable() && cycleDuration.clean() > minimumStrokeTime && cycleLinearVelocity.raw() > 0 && totalNumberOfStrokes > 0 && metricsContext.isMoving === true ? (60.0 / cycleDuration.clean()) : 0, // strokeRate in SPM
       cycleDistance: cycleDistance.reliable() && cycleDistance.raw() > 0 && cycleLinearVelocity.raw() > 0 && metricsContext.isMoving === true ? cycleDistance.clean() : undefined, // meters
       cycleLinearVelocity: cycleLinearVelocity.reliable() && cycleLinearVelocity.clean() > 0 && cycleLinearVelocity.raw() > 0 && metricsContext.isMoving === true ? cycleLinearVelocity.clean() : undefined, // m/s
-      cyclePace: cycleLinearVelocity.reliable() && cycleLinearVelocity.raw() > 0 ? cyclePace : Infinity, // seconds/500m
+      cyclePace: cycleLinearVelocity.reliable() && cycleLinearVelocity.clean() > 0 && metricsContext.isMoving === true ? cyclePace : Infinity, // seconds/500m
       cyclePower: cyclePower.reliable() && cyclePower.clean() > 0 && cycleLinearVelocity.raw() > 0 && metricsContext.isMoving === true ? cyclePower.clean() : undefined, // watts
       driveLastStartTime: driveLastStartTime > 0 ? driveLastStartTime : 0,
       driveDuration: driveDuration.reliable() && driveDuration.clean() >= config.rowerSettings.minimumDriveTime && totalNumberOfStrokes > 0 && metricsContext.isMoving === true ? driveDuration.clean() : undefined, // seconds
@@ -240,7 +240,7 @@ function createRowingStatistics (config) {
       driveHandleForceCurve: drivePeakHandleForce.clean() > 0 && metricsContext.isMoving === true ? driveHandleForceCurve.lastCompleteCurve() : [],
       driveHandleVelocityCurve: drivePeakHandleForce.clean() > 0 && metricsContext.isMoving === true ? driveHandleVelocityCurve.lastCompleteCurve() : [],
       driveHandlePowerCurve: drivePeakHandleForce.clean() > 0 && metricsContext.isMoving === true ? driveHandlePowerCurve.lastCompleteCurve() : [],
-      recoveryDuration: recoveryDuration.reliable() && recoveryDuration.clean() >= config.rowerSettings.minimumRecoveryTime && totalNumberOfStrokes > 0 && metricsContext.isMoving === true ? recoveryDuration.clean() : undefined, // seconds
+      recoveryDuration: recoveryDuration.reliable() && recoveryDuration.clean() >= config.rowerSettings.minimumRecoveryTime && totalNumberOfStrokes > 0 && totalNumberOfStrokes > 0 && metricsContext.isMoving === true ? recoveryDuration.clean() : undefined, // seconds
       dragFactor: dragFactor > 0 ? dragFactor : config.rowerSettings.dragFactor, // Dragfactor
       instantPower: instantPower > 0 && rower.strokeState() === 'Drive' ? instantPower : 0
     }
