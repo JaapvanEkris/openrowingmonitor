@@ -59,19 +59,18 @@ function createLogRecorder (config) {
         logMetrics(metrics)
         break
     }
-    // We need the last known metrics for logging when a user command forces a reset or shutdown
     lastMetrics = metrics
   }
 
   function logMetrics (metrics) {
     if (heartRate !== undefined && config.userSettings.restingHR <= heartRate && heartRate <= config.userSettings.maxHR) {
       log.info(`stroke: ${metrics.totalNumberOfStrokes}, dist: ${metrics.totalLinearDistance.toFixed(1)}m, heartrate ${heartRate} BPM` +
-        `, pace: ${secondsToTimeString(metrics.cyclePace)}/500m, stroke dist: ${metrics.cycleDistance.toFixed(1)}m, strokerate: ${metrics.cycleStrokeRate.toFixed(1)} SPM` +
-        `, drive dur: ${metrics.driveDuration.toFixed(2)}s, rec. dur: ${metrics.recoveryDuration.toFixed(2)}s, stroke dur: ${metrics.cycleDuration.toFixed(2)}s`)
+        `, pace: ${metrics.cyclePace > 0 ? secondsToTimeString(metrics.cyclePace) : NaN}/500m, stroke dist: ${metrics.cycleDistance > 0 ? metrics.cycleDistance.toFixed(1) : NaN}m, strokerate: ${metrics.cycleStrokeRate > 0 ? metrics.cycleStrokeRate.toFixed(1) : NaN} SPM` +
+        `, drive dur: ${metrics.driveDuration > 0 ? metrics.driveDuration.toFixed(2) : NaN}s, rec. dur: ${metrics.recoveryDuration > 0 ? metrics.recoveryDuration.toFixed(2) : NaN}s, stroke dur: ${metrics.cycleDuration ? metrics.cycleDuration.toFixed(2) : NaN}s`)
     } else {
       log.info(`stroke: ${metrics.totalNumberOfStrokes}, dist: ${metrics.totalLinearDistance.toFixed(1)}m, No heartrate detected` +
-        `, pace: ${secondsToTimeString(metrics.cyclePace)}/500m, stroke dist: ${metrics.cycleDistance.toFixed(1)}m, strokerate: ${metrics.cycleStrokeRate.toFixed(1)} SPM` +
-        `, drive dur: ${metrics.driveDuration.toFixed(2)}s, rec. dur: ${metrics.recoveryDuration.toFixed(2)}s, stroke dur: ${metrics.cycleDuration.toFixed(2)}s`)
+        `, pace: ${metrics.cyclePace > 0 ? secondsToTimeString(metrics.cyclePace) : NaN}/500m, stroke dist: ${metrics.cycleDistance > 0 ? metrics.cycleDistance.toFixed(1) : NaN}m, strokerate: ${metrics.cycleStrokeRate > 0 ? metrics.cycleStrokeRate.toFixed(1) : NaN} SPM` +
+        `, drive dur: ${metrics.driveDuration > 0 ? metrics.driveDuration.toFixed(2) : NaN}s, rec. dur: ${metrics.recoveryDuration > 0 ? metrics.recoveryDuration.toFixed(2) : NaN}s, stroke dur: ${metrics.cycleDuration ? metrics.cycleDuration.toFixed(2) : NaN}s`)
     }
   }
 
