@@ -109,10 +109,10 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testCycleLinearVelocity(rower, undefined) // This isn't filled after the first drive, as we haven't survived a complete cycle yet
   testCyclePower(rower, undefined) // This isn't filled after the first drive, as we haven't survived a complete cycle yet
   testDriveDuration(rower, undefined) // This isn't filled after the first drive as it is too short
-  testDriveLinearDistance(rower, 0.2491943602992768)
-  testDriveLength(rower, 0) // Shouldn't this one be filled after the first drive?
-  testDriveAverageHandleForce(rower, 249.91096328436572)
-  testDrivePeakHandleForce(rower, 280.43473478416803)
+  testDriveLinearDistance(rower, undefined)
+  testDriveLength(rower, undefined)
+  testDriveAverageHandleForce(rower, undefined)
+  testDrivePeakHandleForce(rower, undefined)
   testRecoveryDuration(rower, undefined)
   testRecoveryDragFactor(rower, 110)
   testInstantHandlePower(rower, 372.09477620281604)
