@@ -1,14 +1,14 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/jaapvanekris/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   This Module calculates a bucketed Linear Regression. It assumes a rising line.
 */
 
-import { createOLSLinearSeries } from './OLSLinearSeries.js'
+import { createTSLinearSeries } from './FullTSLinearSeries.js'
 
 export function createBucketedLinearSeries (config) {
-  const linearSeries = createOLSLinearSeries()
+  const linearSeries = createTSLinearSeries()
   const xCutOffInterval = 5.0
   const yCutOffInterval = 7.0
   const minimumValuesInBracket = 6.0
