@@ -113,7 +113,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDriveLength(rower, 0) // Shouldn't this one be filled after the first drive?
   testDriveAverageHandleForce(rower, 249.91096328436572)
   testDrivePeakHandleForce(rower, 280.43473478416803)
-  testRecoveryDuration(rower, 0)
+  testRecoveryDuration(rower, undefined)
   testRecoveryDragFactor(rower, 110)
   testInstantHandlePower(rower, 372.09477620281604)
   // Recovery initial stroke starts here
