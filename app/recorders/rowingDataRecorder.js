@@ -33,7 +33,7 @@ function createRowingDataRecorder (config) {
         strokes = null
         strokes = []
         lastMetrics = null
-        allDataHasBeenWritten = tru
+        allDataHasBeenWritten = true
         break
       case 'shutdown':
         if (lastMetrics.length > 0 && lastMetrics.totalMovingTime > strokes[strokes.length - 1].totalMovingTime) {
