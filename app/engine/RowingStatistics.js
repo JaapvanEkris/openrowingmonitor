@@ -29,7 +29,6 @@ function createRowingStatistics (config) {
   let strokeCalories = 0
   let strokeWork = 0
   const calories = createOLSLinearSeries()
-  const distanceOverTime = createOLSLinearSeries(Math.min(4, numOfDataPointsForAveraging))
   const driveDuration = createStreamFilter(numOfDataPointsForAveraging, config.rowerSettings.minimumDriveTime)
   const driveLength = createStreamFilter(numOfDataPointsForAveraging, 1.1)
   const driveDistance = createStreamFilter(numOfDataPointsForAveraging, 3)
@@ -78,8 +77,15 @@ function createRowingStatistics (config) {
     totalLinearDistance = 0.0
     totalNumberOfStrokes = -1
     driveLastStartTime = 0
-    distanceOverTime.reset()
     driveDuration.reset()
+    recoveryDuration.reset()
+    driveLength.reset()
+    driveDistance.reset()
+    driveAverageHandleForce.reset()
+    drivePeakHandleForce.reset()
+    driveHandleForceCurve.reset()
+    driveHandleVelocityCurve.reset()
+    driveHandlePowerCurve.reset()
     cycleDuration.reset()
     cycleDistance.reset()
     cyclePower.reset()
@@ -167,8 +173,7 @@ function createRowingStatistics (config) {
   }
 
   function updateCycleMetrics () {
-    distanceOverTime.push(rower.totalMovingTimeSinceStart(), rower.totalLinearDistanceSinceStart())
-    if (rower.cycleDuration() !== undefined && rower.cycleDuration() < maximumStrokeTime && rower.cycleDuration() > minimumStrokeTime) {
+    if (rower.cycleDuration() !== undefined && rower.cycleDuration() < maximumStrokeTime && rower.cycleDuration() > minimumStrokeTime && totalNumberOfStrokes > 0) {
       // stroke duration has to be credible to be accepted
       cycleDuration.push(rower.cycleDuration())
       cycleDistance.push(rower.cycleLinearDistance())
