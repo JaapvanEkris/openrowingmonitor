@@ -26,9 +26,9 @@ export function createRower (rowerSettings) {
   let _strokeState = 'WaitingForDrive'
   let _totalNumberOfStrokes = -1.0
   let recoveryPhaseStartTime = 0.0
-  let _recoveryDuration = undefined
+  let _recoveryDuration
   let drivePhaseStartTime = 0.0
-  let _driveDuration = undefined
+  let _driveDuration
   let drivePhaseStartAngularPosition = 0.0
   let drivePhaseAngularDisplacement = 0.0
   let _driveLinearDistance = 0.0
@@ -36,9 +36,9 @@ export function createRower (rowerSettings) {
   let recoveryPhaseAngularDisplacement = 0.0
   let _recoveryLinearDistance = 0.0
   const minimumCycleDuration = rowerSettings.minimumDriveTime + rowerSettings.minimumRecoveryTime
-  let _cycleDuration = undefined
-  let _cycleLinearVelocity = undefined
-  let _cyclePower = undefined
+  let _cycleDuration
+  let _cycleLinearVelocity
+  let _cyclePower
   let totalLinearDistance = 0.0
   let preliminaryTotalLinearDistance = 0.0
   let _driveLength = 0.0
