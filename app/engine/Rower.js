@@ -26,9 +26,9 @@ export function createRower (rowerSettings) {
   let _strokeState = 'WaitingForDrive'
   let _totalNumberOfStrokes = -1.0
   let recoveryPhaseStartTime = 0.0
-  let _recoveryDuration = 0.0
+  let _recoveryDuration = undefined
   let drivePhaseStartTime = 0.0
-  let _driveDuration = 0.0
+  let _driveDuration = undefined
   let drivePhaseStartAngularPosition = 0.0
   let drivePhaseAngularDisplacement = 0.0
   let _driveLinearDistance = 0.0
@@ -36,12 +36,14 @@ export function createRower (rowerSettings) {
   let recoveryPhaseAngularDisplacement = 0.0
   let _recoveryLinearDistance = 0.0
   const minimumCycleDuration = rowerSettings.minimumDriveTime + rowerSettings.minimumRecoveryTime
-  let _cycleDuration = minimumCycleDuration
-  let _cycleLinearVelocity = 0.0
-  let _cyclePower = 0.0
+  let _cycleDuration = undefined
+  let _cycleLinearVelocity = undefined
+  let _cyclePower = undefined
   let totalLinearDistance = 0.0
   let preliminaryTotalLinearDistance = 0.0
   let _driveLength = 0.0
+
+  flywheel.maintainStateOnly()
 
   // called if the sensor detected an impulse, currentDt is an interval in seconds
   function handleRotationImpulse (currentDt) {
