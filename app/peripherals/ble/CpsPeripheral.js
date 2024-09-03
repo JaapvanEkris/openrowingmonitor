@@ -108,7 +108,7 @@ function createCpsPeripheral () {
   // As the client calculates its own speed based on time and distance,
   // we an only update the lastknown metrics upon a stroke state change to prevent spikey behaviour
   function notifyData (data) {
-    if (metrics.metricsContext === undefined) return
+    if (data.metricsContext === undefined) return
     switch (true) {
       case (data.metricsContext.isSessionStart):
         lastKnownMetrics = data
@@ -135,7 +135,7 @@ function createCpsPeripheral () {
         // Do nothing
     }
   }
-  
+
   // CPS does not have status characteristic
   function notifyStatus (status) {
   }
