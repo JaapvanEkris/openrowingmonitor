@@ -1,6 +1,6 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Implementation of the AdditionalStatus2 as defined in:
   https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
@@ -45,10 +45,10 @@ export default class AdditionalStatus2 extends bleno.Characteristic {
         // the multiplexer uses a slightly different format for the AdditionalStatus2
         // it skips averagePower before totalCalories
         // averagePower: UInt16LE in watts
-        bufferBuilder.writeUInt16LE(Math.round(data.cyclePower))
+        bufferBuilder.writeUInt16LE(data.cyclePower > 0 ? Math.round(data.cyclePower) : 0)
       }
       // totalCalories: UInt16LE in kCal
-      bufferBuilder.writeUInt16LE(Math.round(data.totalCalories))
+      bufferBuilder.writeUInt16LE(data.totalCalories > 0 ? Math.round(data.totalCalories) : 0)
       // splitAveragePace: UInt16LE in 0.01 sec/500m
       bufferBuilder.writeUInt16LE(0 * 100)
       // splitAveragePower UInt16LE in watts
