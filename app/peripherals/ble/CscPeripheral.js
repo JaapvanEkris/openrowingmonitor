@@ -106,8 +106,35 @@ function createCscPeripheral () {
   }
 
   // Records the last known rowing metrics to FTMS central
+  // As the client calculates its own speed based on time and distance,
+  // we an only update the lastknown metrics upon a stroke state change to prevent spikey behaviour
   function notifyData (data) {
-    lastKnownMetrics = data
+    if (metrics.metricsContext === undefined) return
+    switch (true) {
+      case (metrics.metricsContext.isSessionStart):
+        lastKnownMetrics = data
+        break
+      case (metrics.metricsContext.isSessionStop):
+        lastKnownMetrics = data
+        break
+      case (metrics.metricsContext.isIntervalStart):
+        lastKnownMetrics = data
+        break
+      case (metrics.metricsContext.isPauseStart):
+        lastKnownMetrics = data
+        break
+      case (metrics.metricsContext.isPauseEnd):
+        lastKnownMetrics = data
+        break
+      case (metrics.metricsContext.isDriveStart):
+        lastKnownMetrics = data
+        break
+      case (metrics.metricsContext.isRecoveryStart):
+        lastKnownMetrics = data
+        break
+      default:
+        // Do nothing
+    }
   }
 
   // CSC does not have status characteristic
