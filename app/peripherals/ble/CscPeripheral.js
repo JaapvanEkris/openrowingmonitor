@@ -111,25 +111,25 @@ function createCscPeripheral () {
   function notifyData (data) {
     if (metrics.metricsContext === undefined) return
     switch (true) {
-      case (metrics.metricsContext.isSessionStart):
+      case (data.metricsContext.isSessionStart):
         lastKnownMetrics = data
         break
-      case (metrics.metricsContext.isSessionStop):
+      case (data.metricsContext.isSessionStop):
         lastKnownMetrics = data
         break
-      case (metrics.metricsContext.isIntervalStart):
+      case (data.metricsContext.isIntervalStart):
         lastKnownMetrics = data
         break
-      case (metrics.metricsContext.isPauseStart):
+      case (data.metricsContext.isPauseStart):
         lastKnownMetrics = data
         break
-      case (metrics.metricsContext.isPauseEnd):
+      case (data.metricsContext.isPauseEnd):
         lastKnownMetrics = data
         break
-      case (metrics.metricsContext.isDriveStart):
+      case (data.metricsContext.isDriveStart):
         lastKnownMetrics = data
         break
-      case (metrics.metricsContext.isRecoveryStart):
+      case (data.metricsContext.isRecoveryStart):
         lastKnownMetrics = data
         break
       default:
