@@ -1,6 +1,6 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Implementation of the StrokeData as defined in:
   https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
@@ -41,19 +41,19 @@ export default class StrokeData extends bleno.Characteristic {
       // elapsedTime: UInt24LE in 0.01 sec
       bufferBuilder.writeUInt24LE(Math.round(data.totalMovingTime * 100))
       // distance: UInt24LE in 0.1 m
-      bufferBuilder.writeUInt24LE(Math.round(data.totalLinearDistance * 10))
+      bufferBuilder.writeUInt24LE(data.totalLinearDistance > 0 ? Math.round(data.totalLinearDistance * 10) : 0)
       // driveLength: UInt8 in 0.01 m
-      bufferBuilder.writeUInt8(Math.round(data.driveLength * 100))
+      bufferBuilder.writeUInt8(data.driveLength > 0 ? Math.round(data.driveLength * 100) : 0)
       // driveTime: UInt8 in 0.01 s
-      bufferBuilder.writeUInt8(Math.round(data.driveDuration * 100))
+      bufferBuilder.writeUInt8(data.driveDuration > 0 ? Math.round(data.driveDuration * 100) : 0)
       // strokeRecoveryTime: UInt16LE in 0.01 s
-      bufferBuilder.writeUInt16LE(Math.round(data.recoveryDuration * 100))
+      bufferBuilder.writeUInt16LE(data.recoveryDuration > 0 ? Math.round(data.recoveryDuration * 100) : 0)
       // strokeDistance: UInt16LE in 0.01 s
-      bufferBuilder.writeUInt16LE(Math.round(data.cycleDistance * 100))
+      bufferBuilder.writeUInt16LE(data.cycleDistance > 0 ? Math.round(data.cycleDistance * 100) : 0)
       // peakDriveForce: UInt16LE in 0.1 lbs
-      bufferBuilder.writeUInt16LE(Math.round(data.drivePeakHandleForce * 0.224809 * 10))
+      bufferBuilder.writeUInt16LE(data.drivePeakHandleForce > 0 ? Math.round(data.drivePeakHandleForce * 0.224809 * 10) : 0)
       // averageDriveForce: UInt16LE in 0.1 lbs
-      bufferBuilder.writeUInt16LE(Math.round(data.driveAverageHandleForce * 0.224809 * 10))
+      bufferBuilder.writeUInt16LE(data.driveAverageHandleForce > 0 ? Math.round(data.driveAverageHandleForce * 0.224809 * 10) : 0)
       if (this._updateValueCallback) {
         // workPerStroke is only added if data is not send via multiplexer
         // workPerStroke: UInt16LE in 0.1 Joules
