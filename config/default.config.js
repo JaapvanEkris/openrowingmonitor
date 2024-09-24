@@ -109,7 +109,10 @@ export default {
   // Interval between updates of the bluetooth devices (miliseconds)
   // Advised is to update at least once per second, as consumers expect this interval
   // Some apps, like EXR like a more frequent interval of 200 ms to better sync the stroke
-  peripheralUpdateInterval: 1000,
+  ftmsUpdateInterval: 1000,
+
+  // Interval between updates of the clients using PM5 Bluetooth profile (miliseconds)
+  pm5UpdateInterval: 1000,
 
   // The number of stroke phases (i.e. Drive or Recovery) used to smoothen the data displayed on your
   // screens (i.e. the monitor, but also bluetooth devices, etc.) and recorded data. A nice smooth experience is found at 6

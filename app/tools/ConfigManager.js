@@ -28,7 +28,13 @@ function checkConfig (configToCheck) {
   checkRangeValue(configToCheck, 'gpioTriggeredFlank', ['Up', 'Down', 'Both'], true, 'Up')
   checkIntegerValue(configToCheck, 'appPriority', configToCheck.gpioPriority, 0, true, true, 0)
   checkIntegerValue(configToCheck, 'webUpdateInterval', 80, 1000, false, true, 1000)
-  checkIntegerValue(configToCheck, 'peripheralUpdateInterval', 150, 1000, false, true, 1000) // Please note: the minimum update interval for iOS is 30ms, for android 7.5ms (see https://stackoverflow.com/questions/37776536/bluetooth-low-energy-on-different-platforms), and some PM5 messages send 5 telegrams
+  if (Object.keys(configToCheck).includes('peripheralUpdateInterval')) {
+    log.error('WARNING: An old version of the config file was detected, peripheralUpdateInterval is now deprecated please use ftmsUpdateInterval and pm5UpdateInterval')
+    configToCheck.ftmsUpdateInterval = configToCheck.peripheralUpdateInterval
+    configToCheck.pm5UpdateInterval = configToCheck.peripheralUpdateInterval
+  }
+  checkIntegerValue(configToCheck, 'ftmsUpdateInterval', 150, 1000, false, true, 1000) // Please note: the minimum update interval for iOS is 30ms, for android 7.5ms (see https://stackoverflow.com/questions/37776536/bluetooth-low-energy-on-different-platforms), and some PM5 messages send 5 telegrams
+  checkIntegerValue(configToCheck, 'pm5UpdateInterval', 150, 1000, false, true, 1000) // Please note: the minimum update interval for iOS is 30ms, for android 7.5ms (see https://stackoverflow.com/questions/37776536/bluetooth-low-energy-on-different-platforms), and some PM5 messages send 5 telegrams
   checkRangeValue(configToCheck, 'bluetoothMode', ['OFF', 'PM5', 'FTMS', 'FTMSBIKE', 'CPS', 'CSC'], true, 'OFF')
   if (Object.keys(configToCheck).includes('antplusMode')) {
     log.error('WARNING: An old version of the config file was detected, please update the name of the following setting in the config.js file: antplusMode into antPlusMode')

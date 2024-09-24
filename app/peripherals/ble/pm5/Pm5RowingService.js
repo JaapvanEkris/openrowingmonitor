@@ -37,7 +37,7 @@ export default class PM5RowingService extends bleno.PrimaryService {
     const additionalStatus2 = new AdditionalStatus2(multiplexedCharacteristic)
     const strokeData = new StrokeData(multiplexedCharacteristic)
     const additionalStrokeData = new AdditionalStrokeData(multiplexedCharacteristic)
-    broadcastInterval = config.peripheralUpdateInterval
+    broadcastInterval = config.pm5UpdateInterval
     lastKnownMetrics = {
       sessiontype: 'JustRow',
       sessionStatus: 'WaitingForStart',

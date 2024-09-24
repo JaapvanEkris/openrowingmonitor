@@ -21,7 +21,7 @@ function createFtmsPeripheral (controlCallback, config) {
   const peripheralName = config.simulateIndoorBike ? config.ftmsBikePeripheralName : config.ftmsRowerPeripheralName
   const fitnessMachineService = new FitnessMachineService(config, controlPointCallback)
   const deviceInformationService = new DeviceInformationService()
-  const broadcastInterval = config.peripheralUpdateInterval
+  const broadcastInterval = config.ftmsUpdateInterval
   let lastKnownMetrics = {
     sessiontype: 'JustRow',
     sessionStatus: 'WaitingForStart',
