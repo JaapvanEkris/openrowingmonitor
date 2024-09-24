@@ -14,3 +14,6 @@ export const PeripheralConstants = {
   firmwareRevision: '210',
   manufacturer: 'Concept2'
 }
+
+export const bleBroadcastInterval = 1000
+export const bleMinimumKnowDataUpdateInterval = 4000

@@ -10,20 +10,21 @@ import log from 'loglevel'
 import CyclingPowerService from './cps/CyclingPowerMeterService.js'
 import DeviceInformationService from './common/DeviceInformationService.js'
 import AdvertisingDataBuilder from './common/AdvertisingDataBuilder.js'
+import { bleBroadcastInterval, bleMinimumKnowDataUpdateInterval } from '../PeripheralConstants.js'
 
 function createCpsPeripheral (config) {
   const peripheralName = `${config.ftmsRowerPeripheralName} (CPS)`
   const cyclingPowerService = new CyclingPowerService((event) => log.debug('CPS Control Point', event))
-  const broadcastInterval = config.peripheralUpdateInterval
   let lastKnownMetrics = {
     sessiontype: 'JustRow',
     sessionStatus: 'WaitingForStart',
     strokeState: 'WaitingForDrive',
     totalMovingTime: 0,
     totalLinearDistance: 0,
-    dragFactor: config.rowerSettings.dragFactor
+    dragFactor: config.rowerSettings.dragFactor,
+    lastDataUpdateTime: Date.now()
   }
-  let timer = setTimeout(onBroadcastInterval, broadcastInterval)
+  let timer = setTimeout(onBroadcastInterval, bleBroadcastInterval)
 
   bleno.on('stateChange', (state) => {
     triggerAdvertising(state)
@@ -100,38 +101,18 @@ function createCpsPeripheral (config) {
   // Broadcast the last known metrics
   function onBroadcastInterval () {
     cyclingPowerService.notifyData(lastKnownMetrics)
-    timer = setTimeout(onBroadcastInterval, broadcastInterval)
+    timer = setTimeout(onBroadcastInterval, bleBroadcastInterval)
   }
 
-  // Records the last known rowing metrics to FTMS central
+  // Records the last known rowing metrics to CPS central
   // As the client calculates its own speed based on time and distance,
-  // we an only update the lastknown metrics upon a stroke state change to prevent spikey behaviour
+  // we an only update the last known metrics upon a stroke state change to prevent spiky behaviour
   function notifyData (data) {
-    if (data.metricsContext === undefined) return
-    switch (true) {
-      case (data.metricsContext.isSessionStart):
-        lastKnownMetrics = data
-        break
-      case (data.metricsContext.isSessionStop):
-        lastKnownMetrics = data
-        break
-      case (data.metricsContext.isIntervalStart):
-        lastKnownMetrics = data
-        break
-      case (data.metricsContext.isPauseStart):
-        lastKnownMetrics = data
-        break
-      case (data.metricsContext.isPauseEnd):
-        lastKnownMetrics = data
-        break
-      case (data.metricsContext.isDriveStart):
-        lastKnownMetrics = data
-        break
-      case (data.metricsContext.isRecoveryStart):
-        lastKnownMetrics = data
-        break
-      default:
-        // Do nothing
+    const now = Date.now()
+    if (data?.metricsContext && (data.metricsContext.isRecoveryStart || now - lastKnownMetrics.lastDataUpdateTime >= bleMinimumKnowDataUpdateInterval)) {
+      lastKnownMetrics = { ...data, lastDataUpdateTime: now }
+      clearTimeout(timer)
+      onBroadcastInterval()
     }
   }
 
