@@ -124,23 +124,25 @@ function createPeripheralManager (config) {
       case 'FTMSBIKE':
         log.info('bluetooth profile: FTMS Indoor Bike')
         blePeripheral = createFtmsPeripheral(controlCallback, {
+          ...config,
           simulateIndoorBike: true
         })
         bleMode = 'FTMSBIKE'
         break
       case 'CSC':
         log.info('bluetooth profile: Cycling Speed and Cadence')
-        blePeripheral = createCscPeripheral()
+        blePeripheral = createCscPeripheral(config)
         bleMode = 'CSC'
         break
       case 'CPS':
         log.info('bluetooth profile: Cycling Power Meter')
-        blePeripheral = createCpsPeripheral()
+        blePeripheral = createCpsPeripheral(config)
         bleMode = 'CPS'
         break
       case 'FTMS':
         log.info('bluetooth profile: FTMS Rower')
         blePeripheral = createFtmsPeripheral(controlCallback, {
+          ...config,
           simulateIndoorBike: false
         })
         bleMode = 'FTMS'

@@ -6,13 +6,12 @@
   a Cycling Power Profile
 */
 import bleno from '@abandonware/bleno'
-import config from '../../tools/ConfigManager.js'
 import log from 'loglevel'
 import CyclingPowerService from './cps/CyclingPowerMeterService.js'
 import DeviceInformationService from './common/DeviceInformationService.js'
 import AdvertisingDataBuilder from './common/AdvertisingDataBuilder.js'
 
-function createCpsPeripheral () {
+function createCpsPeripheral (config) {
   const peripheralName = `${config.ftmsRowerPeripheralName} (CPS)`
   const cyclingPowerService = new CyclingPowerService((event) => log.debug('CPS Control Point', event))
   const broadcastInterval = config.peripheralUpdateInterval

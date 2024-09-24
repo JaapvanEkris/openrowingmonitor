@@ -6,13 +6,12 @@
   a Cycling Speed and Cadence Profile
 */
 import bleno from '@abandonware/bleno'
-import config from '../../tools/ConfigManager.js'
 import log from 'loglevel'
 import DeviceInformationService from './common/DeviceInformationService.js'
 import CyclingSpeedCadenceService from './csc/CyclingSpeedCadenceService.js'
 import AdvertisingDataBuilder from './common/AdvertisingDataBuilder.js'
 
-function createCscPeripheral () {
+function createCscPeripheral (config) {
   const peripheralName = `${config.ftmsRowerPeripheralName} (CSC)`
   const cyclingSpeedCadenceService = new CyclingSpeedCadenceService((event) => log.debug('CSC Control Point', event))
 
