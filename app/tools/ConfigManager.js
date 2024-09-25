@@ -6,6 +6,7 @@
   Checks the config for plausibility, fixes the errors when needed
 */
 import defaultConfig from '../../config/default.config.js'
+import { checkRangeValue, checkIntegerValue, checkBooleanValue, checkFloatValue } from './ConfigValidations.js'
 import { deepMerge } from './Helper.js'
 import log from 'loglevel'
 
@@ -15,6 +16,29 @@ async function getConfig () {
     customConfig = await import('../../config/config.js')
   } catch (exception) {}
   return customConfig !== undefined ? deepMerge(defaultConfig, customConfig.default) : defaultConfig
+}
+
+function runConfigMigration (configToCheck) {
+  if (Object.keys(configToCheck).includes('peripheralUpdateInterval')) {
+    log.error('WARNING: An old version of the config file was detected, peripheralUpdateInterval is now deprecated please use ftmsUpdateInterval and pm5UpdateInterval')
+    configToCheck.ftmsUpdateInterval = configToCheck.peripheralUpdateInterval
+    configToCheck.pm5UpdateInterval = configToCheck.peripheralUpdateInterval
+  }
+
+  if (Object.keys(configToCheck).includes('antplusMode')) {
+    log.error('WARNING: An old version of the config file was detected, please update the name of the following setting in the config.js file: antplusMode into antPlusMode')
+    configToCheck.antPlusMode = configToCheck.antplusMode
+  }
+
+  if (Object.keys(configToCheck.rowerSettings).includes('minumumForceBeforeStroke')) {
+    log.error('WARNING: An old version of the config file was detected, please update the name of the following setting in the config.js file: minumumForceBeforeStroke into minimumForceBeforeStroke')
+    configToCheck.rowerSettings.minimumForceBeforeStroke = configToCheck.rowerSettings.minumumForceBeforeStroke
+  }
+
+  if (Object.keys(configToCheck.rowerSettings).includes('minumumRecoverySlope')) {
+    log.error('WARNING: An old version of the config file was detected, please update the name of the following setting in the config.js file: minumumRecoverySlope into minimumRecoverySlope')
+    configToCheck.rowerSettings.minimumRecoverySlope = configToCheck.rowerSettings.minumumRecoverySlope
+  }
 }
 
 function checkConfig (configToCheck) {
@@ -28,18 +52,11 @@ function checkConfig (configToCheck) {
   checkRangeValue(configToCheck, 'gpioTriggeredFlank', ['Up', 'Down', 'Both'], true, 'Up')
   checkIntegerValue(configToCheck, 'appPriority', configToCheck.gpioPriority, 0, true, true, 0)
   checkIntegerValue(configToCheck, 'webUpdateInterval', 80, 1000, false, true, 1000)
-  if (Object.keys(configToCheck).includes('peripheralUpdateInterval')) {
-    log.error('WARNING: An old version of the config file was detected, peripheralUpdateInterval is now deprecated please use ftmsUpdateInterval and pm5UpdateInterval')
-    configToCheck.ftmsUpdateInterval = configToCheck.peripheralUpdateInterval
-    configToCheck.pm5UpdateInterval = configToCheck.peripheralUpdateInterval
-  }
+
   checkIntegerValue(configToCheck, 'ftmsUpdateInterval', 150, 1000, false, true, 1000) // Please note: the minimum update interval for iOS is 30ms, for android 7.5ms (see https://stackoverflow.com/questions/37776536/bluetooth-low-energy-on-different-platforms), and some PM5 messages send 5 telegrams
   checkIntegerValue(configToCheck, 'pm5UpdateInterval', 150, 1000, false, true, 1000) // Please note: the minimum update interval for iOS is 30ms, for android 7.5ms (see https://stackoverflow.com/questions/37776536/bluetooth-low-energy-on-different-platforms), and some PM5 messages send 5 telegrams
   checkRangeValue(configToCheck, 'bluetoothMode', ['OFF', 'PM5', 'FTMS', 'FTMSBIKE', 'CPS', 'CSC'], true, 'OFF')
-  if (Object.keys(configToCheck).includes('antplusMode')) {
-    log.error('WARNING: An old version of the config file was detected, please update the name of the following setting in the config.js file: antplusMode into antPlusMode')
-    configToCheck.antPlusMode = configToCheck.antplusMode
-  }
+
   checkRangeValue(configToCheck, 'antPlusMode', ['OFF', 'FE'], true, 'OFF')
   checkRangeValue(configToCheck, 'heartRateMode', ['OFF', 'ANT', 'BLE'], true, 'OFF')
   checkIntegerValue(configToCheck, 'numOfPhasesForAveragingScreenData', 2, null, false, true, 4)
@@ -71,15 +88,9 @@ function checkConfig (configToCheck) {
     checkFloatValue(configToCheck.rowerSettings, 'minimumDragQuality', 0, 1, true, true, 0)
   }
   checkFloatValue(configToCheck.rowerSettings, 'flywheelInertia', 0, null, false, false, null)
-  if (Object.keys(configToCheck.rowerSettings).includes('minumumForceBeforeStroke')) {
-    log.error('WARNING: An old version of the config file was detected, please update the name of the following setting in the config.js file: minumumForceBeforeStroke into minimumForceBeforeStroke')
-    configToCheck.rowerSettings.minimumForceBeforeStroke = configToCheck.rowerSettings.minumumForceBeforeStroke
-  }
+
   checkFloatValue(configToCheck.rowerSettings, 'minimumForceBeforeStroke', 0, 500, true, true, 0)
-  if (Object.keys(configToCheck.rowerSettings).includes('minumumRecoverySlope')) {
-    log.error('WARNING: An old version of the config file was detected, please update the name of the following setting in the config.js file: minumumRecoverySlope into minimumRecoverySlope')
-    configToCheck.rowerSettings.minimumRecoverySlope = configToCheck.rowerSettings.minumumRecoverySlope
-  }
+
   checkFloatValue(configToCheck.rowerSettings, 'minimumRecoverySlope', 0, null, true, true, 0)
   checkFloatValue(configToCheck.rowerSettings, 'minimumStrokeQuality', 0, 1, true, true, 0)
   checkBooleanValue(configToCheck.rowerSettings, 'autoAdjustRecoverySlope', true, false)
@@ -95,140 +106,9 @@ function checkConfig (configToCheck) {
   checkFloatValue(configToCheck.rowerSettings, 'magicConstant', 0, null, false, true, 2.8)
 }
 
-function checkIntegerValue (parameterSection, parameterName, minimumValue, maximumvalue, allowZero, allowRepair, defaultValue) {
-  // PLEASE NOTE: the parameterSection, parameterName seperation is needed to force a call by reference, which is needed for the repair action
-  let errors = 0
-  switch (true) {
-    case (parameterSection[parameterName] === undefined):
-      log.error(`Configuration Error: ${parameterSection}.${parameterName} isn't defined`)
-      errors++
-      break
-    case (!Number.isInteger(parameterSection[parameterName])):
-      log.error(`Configuration Error: ${parameterSection}.${parameterName} should be an integer value, encountered ${parameterSection[parameterName]}`)
-      errors++
-      break
-    case (minimumValue != null && parameterSection[parameterName] < minimumValue):
-      log.error(`Configuration Error: ${parameterSection}.${parameterName} should be at least ${minimumValue}, encountered ${parameterSection[parameterName]}`)
-      errors++
-      break
-    case (maximumvalue != null && parameterSection[parameterName] > maximumvalue):
-      log.error(`Configuration Error: ${parameterSection}.${parameterName} can't be above ${maximumvalue}, encountered ${parameterSection[parameterName]}`)
-      errors++
-      break
-    case (!allowZero && parameterSection[parameterName] === 0):
-      log.error(`Configuration Error: ${parameterSection}.${parameterName} can't be zero`)
-      errors++
-      break
-    default:
-      // No error detected :)
-  }
-  if (errors > 0) {
-    // Errors were made
-    if (allowRepair) {
-      log.error(`   resolved by setting ${parameterSection}.${parameterName} to ${defaultValue}`)
-      parameterSection[parameterName] = defaultValue
-    } else {
-      log.error(`   as ${parameterSection}.${parameterName} is a fatal parameter, I'm exiting`)
-      process.exit(9)
-    }
-  }
-}
-
-function checkFloatValue (parameterSection, parameterName, minimumValue, maximumvalue, allowZero, allowRepair, defaultValue) {
-  // PLEASE NOTE: the parameterSection, parameterName seperation is needed to force a call by reference, which is needed for the repair action
-  let errors = 0
-  switch (true) {
-    case (parameterSection[parameterName] === undefined):
-      log.error(`Configuration Error: ${parameterSection}.${parameterName} isn't defined`)
-      errors++
-      break
-    case (!(typeof (parameterSection[parameterName]) === 'number')):
-      log.error(`Configuration Error: ${parameterSection}.${parameterName} should be a numerical value, encountered ${parameterSection[parameterName]}`)
-      errors++
-      break
-    case (minimumValue != null && parameterSection[parameterName] < minimumValue):
-      log.error(`Configuration Error: ${parameterSection}.${parameterName} should be at least ${minimumValue}, encountered ${parameterSection[parameterName]}`)
-      errors++
-      break
-    case (maximumvalue != null && parameterSection[parameterName] > maximumvalue):
-      log.error(`Configuration Error: ${parameterSection}.${parameterName} can't be above ${maximumvalue}, encountered ${parameterSection[parameterName]}`)
-      errors++
-      break
-    case (!allowZero && parameterSection[parameterName] === 0):
-      log.error(`Configuration Error: ${parameterSection}.${parameterName} can't be zero`)
-      errors++
-      break
-    default:
-      // No error detected :)
-  }
-  if (errors > 0) {
-    // Errors were made
-    if (allowRepair) {
-      log.error(`   resolved by setting ${parameterSection}.${parameterName} to ${defaultValue}`)
-      parameterSection[parameterName] = defaultValue
-    } else {
-      log.error(`   as ${parameterSection}.${parameterName} is a fatal parameter, I'm exiting`)
-      process.exit(9)
-    }
-  }
-}
-
-function checkBooleanValue (parameterSection, parameterName, allowRepair, defaultValue) {
-  // PLEASE NOTE: the parameterSection, parameterName seperation is needed to force a call by reference, which is needed for the repair action
-  let errors = 0
-  switch (true) {
-    case (parameterSection[parameterName] === undefined):
-      log.error(`Configuration Error: ${parameterSection}.${parameterName} isn't defined`)
-      errors++
-      break
-    case (!(parameterSection[parameterName] === true || parameterSection[parameterName] === false)):
-      log.error(`Configuration Error: ${parameterSection}.${parameterName} should be either false or true, encountered ${parameterSection[parameterName]}`)
-      errors++
-      break
-    default:
-      // No error detected :)
-  }
-  if (errors > 0) {
-    // Errors were made
-    if (allowRepair) {
-      log.error(`   resolved by setting ${parameterSection}.${parameterName} to ${defaultValue}`)
-      parameterSection[parameterName] = defaultValue
-    } else {
-      log.error(`   as ${parameterSection}.${parameterName} is a fatal parameter, I'm exiting`)
-      process.exit(9)
-    }
-  }
-}
-
-function checkRangeValue (parameterSection, parameterName, range, allowRepair, defaultValue) {
-  // PLEASE NOTE: the parameterSection, parameterName seperation is needed to force a call by reference, which is needed for the repair action
-  let errors = 0
-  switch (true) {
-    case (parameterSection[parameterName] === undefined):
-      log.error(`Configuration Error: ${parameterSection}.${parameterName} isn't defined`)
-      errors++
-      break
-    case (!range.includes(parameterSection[parameterName])):
-      log.error(`Configuration Error: ${parameterSection}.${parameterName} should be come from ${range}, encountered ${parameterSection[parameterName]}`)
-      errors++
-      break
-    default:
-      // No error detected :)
-  }
-  if (errors > 0) {
-    // Errors were made
-    if (allowRepair) {
-      log.error(`   resolved by setting ${parameterSection}.${parameterName} to ${defaultValue}`)
-      parameterSection[parameterName] = defaultValue
-    } else {
-      log.error(`   as ${parameterSection}.${parameterName} is a fatal parameter, I'm exiting`)
-      process.exit(9)
-    }
-  }
-}
-
 const config = await getConfig()
 
+runConfigMigration(config)
 checkConfig(config)
 
 export default config
