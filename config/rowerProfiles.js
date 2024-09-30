@@ -224,5 +224,25 @@ export default {
     minimumRecoverySlope: 0,
     flywheelInertia: 0.72,
     dragFactor: 32000
+  },
+
+  // KayakFirst kayak/canoe erg (2020 model blue, non-bull)
+  KayakFirst_Blue: {
+    numOfImpulsesPerRevolution: 6,
+    sprocketRadius: 2.7,
+    maximumStrokeTimeBeforePause: 7.0,
+    dragFactor: 40,
+    autoAdjustDragFactor: true,
+    minimumDragQuality: 0.736,
+    dragFactorSmoothing: 4,
+    minimumTimeBetweenImpulses: 0.005,
+    maximumTimeBetweenImpulses: 0.0145,
+    flankLength: 12,
+    smoothing: 1,
+    minimumForceBeforeStroke: 1,
+    minimumDriveTime: 0.145,
+    minimumRecoveryTime: 0.17,
+    flywheelInertia: 0.039,
+    magicConstant: 3.45
   }
 }
