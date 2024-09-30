@@ -109,7 +109,7 @@ function createCpsPeripheral (config) {
   // we an only update the last known metrics upon a stroke state change to prevent spiky behaviour
   function notifyData (data) {
     const now = Date.now()
-    if (data?.metricsContext && (data.metricsContext.isRecoveryStart || now - lastKnownMetrics.lastDataUpdateTime >= bleMinimumKnowDataUpdateInterval)) {
+    if (data?.metricsContext && ((data.metricsContext.isRecoveryStart || data.metricsContext.isPauseStart || data.metricsContext.isSessionStop) || now - lastKnownMetrics.lastDataUpdateTime >= bleMinimumKnowDataUpdateInterval)) {
       lastKnownMetrics = { ...data, lastDataUpdateTime: now }
       clearTimeout(timer)
       onBroadcastInterval()
