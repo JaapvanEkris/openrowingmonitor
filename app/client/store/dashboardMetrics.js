@@ -1,3 +1,8 @@
+'use strict'
+/*
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
+*/
+
 import { html } from 'lit'
 import { formatDistance, formatNumber, secondsToTimeString } from '../lib/helper'
 import { icon_bolt, icon_clock, icon_fire, icon_heartbeat, icon_paddle, icon_route, icon_stopwatch, rower_icon } from '../lib/icons'

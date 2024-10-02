@@ -1,6 +1,6 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   This implements the Indoor Bike Data Characteristic as defined by the Bluetooth SIG
   Currently hardly any applications exist that support these FTMS Characteristic for Rowing.
@@ -67,24 +67,24 @@ export default class IndoorBikeDataCharacteristic extends bleno.Characteristic {
       // see https://www.bluetooth.com/specifications/specs/gatt-specification-supplement-3/
       // for some of the data types
       // Instantaneous Speed in km/h
-      bufferBuilder.writeUInt16LE(data.cycleLinearVelocity * 3.6 * 100)
+      bufferBuilder.writeUInt16LE(data.cycleLinearVelocity > 0 ? data.cycleLinearVelocity * 3.6 * 100 : 0)
       // Instantaneous Cadence in rotations per minute (we use this to communicate the strokes per minute)
-      bufferBuilder.writeUInt16LE(Math.round(data.cycleStrokeRate * 2))
+      bufferBuilder.writeUInt16LE(data.cycleStrokeRate > 0 ? Math.round(data.cycleStrokeRate * 2) : 0)
       // Total Distance in meters
-      bufferBuilder.writeUInt24LE(Math.round(data.totalLinearDistance))
+      bufferBuilder.writeUInt24LE(data.totalLinearDistance > 0 ? Math.round(data.totalLinearDistance) : 0)
       // Instantaneous Power in watts
-      bufferBuilder.writeUInt16LE(Math.round(data.cyclePower))
+      bufferBuilder.writeUInt16LE(data.cyclePower > 0 ? Math.round(data.cyclePower) : 0)
       // Energy
       // Total energy in kcal
-      bufferBuilder.writeUInt16LE(Math.round(data.totalCalories))
+      bufferBuilder.writeUInt16LE(data.totalCalories > 0 ? Math.round(data.totalCalories) : 0)
       // Energy per hour
       // The Energy per Hour field represents the average expended energy of a user during a
       // period of one hour.
-      bufferBuilder.writeUInt16LE(Math.round(data.totalCaloriesPerHour))
+      bufferBuilder.writeUInt16LE(data.totalCaloriesPerHour > 0 ? Math.round(data.totalCaloriesPerHour) : 0)
       // Energy per minute
-      bufferBuilder.writeUInt8(Math.round(data.totalCaloriesPerMinute))
+      bufferBuilder.writeUInt8(data.totalCaloriesPerMinute > 0 ? Math.round(data.totalCaloriesPerMinute) : 0)
       // Heart Rate: Beats per minute with a resolution of 1
-      bufferBuilder.writeUInt8(Math.round(data.heartrate))
+      bufferBuilder.writeUInt8(data.heartrate > 0 ? Math.round(data.heartrate) : 0)
       // Elapsed Time: Seconds with a resolution of 1
       bufferBuilder.writeUInt16LE(Math.round(data.totalMovingTime))
 

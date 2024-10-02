@@ -1,13 +1,13 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Creates an OAuth authorized connection to Strava (https://developers.strava.com/)
 */
 import log from 'loglevel'
 import axios from 'axios'
 import FormData from 'form-data'
-import config from './ConfigManager.js'
+import config from '../tools/ConfigManager.js'
 import fs from 'fs/promises'
 
 const clientId = config.stravaClientId

@@ -165,9 +165,9 @@ Since we are multiplying *currentDt* with a constant factor (i.e. ${Impulses Per
 
 $$ {k \* 2&pi; \over I \* Impulses Per Rotation} = {&Delta;currentDt \over &Delta;t} $$
 
-As the left-hand of the equation only contains constants and the dragfactor, and the right-hand a division of two delta's, we can use regression to calculate the drag. As the slope of the line *currentDt* over *time since start* is equal to ${k \* 2&pi; \over I \* Impulses Per Rotation}$, the drag thus can be determined through
+As the left-hand of the equation only contains constants and the dragfactor, and the right-hand a division of two delta's, we can use regression analyses to calculate the drag. As the slope of the line *currentDt* over *time since start* is equal to ${k \* 2&pi; \over I \* Impulses Per Rotation}$, the drag thus can be determined through
 
-$$ k = slope \* {I \* Impulses Per Rotation \over 2&pi;} $$
+$$ k = slope \* I \* {Impulses Per Rotation \over 2&pi;} $$
 
 As this formula shows, the drag factor is effectively determined by the slope of the line created by *time since start* on the *x*-axis and the corresponding *CurrentDt* on the *y*-axis, for each recovery phase.
 

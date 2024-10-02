@@ -1,6 +1,6 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Implementation of the GeneralStatus as defined in:
   https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
@@ -40,7 +40,7 @@ export default class GeneralStatus extends bleno.Characteristic {
       // elapsedTime: UInt24LE in 0.01 sec
       bufferBuilder.writeUInt24LE(Math.round(data.totalMovingTime * 100))
       // distance: UInt24LE in 0.1 m
-      bufferBuilder.writeUInt24LE(Math.round(data.totalLinearDistance * 10))
+      bufferBuilder.writeUInt24LE(data.totalLinearDistance > 0 ? Math.round(data.totalLinearDistance * 10) : 0)
       // workoutType: UInt8: 0 WORKOUTTYPE_JUSTROW_NOSPLITS, 2 WORKOUTTYPE_FIXEDDIST_NOSPLITS, 4 WORKOUTTYPE_FIXEDTIME_NOSPLITS
       bufferBuilder.writeUInt8(data.sessiontype === 'Distance' ? 2 : (data.sessiontype === 'Time' ? 4 : 0))
       // intervalType: UInt8: 1 INTERVALTYPE_TIME, 2 INTERVALTYPE_DIST, 255 NONE
@@ -53,13 +53,13 @@ export default class GeneralStatus extends bleno.Characteristic {
       // strokeState: UInt8 2 DRIVING, 4 RECOVERY
       bufferBuilder.writeUInt8(data.strokeState === 'WaitingForDrive' ? 0 : (data.strokeState === 'Drive' ? 2 : 4))
       // totalWorkDistance: UInt24LE in 1 m
-      bufferBuilder.writeUInt24LE(Math.round(data.totalLinearDistance))
+      bufferBuilder.writeUInt24LE(data.totalLinearDistance > 0 ? Math.round(data.totalLinearDistance) : 0)
       // workoutDuration: UInt24LE in 0.01 sec (if type TIME)
       bufferBuilder.writeUInt24LE(Math.round(data.totalMovingTime * 100))
       // workoutDurationType: UInt8 0 TIME, 0x40 CALORIES, 0x80 DISTANCE, 0xC0 WATTS
       bufferBuilder.writeUInt8(data.sessiontype === 'Distance' ? 0x80 : 0)
       // dragFactor: UInt8
-      bufferBuilder.writeUInt8(Math.round(Math.min(data.dragFactor, 255)))
+      bufferBuilder.writeUInt8(data.dragFactor > 0 ? Math.round(Math.min(data.dragFactor, 255)) : 0)
 
       if (this._updateValueCallback) {
         this._updateValueCallback(bufferBuilder.getBuffer())

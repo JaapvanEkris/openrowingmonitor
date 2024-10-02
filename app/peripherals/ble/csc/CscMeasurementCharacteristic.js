@@ -1,6 +1,6 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 */
 import bleno from '@abandonware/bleno'
 import log from 'loglevel'
@@ -52,16 +52,16 @@ export default class CyclingSpeedCadenceMeasurementCharacteristic extends bleno.
       bufferBuilder.writeUInt8(cscFeaturesFlags.crankRevolutionDataSupported | cscFeaturesFlags.wheelRevolutionDataSupported)
 
       // Wheel revolution count (basically the distance in cm)
-      bufferBuilder.writeUInt32LE(Math.round(Math.round(data.totalLinearDistance * 100)))
+      bufferBuilder.writeUInt32LE(data.totalLinearDistance > 0 ? Math.round(Math.round(data.totalLinearDistance * 100)) : 0)
 
       // Wheel revolution time (ushort with 1024 resolution, resetting in every 64sec)
-      bufferBuilder.writeUInt16LE(Math.round(data.totalMovingTime * 1024) % Math.pow(2, 16))
+      bufferBuilder.writeUInt16LE(data.totalMovingTime > 0 ? Math.round(data.totalMovingTime * 1024) % Math.pow(2, 16) : 0)
 
       // Total stroke count
-      bufferBuilder.writeUInt16LE(Math.round(data.totalNumberOfStrokes))
+      bufferBuilder.writeUInt16LE(data.totalNumberOfStrokes > 0 ? Math.round(data.totalNumberOfStrokes) : 0)
 
       // last stroke time time (ushort with 1024 resolution, resetting in every 64sec)
-      bufferBuilder.writeUInt16LE(Math.round(data.driveLastStartTime * 1024) % Math.pow(2, 16))
+      bufferBuilder.writeUInt16LE(data.driveLastStartTime > 0 ? Math.round(data.driveLastStartTime * 1024) % Math.pow(2, 16) : 0)
 
       const buffer = bufferBuilder.getBuffer()
       if (buffer.length > this._subscriberMaxValueSize) {
