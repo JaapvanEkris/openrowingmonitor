@@ -1,5 +1,21 @@
 # OpenRowingMonitor Release Notes
 
+## From 0.9.0 to 1.0.0 (January 2025)
+
+Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz](https://github.com/Abasz)
+
+### New functionality in 1.0.0
+
+- No new functionality
+
+### Bugfixes and robustness improvements in 1.0.0
+
+- **Improvement of the architecture**: we cleaned up the old architecture and went to a more message bus structure where clients are responsible for their own datatransmissions. See [architecture](Architecture.md) for a deeper implementation
+- **Performance improvement of the TS estimator**, further reducing CPU load
+- **Removed a lot of memory leaks**, although only being problematic in large simulations (i.e. over 3000K), we want to keep our code to behave nice
+- **Improved robustness of the stroke detection algorithm**
+- **Validation of the engine against a PM5 for over 3000KM**, where the deviation is a maximum of 0.1%
+
 ## From 0.8.4 to 0.9.0 (January 2024)
 
 Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz](https://github.com/Abasz)

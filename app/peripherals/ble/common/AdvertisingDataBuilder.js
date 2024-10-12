@@ -1,5 +1,7 @@
 'use strict'
-
+/*
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
+*/
 export default class AdvertisingDataBuilder {
   constructor (serviceUuids, appearance, longName, shortName) {
     this.shortName = shortName || longName || 'ORM'

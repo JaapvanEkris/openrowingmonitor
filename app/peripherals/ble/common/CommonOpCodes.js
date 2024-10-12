@@ -1,5 +1,7 @@
 'use-strict'
-
+/*
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
+*/
 export const ResultOpCode = {
   reserved: 0x00,
   success: 0x01,

@@ -145,33 +145,34 @@ $$ k = -I \* {&Delta;({1 \over &omega;}) \over &Delta;t} $$
 
 Where this is calculated across the entire recovery phase. Again, the presence of &Delta;t in the divider potentially introduces a type of undesired volatility. Testing has shown that even when &Delta;t is chosen to span the entire recovery phase, reducing the effect of single values of *CurrentDt*, the calculated drag factor is more stable but still is too unstable to be used as both the &omega;'s used in this calculation still depend on single values of *CurrentDt*. Additionally, small errors in detection of the drive or recovery phase would change &omega; dramatically, throwing off the drag calculation significantly (see also [this elaboration](physics_openrowingmonitor.md#use-of-simplified-power-calculation)). Therefore, such an approach typically requires averaging across strokes to prevent drag poisoning (i.e. a single bad measurement of *currentDt* throwing off the drag factor significantly, and thus throwing off all dependent linear metrics significantly), which still lacks robustness of results as drag tends to fluctuate throughout a session.
 
-To make this calculation more robust, we again turn to regression methods (as suggested by [[7]](#7)).  We can transform formula 7.2 to the definition of the slope of a line, by doing the following:
+We can transform formula 7.2b to the definition of the slope of a line, by doing the following:
 
 $$ { k \over I } = {&Delta;({1 \over &omega;}) \over &Delta;t} $$
 
-Thus k/I represents the slope of the graph depicted by *time since start* on the *x*-axis and ${1 \over &omega;}$ on the *y*-axis, during the recovery phase of the stroke. However, this formula can be simplified further, as the angular velocity &omega; is determined by:
+Thus k/I represents the slope of the graph depicted by *time since start* on the *x*-axis and ${1 \over &omega;}$ on the *y*-axis, during the recovery phase of the stroke. Using regression analysis that is robust to outliers, one can calculate this in a robust manner, reducing the dependence on both the caluclation of &omega; and stroke detection. As &omega; is calculated robustly as it is, it is expected to contain less outliers as it is.
+
+However, formula 7.2b can be simplified further, as the angular velocity &omega; is defined by:
 
 $$ &omega; = {({2&pi; \over Impulses Per Rotation}) \over currentDt} $$
 
-thus making:
-
-$$ { k \over I } = {&Delta;({1 \over {({2&pi; \over Impulses Per Rotation}) \over currentDt}}) \over &Delta;t} $$
-
-removing the division, results in
-
-$$ { k \over I } = {&Delta;(currentDt \* {Impulses Per Rotation \over 2&pi;}) \over &Delta;t} $$
-
-Since we are multiplying *currentDt* with a constant factor (i.e. ${Impulses Per Rotation \over 2&pi;}$), we can further simplify the formula by moving this multiplication outside the slope-calculation. Effectively, making the formula:
+this can be rewritten as:
 
 $$ {k \* 2&pi; \over I \* Impulses Per Rotation} = {&Delta;currentDt \over &Delta;t} $$
 
-As the left-hand of the equation only contains constants and the dragfactor, and the right-hand a division of two delta's, we can use regression to calculate the drag. As the slope of the line *currentDt* over *time since start* is equal to ${k \* 2&pi; \over I \* Impulses Per Rotation}$, the drag thus can be determined through
+As the left-hand of the equation only contains constants and the dragfactor, and the right-hand a division of two delta's, we can use regression analyses to calculate the drag based on the raw measured *currentDt*. As the slope of the line *currentDt* over *time since start* is equal to ${k \* 2&pi; \over I \* Impulses Per Rotation}$, the drag thus can be determined through
 
-$$ k = slope \* {I \* Impulses Per Rotation \over 2&pi;} $$
+$$ k = slope \* I \* {Impulses Per Rotation \over 2&pi;} $$
 
-As this formula shows, the drag factor is effectively determined by the slope of the line created by *time since start* on the *x*-axis and the corresponding *CurrentDt* on the *y*-axis, for each recovery phase.
+As this formula shows, the drag factor is effectively determined by the slope of the line created by *time since start* on the *x*-axis and the corresponding *CurrentDt* on the *y*-axis, for each recovery phase. This approach also brings this calculation as close as possible to the raw *currentDt* data, while not using an individual *currentDt*'s as a divider, which are explicit design goals to reduce data volatility.
 
-This slope can be determined through linear regression (see [[5]](#5) and [[6]](#6)) for the collection of datapoints for a specific recovery phase. This approach also brings this calculation as close as possible to the raw data, and doesn't use individual *currentDt*'s as a divider, which are explicit design goals to reduce data volatility. For determining the slope, we use the linear Theil-Sen Estimator, which is sufficiently robust against noise, especially when filtering on low R<sup>2</sup>. On a Concept2, the typical R<sup>2</sup> is around 0.96 (low drag) to 0.99 (high drag) for steady state rowing. The approach of using r<sup>2</sup> has the benefit of completely relying on metrics contained in the algorithm itself for quality control: the algorithm itself signals a bad fit due to too much noise in the calculation. Additionally, as the drag does not change much from stroke to stroke, a running weighed average across several strokes is used, where the R<sup>2</sup> is used as its weight. This has the benefit of favouring better fitting curves over less optimal fitting curves (despite all being above the R<sup>2</sup> threshold set). Practical experiments show that this approach outperforms any other noise dampening filter.
+Both slopes can be determined through linear regression (see [[5]](#5) and [[6]](#6)) for the collection of datapoints for a specific recovery phase. For determining the slope, we use the linear Theil-Sen Estimator, which is sufficiently robust against noise, especially when filtering on low R<sup>2</sup>. The approach of using r<sup>2</sup> has the benefit of completely relying on metrics contained in the algorithm itself for quality control: the algorithm itself signals a bad fit due to too much noise in the calculation. Additionally, as the drag does not change much from stroke to stroke, a running weighed average across several strokes is used, where the R<sup>2</sup> is used as its weight. This has the benefit of favouring better fitting curves over less optimal fitting curves (despite all being above the R<sup>2</sup> threshold set). Practical experiments show that this approach outperforms any other noise dampening filter.
+
+Although both regression approaches are mathematically valid, they do yield different results: the first approach depends on (noise filtered) angular velocity &omega; as its input where the second approach depends on raw *currentDt* values. Comparing the results for both approaches:
+
+* For approach 1, on a Concept2, the typical R<sup>2</sup> is around @@ (low drag) to @@ (high drag) for steady state rowing. Also, calculated drag has a standard deviation of @@ (low drag) to @@ (high drag) across a session.
+* For approach 2, On a Concept2, the typical R<sup>2</sup> is around 0.96 (low drag) to 0.99 (high drag) for steady state rowing. Also, calculated drag has a standard deviation of @@ (low drag) to @@ (high drag) across an entire session.
+
+Therefore, we choose @@
 
 ### Determining the "Torque" of the flywheel
 

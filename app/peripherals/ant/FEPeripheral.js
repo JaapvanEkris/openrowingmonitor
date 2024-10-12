@@ -1,15 +1,14 @@
 'use strict'
+/*
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
+
+  Creates a ANT+ Peripheral with all the datapages that are required for
+  an indoor rower
+*/
 
 import log from 'loglevel'
 import { Messages } from 'incyclist-ant-plus'
 import { PeripheralConstants } from '../PeripheralConstants.js'
-
-/*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
-
-  Creates a Bluetooth Low Energy (BLE) Peripheral with all the Services that are required for
-  a Cycling Speed and Cadence Profile
-*/
 
 function createFEPeripheral (antManager) {
   const antStick = antManager.getAntStick()
@@ -33,7 +32,7 @@ function createFEPeripheral (antManager) {
     strokeRate: 0,
     instantaneousPower: 0,
     distancePerStroke: 0,
-    fitnessEquipmentState: fitnessEquipmentStates.inUse,
+    fitnessEquipmentState: fitnessEquipmentStates.ready,
     sessionStatus: 'WaitingForStart'
   }
 
@@ -162,19 +161,44 @@ function createFEPeripheral (antManager) {
     antStick.write(message)
   }
 
-  function notifyData (type, data) {
-    if (type === 'strokeFinished' || type === 'metricsUpdate') {
-      sessionData = {
-        ...sessionData,
-        accumulatedDistance: data.totalLinearDistance & 0xFF,
-        accumulatedStrokes: data.totalNumberOfStrokes & 0xFF,
-        accumulatedTime: Math.trunc(data.totalMovingTime * 4) & 0xFF,
-        cycleLinearVelocity: Math.round(data.cycleLinearVelocity * 1000),
-        strokeRate: Math.round(data.cycleStrokeRate) & 0xFF,
-        instantaneousPower: Math.round(data.cyclePower) & 0xFFFF,
-        distancePerStroke: Math.round(data.cycleDistance * 100),
-        sessionStatus: data.sessionStatus
-      }
+  function notifyData (data) {
+    sessionData = {
+      ...sessionData,
+      accumulatedDistance: (data.totalLinearDistance > 0 ? data.totalLinearDistance : 0) & 0xFF,
+      accumulatedStrokes: (data.totalNumberOfStrokes > 0 ? data.totalNumberOfStrokes : 0) & 0xFF,
+      accumulatedTime: (data.totalMovingTime > 0 ? Math.trunc(data.totalMovingTime * 4) : 0) & 0xFF,
+      cycleLinearVelocity: (data.metricsContext.isMoving && data.cycleLinearVelocity > 0 ? Math.round(data.cycleLinearVelocity * 1000) : 0),
+      strokeRate: (data.metricsContext.isMoving && data.cycleStrokeRate > 0 ? Math.round(data.cycleStrokeRate) : 0) & 0xFF,
+      instantaneousPower: (data.metricsContext.isMoving && data.cyclePower > 0 ? Math.round(data.cyclePower) : 0) & 0xFFFF,
+      distancePerStroke: (data.metricsContext.isMoving && data.cycleDistance > 0 ? Math.round(data.cycleDistance * 100) : 0),
+      sessionStatus: data.sessionStatus
+    }
+
+    // See https://c2usa.fogbugz.com/default.asp?W119
+    // * when machine is on and radio active, but have not yet begun a session -> status set to "ready", speed, etc. are all 0 (as forced by above requirement for data.metricsContext.isMoving)
+    // * first stroke -> status = 3 (in use)
+    // * end of wokrout -> status = 4 (finished)
+    // * Pause: go to 4 (finished, if data.metricsContext.isMoving = false); back to inUse if rowing starts coming back.
+    // every time move from "ready" to "inUse" it will create a new piece on the watch.
+    // ToDo: if cross split; raise LAP Toggle
+    switch (true) {
+      case (data.metricsContext.isSessionStart):
+        sessionData.fitnessEquipmentState = fitnessEquipmentStates.inUse
+        break
+      case (data.metricsContext.isSessionStop):
+        sessionData.fitnessEquipmentState = fitnessEquipmentStates.finished
+        break
+      case (data.metricsContext.isPauseStart):
+        sessionData.fitnessEquipmentState = fitnessEquipmentStates.finished
+        break
+      case (data.metricsContext.isPauseEnd):
+        sessionData.fitnessEquipmentState = fitnessEquipmentStates.inUse
+        break
+      case (data.metricsContext.isMoving):
+        sessionData.fitnessEquipmentState = fitnessEquipmentStates.inUse
+        break
+      default:
+        sessionData.fitnessEquipmentState = fitnessEquipmentStates.ready
     }
   }
 

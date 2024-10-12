@@ -1,15 +1,14 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Handles uploading workout data to different cloud providers
 */
 import log from 'loglevel'
 import EventEmitter from 'events'
-import { createStravaAPI } from '../tools/StravaAPI.js'
-import config from '../tools/ConfigManager.js'
+import { createStravaAPI } from './StravaAPI.js'
 
-function createWorkoutUploader (workoutRecorder) {
+function createWorkoutUploader (config, workoutRecorder) {
   const emitter = new EventEmitter()
 
   let stravaAuthorizationCodeResolver

@@ -1,6 +1,6 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   You can modify this file to configure Open Rowing Monitor to your needs.
   This file should be placed in the 'config' folder of Open Rowing Monitor.

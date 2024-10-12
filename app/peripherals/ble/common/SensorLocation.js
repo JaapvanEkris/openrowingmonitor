@@ -1,5 +1,7 @@
 'use strict'
-
+/*
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
+*/
 import BufferBuilder from '../BufferBuilder.js'
 
 export const sensorLocations =

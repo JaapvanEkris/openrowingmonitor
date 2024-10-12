@@ -1,23 +1,13 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   A utility to record and replay flywheel measurements for development purposes.
 */
-import { fork } from 'child_process'
+
 import fs from 'fs'
 import readline from 'readline'
 import log from 'loglevel'
-
-function recordRowingSession (filename) {
-  // measure the gpio interrupts in another process, since we need
-  // to track time close to realtime
-  const gpioTimerService = fork('./app/gpio/GpioTimerService.js')
-  gpioTimerService.on('message', (dataPoint) => {
-    log.debug(dataPoint)
-    fs.appendFile(filename, `${dataPoint}\n`, (err) => { if (err) log.error(err) })
-  })
-}
 
 async function replayRowingSession (rotationImpulseHandler, options) {
   if (!options?.filename) {
@@ -53,6 +43,5 @@ async function wait (ms) {
 }
 
 export {
-  recordRowingSession,
   replayRowingSession
 }

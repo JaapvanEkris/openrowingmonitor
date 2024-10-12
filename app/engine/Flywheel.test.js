@@ -5,7 +5,7 @@
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 import { deepMerge } from '../tools/Helper.js'
-import { replayRowingSession } from '../tools/RowingRecorder.js'
+import { replayRowingSession } from '../recorders/RowingReplayer.js'
 import rowerProfiles from '../../config/rowerProfiles.js'
 
 import { createFlywheel } from './Flywheel.js'
@@ -23,8 +23,8 @@ const baseConfig = { // Based on Concept 2 settings, as this is the validation s
   flankLength: 12,
   smoothing: 1,
   minimumStrokeQuality: 0.36,
-  minumumForceBeforeStroke: 10,
-  minumumRecoverySlope: 0.00070,
+  minimumForceBeforeStroke: 10,
+  minimumRecoverySlope: 0.00070,
   autoAdjustRecoverySlope: true,
   autoAdjustRecoverySlopeMargin: 0.15,
   minimumDriveTime: 0.40,

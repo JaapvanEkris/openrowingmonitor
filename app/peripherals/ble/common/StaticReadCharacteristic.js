@@ -1,5 +1,7 @@
 'use strict'
-
+/*
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
+*/
 import bleno from '@abandonware/bleno'
 import log from 'loglevel'
 

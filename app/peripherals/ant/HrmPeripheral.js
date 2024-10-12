@@ -1,9 +1,8 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
-  Creates a Bluetooth Low Energy (BLE) Peripheral with all the Services that are required for
-  a Cycling Speed and Cadence Profile
+  Creates a ANT+ peripheral to recieve heartrate data from a HRM belt
 */
 import EventEmitter from 'node:events'
 import log from 'loglevel'
