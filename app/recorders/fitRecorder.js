@@ -82,6 +82,8 @@ export function createFITRecorder (config) {
 
   function recordRowingMetrics (metrics) {
     const currentTime = new Date()
+    let startTime
+    let workoutStepNo
 
     switch (true) {
       case (metrics.metricsContext.isSessionStart):
@@ -109,8 +111,8 @@ export function createFITRecorder (config) {
         break
       case (metrics.metricsContext.isPauseEnd):
         // The session is resumed, so it was a pause instead of a stop
-        const startTime = sessionData.lap[lapnumber].endTime
-        const workoutStepNo = sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].workoutStepNumber
+        startTime = sessionData.lap[lapnumber].endTime
+        workoutStepNo = sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].workoutStepNumber
         lapnumber++
         addRestLap(lapnumber, metrics, startTime, currentTime, workoutStepNo)
         lapnumber++
@@ -559,19 +561,19 @@ export function createFITRecorder (config) {
     }
   }
 
- async function createWorkoutStep (writer, stepNumber, durationType, durationValue, intensityValue) {
-   writer.writeMessage(
-     'workout_step',
-     {
-       message_index: stepNumber,
-       duration_type: durationType,
-       ...(durationValue > 0 ? { duration_value: durationValue } : {} ),
-       intensity: intensityValue
-     },
-     null,
-     true
-   )
- }
+  async function createWorkoutStep (writer, stepNumber, durationType, durationValue, intensityValue) {
+    writer.writeMessage(
+      'workout_step',
+      {
+        message_index: stepNumber,
+        duration_type: durationType,
+        ...(durationValue > 0 ? { duration_value: durationValue } : {}),
+        intensity: intensityValue
+      },
+      null,
+      true
+    )
+  }
 
   async function createFile (content, filename, compress = false) {
     if (compress) {
