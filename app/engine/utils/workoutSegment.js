@@ -4,71 +4,93 @@
 
   This Module supports the creation and use of workoutSegment
 */
-
 export function createWorkoutSegment () {
-  let _type = 'JustRow'
+  let _type = 'justrow'
   let _startTime = 0
   let _startDistance = 0
   let _targetTime = 0
   let _targetDistance = 0
   let _endTime = 0
   let _endDistance = 0
-  let _splitTime = 0
-  let _splitDistance = 0
+  let _split = {
+    type: 'justrow',
+    targetDistance: 0,
+    targetTime: 0
+  }
 
   function setStart (baseMetrics) {
     _startTime = baseMetrics.totalMovingTime
     _startDistance = baseMetrics.totalLinearDistance
-    _type = 'JustRow'
+    _type = 'justrow'
     _endTime = 0
     _endDistance = 0
-    _splitTime = 0
-    _splitDistance = 0
+    _split = {
+      type: 'justrow',
+      targetDistance: 0,
+      targetTime: 0
+    }
   }
 
-  function setEnd (targetDistance, targetTime) {
+  function setEnd (intervalSettings) {
+    // Set the primairy parameters
     switch (true) {
-      case (targetDistance > 0):
-        // A target distance is set
-        _type = 'Distance'
-        _targetTime = 0
-        _targetDistance = targetDistance
-        _endTime = 0
-        _endDistance = _startDistance + targetDistance
-        break
-      case (targetTime > 0):
-        // A target time is set
-        _type = 'Time'
+      case (intervalSettings.type === 'rest' && intervalSettings.targetTime > 0):
+        // A target time is set for a rest interval
+        _type = 'rest'
         _targetTime = targetTime
+        _targetDistance = 0
+        _endTime = _startTime + intervalSettings.targetTime
+        _endDistance = 0
+        break
+      case (intervalSettings.type === 'distance' && intervalSettings.targetDistance > 0):
+        // A target distance is set
+        _type = 'distance'
+        _targetTime = 0
+        _targetDistance = intervalSettings.targetDistance
+        _endTime = 0
+        _endDistance = _startDistance + intervalSettings.targetDistance
+        break
+      case (intervalSettings.type === 'time' && intervalSettings.targetTime > 0):
+        // A target time is set
+        _type = 'time'
+        _targetTime = intervalSettings.targetTime
         _targetDistance = 0
         _endTime = _startTime + targetTime
         _endDistance = 0
         break
       default:
-        _type = 'JustRow'
+        _type = 'justrow'
         _targetTime = 0
         _targetDistance = 0
         _endTime = 0
         _endDistance = 0
     }
-  }
 
-  function setSplit (splitDistance, splitTime) {
+    // Set the split parameters
     switch (true) {
-      case (splitDistance > 0):
+      case (intervalSettings.split !== undefined && intervalSettings.split.type === 'distance' && intervalSettings.split.targetDistance > 0):
         // A target distance is set
-        _splitTime = 0
-        _splitDistance = splitDistance
+        _split = {
+          type: 'distance',
+          targetDistance: intervalSettings.split.targetDistance,
+          targetTime: 0
+        }
         break
-      case (splitTime > 0):
+      case (intervalSettings.split !== undefined && intervalSettings.split.type === 'time' && intervalSettings.split.targetTime > 0):
         // A target time is set
-        _splitTime = splitTime
-        _splitDistance = 0
+        _split = {
+          type: 'time',
+          targetDistance: 0,
+          targetTime: intervalSettings.split.targetTime
+        }
         break
       default:
-        _splitTime = 0
-        _splitDistance = 0
-    }
+        _split = {
+          type: 'justrow',
+          targetDistance: 0,
+          targetTime: 0
+        }
+      }
   }
 
   // Returns the distance from te startpoint
@@ -125,13 +147,13 @@ export function createWorkoutSegment () {
     const projectedMetrics = { ...prevMetrics }
     let modified = false
     switch (true) {
-      case (_endDistance > 0 && currMetrics.totalLinearDistance > _endDistance):
+      case (_type === 'distance' && _endDistance > 0 && currMetrics.totalLinearDistance > _endDistance):
         // We are in a distance based interval, and overshot the targetDistance
         projectedMetrics.totalMovingTime = interpolatedTime(prevMetrics, currMetrics, _endDistance)
         projectedMetrics.totalLinearDistance = _endDistance
         modified = true
         break
-      case (_endTime > 0 && currMetrics.totalMovingTime > _endTime):
+      case ( _type === 'time' && _endTime > 0 && currMetrics.totalMovingTime > _endTime):
         // We are in a time based interval, and overshot the targetTime
         projectedMetrics.totalLinearDistance = interpolatedDistance(prevMetrics, currMetrics, _endTime)
         projectedMetrics.totalMovingTime = _endTime
@@ -168,13 +190,16 @@ export function createWorkoutSegment () {
   function reset () {
     _startTime = 0
     _startDistance = 0
-    _type = 'JustRow'
+    _type = 'justrow'
     _targetTime = 0
     _targetDistance = 0
     _endTime = 0
     _endDistance = 0
-    _splitTime = 0
-    _splitDistance = 0
+    _split = {
+      type: 'justrow',
+      targetDistance: 0,
+      targetTime: 0
+    }
   }
 
   function endDistance () {
@@ -185,12 +210,8 @@ export function createWorkoutSegment () {
     return _endTime
   }
 
-  function splitDistance () {
-    return _splitDistance
-  }
-
-  function splitTime () {
-    return _splitTime
+  function getSplit () {
+    return _split
   }
 
   function targetDistance () {
@@ -201,6 +222,14 @@ export function createWorkoutSegment () {
     return _targetTime
   }
 
+  function splitDistance () {
+    return _split.targetDistance
+  }
+
+  function splitTime () {
+    return _split.targetTime
+  }
+
   function type () {
     return _type
   }
@@ -208,7 +237,6 @@ export function createWorkoutSegment () {
   return {
     setStart,
     setEnd,
-    setSplit,
     isEndReached,
     interpolateEnd,
     distanceFromStart,
@@ -220,9 +248,10 @@ export function createWorkoutSegment () {
     type,
     endTime,
     endDistance,
-    splitTime,
-    splitDistance,
+    getSplit,
     targetTime,
-    targetDistance
+    targetDistance,
+    splitTime,
+    splitDistance
   }
 }
