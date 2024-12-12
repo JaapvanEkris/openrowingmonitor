@@ -90,7 +90,7 @@ export function createWorkoutSegment () {
           targetDistance: 0,
           targetTime: 0
         }
-      }
+    }
   }
 
   // Returns the distance from te startpoint
@@ -153,7 +153,7 @@ export function createWorkoutSegment () {
         projectedMetrics.totalLinearDistance = _endDistance
         modified = true
         break
-      case ( _type === 'time' && _endTime > 0 && currMetrics.totalMovingTime > _endTime):
+      case (_type === 'time' && _endTime > 0 && currMetrics.totalMovingTime > _endTime):
         // We are in a time based interval, and overshot the targetTime
         projectedMetrics.totalLinearDistance = interpolatedDistance(prevMetrics, currMetrics, _endTime)
         projectedMetrics.totalMovingTime = _endTime
