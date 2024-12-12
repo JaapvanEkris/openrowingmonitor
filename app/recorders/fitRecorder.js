@@ -75,30 +75,8 @@ export function createFITRecorder (config) {
   }
 
   function setIntervalParameters (intervalParameters) {
-    if (intervalParameters === undefined || intervalParameters.length === 0) { return }
-
-    let i = 0
-    while (i < intervalParameters.length) {
-      sessionData.workoutplan[i] = { intervalnumber: i }
-      switch (true) {
-        case (intervalParameters[i].targetDistance > 0):
-          // A target distance is set
-          sessionData.workoutplan[i].type = 'distance'
-          sessionData.workoutplan[i].targetTime = 0
-          sessionData.workoutplan[i].targetDistance = intervalParameters[i].targetDistance
-          break
-        case (intervalParameters[i].targetTime > 0):
-          // A target time is set
-          sessionData.workoutplan[i].type = 'time'
-          sessionData.workoutplan[i].targetTime = intervalParameters[i].targetTime
-          sessionData.workoutplan[i].targetDistance = 0
-          break
-        default:
-          sessionData.workoutplan[i].type = 'open'
-          sessionData.workoutplan[i].targetTime = 0
-          sessionData.workoutplan[i].targetDistance = 0
-      }
-      i++
+    if (intervalParameters !== undefined && intervalParameters.length > 0) {
+      sessionData.workoutplan = intervalParameters
     }
   }
 
@@ -131,8 +109,10 @@ export function createFITRecorder (config) {
         break
       case (metrics.metricsContext.isPauseEnd):
         // The session is resumed, so it was a pause instead of a stop
+        const startTime = sessionData.lap[lapnumber].endTime
+        const workoutStepNo = sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].workoutStepNumber
         lapnumber++
-        addRestLap(lapnumber, metrics, sessionData.lap[lapnumber - 1].endTime, currentTime)
+        addRestLap(lapnumber, metrics, startTime, currentTime, workoutStepNo)
         lapnumber++
         startLap(lapnumber, metrics, currentTime)
         addMetricsToStrokesArray(metrics)
@@ -210,11 +190,10 @@ export function createFITRecorder (config) {
     lapHeartrateSeries.reset()
   }
 
-  function addRestLap (lapnumber, metrics, startTime, endTime) {
+  function addRestLap (lapnumber, metrics, startTime, endTime, workoutStepNo) {
     sessionData.lap[lapnumber] = { startTime }
     sessionData.lap[lapnumber].intensity = 'rest'
-    // ToDo: look the situation where the Workout forces rest period (future functionality), and thus the workoutStepNumber should change based on the current and previous lap (should work automatically???)
-    sessionData.lap[lapnumber].workoutStepNumber = metrics.workoutStepNumber
+    sessionData.lap[lapnumber].workoutStepNumber = workoutStepNo
     sessionData.lap[lapnumber].lapNumber = lapnumber + 1
     sessionData.lap[lapnumber].endTime = endTime
   }
@@ -557,54 +536,42 @@ export function createFITRecorder (config) {
 
     let i = 0
     while (i < workout.workoutplan.length) {
-      switch (workout.workoutplan[i].type) {
-        case ('distance'):
+      switch (true) {
+        case (workout.workoutplan[i].type === 'distance' && workout.workoutplan[i].targetDistance > 0):
           // A target distance is set
-          writer.writeMessage(
-            'workout_step',
-            {
-              message_index: i,
-              duration_type: 'distance',
-              duration_value: workout.workoutplan[i].targetDistance,
-              intensity: 'active'
-            },
-            null,
-            true
-          )
+          createWorkoutStep(writer, i, 'distance', workout.workoutplan[i].targetDistance, 'active')
           break
-        case ('time'):
+        case (workout.workoutplan[i].type === 'time' && workout.workoutplan[i].targetTime > 0):
           // A target time is set
-          writer.writeMessage(
-            'workout_step',
-            {
-              message_index: i,
-              duration_type: 'time',
-              duration_value: workout.workoutplan[i].targetTime,
-              intensity: 'active'
-            },
-            null,
-            true
-          )
+          createWorkoutStep(writer, i, 'time', workout.workoutplan[i].targetTime, 'active')
           break
-        case ('open'):
+        case (workout.workoutplan[i].type === 'rest' && workout.workoutplan[i].targetTime > 0):
           // A target time is set
-          writer.writeMessage(
-            'workout_step',
-            {
-              message_index: i,
-              duration_type: 'open',
-              intensity: 'active'
-            },
-            null,
-            true
-          )
+          createWorkoutStep(writer, i, 'time', workout.workoutplan[i].targetTime, 'rest')
+          break
+        case (workout.workoutplan[i].type === 'justrow'):
+          createWorkoutStep(writer, i, 'open', 0, 'active')
           break
         default:
-          // Nothing to do here
+          // Nothing to do here, ignore malformed data
       }
       i++
     }
   }
+
+ async function createWorkoutStep (writer, stepNumber, durationType, durationValue, intensityValue) {
+   writer.writeMessage(
+     'workout_step',
+     {
+       message_index: stepNumber,
+       duration_type: durationType,
+       ...(durationValue > 0 ? { duration_value: durationValue } : {} ),
+       intensity: intensityValue
+     },
+     null,
+     true
+   )
+ }
 
   async function createFile (content, filename, compress = false) {
     if (compress) {
