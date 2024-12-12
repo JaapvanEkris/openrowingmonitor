@@ -487,6 +487,7 @@ test('A 2000 meter session for a Concept2 RowErg should produce plausible result
 
   const intervalSettings = []
   intervalSettings[0] = {
+    type: 'distance',
     targetDistance: 2000,
     targetTime: 0
   }
@@ -520,6 +521,7 @@ test('A 580 seconds session for a Concept2 RowErg should produce plausible resul
 
   const intervalSettings = []
   intervalSettings[0] = {
+    type: 'time',
     targetDistance: 0,
     targetTime: 580
   }
