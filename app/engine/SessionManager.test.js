@@ -56,6 +56,7 @@ test('sample data for Sportstech WRX700 should produce plausible results for a 1
 
   const intervalSettings = []
   intervalSettings[0] = {
+    type: 'distance',
     targetDistance: 150,
     targetTime: 0
   }
@@ -89,6 +90,7 @@ test('sample data for Sportstech WRX700 should produce plausible results for a 4
 
   const intervalSettings = []
   intervalSettings[0] = {
+    type: 'time',
     targetDistance: 0,
     targetTime: 45
   }
@@ -172,6 +174,7 @@ test('sample data for NordicTrack RX800 should produce plausible results for a 2
 
   const intervalSettings = []
   intervalSettings[0] = {
+    type: 'time',
     targetDistance: 0,
     targetTime: 20
   }
@@ -205,6 +208,7 @@ test('sample data for NordicTrack RX800 should produce plausible results for a 7
 
   const intervalSettings = []
   intervalSettings[0] = {
+    type: 'distance',
     targetDistance: 75,
     targetTime: 0
   }
@@ -263,6 +267,7 @@ test('A 8000 meter session for SportsTech WRX700 should produce plausible result
 
   const intervalSettings = []
   intervalSettings[0] = {
+    type: 'distance',
     targetDistance: 8000,
     targetTime: 0
   }
@@ -296,6 +301,7 @@ test('A 2300 sec session for SportsTech WRX700 should produce plausible results'
 
   const intervalSettings = []
   intervalSettings[0] = {
+    type: 'time',
     targetDistance: 0,
     targetTime: 2300
   }
@@ -329,6 +335,7 @@ test('A 2400 sec session for SportsTech WRX700 should produce plausible results'
 
   const intervalSettings = []
   intervalSettings[0] = {
+    type: 'time',
     targetDistance: 0,
     targetTime: 2400
   }
@@ -387,6 +394,7 @@ test('A 500 meter session for a Concept2 Model C should produce plausible result
 
   const intervalSettings = []
   intervalSettings[0] = {
+    type: 'distance',
     targetDistance: 500,
     targetTime: 0
   }
@@ -420,6 +428,7 @@ test('A 3 minute session for a Concept2 Model C should produce plausible results
 
   const intervalSettings = []
   intervalSettings[0] = {
+    type: 'time',
     targetDistance: 0,
     targetTime: 180
   }
