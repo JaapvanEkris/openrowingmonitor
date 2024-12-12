@@ -49,24 +49,39 @@ const intervalSettings = []
 
 /* an example of the workout setting that the sessionManager will obey: a 1 minute warmup, a 2K timed piece followed by a 1 minute cooldown
 // All with a 500 meter split
-// This should normally come from the PM5 interface or the webinterface
+// ToDo: This should normally come from the PM5 interface, the webinterface or one of the integration partners
 intervalSettings[0] = {
+  type: 'time',
   targetDistance: 0,
   targetTime: 60,
-  splitdistance: 500
+  split: {
+    type: 'distance',
+    targetDistance: 500,
+    targetTime: 0
+  }
 }
 
 /* Additional intervals for testing
-intervalSettings[1] = {
+intervalSettings[0] = {
+  type: 'distance',
   targetDistance: 2000,
   targetTime: 0,
-  splitdistance: 500
+  split: {
+    type: 'distance',
+    targetDistance: 500,
+    targetTime: 0
+  }
 }
 
-intervalSettings[2] = {
+intervalSettings[0] = {
+  type: 'time',
   targetDistance: 0,
   targetTime: 60,
-  splitdistance: 500
+  split: {
+    type: 'distance',
+    targetDistance: 500,
+    targetTime: 0
+  }
 }
 */
 
