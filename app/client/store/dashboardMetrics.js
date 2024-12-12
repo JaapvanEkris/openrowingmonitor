@@ -16,7 +16,7 @@ export const DASHBOARD_METRICS = {
     displayName: 'Distance',
     size: 1,
     template: (metrics, config) => {
-      const distance = metrics?.sessiontype === 'Distance' ? Math.max(metrics?.intervalTargetDistance - metrics?.intervalLinearDistance, 0) : metrics?.totalLinearDistance
+      const distance = metrics?.sessiontype === 'distance' ? Math.max(metrics?.intervalTargetDistance - metrics?.intervalLinearDistance, 0) : metrics?.totalLinearDistance
       const linearDistance = formatDistance(distance ?? 0)
 
       return simpleMetricFactory(linearDistance.distance, linearDistance.unit, config.guiConfigs.showIcons ? icon_route : '')
@@ -54,7 +54,7 @@ export const DASHBOARD_METRICS = {
     displayName: 'Timer',
     size: 1,
     template: (metrics, config) => {
-      const time = metrics?.sessiontype === 'Time' ? Math.max(metrics?.intervalTargetTime - metrics?.intervalMovingTime, 0) : metrics?.totalMovingTime
+      const time = metrics?.sessiontype === 'time' ? Math.max(metrics?.intervalTargetTime - metrics?.intervalMovingTime, 0) : metrics?.totalMovingTime
 
       return simpleMetricFactory(secondsToTimeString(time ?? 0), '', config.guiConfigs.showIcons ? icon_clock : '')
     }
