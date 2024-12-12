@@ -50,12 +50,14 @@ export function createSessionManager (config) {
         break
       case ('start'):
         if (sessionState !== 'Rowing') {
+          clearTimeout(pauseTimer)
           allowStartOrResumeTraining(metrics)
           sessionState = 'WaitingForStart'
         }
         break
       case ('startOrResume'):
         if (sessionState !== 'Rowing') {
+          clearTimeout(pauseTimer)
           allowStartOrResumeTraining(metrics)
           sessionState = 'WaitingForStart'
         }
@@ -67,6 +69,7 @@ export function createSessionManager (config) {
         sessionState = 'Paused'
         break
       case ('stop'):
+        clearTimeout(pauseTimer)
         stopTraining()
         metrics.metricsContext.isSessionStop = true
         sessionState = 'Stopped'
@@ -74,6 +77,7 @@ export function createSessionManager (config) {
       case ('requestControl'):
         break
       case ('reset'):
+        clearTimeout(pauseTimer)
         resetTraining()
         metrics.metricsContext.isPauseStart = true
         sessionState = 'WaitingForStart'
@@ -93,6 +97,7 @@ export function createSessionManager (config) {
       case 'stravaAuthorizationCode':
         break
       case 'shutdown':
+        clearTimeout(pauseTimer)
         stopTraining()
         metrics.metricsContext.isSessionStop = true
         sessionState = 'Stopped'
