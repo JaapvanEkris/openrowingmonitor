@@ -19,9 +19,11 @@ export function createWorkoutSegment () {
   }
 
   function setStart (baseMetrics) {
-    _startTime = baseMetrics.totalMovingTime
-    _startDistance = baseMetrics.totalLinearDistance
+    _startTime = (baseMetrics.totalMovingTime !== undefined && baseMetrics.totalMovingTime > 0 ? baseMetrics.totalMovingTime : 0)
+    _startDistance = (baseMetrics.totalLinearDistance !== undefined && baseMetrics.totalLinearDistance > 0 ? baseMetrics.totalLinearDistance : 0)
     _type = 'justrow'
+    _targetTime = 0
+    _targetDistance = 0
     _endTime = 0
     _endDistance = 0
     _split = {
@@ -135,7 +137,7 @@ export function createWorkoutSegment () {
 
   // Checks for reaching a boundary condition
   function isEndReached (baseMetrics) {
-    if ((_endDistance > 0 && baseMetrics.totalLinearDistance >= _endDistance) || (_endTime > 0 && baseMetrics.totalMovingTime >= _endTime)) {
+    if ((_type === 'distance' && _endDistance > 0 && baseMetrics.totalLinearDistance >= _endDistance) || (_type === 'time' && _endTime > 0 && baseMetrics.totalMovingTime >= _endTime)) {
       // We have exceeded the boundary
       return true
     } else {
