@@ -39,7 +39,7 @@ export function createWorkoutSegment () {
       case (intervalSettings.type === 'rest' && intervalSettings.targetTime > 0):
         // A target time is set for a rest interval
         _type = 'rest'
-        _targetTime = targetTime
+        _targetTime = intervalSettings.targetTime
         _targetDistance = 0
         _endTime = _startTime + intervalSettings.targetTime
         _endDistance = 0
@@ -57,7 +57,7 @@ export function createWorkoutSegment () {
         _type = 'time'
         _targetTime = intervalSettings.targetTime
         _targetDistance = 0
-        _endTime = _startTime + targetTime
+        _endTime = _startTime + intervalSettings.targetTime
         _endDistance = 0
         break
       default:
