@@ -7,7 +7,7 @@
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 
-import { createWorkoutSegment } from './utils/workoutSegment.js'
+import { createWorkoutSegment } from './workoutSegment.js'
 
 test('Test workoutSegment initialisation behaviour without setting an interval', () => {
   const startingPoint = {
