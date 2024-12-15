@@ -101,7 +101,7 @@ export function createWorkoutSegment () {
       // We have exceeded the boundary
       return baseMetrics.totalLinearDistance - _startDistance
     } else {
-      return NaN
+      return undefined
     }
   }
 
@@ -111,7 +111,7 @@ export function createWorkoutSegment () {
       // We have exceeded the boundary
       return _endDistance - baseMetrics.totalLinearDistance
     } else {
-      return NaN
+      return undefined
     }
   }
 
@@ -121,7 +121,7 @@ export function createWorkoutSegment () {
       // We have exceeded the boundary
       return baseMetrics.totalMovingTime - _startTime
     } else {
-      return NaN
+      return undefined
     }
   }
 
@@ -131,7 +131,7 @@ export function createWorkoutSegment () {
       // We have exceeded the boundary
       return _endTime - baseMetrics.totalMovingTime
     } else {
-      return NaN
+      return undefined
     }
   }
 
