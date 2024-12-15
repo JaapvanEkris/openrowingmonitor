@@ -10,42 +10,42 @@ import * as assert from 'uvu/assert'
 import { createWorkoutSegment } from './utils/workoutSegment.js'
 
 test('Test workoutSegment initialisation behaviour without setting an interval', () => {
-  let startingPoint = {
+  const startingPoint = {
     totalMovingTime: 0,
-    totalMovingTime: 0
+    totalLinearDistance: 0
   }
 
-  let endPoint = {
+  const endPoint = {
     totalMovingTime: 490,
-    totalMovingTime: 2050
+    totalLinearDistance: 2050
   }
 
   const testSegment = createWorkoutSegment()
-  testSegment.testDistanceFromStart(startingPoint, NaN)
-  testSegment.testTimeSinceStart(startingPoint, NaN)
-  testSegment.testdistanceToEnd(startingPoint, NaN)
-  testSegment.testTimeToEnd(startingPoint, NaN)
-  testSegment.testIsEndReached(endPoint, false)
+  testDistanceFromStart(testSegment, startingPoint, NaN)
+  testTimeSinceStart(testSegment, startingPoint, NaN)
+  testdistanceToEnd(testSegment, startingPoint, NaN)
+  testTimeToEnd(testSegment, startingPoint, NaN)
+  testIsEndReached(testSegment, endPoint, false)
 })
 
-function testDistanceFromStart (testedSegment, expectedValue) {
-  assert.ok(testedSegment.distanceFromStart() === expectedValue, `Expected distance from the start should be ${expectedValue}, encountered ${testedSegment.distanceFromStart()}`)
+function testDistanceFromStart (testedSegment, testedDatapoint, expectedValue) {
+  assert.ok(testedSegment.distanceFromStart(testedDatapoint) === expectedValue, `Expected distance from the start should be ${expectedValue}, encountered ${testedSegment.distanceFromStart(testedDatapoint)}`)
 }
 
-function testTimeSinceStart (testedSegment, expectedValue) {
-  assert.ok(testedSegment.timeSinceStart() === expectedValue, `Expected time since start should be ${expectedValue}, encountered ${testedSegment.timeSinceStart()}`)
+function testTimeSinceStart (testedSegment, testedDatapoint, expectedValue) {
+  assert.ok(testedSegment.timeSinceStart(testedDatapoint) === expectedValue, `Expected time since start should be ${expectedValue}, encountered ${testedSegment.timeSinceStart(testedDatapoint)}`)
 }
 
-function testdistanceToEnd (testedSegment, expectedValue) {
-  assert.ok(testedSegment.distanceToEnd() === expectedValue, `Expected distance from the end to be ${expectedValue}, encountered ${testedSegment.distanceToEnd()}`)
+function testdistanceToEnd (testedSegment, testedDatapoint, expectedValue) {
+  assert.ok(testedSegment.distanceToEnd(testedDatapoint) === expectedValue, `Expected distance from the end to be ${expectedValue}, encountered ${testedSegment.distanceToEnd(testedDatapoint)}`)
 }
 
-function testTimeToEnd (testedSegment, expectedValue) {
-  assert.ok(testedSegment.timeToEnd() === expectedValue, `Expected time to end to be ${expectedValue}, encountered ${testedSegment.timeToEnd()}`)
+function testTimeToEnd (testedSegment, testedDatapoint, expectedValue) {
+  assert.ok(testedSegment.timeToEnd(testedDatapoint) === expectedValue, `Expected time to end to be ${expectedValue}, encountered ${testedSegment.timeToEnd(testedDatapoint)}`)
 }
 
-function testIsEndReached (testedSegment, expectedValue) {
-  assert.ok(testedSegment.isEndReached() === expectedValue, `Expected time to end to be ${expectedValue}, encountered ${testedSegment.isEndReached()}`)
+function testIsEndReached (testedSegment, testedDatapoint, expectedValue) {
+  assert.ok(testedSegment.isEndReached(testedDatapoint) === expectedValue, `Expected time to end to be ${expectedValue}, encountered ${testedSegment.isEndReached(testedDatapoint)}`)
 }
 
 test.run()
