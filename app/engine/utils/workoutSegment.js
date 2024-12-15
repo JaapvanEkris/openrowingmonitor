@@ -107,7 +107,7 @@ export function createWorkoutSegment () {
 
   // Returns the distance to the endpoint
   function distanceToEnd (baseMetrics) {
-    if (_endDistance > 0) {
+    if (_type === 'distance' && _endDistance > 0) {
       // We have exceeded the boundary
       return _endDistance - baseMetrics.totalLinearDistance
     } else {
@@ -127,7 +127,7 @@ export function createWorkoutSegment () {
 
   // Returns the time to the endpoint
   function timeToEnd (baseMetrics) {
-    if (_endTime > 0) {
+    if (_type === 'time' && _endTime > 0) {
       // We have exceeded the boundary
       return _endTime - baseMetrics.totalMovingTime
     } else {
@@ -205,11 +205,20 @@ export function createWorkoutSegment () {
   }
 
   function endDistance () {
-    return _endDistance
+    if (_type === 'distance' && _endDistance > 0) {
+      return _endDistance
+    } else {
+      return undefined
+    }
   }
 
   function endTime () {
-    return _endTime
+    if (_type === 'time' && _endTime > 0) {
+      // We have exceeded the boundary
+      return _endTime
+    } else {
+      return undefined
+    }
   }
 
   function getSplit () {
@@ -217,11 +226,20 @@ export function createWorkoutSegment () {
   }
 
   function targetDistance () {
-    return _targetDistance
+    if (_type === 'distance' && _endDistance > 0) {
+      return _targetDistance
+    } else {
+      return undefined
+    }
   }
 
   function targetTime () {
-    return _targetTime
+    if (_type === 'time' && _endTime > 0) {
+      // We have exceeded the boundary
+      return _targetTime
+    } else {
+      return undefined
+    }
   }
 
   function splitDistance () {
