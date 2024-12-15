@@ -62,7 +62,7 @@ test('Test workoutSegment initialisation behaviour with setting a distance inter
       targetTime: 0
     }
   }
-  
+
   const startingPoint = {
     totalMovingTime: 0,
     totalLinearDistance: 0
@@ -98,7 +98,6 @@ test('Test workoutSegment initialisation behaviour with setting a distance inter
   testExtrapolation(testSegment, middlePoint, endPoint, 485, 2025)
 })
 
-
 function testDistanceFromStart (testedSegment, testedDatapoint, expectedValue) {
   assert.ok(testedSegment.distanceFromStart(testedDatapoint) === expectedValue, `Expected distance from the start should be ${expectedValue}, encountered ${testedSegment.distanceFromStart(testedDatapoint)}`)
 }
@@ -131,6 +130,5 @@ function testExtrapolation (testedSegment, dataPointOne, dataPointTwo, ExpectedT
   assert.ok(testedSegment.interpolateEnd(dataPointOne, dataPointTwo).totalMovingTime === ExpectedTime, `Expected extrapolated time be ${ExpectedTime}, encountered ${testedSegment.interpolateEnd(dataPointOne, dataPointTwo).totalMovingTime}`)
   assert.ok(testedSegment.interpolateEnd(dataPointOne, dataPointTwo).totalLinearDistance === ExpectedDistance, `Expected time to end to be ${ExpectedDistance}, encountered ${testedSegment.interpolateEnd(dataPointOne, dataPointTwo).totalLinearDistance}`)
 }
-
 
 test.run()
