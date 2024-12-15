@@ -206,23 +206,22 @@ test('Test split behaviour with setting a time interval', () => {
     split: {
       type: 'time',
       targetDistance: 0,
-      targetTime: 60
+      targetTime: 120
     }
   }
-
   const startingPoint = {
     totalMovingTime: 0,
     totalLinearDistance: 0
   }
 
   const middlePoint = {
-    totalMovingTime: 480,
-    totalLinearDistance: 2000
+    totalMovingTime: 118,
+    totalLinearDistance: 490
   }
 
   const endPoint = {
-    totalMovingTime: 490,
-    totalLinearDistance: 2050
+    totalMovingTime: 122,
+    totalLinearDistance: 510
   }
 
   const testSegment = createWorkoutSegment()
@@ -233,8 +232,8 @@ test('Test split behaviour with setting a time interval', () => {
   testSplit.setEnd(testSegment.getSplit())
   testDistanceFromStart(testSplit, startingPoint, 0)
   testTimeSinceStart(testSplit, startingPoint, 0)
-  testdistanceToEnd(testSplit, startingPoint, 500)
-  testTimeToEnd(testSplit, startingPoint, undefined)
+  testdistanceToEnd(testSplit, startingPoint, undefined)
+  testTimeToEnd(testSplit, startingPoint, 120)
   testIsEndReached(testSplit, startingPoint, false)
   testDistanceFromStart(testSplit, middlePoint, 490)
   testTimeSinceStart(testSplit, middlePoint, 118)
