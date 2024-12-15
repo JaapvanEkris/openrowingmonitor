@@ -21,10 +21,10 @@ test('Test workoutSegment initialisation behaviour without setting an interval',
   }
 
   const testSegment = createWorkoutSegment()
-  testDistanceFromStart(testSegment, startingPoint, NaN)
-  testTimeSinceStart(testSegment, startingPoint, NaN)
-  testdistanceToEnd(testSegment, startingPoint, NaN)
-  testTimeToEnd(testSegment, startingPoint, NaN)
+  testDistanceFromStart(testSegment, startingPoint, 0)
+  testTimeSinceStart(testSegment, startingPoint, 0)
+  testdistanceToEnd(testSegment, startingPoint, 0)
+  testTimeToEnd(testSegment, startingPoint, 0)
   testIsEndReached(testSegment, endPoint, false)
 })
 
