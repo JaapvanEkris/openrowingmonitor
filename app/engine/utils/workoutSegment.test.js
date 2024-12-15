@@ -51,7 +51,7 @@ test('Test workoutSegment initialisation behaviour without setting an interval, 
   testIsEndReached(testSegment, endPoint, false)
 })
 
-test('Test workoutSegment initialisation behaviour with setting a distance interval', () => {
+test('Test workoutSegment behaviour with setting a distance interval', () => {
   const distanceInterval = {
     type: 'distance',
     targetDistance: 2025,
@@ -82,7 +82,7 @@ test('Test workoutSegment initialisation behaviour with setting a distance inter
   testSegment.setEnd(distanceInterval)
   testDistanceFromStart(testSegment, startingPoint, 0)
   testTimeSinceStart(testSegment, startingPoint, 0)
-  testdistanceToEnd(testSegment, startingPoint, 2000)
+  testdistanceToEnd(testSegment, startingPoint, 2025)
   testTimeToEnd(testSegment, startingPoint, undefined)
   testIsEndReached(testSegment, startingPoint, false)
   testDistanceFromStart(testSegment, middlePoint, 2000)
@@ -94,6 +94,53 @@ test('Test workoutSegment initialisation behaviour with setting a distance inter
   testTimeSinceStart(testSegment, endPoint, 490)
   testdistanceToEnd(testSegment, endPoint, -25)
   testTimeToEnd(testSegment, endPoint, undefined)
+  testIsEndReached(testSegment, endPoint, true)
+  testExtrapolation(testSegment, middlePoint, endPoint, 485, 2025)
+})
+
+test('Test workoutSegment behaviour with setting a time interval', () => {
+  const distanceInterval = {
+    type: 'time',
+    targetDistance: 0,
+    targetTime: 485,
+    split: {
+      type: 'distance',
+      targetDistance: 500,
+      targetTime: 0
+    }
+  }
+
+  const startingPoint = {
+    totalMovingTime: 0,
+    totalLinearDistance: 0
+  }
+
+  const middlePoint = {
+    totalMovingTime: 480,
+    totalLinearDistance: 2000
+  }
+
+  const endPoint = {
+    totalMovingTime: 490,
+    totalLinearDistance: 2050
+  }
+
+  const testSegment = createWorkoutSegment()
+  testSegment.setEnd(distanceInterval)
+  testDistanceFromStart(testSegment, startingPoint, 0)
+  testTimeSinceStart(testSegment, startingPoint, 0)
+  testdistanceToEnd(testSegment, startingPoint, undefined)
+  testTimeToEnd(testSegment, startingPoint, 485)
+  testIsEndReached(testSegment, startingPoint, false)
+  testDistanceFromStart(testSegment, middlePoint, 2000)
+  testTimeSinceStart(testSegment, middlePoint, 480)
+  testdistanceToEnd(testSegment, middlePoint, undefined)
+  testTimeToEnd(testSegment, middlePoint, 5)
+  testIsEndReached(testSegment, middlePoint, false)
+  testDistanceFromStart(testSegment, endPoint, 2050)
+  testTimeSinceStart(testSegment, endPoint, 490)
+  testdistanceToEnd(testSegment, endPoint, undefined)
+  testTimeToEnd(testSegment, endPoint, -5)
   testIsEndReached(testSegment, endPoint, true)
   testExtrapolation(testSegment, middlePoint, endPoint, 485, 2025)
 })
