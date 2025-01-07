@@ -1,4 +1,4 @@
-# Set up of Open Rowing Monitor
+# Set up of OpenRowingMonitor
 
 This guide roughly explains how to set up the rowing software and hardware.
 
@@ -18,7 +18,7 @@ This guide roughly explains how to set up the rowing software and hardware.
 
 ### Initialization of the Raspberry Pi
 
-* Install **Raspberry Pi OS Lite** on the SD Card i.e. with the [Raspberry Pi Imager](https://www.raspberrypi.org/software). Here, Raspberry Pi OS Lite 64 Bit is recommended as it is better suited for real-time environments. Please note that on a Raspberry Pi Zero or Zero 2, you need to increase the swap-size to 1024 otherwise the installation will fail (see [this manual how to do this](https://pimylifeup.com/raspberry-pi-swap-file/));
+* Install **Raspberry Pi OS Lite** on the SD Card i.e. with the [Raspberry Pi Imager](https://www.raspberrypi.org/software). Here, Raspberry Pi OS Lite 64 Bit is recommended as it is better suited for real-time environments. Use of Raspberry Pi OS Bullseye or Bookworm is recommended. Please note that on a Raspberry Pi Zero 2W, you need to increase the swap-size to 1024 otherwise the installation will fail (see [this manual how to do this](https://pimylifeup.com/raspberry-pi-swap-file/));
 * Configure the network connection and enable SSH, if you use the Raspberry Pi Imager, you can automatically do this while writing the SD Card, just press `Ctrl-Shift-X`(see [here](https://www.raspberrypi.org/blog/raspberry-pi-imager-update-to-v1-6/) for a description), otherwise follow the instructions below
 * Connect the device to your network ([headless](https://www.raspberrypi.org/documentation/configuration/wireless/headless.md) or via [command line](https://www.raspberrypi.org/documentation/configuration/wireless/wireless-cli.md))
 * Enable [SSH](https://www.raspberrypi.org/documentation/remote-access/ssh/README.md)
@@ -32,7 +32,7 @@ Connect to the device with SSH and initiate the following command to set up all 
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/jaapvanekris/openrowingmonitor/HEAD/install/install.sh)"
 ```
 
-Just answer the questions from the script and OpenRowingMonitor will be installed for you completely.
+Just answer the questions from the script and OpenRowingMonitor will be installed for you completely. Sometimes, the process can fail due to network issues. Starting the installation process again should finish the install as intended.
 
 <!-- markdownlint-disable-next-line no-inline-html -->
 <details>
