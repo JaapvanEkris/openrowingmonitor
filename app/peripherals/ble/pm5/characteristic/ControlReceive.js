@@ -1,12 +1,12 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Implementation of the ControlReceive Characteristic as defined in:
   https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
   Used to receive controls from the central
 */
-import bleno from '@abandonware/bleno'
+import bleno from '@stoprocent/bleno'
 import { getFullUUID } from '../Pm5Constants.js'
 import log from 'loglevel'
 
