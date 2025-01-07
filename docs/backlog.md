@@ -6,7 +6,7 @@ If you would like to contribute to this project, you are more than welcome, but 
 
 ## Soon
 
-* Add calories as interval type
+* Fix the BLE HeartrateManager as it depends on a dirty hack and locks ORM on @abandonware, which isn't maintained decently and fequently causes issues on newer installs of BlueZ. Aim is to move to the @stoprocent/bleno, @stoprocent/noble and @stoprocent/bluetooth-hci-socket npm packages completely
 * Integrate with rowsandall.com and intervals.icu for workout planning (i.e. retrieval of the training/workout plan) and reporting (i.e. uploading a result)
 * Improve the user interface (We really need help on this!)
 * add user friendly possibility for user to define training interval timers (`server.js`, `SessionManager.js` and the recorders can already handle this, what is missing is the frontend to the web and peripherals to manage this)
@@ -16,6 +16,7 @@ If you would like to contribute to this project, you are more than welcome, but 
 
 ## Later
 
+* Add calories as interval type
 * validate FTMS with more training applications and harden implementation (i.e. Holofit and Coxswain)
 * figure out where to set the Service Advertising Data (FTMS.pdf p 15)
 * add some attributes to BLE DeviceInformationService
