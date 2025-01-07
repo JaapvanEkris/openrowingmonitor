@@ -1,10 +1,10 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Provides the required Device Information of the PM5
 */
-import bleno from '@abandonware/bleno'
+import bleno from '@stoprocent/bleno'
 import StaticNotifyCharacteristic from '../common/StaticNotifyCharacteristic.js'
 import { getFullUUID, pm5Constants } from './Pm5Constants.js'
 
