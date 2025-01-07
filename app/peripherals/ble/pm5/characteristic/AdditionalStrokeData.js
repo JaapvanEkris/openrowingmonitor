@@ -5,7 +5,7 @@
   Implementation of the AdditionalStrokeData as defined in:
   https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
 */
-import bleno from '@abandonware/bleno'
+import bleno from '@stoprocent/bleno'
 import { getFullUUID } from '../Pm5Constants.js'
 import log from 'loglevel'
 import BufferBuilder from '../../BufferBuilder.js'
