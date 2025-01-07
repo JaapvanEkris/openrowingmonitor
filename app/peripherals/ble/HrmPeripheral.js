@@ -10,8 +10,9 @@ import child_process from 'child_process'
 
 function createBleHrmPeripheral () {
   const emitter = new EventEmitter()
+  const env = {env: {NOBLE_MULTI_ROLE: 1}}
 
-  const bleHrmProcess = child_process.fork('./app/peripherals/ble/hrm/HrmService.js')
+  const bleHrmProcess = child_process.fork('./app/peripherals/ble/hrm/HrmService.js', env)
 
   bleHrmProcess.on('message', (heartRateMeasurement) => {
     emitter.emit('heartRateMeasurement', heartRateMeasurement)
