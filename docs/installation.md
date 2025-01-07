@@ -160,17 +160,7 @@ Please check if there are no errors reported.
 
 Please note that the process identification numbers will differ.
 
-### To use BLE and open the Web-Server on port 80
-
-#### Running Open Rowing Monitor without root permissions (optional)
-
-The default installation will run Open Rowing Monitor with root permissions. You can also run it as normal user by issueing the following command:
-
-```zsh
-sudo setcap cap_net_bind_service,cap_net_raw=+eip $(eval readlink -f `which node`)
-```
-
-#### To access ANT+ USB sticks
+### To access ANT+ USB sticks
 
 Create a file `/etc/udev/rules.d/51-garmin-usb.rules` with the following content:
 
