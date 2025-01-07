@@ -12,7 +12,7 @@ function createBleHrmPeripheral () {
   const emitter = new EventEmitter()
   // The environmental variable below is needed to keep BleNo and NoBle apart, as they both want access to the same hardware but for different roles
   // See https://github.com/stoprocent/noble?tab=readme-ov-file#bleno-compatibility-linux-specific
-  const env = {env: {NOBLE_MULTI_ROLE: 1}}
+  const env = { env: { NOBLE_MULTI_ROLE: 1 } }
 
   const bleHrmProcess = child_process.fork('./app/peripherals/ble/hrm/HrmService.js', env)
 
