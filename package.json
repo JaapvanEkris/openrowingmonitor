@@ -29,7 +29,7 @@
   },
   "//fix1Comment": "We install lit@2.8.0 as lit@3.0.0 breaks the webpage displaying metrics",
   "//fix2Comment": "We hold back @abandonware/bleno at 0.5.1-4, @abandonware/noble at 1.9.2-15 and @abandonware/bluetooth-hci-socket at 0.5.3-7, as upgrading any of them destroys HRM compatibility",
-  "//fix2Comment": "see https://github.com/abandonware/node-bluetooth-hci-socket/issues/31",
+  "//fix2Comment": "see https://github.com/abandonware/node-bluetooth-hci-socket/issues/31 and https://github.com/abandonware/bleno/issues/33",
   "//fix2Comment": "ToDo: ideally we would switch to @stoprocent/bleno, @stoprocent/noble and @stoprocent/bluetooth-hci-socket completely, but the hack in the HRM manager currently has issues with that",
   "dependencies": {
     "@abandonware/bleno": "0.5.1-4",
