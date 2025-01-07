@@ -129,6 +129,8 @@ sudo apt-get -y update
 sudo apt-get -y dist-upgrade
 sudo systemctl disable bluetooth
 sudo apt-get -y install bluetooth bluez libbluetooth-dev libudev-dev git
+# Allow access to bluetooth without root access
+sudo setcap cap_net_bind_service,cap_net_raw=+eip $(eval readlink -f `which node`)
 sudo apt-get -y install pigpio
 # We disable the pigpio service explicity, as the JS wrapper is alergic to the deamon
 sudo systemctl mask pigpiod.service
