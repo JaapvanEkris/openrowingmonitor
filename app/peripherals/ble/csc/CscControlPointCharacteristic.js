@@ -1,12 +1,12 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   The connected Central can remotely control some parameters or our rowing monitor via this Control Point
 
   But for our use case proper implementation is not necessary (its mere existence with an empty handler suffice)
 */
-import bleno from '@abandonware/bleno'
+import bleno from '@stoprocent/bleno'
 
 export default class CyclingSpeedCadenceControlPointCharacteristic extends bleno.Characteristic {
   constructor (controlPointCallback) {
