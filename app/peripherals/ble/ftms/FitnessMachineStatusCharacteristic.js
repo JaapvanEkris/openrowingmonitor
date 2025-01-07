@@ -1,6 +1,6 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Implements the Status Characteristics, that can be used to notify the central about the current
   training machine settings. Currently only used to notify the central about training resets.
@@ -9,7 +9,7 @@
   If the Server supports the Fitness Machine Control Point, the Fitness Machine Status characteristic
   shall be exposed by the Server. Otherwise, supporting the Fitness Machine Status characteristic is optional.
 */
-import bleno from '@abandonware/bleno'
+import bleno from '@stoprocent/bleno'
 import log from 'loglevel'
 
 // see page 67 https://www.bluetooth.com/specifications/specs/fitness-machine-service-1-0
