@@ -2,7 +2,7 @@
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 */
-import bleno from '@abandonware/bleno'
+import bleno from '@stoprocent/bleno'
 import log from 'loglevel'
 import BufferBuilder from '../BufferBuilder.js'
 
