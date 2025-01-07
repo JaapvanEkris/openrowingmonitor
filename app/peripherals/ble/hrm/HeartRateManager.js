@@ -1,14 +1,14 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   This manager creates a Bluetooth Low Energy (BLE) Central that listens
   and subscribes to heart rate services
 */
 import log from 'loglevel'
 import EventEmitter from 'node:events'
-import Noble from '@abandonware/noble/lib/noble.js'
-import NobleBindings from '@abandonware/noble/lib/hci-socket/bindings.js'
+import Noble from '@stoprocent/noble/lib/noble.js'
+import NobleBindings from '@stoprocent/noble/lib/hci-socket/bindings.js'
 
 // We are using peripherals and centrals at the same time (with bleno and noble).
 // The libraries do not play nice together in this scenario when they see peripherals
