@@ -46,7 +46,7 @@ NobleBindings.prototype.onDisconnComplete = function (handle, reason) {
   }
 }
 
-const noble = new Noble(new NobleBindings())
+const noble = new Noble(new NobleBindings({}))
 // END of noble patch
 
 function createHeartRateManager () {
