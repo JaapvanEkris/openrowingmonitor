@@ -7,8 +7,7 @@
 */
 import log from 'loglevel'
 import EventEmitter from 'node:events'
-import Noble from '@abandonware/noble/lib/noble.js'
-import NobleBindings from '@abandonware/noble/lib/hci-socket/bindings.js'
+import noble from '@abandonware/noble'
 
 // We are using peripherals and centrals at the same time (with bleno and noble).
 // The libraries do not play nice together in this scenario when they see peripherals
@@ -16,38 +15,38 @@ import NobleBindings from '@abandonware/noble/lib/hci-socket/bindings.js'
 // This is a quick patch for two handlers in noble that would otherwise throw warnings
 // when they see a peripheral or handle that is managed by bleno
 
-// START of noble patch
-Noble.prototype.onRssiUpdate = function (peripheralUuid, rssi) {
-  const peripheral = this._peripherals[peripheralUuid]
+// // START of noble patch
+// Noble.prototype.onRssiUpdate = function (peripheralUuid, rssi) {
+//   const peripheral = this._peripherals[peripheralUuid]
 
-  if (peripheral) {
-    peripheral.rssi = rssi
-    peripheral.emit('rssiUpdate', rssi)
-  }
-}
+//   if (peripheral) {
+//     peripheral.rssi = rssi
+//     peripheral.emit('rssiUpdate', rssi)
+//   }
+// }
 
-NobleBindings.prototype.onDisconnComplete = function (handle, reason) {
-  const uuid = this._handles[handle]
+// NobleBindings.prototype.onDisconnComplete = function (handle, reason) {
+//   const uuid = this._handles[handle]
 
-  if (uuid) {
-    this._aclStreams[handle].push(null, null)
-    this._gatts[handle].removeAllListeners()
-    this._signalings[handle].removeAllListeners()
+//   if (uuid) {
+//     this._aclStreams[handle].push(null, null)
+//     this._gatts[handle].removeAllListeners()
+//     this._signalings[handle].removeAllListeners()
 
-    delete this._gatts[uuid]
-    delete this._gatts[handle]
-    delete this._signalings[uuid]
-    delete this._signalings[handle]
-    delete this._aclStreams[handle]
-    delete this._handles[uuid]
-    delete this._handles[handle]
+//     delete this._gatts[uuid]
+//     delete this._gatts[handle]
+//     delete this._signalings[uuid]
+//     delete this._signalings[handle]
+//     delete this._aclStreams[handle]
+//     delete this._handles[uuid]
+//     delete this._handles[handle]
 
-    this.emit('disconnect', uuid)
-  }
-}
+//     this.emit('disconnect', uuid)
+//   }
+// }
 
-const noble = new Noble(new NobleBindings())
-// END of noble patch
+// const noble = new Noble(new NobleBindings())
+// // END of noble patch
 
 function createHeartRateManager () {
   const emitter = new EventEmitter()
