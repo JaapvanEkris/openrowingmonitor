@@ -7,7 +7,7 @@
 */
 import log from 'loglevel'
 import EventEmitter from 'node:events'
-import noble from '@abandonware/noble'
+import noble from '@stoprocent/noble'
 
 const heartRateServiceUUID = '180d'
 const heartRateMeasurementUUID = '2a37'
@@ -21,7 +21,7 @@ function createHeartRateManager () {
   let _batteryLevel
 
   noble.on('stateChange', async (state) => {
-    log.debug(`BLE HRM stateChange: ${state}`) // TODO: debugging purposes change to debug
+    log.debug(`BLE HRM stateChange: ${state}`)
     if (state === 'poweredOn') {
       // search for heart rate service
       await noble.startScanningAsync([heartRateServiceUUID], false)

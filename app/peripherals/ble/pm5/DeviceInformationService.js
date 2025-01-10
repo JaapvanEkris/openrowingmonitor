@@ -4,7 +4,7 @@
 
   Provides the required Device Information of the PM5
 */
-import bleno from '@abandonware/bleno'
+import bleno from '@stoprocent/bleno'
 import StaticNotifyCharacteristic from '../common/StaticNotifyCharacteristic.js'
 import { getFullUUID, pm5Constants } from './Pm5Constants.js'
 

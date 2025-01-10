@@ -5,7 +5,7 @@
   Provides all required GAP Characteristics of the PM5
   todo: not sure if this is correct, the normal GAP service has 0x1800
 */
-import bleno from '@abandonware/bleno'
+import bleno from '@stoprocent/bleno'
 import StaticNotifyCharacteristic from '../common/StaticNotifyCharacteristic.js'
 import { getFullUUID, pm5Constants } from './Pm5Constants.js'
 

@@ -8,7 +8,7 @@
     - Fulgaz: uses setIndoorBikeSimulationParameters
     - Zwift: uses startOrResume and setIndoorBikeSimulationParameters
 */
-import bleno from '@abandonware/bleno'
+import bleno from '@stoprocent/bleno'
 import log from 'loglevel'
 import { ResultOpCode } from '../common/CommonOpCodes.js'
 

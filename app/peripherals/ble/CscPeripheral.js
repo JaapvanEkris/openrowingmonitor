@@ -5,7 +5,7 @@
   Creates a Bluetooth Low Energy (BLE) Peripheral with all the Services that are required for
   a Cycling Speed and Cadence Profile
 */
-import bleno from '@abandonware/bleno'
+import bleno from '@stoprocent/bleno'
 import log from 'loglevel'
 import DeviceInformationService from './common/DeviceInformationService.js'
 import CyclingSpeedCadenceService from './csc/CyclingSpeedCadenceService.js'

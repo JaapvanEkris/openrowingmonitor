@@ -29,8 +29,8 @@
   },
   "//fix1Comment": "We install lit@2.8.0 as lit@3.0.0 breaks the webpage displaying metrics",
   "dependencies": {
-    "@abandonware/bleno": "^0.6.1",
-    "@abandonware/noble": "^1.9.2-25",
+    "@stoprocent/bleno": "^0.8.2",
+    "@stoprocent/noble": "^1.18.2",
     "@markw65/fit-file-writer": "^0.1.6",
     "chart.js": "^4.4.7",
     "chartjs-plugin-datalabels": "^2.2.0",

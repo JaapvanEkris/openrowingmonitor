@@ -11,7 +11,7 @@
   The Server should notify this characteristic at a regular interval, typically once per second
   while in a connection and the interval is not configurable by the Client
 */
-import bleno from '@abandonware/bleno'
+import bleno from '@stoprocent/bleno'
 import log from 'loglevel'
 import BufferBuilder from '../BufferBuilder.js'
 
