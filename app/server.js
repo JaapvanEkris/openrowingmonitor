@@ -167,7 +167,11 @@ rowingStatistics.on('rowingStopped', (metrics) => {
 })
 
 if (config.heartrateMonitorBLE) {
-  const bleCentralService = child_process.fork('./app/ble/CentralService.js')
+  // The environmental variable below is needed to keep BleNo and NoBle apart, as they both want access to the same hardware but for different roles
+  // See https://github.com/stoprocent/noble?tab=readme-ov-file#bleno-compatibility-linux-specific (ADDITION JVE: 17-01-2025)
+  const env = { env: { NOBLE_MULTI_ROLE: 1 } }
+
+  const bleCentralService = child_process.fork('./app/ble/CentralService.js', env)
   bleCentralService.on('message', (heartrateMeasurement) => {
     rowingStatistics.handleHeartrateMeasurement(heartrateMeasurement)
   })
