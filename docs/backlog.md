@@ -6,7 +6,6 @@ If you would like to contribute to this project, you are more than welcome, but 
 
 ## Soon
 
-* Add calories as interval type
 * Integrate with rowsandall.com and intervals.icu for workout planning (i.e. retrieval of the training/workout plan) and reporting (i.e. uploading a result)
 * Improve the user interface (We really need help on this!)
 * add user friendly possibility for user to define training interval timers (`server.js`, `SessionManager.js` and the recorders can already handle this, what is missing is the frontend to the web and peripherals to manage this)
@@ -16,6 +15,13 @@ If you would like to contribute to this project, you are more than welcome, but 
 
 ## Later
 
+* Add calories as interval type
+  - Add weight correction factor (see [C2 formula](https://www.concept2.com/training/calorie-calculator))
+  - Make Calories a continuous metric (similar to distance) instead of a cycle based one
+  - Add it as a stop criterium for the session manager
+  - Add it as a workout option to the FIT recorder
+  - Modify the PM5 peripheral to broadcast the right data
+  - Update the GUI to allow selecting it
 * validate FTMS with more training applications and harden implementation (i.e. Holofit and Coxswain)
 * figure out where to set the Service Advertising Data (FTMS.pdf p 15)
 * add some attributes to BLE DeviceInformationService
