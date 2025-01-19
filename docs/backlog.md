@@ -16,12 +16,12 @@ If you would like to contribute to this project, you are more than welcome, but 
 ## Later
 
 * Add calories as interval type
-  - Add weight correction factor (see [C2 formula](https://www.concept2.com/training/calorie-calculator))
-  - Make Calories a continuous metric (similar to distance) instead of a cycle based one
-  - Add it as a stop criterium for the session manager
-  - Add it as a workout option to the FIT recorder
-  - Modify the PM5 peripheral to broadcast the right data
-  - Update the GUI to allow selecting it
+  * Add weight correction factor (see [C2 formula](https://www.concept2.com/training/calorie-calculator))
+  * Make Calories a continuous metric (similar to distance) instead of a cycle based one
+  * Add it as a stop criterium for the session manager
+  * Add it as a workout option to the FIT recorder
+  * Modify the PM5 peripheral to broadcast the right data
+  * Update the GUI to allow selecting it
 * validate FTMS with more training applications and harden implementation (i.e. Holofit and Coxswain)
 * figure out where to set the Service Advertising Data (FTMS.pdf p 15)
 * add some attributes to BLE DeviceInformationService
