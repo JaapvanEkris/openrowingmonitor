@@ -429,10 +429,10 @@ test('A full session for a Concept2 RowErg should produce plausible results', as
   await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
 
   testTotalMovingTimeSinceStart(rower, 590.111937)
-  testTotalLinearDistanceSinceStart(rower, 2029.1846608962908)
+  testTotalLinearDistanceSinceStart(rower, 2027.493082238415)
   testTotalNumberOfStrokes(rower, 206)
   // As dragFactor isn't static, it should have changed
-  testRecoveryDragFactor(rower, 80.79044336920732)
+  testRecoveryDragFactor(rower, 80.60573080009686)
 })
 
 function testStrokeState (rower, expectedValue) {
