@@ -127,7 +127,9 @@ print
 print "Installing System dependencies..."
 sudo apt-get -y update
 sudo apt-get -y dist-upgrade
-sudo systemctl disable bluetooth
+sudo systemctl enable bluetooth
+sudo systemctl daemon-reload
+sudo systemctl start bluetooth
 sudo apt-get -y install bluetooth bluez libbluetooth-dev libudev-dev git
 sudo apt-get -y install pigpio
 # We disable the pigpio service explicity, as the JS wrapper is alergic to the deamon

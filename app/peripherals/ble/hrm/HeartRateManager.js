@@ -34,13 +34,14 @@ function createHeartRateManager () {
   noble.on('discover', async (peripheral) => {
     try {
       await noble.stopScanningAsync()
+      log.debug('Connecting to peripheral')
       await peripheral.connectAsync()
 
       peripheral.once('disconnect', async () => {
         log.info('heart rate peripheral disconnected, searching new one')
         _batteryLevelCharacteristic?.removeAllListeners()
         _heartRateMeasurementCharacteristic?.removeAllListeners()
-        _batteryLevel = 0
+        _batteryLevel = undefined
         await noble.startScanningAsync([heartRateServiceUUID], false)
       })
     } catch (error) {
@@ -53,6 +54,7 @@ function createHeartRateManager () {
 
     try {
       const { characteristics } = await peripheral.discoverSomeServicesAndCharacteristicsAsync([], [heartRateMeasurementUUID, batteryLevelUUID])
+      log.debug('Discovered characteristics')
 
       _heartRateMeasurementCharacteristic = characteristics.find(
         characteristic => characteristic.uuid === heartRateMeasurementUUID
