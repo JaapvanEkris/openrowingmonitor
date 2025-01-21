@@ -8,7 +8,7 @@ import log from 'loglevel'
 import zlib from 'zlib'
 import fs from 'fs/promises'
 import { createSeries } from '../engine/utils/Series.js'
-import { createVO2max } from './VO2max.js'
+import { createVO2max } from './utils/VO2max.js'
 import { promisify } from 'util'
 const gzip = promisify(zlib.gzip)
 
@@ -16,12 +16,16 @@ export function createTCXRecorder (config) {
   const powerSeries = createSeries()
   const speedSeries = createSeries()
   const heartrateSeries = createSeries()
+  const VO2max = createVO2max(config)
+  const drag = createSeries()
   let filename
   let heartRate = 0
   let sessionData
   let lapnumber = 0
   let postExerciseHR = []
   let lastMetrics
+  let tcxfileContent
+  let tcxfileContentIsCurrent = true
   let allDataHasBeenWritten = true
 
   // This function handles all incomming commands. Here, the recordingmanager will have filtered
@@ -48,6 +52,7 @@ export function createTCXRecorder (config) {
         powerSeries.reset()
         speedSeries.reset()
         heartrateSeries.reset()
+        VO2max.reset()
         allDataHasBeenWritten = true
         break
       case 'shutdown':
@@ -70,17 +75,12 @@ export function createTCXRecorder (config) {
   }
 
   function recordRowingMetrics (metrics) {
-    // ToDo: Move to the metrics.timestamp data
-    const currentTime = new Date()
-    let startTime
-    let intervalEndMetrics
     switch (true) {
       case (metrics.metricsContext.isSessionStart):
-        sessionData = { startTime: currentTime }
+        sessionData = { startTime: metrics.timestamp }
         sessionData.lap = []
         lapnumber = 0
-        sessionData.lap[lapnumber] = { startTime: currentTime }
-        sessionData.lap[lapnumber].strokes = []
+        startLap(lapnumber, metrics)
         addMetricsToStrokesArray(metrics)
         break
       case (metrics.metricsContext.isSessionStop):
@@ -96,42 +96,42 @@ export function createTCXRecorder (config) {
         updateLapMetrics(metrics)
         addMetricsToStrokesArray(metrics)
         calculateLapMetrics(metrics)
-        powerSeries.reset()
-        speedSeries.reset()
-        heartrateSeries.reset()
+        resetLapMetrics()
         postExerciseHR = null
         postExerciseHR = []
         createTcxFile()
         measureRecoveryHR()
         break
       case (metrics.metricsContext.isPauseEnd):
+        // First add the rest lap hich we seem to have completed
         lapnumber++
-        sessionData.lap[lapnumber] = { startTime: currentTime }
-        sessionData.lap[lapnumber].strokes = []
+        addRestLap(lapnumber, metrics, sessionData.lap[lapnumber - 1].endTime)
+        lapnumber++
+        startLap(lapnumber, metrics)
         addMetricsToStrokesArray(metrics)
         break
       case (metrics.metricsContext.isIntervalStart):
         // Please note: we deliberatly add the metrics twice as it marks both the end of the old interval and the start of a new one
         updateLapMetrics(metrics)
-        intervalEndMetrics = { ...metrics }
-        intervalEndMetrics.intervalAndPauseMovingTime = metrics.totalMovingTime - sessionData.lap[lapnumber].strokes[0].totalMovingTime
-        addMetricsToStrokesArray(intervalEndMetrics)
+        addMetricsToStrokesArray(metrics)
         calculateLapMetrics(metrics)
-        powerSeries.reset()
-        speedSeries.reset()
-        heartrateSeries.reset()
+        resetLapMetrics()
         lapnumber++
-        // We need to calculate the start time of the interval, as delay in message handling can cause weird effects here
-        startTime = new Date(sessionData.lap[lapnumber - 1].startTime.getTime() + intervalEndMetrics.intervalAndPauseMovingTime * 1000)
-        sessionData.lap[lapnumber] = { startTime }
-        sessionData.lap[lapnumber].strokes = []
+        startLap(lapnumber, metrics)
+        addMetricsToStrokesArray(metrics)
+        break
+      case (metrics.metricsContext.isSplitEnd):
+        // Please note: we deliberatly add the metrics twice as it marks both the end of the old split and the start of a new one
+        updateLapMetrics(metrics)
+        addMetricsToStrokesArray(metrics)
+        calculateLapMetrics(metrics)
+        resetLapMetrics()
+        lapnumber++
+        startLap(lapnumber, metrics)
         addMetricsToStrokesArray(metrics)
         break
       case (metrics.metricsContext.isDriveStart):
         updateLapMetrics(metrics)
-        addMetricsToStrokesArray(metrics)
-        break
-      case (metrics.metricsContext.isSplitEnd):
         addMetricsToStrokesArray(metrics)
         break
     }
@@ -141,16 +141,26 @@ export function createTCXRecorder (config) {
   function addMetricsToStrokesArray (metrics) {
     addHeartRateToMetrics(metrics)
     sessionData.lap[lapnumber].strokes.push(metrics)
+    VO2max.push(metrics)
+    if (!isNaN(metrics.dragFactor) && metrics.dragFactor > 0) { drag.push(metrics.dragFactor) }
+    tcxfileContentIsCurrent = false
     allDataHasBeenWritten = false
+  }
+
+  function startLap (lapnumber, metrics) {
+    sessionData.lap[lapnumber] = { startTime: metrics.timestamp }
+    sessionData.lap[lapnumber].intensity = 'Active'
+    sessionData.lap[lapnumber].strokes = []
   }
 
   function updateLapMetrics (metrics) {
     if (metrics.cyclePower !== undefined && metrics.cyclePower > 0) { powerSeries.push(metrics.cyclePower) }
     if (metrics.cycleLinearVelocity !== undefined && metrics.cycleLinearVelocity > 0) { speedSeries.push(metrics.cycleLinearVelocity) }
-    if (heartRate !== undefined && heartRate > 0) { heartrateSeries.push(heartRate) }
+    if (!isNaN(heartRate) && heartRate > 0) { heartrateSeries.push(heartRate) }
   }
 
   function calculateLapMetrics (metrics) {
+    sessionData.lap[lapnumber].endTime = metrics.timestamp
     sessionData.lap[lapnumber].totalMovingTime = metrics.totalMovingTime - sessionData.lap[lapnumber].strokes[0].totalMovingTime
     sessionData.lap[lapnumber].totalLinearDistance = metrics.totalLinearDistance - sessionData.lap[lapnumber].strokes[0].totalLinearDistance
     sessionData.lap[lapnumber].totalCalories = metrics.totalCalories - sessionData.lap[lapnumber].strokes[0].totalCalories
@@ -165,8 +175,21 @@ export function createTCXRecorder (config) {
     sessionData.lap[lapnumber].maximumHeartrate = heartrateSeries.maximum()
   }
 
+  function resetLapMetrics () {
+    powerSeries.reset()
+    speedSeries.reset()
+    heartrateSeries.reset()
+  }
+
+  function addRestLap (lapnumber, metrics, startTime) {
+    sessionData.lap[lapnumber] = { endTime: metrics.timestamp }
+    sessionData.lap[lapnumber].intensity = 'Resting'
+    sessionData.lap[lapnumber].startTime = startTime
+    VO2max.handleRestart(metrics.totalMovingTime)
+  }
+
   function addHeartRateToMetrics (metrics) {
-    if (heartRate !== undefined && heartRate > 0) {
+    if (!isNaN(heartRate) && heartRate > 0) {
       metrics.heartrate = heartRate
     } else {
       metrics.heartrate = undefined
@@ -188,33 +211,43 @@ export function createTCXRecorder (config) {
       return
     }
 
-    const tcxRecord = await activeWorkoutToTcx()
+    const tcxRecord = await workoutToTcx(sessionData)
     if (tcxRecord === undefined) {
       log.error('error creating tcx file')
-      return
+    } else {
+      await createFile(tcxRecord, `${filename}`, config.gzipTcxFiles)
+      allDataHasBeenWritten = true
+      log.info(`Garmin tcx data has been written as ${filename}`)
     }
-    await createFile(tcxRecord.tcx, `${filename}`, config.gzipTcxFiles)
-    allDataHasBeenWritten = true
-    log.info(`Garmin tcx data has been written as ${filename}`)
   }
 
-  async function activeWorkoutToTcx () {
-    // Be aware! This function is also exposed to the Strava recorder!
+  async function fileContent () {
+    // Be aware, this is exposed to the Strava and intervals.icu exporters
     const tcx = await workoutToTcx(sessionData)
-
-    return {
-      tcx,
-      filename
+    if (tcx === undefined) {
+      log.error('error creating tcx file content')
+      return undefined
+    } else {
+      return {
+        tcx,
+        filename
+      }
     }
   }
 
   async function workoutToTcx (workout) {
+    // Be aware, this function has two entry points: createTcxFile and fileContent
+    // The file content is filled and hasn't changed
+    if (tcxfileContentIsCurrent === true && tcxfileContent !== undefined) { return tcxfileContent }
+
     let tcxData = ''
     tcxData += '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
     tcxData += '<TrainingCenterDatabase xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2" xmlns:ns2="http://www.garmin.com/xmlschemas/ActivityExtension/v2">\n'
-    tcxData += await createActivity(sessionData)
+    tcxData += await createActivity(workout)
     tcxData += '</TrainingCenterDatabase>\n'
-    return tcxData
+    tcxfileContent = tcxData
+    tcxfileContentIsCurrent = true
+    return tcxfileContent
   }
 
   async function createActivity (workout) {
@@ -224,7 +257,11 @@ export function createTCXRecorder (config) {
     tcxData += `      <Id>${workout.startTime.toISOString()}</Id>\n`
     let i = 0
     while (i < workout.lap.length) {
-      tcxData += await createLap(workout.lap[i])
+      if (workout.lap[i].intensity !== 'Resting') {
+        tcxData += await createActiveLap(workout.lap[i])
+      } else {
+        tcxData += await createRestLap(workout.lap[i])
+      }
       i++
     }
     tcxData += await createNotes(workout)
@@ -234,25 +271,25 @@ export function createTCXRecorder (config) {
     return tcxData
   }
 
-  async function createLap (lapdata) {
+  async function createActiveLap (lapdata) {
     let tcxData = ''
     tcxData += `      <Lap StartTime="${lapdata.startTime.toISOString()}">\n`
     tcxData += `        <TotalTimeSeconds>${lapdata.totalMovingTime.toFixed(1)}</TotalTimeSeconds>\n`
     tcxData += `        <DistanceMeters>${lapdata.totalLinearDistance.toFixed(1)}</DistanceMeters>\n`
     tcxData += `        <MaximumSpeed>${lapdata.maximumSpeed.toFixed(2)}</MaximumSpeed>\n`
     tcxData += `        <Calories>${Math.round(lapdata.totalCalories)}</Calories>\n`
-    if (lapdata.averageHeartrate !== undefined && lapdata.averageHeartrate > 0 && lapdata.maximumHeartrate !== undefined && lapdata.maximumHeartrate > 0) {
+    if (!isNaN(lapdata.averageHeartrate) && lapdata.averageHeartrate > 0 && !isNaN(lapdata.maximumHeartrate) && lapdata.maximumHeartrate > 0) {
       tcxData += `        <AverageHeartRateBpm>${Math.round(lapdata.averageHeartrate.toFixed(0))}</AverageHeartRateBpm>\n`
       tcxData += `        <MaximumHeartRateBpm>${Math.round(lapdata.maximumHeartrate.toFixed(0))}</MaximumHeartRateBpm>\n`
     }
-    tcxData += '        <Intensity>Active</Intensity>\n'
+    tcxData += `        <Intensity>${lapdata.intensity}</Intensity>\n`
     tcxData += `        <Cadence>${lapdata.averageStrokeRate.toFixed(0)}</Cadence>\n`
     tcxData += '        <TriggerMethod>Manual</TriggerMethod>\n'
     tcxData += '        <Track>\n'
     // Add the strokes
     let i = 0
     while (i < lapdata.strokes.length) {
-      tcxData += await createTrackPoint(lapdata.startTime, lapdata.strokes[i])
+      tcxData += await createTrackPoint(lapdata.strokes[i])
       i++
     }
     tcxData += '        </Track>\n'
@@ -268,12 +305,23 @@ export function createTCXRecorder (config) {
     return tcxData
   }
 
-  async function createTrackPoint (offset, trackpoint) {
-    const trackPointTime = new Date(offset.getTime() + trackpoint.intervalAndPauseMovingTime * 1000)
+  async function createRestLap (lapdata) {
+    let tcxData = ''
+    tcxData += `      <Lap StartTime="${lapdata.startTime.toISOString()}">\n`
+    tcxData += `        <TotalTimeSeconds>${(lapdata.endTime - lapdata.startTime).toFixed(1)}</TotalTimeSeconds>\n`
+    tcxData += '        <DistanceMeters>0</DistanceMeters>\n'
+    tcxData += '        <MaximumSpeed>0</MaximumSpeed>\n'
+    tcxData += '        <Calories>0</Calories>\n'
+    tcxData += `        <Intensity>${lapdata.intensity}</Intensity>\n`
+    tcxData += '        <TriggerMethod>Manual</TriggerMethod>\n'
+    tcxData += '      </Lap>\n'
+    return tcxData
+  }
 
+  async function createTrackPoint (trackpoint) {
     let tcxData = ''
     tcxData += '          <Trackpoint>\n'
-    tcxData += `            <Time>${trackPointTime.toISOString()}</Time>\n`
+    tcxData += `            <Time>${trackpoint.timestamp.toISOString()}</Time>\n`
     tcxData += `            <DistanceMeters>${trackpoint.totalLinearDistance.toFixed(2)}</DistanceMeters>\n`
     tcxData += `            <Cadence>${(trackpoint.cycleStrokeRate > 0 ? Math.round(trackpoint.cycleStrokeRate) : 0)}</Cadence>\n`
     if (trackpoint.cycleLinearVelocity > 0 || trackpoint.cyclePower > 0 || trackpoint.metricsContext.isPauseStart) {
@@ -288,7 +336,7 @@ export function createTCXRecorder (config) {
       tcxData += '              </ns2:TPX>\n'
       tcxData += '            </Extensions>\n'
     }
-    if (trackpoint.heartrate !== undefined && trackpoint.heartrate > 0) {
+    if (!isNaN(trackpoint.heartrate) && trackpoint.heartrate > 0) {
       tcxData += '            <HeartRateBpm>\n'
       tcxData += `              <Value>${trackpoint.heartrate}</Value>\n`
       tcxData += '            </HeartRateBpm>\n'
@@ -298,25 +346,14 @@ export function createTCXRecorder (config) {
   }
 
   async function createNotes (workout) {
-    let VO2maxoutput = 'UNDEFINED'
-    const VO2max = createVO2max(config)
-    const drag = createSeries()
-    let i = 0
-    let j = 0
-
-    while (i < workout.lap.length) {
-      j = 0
-      while (j < workout.lap[i].strokes.length) {
-        if (workout.lap[i].strokes[j].dragFactor !== undefined && workout.lap[i].strokes[j].dragFactor > 0) { drag.push(workout.lap[i].strokes[j].dragFactor) }
-        j++
-      }
-      i++
-    }
+    let VO2maxoutput
 
     // VO2Max calculation
-    const VO2maxResult = VO2max.calculateVO2max(workout)
+    const VO2maxResult = VO2max.result()
     if (VO2maxResult > 10 && VO2maxResult < 60) {
       VO2maxoutput = `${VO2maxResult.toFixed(1)} mL/(kg*min)`
+    } else {
+      VO2maxoutput = 'UNDEFINED'
     }
 
     // Addition of HRR data
@@ -377,7 +414,7 @@ export function createTCXRecorder (config) {
   function measureRecoveryHR () {
     // This function is called when the rowing session is stopped. postExerciseHR[0] is the last measured excercise HR
     // Thus postExerciseHR[1] is Recovery HR after 1 min, etc..
-    if (heartRate !== undefined && config.userSettings.restingHR <= heartRate && heartRate <= config.userSettings.maxHR) {
+    if (!isNaN(heartRate) && config.userSettings.restingHR <= heartRate && heartRate <= config.userSettings.maxHR) {
       log.debug(`*** HRR-${postExerciseHR.length}: ${heartRate}`)
       postExerciseHR.push(heartRate)
       if ((postExerciseHR.length > 1) && (postExerciseHR.length <= 4)) {
@@ -419,6 +456,6 @@ export function createTCXRecorder (config) {
     setBaseFileName,
     recordRowingMetrics,
     recordHeartRate,
-    activeWorkoutToTcx
+    fileContent
   }
 }

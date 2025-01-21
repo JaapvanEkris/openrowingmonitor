@@ -17,7 +17,18 @@ export function createWebServer (config) {
   const port = process.env.PORT || 80
   const serve = serveStatic('./build', { index: ['index.html'] })
   let timer = setTimeout(timeBasedPresenter, config.webUpdateInterval)
-  let lastKnownMetrics
+  let lastKnownMetrics = {
+    strokeState: 'WaitingForDrive',
+    sessionStatus: 'WaitingForStart',
+    totalMovingTime: 0,
+    totalNumberOfStrokes: 0,
+    totalLinearDistance: 0,
+    cyclePace: Infinity,
+    cyclePower: 0,
+    driveLength: 0,
+    driveDistance: 0,
+    dragFactor: undefined
+  }
   let heartRate
   let heartRateBatteryLevel
 

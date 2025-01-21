@@ -108,26 +108,25 @@ export function createCpsPeripheral (config) {
   // As the client calculates its own speed based on time and distance,
   // we an only update the last known metrics upon a stroke state change to prevent spiky behaviour
   function notifyData (metrics) {
-    const now = Date.now()
     if (metrics.metricsContext === undefined) return
     switch (true) {
       case (metrics.metricsContext.isSessionStop):
-        lastKnownMetrics = { ...metrics, lastDataUpdateTime: now }
+        lastKnownMetrics = { ...metrics }
         clearTimeout(timer)
         onBroadcastInterval()
         break
       case (metrics.metricsContext.isPauseStart):
-        lastKnownMetrics = { ...metrics, lastDataUpdateTime: now }
+        lastKnownMetrics = { ...metrics }
         clearTimeout(timer)
         onBroadcastInterval()
         break
       case (metrics.metricsContext.isRecoveryStart):
-        lastKnownMetrics = { ...metrics, lastDataUpdateTime: now }
+        lastKnownMetrics = { ...metrics }
         clearTimeout(timer)
         onBroadcastInterval()
         break
-      case (now - lastKnownMetrics.lastDataUpdateTime >= bleMinimumKnowDataUpdateInterval):
-        lastKnownMetrics = { ...metrics, lastDataUpdateTime: now }
+      case (metrics.timestamp - lastKnownMetrics.timestamp >= bleMinimumKnowDataUpdateInterval):
+        lastKnownMetrics = { ...metrics }
         clearTimeout(timer)
         onBroadcastInterval()
         break

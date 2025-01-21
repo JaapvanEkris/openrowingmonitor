@@ -5,57 +5,88 @@
   This Module calculates the training specific VO2Max metrics. It is based on formula's found on the web (see function definitions).
 */
 
-import { createBucketedLinearSeries } from '../engine/utils/BucketedLinearSeries.js'
+import { createBucketedLinearSeries } from './BucketedLinearSeries.js'
 import loglevel from 'loglevel'
 const log = loglevel.getLogger('RowingEngine')
 
 export function createVO2max (config) {
-  const bucketedLinearSeries = createBucketedLinearSeries(config)
+  const bucketedLinearSeries = createBucketedLinearSeries(5.0, 7.0, 6.0)
   const minimumValidBrackets = 5.0
-  const offset = 90
+  const warmupPeriod = 600 // Period to ignore HR changes to allow the HR to settle
+  let offset = warmupPeriod
+  let metricsArray = []
+  let VO2MaxResult = 0
+  let VO2MaxResultIsCurrent = true
 
-  function calculateVO2max (metrics) {
+  function push (metrics) {
+    VO2MaxResultIsCurrent = false
+    if (metrics.totalMovingTime > offset && !metrics.heartrate !== undefined && !isNaN(metrics.heartrate) && metrics.heartrate >= config.userSettings.restingHR && metrics.heartrate < config.userSettings.maxHR && !isNaN(metrics.cyclePower) && metrics.cyclePower > 0 && metrics.cyclePower <= config.userSettings.maxPower) {
+      // We are outside the startup noise and have numeric fields
+      metricsArray.push({
+        totalMovingTime: metrics.totalMovingTime,
+        totalLinearDistance: metrics.totalLinearDistance,
+        cyclePower: metrics.cyclePower,
+        heartrate: metrics.heartrate
+      })
+    }
+  }
+
+  function handleRestart (totalMovingTime) {
+    offset = totalMovingTime + warmupPeriod
+  }
+
+  function result () {
     let projectedVO2max = 0
     let interpolatedVO2max = 0
-    const lastlap = metrics.lap.length
-    const lastStroke = metrics.lap[lastlap - 1].strokes[metrics.lap[lastlap - 1].strokes.length - 1]
+    const lastStroke = metricsArray[metricsArray.length - 1]
 
-    if (metrics.lap[0].strokes[0].heartrate !== undefined && lastStroke.heartrate !== undefined && lastStroke.heartrate >= config.userSettings.restingHR) {
-      projectedVO2max = extrapolatedVO2max(metrics)
-    } else {
-      log.debug(`--- Extrapolated VO2Max calculation skipped: last stroke heartrate (${lastStroke.heartrate} BPM) < restingHR (${config.userSettings.restingHR} BPM)`)
-    }
+    if (VO2MaxResultIsCurrent === true) { return VO2MaxResult }
 
-    if (metrics.lap[0].strokes[0].heartrate !== undefined && lastStroke.heartrate !== undefined && lastStroke.heartrate >= (0.8 * config.userSettings.maxHR)) {
-      // Concept2's formula is only valid when doing a pretty intense session
-      interpolatedVO2max = calculateInterpolatedVO2max(metrics)
+    if (metricsArray.length > 0 && lastStroke.heartrate >= config.userSettings.restingHR) {
+      projectedVO2max = extrapolatedVO2max(metricsArray)
     } else {
-      log.debug(`--- Interpolated VO2Max calculation skipped: last stroke heartrate (${lastStroke.heartrate} BPM) < Zone 4 HR (${0.8 * config.userSettings.maxHR} BPM)`)
-    }
-
-    if (projectedVO2max >= 10 && projectedVO2max <= 60 && interpolatedVO2max >= 10 && interpolatedVO2max <= 60) {
-      // Both VO2Max calculations have delivered a valid and credible result
-      log.debug(`--- VO2Max calculation delivered two credible results Extrapolated VO2Max: ${projectedVO2max.toFixed(1)} and Interpolated VO2Max: ${interpolatedVO2max.toFixed(1)}`)
-      return ((projectedVO2max + interpolatedVO2max) / 2)
-    } else {
-      // One of the calculations has delivered an invalid result
-      if (interpolatedVO2max >= 10 && interpolatedVO2max <= 60) {
-        // Interpolation has delivered a credible result
-        log.debug(`--- VO2Max calculation delivered one credible result, the Interpolated VO2Max: ${interpolatedVO2max.toFixed(1)}. The Extrapolated VO2Max: ${projectedVO2max.toFixed(1)} was unreliable`)
-        return interpolatedVO2max
+      if (metricsArray.length > 0) {
+        log.debug(`--- Extrapolated VO2Max calculation skipped: last stroke heartrate (${lastStroke.heartrate} BPM) < restingHR (${config.userSettings.restingHR} BPM)`)
       } else {
-        // Interpolation hasn't delivered a credible result
-        if (projectedVO2max >= 10 && projectedVO2max <= 60) {
-          // Extrapolation did deliver a credible result
-          log.debug(`--- VO2Max calculation delivered one credible result, the Extrapolated VO2Max: ${projectedVO2max.toFixed(1)}. Interpolated VO2Max: ${interpolatedVO2max.toFixed(1)} was unreliable`)
-          return projectedVO2max
-        } else {
-          // No credible results at all!
-          log.debug(`--- VO2Max calculation did not deliver any credible results Extrapolated VO2Max: ${projectedVO2max.toFixed(1)}, Interpolated VO2Max: ${interpolatedVO2max.toFixed(1)}`)
-          return 0
-        }
+        log.debug('--- Extrapolated VO2Max calculation skipped as heartrate data was missing')
       }
     }
+
+    if (metricsArray.length > 0 && lastStroke.heartrate >= (0.8 * config.userSettings.maxHR)) {
+      // Concept2's formula is only valid when doing a pretty intense session
+      interpolatedVO2max = calculateInterpolatedVO2max(metricsArray)
+    } else {
+      if (metricsArray.length > 0) {
+        log.debug(`--- Interpolated VO2Max calculation skipped: last stroke heartrate (${lastStroke.heartrate} BPM) < Zone 4 HR (${0.8 * config.userSettings.maxHR} BPM)`)
+      } else {
+        log.debug('--- Intrapolated VO2Max calculation skipped as heartrate data was missing')
+      }
+    }
+
+    // Let's combine the results
+    switch (true) {
+      case (projectedVO2max >= 10 && projectedVO2max <= 60 && interpolatedVO2max >= 10 && interpolatedVO2max <= 60):
+        // Both VO2Max calculations have delivered a valid and credible result
+        log.debug(`--- VO2Max calculation delivered two credible results Extrapolated VO2Max: ${projectedVO2max.toFixed(1)} and Interpolated VO2Max: ${interpolatedVO2max.toFixed(1)}`)
+        VO2MaxResult = (projectedVO2max + interpolatedVO2max) / 2
+        break
+      case (interpolatedVO2max >= 10 && interpolatedVO2max <= 60):
+        // As the previous case wasn't true, we do not have two valid results. As interpolation has delivered a credible result, extrapolation hasn't
+        log.debug(`--- VO2Max calculation delivered one credible result, the Interpolated VO2Max: ${interpolatedVO2max.toFixed(1)}. The Extrapolated VO2Max: ${projectedVO2max.toFixed(1)} was unreliable`)
+        VO2MaxResult = interpolatedVO2max
+        break
+      case (projectedVO2max >= 10 && projectedVO2max <= 60):
+        // As the previous two cases are not true, Interpolation hasn't delivered a credible result, but Extrapolation delivered a credible result
+        log.debug(`--- VO2Max calculation delivered one credible result, the Extrapolated VO2Max: ${projectedVO2max.toFixed(1)}. Interpolated VO2Max: ${interpolatedVO2max.toFixed(1)} was unreliable`)
+        VO2MaxResult = projectedVO2max
+        break
+      default:
+        // No credible results at all!
+        log.debug(`--- VO2Max calculation did not deliver any credible results Extrapolated VO2Max: ${projectedVO2max.toFixed(1)}, Interpolated VO2Max: ${interpolatedVO2max.toFixed(1)}`)
+        VO2MaxResult = 0
+    }
+    VO2MaxResultIsCurrent = true
+    return VO2MaxResult
   }
 
   function extrapolatedVO2max (metrics) {
@@ -64,19 +95,10 @@ export function createVO2max (config) {
     // Underlying formula's can be found here: https://sportcoaching.co.nz/how-does-garmin-calculate-vo2-max/
     let ProjectedVO2max
 
+    bucketedLinearSeries.reset()
     let i = 0
-    let j = 0
-    while (i < metrics.lap.length) {
-      j = 0
-      while (j < metrics.lap[i].strokes.length) {
-        if (metrics.lap[i].strokes[j].totalMovingTime > offset && metrics.lap[i].strokes[j].heartrate !== undefined && metrics.lap[i].strokes[j].heartrate > 0 && metrics.lap[i].strokes[j].cyclePower !== undefined && metrics.lap[i].strokes[j].cyclePower > 0) {
-          // We are outside the startup noise and have numeric fields
-          bucketedLinearSeries.push(metrics.lap[i].strokes[j].heartrate, metrics.lap[i].strokes[j].cyclePower)
-        } else {
-          // We skip the first timeperiod as it only depicts the change from a resting HR to a working HR, we also skip inplausible values
-        }
-        j++
-      }
+    while (i < metrics.length) {
+      bucketedLinearSeries.push(metrics.heartrate, metrics.cyclePower)
       i++
     }
 
@@ -99,7 +121,7 @@ export function createVO2max (config) {
   function calculateInterpolatedVO2max (metrics) {
     // This is based on research done by concept2, https://www.concept2.com/indoor-rowers/training/calculators/vo2max-calculator,
     // which determines the VO2Max based on the 2K speed
-    const lastStroke = metrics.lap[metrics.lap.length - 1].strokes[metrics.lap[metrics.lap.length - 1].strokes.length - 1]
+    const lastStroke = metrics[metrics.length - 1]
     const distance = lastStroke.totalLinearDistance
     const time = lastStroke.totalMovingTime
     const projectedTwoKPace = interpolatePace(time, distance, 2000)
@@ -158,11 +180,15 @@ export function createVO2max (config) {
   }
 
   function reset () {
+    metricsArray = null
+    metricsArray = []
     bucketedLinearSeries.reset()
   }
 
   return {
-    calculateVO2max,
+    push,
+    handleRestart,
+    result,
     averageObservedHR,
     maxObservedHR,
     reset

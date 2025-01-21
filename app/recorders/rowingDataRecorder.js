@@ -17,7 +17,9 @@ export function createRowingDataRecorder (config) {
   let heartRate = 0
   let strokes = []
   let lastMetrics = {}
-  let allDataHasBeenWritten
+  let rowingDataFileContent
+  let rowingDataFileContentIsCurrent = true
+  let allDataHasBeenWritten = true
 
   // This function handles all incomming commands. As all commands are broadasted to all application parts,
   // we need to filter here what the WorkoutRecorder will react to and what it will ignore
@@ -35,6 +37,8 @@ export function createRowingDataRecorder (config) {
         heartRate = 0
         strokes = null
         strokes = []
+        rowingDataFileContent = null
+        rowingDataFileContent = {}
         lastMetrics = null
         lastMetrics = {}
         allDataHasBeenWritten = true
@@ -61,11 +65,10 @@ export function createRowingDataRecorder (config) {
   }
 
   function recordRowingMetrics (metrics) {
-    // ToDo: Move to the metrics.timestamp data
     switch (true) {
       case (metrics.metricsContext.isSessionStart):
         if (startTime === undefined) {
-          startTime = new Date()
+          startTime = metrics.timestamp
         }
         addMetricsToStrokesArray(metrics)
         break
@@ -98,10 +101,10 @@ export function createRowingDataRecorder (config) {
 
   function addMetricsToStrokesArray (metrics) {
     addHeartRateToMetrics(metrics)
-    addTimestampToMetrics(metrics)
     addSplitnumberToMetrics(metrics)
     strokes.push(metrics)
     allDataHasBeenWritten = false
+    rowingDataFileContentIsCurrent = false
   }
 
   function addHeartRateToMetrics (metrics) {
@@ -112,24 +115,11 @@ export function createRowingDataRecorder (config) {
     }
   }
 
-  function addTimestampToMetrics (metrics) {
-    if (metrics.totalMovingTime !== undefined) {
-      const trackPointTime = new Date(startTime.getTime() + metrics.totalMovingTime * 1000)
-      metrics.timestamp = trackPointTime.getTime() / 1000
-    } else {
-      const currentTime = new Date()
-      metrics.timestamp = currentTime.getTime() / 1000
-    }
-  }
-
   function addSplitnumberToMetrics (metrics) {
     metrics.rowingDataSplitNumber = splitNumber
   }
 
   async function createRowingDataFile () {
-    let currentstroke
-    let i
-
     // Do not write again if not needed
     if (allDataHasBeenWritten) return
 
@@ -139,17 +129,46 @@ export function createRowingDataRecorder (config) {
       return
     }
 
+    const RowingData = await workoutToRowingData(strokes)
+
+    if (RowingData === undefined) {
+      log.error('error creating RowingData file')
+    } else {
+      await createFile(RowingData, `${filename}`, false)
+      allDataHasBeenWritten = true
+      log.info(`RowingData has been written as ${filename}`)
+    }
+  }
+
+  async function fileContent () {
+    // Be aware, this is exposed to the RowsAndAll exporter
+    const RowingData = await workoutToRowingData(strokes)
+    if (RowingData === undefined) {
+      log.error('error creating RowingData file content')
+      return undefined
+    } else {
+      return RowingData
+    }
+  }
+
+  async function workoutToRowingData (strokedata) {
+    // Be aware, this function has two entry points: createRowingDataFile and fileContent
+    // The file content is filled and hasn't changed
+    let currentstroke
+
+    if (rowingDataFileContentIsCurrent === true && rowingDataFileContent !== undefined) { return rowingDataFileContent }
+
     // Required file header, please note this includes a typo and odd spaces as the specification demands it!
     let RowingData = ',index, Stroke Number, lapIdx,TimeStamp (sec), ElapsedTime (sec), HRCur (bpm),DistanceMeters, Cadence (stokes/min), Stroke500mPace (sec/500m), Power (watts), StrokeDistance (meters),' +
       ' DriveTime (ms), DriveLength (meters), StrokeRecoveryTime (ms),Speed, Horizontal (meters), Calories (kCal), DragFactor, PeakDriveForce (N), AverageDriveForce (N),' +
       'Handle_Force_(N),Handle_Velocity_(m/s),Handle_Power_(W)\n'
 
     // Add the strokes
-    i = 0
-    while (i < strokes.length) {
-      currentstroke = strokes[i]
+    let i = 0
+    while (i < strokedata.length) {
+      currentstroke = strokedata[i]
       // Add the strokes
-      RowingData += `${(i + 1).toFixed(0)},${(i + 1).toFixed(0)},${currentstroke.totalNumberOfStrokes.toFixed(0)},${currentstroke.rowingDataSplitNumber.toFixed(0)},${currentstroke.timestamp.toFixed(5)},` +
+      RowingData += `${(i + 1).toFixed(0)},${(i + 1).toFixed(0)},${currentstroke.totalNumberOfStrokes.toFixed(0)},${currentstroke.rowingDataSplitNumber.toFixed(0)},${(currentstroke.timestamp / 1000).toFixed(3)},` +
       `${currentstroke.totalMovingTime.toFixed(5)},${(currentstroke.heartrate !== undefined ? currentstroke.heartrate.toFixed(0) : NaN)},${currentstroke.totalLinearDistance.toFixed(1)},` +
       `${currentstroke.cycleStrokeRate > 0 ? currentstroke.cycleStrokeRate.toFixed(1) : NaN},${(currentstroke.totalNumberOfStrokes > 0 && currentstroke.cyclePace > 0 ? currentstroke.cyclePace.toFixed(2) : NaN)},${(currentstroke.totalNumberOfStrokes > 0 && currentstroke.cyclePower > 0 ? currentstroke.cyclePower.toFixed(0) : NaN)},` +
       `${currentstroke.cycleDistance > 0 ? currentstroke.cycleDistance.toFixed(2) : NaN},${currentstroke.driveDuration > 0 ? (currentstroke.driveDuration * 1000).toFixed(0) : NaN},${(currentstroke.totalNumberOfStrokes > 0 && currentstroke.driveLength ? currentstroke.driveLength.toFixed(2) : NaN)},${currentstroke.recoveryDuration > 0 ? (currentstroke.recoveryDuration * 1000).toFixed(0) : NaN},` +
@@ -158,9 +177,9 @@ export function createRowingDataRecorder (config) {
       `"${currentstroke.driveAverageHandleForce > 0 ? currentstroke.driveHandleVelocityCurve.map(value => value.toFixed(3)) : NaN}","${currentstroke.driveAverageHandleForce > 0 ? currentstroke.driveHandlePowerCurve.map(value => value.toFixed(1)) : NaN}"\n`
       i++
     }
-    await createFile(RowingData, `${filename}`, false)
-    allDataHasBeenWritten = true
-    log.info(`RowingData has been written as ${filename}`)
+    rowingDataFileContent = RowingData
+    rowingDataFileContentIsCurrent = true
+    return rowingDataFileContent
   }
 
   async function createFile (content, filename, compress = false) {
@@ -182,7 +201,7 @@ export function createRowingDataRecorder (config) {
 
   function minimumRecordingTimeHasPassed () {
     const minimumRecordingTimeInSeconds = 10
-    if (strokes.length > 0) {
+    if (strokes.length > 2) {
       const strokeTimeTotal = strokes[strokes.length - 1].totalMovingTime
       return (strokeTimeTotal > minimumRecordingTimeInSeconds)
     } else {
@@ -194,6 +213,7 @@ export function createRowingDataRecorder (config) {
     handleCommand,
     setBaseFileName,
     recordRowingMetrics,
-    recordHeartRate
+    recordHeartRate,
+    fileContent
   }
 }

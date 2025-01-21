@@ -5,13 +5,10 @@
   This Module calculates a bucketed Linear Regression. It assumes a rising line.
 */
 
-import { createTSLinearSeries } from './FullTSLinearSeries.js'
+import { createTSLinearSeries } from '../../engine/utils/FullTSLinearSeries.js'
 
-export function createBucketedLinearSeries (config) {
+export function createBucketedLinearSeries (xCutOffInterval, yCutOffInterval, minimumValuesInBracket) {
   const linearSeries = createTSLinearSeries()
-  const xCutOffInterval = 5.0
-  const yCutOffInterval = 7.0
-  const minimumValuesInBracket = 6.0
 
   let xBracketStart = 0.0
   let xBracketEnd = 0.0

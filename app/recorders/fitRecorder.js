@@ -8,6 +8,7 @@ import log from 'loglevel'
 import zlib from 'zlib'
 import fs from 'fs/promises'
 import { createSeries } from '../engine/utils/Series.js'
+import { createVO2max } from './utils/VO2max.js'
 import { promisify } from 'util'
 import { FitWriter } from '@markw65/fit-file-writer'
 
@@ -24,21 +25,28 @@ export function createFITRecorder (config) {
   const sessionStrokerateSeries = createSeries()
   const sessionStrokedistanceSeries = createSeries()
   const sessionHeartrateSeries = createSeries()
+  const VO2max = createVO2max(config)
   let filename
   let heartRate = 0
   let sessionData = {}
   sessionData.workoutplan = []
+  sessionData.workoutplan[0] = { type: 'justrow' }
   sessionData.lap = []
   let lapnumber = 0
+  let postExerciseHR2 = 0
   let lastMetrics = {}
-  let allDataHasBeenWritten
+  let fitfileContent
+  let fitfileContentIsCurrent = true
+  let allDataHasBeenWritten = true
 
   // This function handles all incomming commands. Here, the recordingmanager will have filtered
   // all unneccessary commands for us, so we only need to react to 'updateIntervalSettings', 'reset' and 'shutdown'
   async function handleCommand (commandName, data, client) {
     switch (commandName) {
       case ('updateIntervalSettings'):
-        setIntervalParameters(data)
+        if (!lastMetrics.metricsContext.isMoving) {
+          setIntervalParameters(data)
+        }
         break
       case ('reset'):
         if (lastMetrics.metricsContext.isMoving && lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
@@ -54,6 +62,9 @@ export function createFITRecorder (config) {
         resetLapMetrics()
         sessionData = null
         sessionData = {}
+        sessionData.workoutplan = []
+        sessionData.workoutplan[0] = { type: 'justrow' }
+        sessionData.lap = []
         lastMetrics = {}
         break
       case 'shutdown':
@@ -77,21 +88,17 @@ export function createFITRecorder (config) {
 
   function setIntervalParameters (intervalParameters) {
     if (intervalParameters !== undefined && intervalParameters.length > 0) {
+      sessionData.workoutplan = null
       sessionData.workoutplan = intervalParameters
     }
   }
 
   function recordRowingMetrics (metrics) {
-    // ToDo: Move to the metrics.timestamp data
-    const currentTime = new Date()
-    let startTime
-    let workoutStepNo
-
     switch (true) {
       case (metrics.metricsContext.isSessionStart):
-        sessionData.startTime = currentTime
+        sessionData.startTime = metrics.timestamp
         lapnumber = 0
-        startLap(lapnumber, metrics, currentTime)
+        startLap(lapnumber, metrics)
         addMetricsToStrokesArray(metrics)
         break
       case (metrics.metricsContext.isSessionStop):
@@ -100,7 +107,9 @@ export function createFITRecorder (config) {
         addMetricsToStrokesArray(metrics)
         calculateLapMetrics(metrics)
         calculateSessionMetrics(metrics)
+        postExerciseHR2 = 0
         createFitFile()
+        setTimeout(measureRecoveryHR, 120000)
         break
       case (metrics.metricsContext.isPauseStart):
         updateLapMetrics(metrics)
@@ -109,19 +118,19 @@ export function createFITRecorder (config) {
         calculateLapMetrics(metrics)
         calculateSessionMetrics(metrics)
         resetLapMetrics()
+        postExerciseHR2 = 0
         createFitFile()
+        setTimeout(measureRecoveryHR, 120000)
         break
       case (metrics.metricsContext.isPauseEnd):
         // The session is resumed, so it was a pause instead of a stop
-        startTime = sessionData.lap[lapnumber].endTime
-        workoutStepNo = sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].workoutStepNumber
         lapnumber++
-        addRestLap(lapnumber, metrics, startTime, currentTime, workoutStepNo)
+        addRestLap(lapnumber, metrics, sessionData.lap[lapnumber - 1].endTime, sessionData.lap[lapnumber - 1].strokes[sessionData.lap[lapnumber - 1].strokes.length - 1].workoutStepNumber)
         lapnumber++
-        startLap(lapnumber, metrics, currentTime)
+        startLap(lapnumber, metrics)
         addMetricsToStrokesArray(metrics)
         break
-      case (metrics.metricsContext.isIntervalStart || metrics.metricsContext.isSplitEnd):
+      case (metrics.metricsContext.isIntervalStart):
         if (metrics.metricsContext.isDriveStart) { addMetricsToStrokesArray(metrics) }
         updateLapMetrics(metrics)
         updateSessionMetrics(metrics)
@@ -129,7 +138,18 @@ export function createFITRecorder (config) {
         calculateSessionMetrics(metrics)
         resetLapMetrics()
         lapnumber++
-        startLap(lapnumber, metrics, sessionData.lap[lapnumber - 1].endTime)
+        startLap(lapnumber, metrics)
+        updateLapMetrics(metrics)
+        break
+      case (metrics.metricsContext.isSplitEnd):
+        if (metrics.metricsContext.isDriveStart) { addMetricsToStrokesArray(metrics) }
+        updateLapMetrics(metrics)
+        updateSessionMetrics(metrics)
+        calculateLapMetrics(metrics)
+        calculateSessionMetrics(metrics)
+        resetLapMetrics()
+        lapnumber++
+        startLap(lapnumber, metrics)
         updateLapMetrics(metrics)
         break
       case (metrics.metricsContext.isDriveStart):
@@ -143,19 +163,20 @@ export function createFITRecorder (config) {
 
   function addMetricsToStrokesArray (metrics) {
     addHeartRateToMetrics(metrics)
-    metrics.timeStamp = new Date(sessionData.lap[lapnumber].startTime.getTime() + (metrics.totalMovingTime - sessionData.lap[lapnumber].totalMovingTimeAtStart) * 1000)
     sessionData.lap[lapnumber].strokes.push(metrics)
+    VO2max.push(metrics)
+    fitfileContentIsCurrent = false
     allDataHasBeenWritten = false
   }
 
-  function startLap (lapnumber, metrics, startTime) {
+  function startLap (lapnumber, metrics) {
     sessionData.lap[lapnumber] = { totalMovingTimeAtStart: metrics.totalMovingTime }
     sessionData.lap[lapnumber].intensity = 'active'
     sessionData.lap[lapnumber].strokes = []
     sessionData.lap[lapnumber].totalLinearDistanceAtStart = metrics.totalLinearDistance
     sessionData.lap[lapnumber].totalCaloriesAtStart = metrics.totalCalories
     sessionData.lap[lapnumber].totalNumberOfStrokesAtStart = metrics.totalNumberOfStrokes
-    sessionData.lap[lapnumber].startTime = startTime
+    sessionData.lap[lapnumber].startTime = metrics.timestamp
     sessionData.lap[lapnumber].workoutStepNumber = metrics.workoutStepNumber
     sessionData.lap[lapnumber].lapNumber = lapnumber + 1
   }
@@ -171,7 +192,7 @@ export function createFITRecorder (config) {
   function calculateLapMetrics (metrics) {
     // We need to calculate the end time of the interval based on the time passed in the interval, as delay in message handling can cause weird effects here
     sessionData.lap[lapnumber].totalMovingTime = metrics.totalMovingTime - sessionData.lap[lapnumber].totalMovingTimeAtStart
-    sessionData.lap[lapnumber].endTime = new Date(sessionData.lap[lapnumber].startTime.getTime() + sessionData.lap[lapnumber].totalMovingTime * 1000)
+    sessionData.lap[lapnumber].endTime = metrics.timestamp
     sessionData.lap[lapnumber].totalLinearDistance = metrics.totalLinearDistance - sessionData.lap[lapnumber].totalLinearDistanceAtStart
     sessionData.lap[lapnumber].totalCalories = metrics.totalCalories - sessionData.lap[lapnumber].totalCaloriesAtStart
     sessionData.lap[lapnumber].numberOfStrokes = metrics.totalNumberOfStrokes - sessionData.lap[lapnumber].totalNumberOfStrokesAtStart
@@ -194,12 +215,13 @@ export function createFITRecorder (config) {
     lapHeartrateSeries.reset()
   }
 
-  function addRestLap (lapnumber, metrics, startTime, endTime, workoutStepNo) {
+  function addRestLap (lapnumber, metrics, startTime, workoutStepNo) {
     sessionData.lap[lapnumber] = { startTime }
     sessionData.lap[lapnumber].intensity = 'rest'
     sessionData.lap[lapnumber].workoutStepNumber = workoutStepNo
     sessionData.lap[lapnumber].lapNumber = lapnumber + 1
-    sessionData.lap[lapnumber].endTime = endTime
+    sessionData.lap[lapnumber].endTime = metrics.timestamp
+    VO2max.handleRestart(metrics.totalMovingTime)
   }
 
   function updateSessionMetrics (metrics) {
@@ -224,6 +246,7 @@ export function createFITRecorder (config) {
     sessionStrokerateSeries.reset()
     sessionStrokedistanceSeries.reset()
     sessionHeartrateSeries.reset()
+    VO2max.reset()
   }
 
   // initiated when a new heart rate value is received from heart rate sensor
@@ -249,17 +272,33 @@ export function createFITRecorder (config) {
       return
     }
 
-    const fitRecord = await workoutToFit(sessionData)
-    if (fitRecord === undefined) {
+    const fitData = await workoutToFit(sessionData)
+
+    if (fitData === undefined) {
       log.error('error creating fit file')
-      return
+    } else {
+      await createFile(fitData, `${filename}`, config.gzipFitFiles)
+      allDataHasBeenWritten = true
+      log.info(`Garmin fit data has been written as ${filename}`)
     }
-    await createFile(fitRecord, `${filename}`, config.gzipFitFiles)
-    allDataHasBeenWritten = true
-    log.info(`Garmin fit data has been written as ${filename}`)
+  }
+
+  async function fileContent () {
+    // Be aware, this is exposed to the Strava and intervals.icu exporter
+    const fitData = await workoutToFit(sessionData)
+    if (fitData === undefined) {
+      log.error('error creating fit file content')
+      return undefined
+    } else {
+      return fitData
+    }
   }
 
   async function workoutToFit (workout) {
+    // Be aware, this function has two entry points: createFitFile and fileContent
+    // The file content is filled and hasn't changed
+    if (fitfileContentIsCurrent === true && fitfileContent !== undefined) { return fitfileContent }
+
     // See https://developer.garmin.com/fit/file-types/activity/ for the fields and their meaning. We use 'Smart Recording' per stroke.
     // See also https://developer.garmin.com/fit/cookbook/encoding-activity-files/ for a description of the filestructure and how timestamps should be implemented
     // We use 'summary last message sequencing' as the stream makes most sense that way
@@ -301,12 +340,26 @@ export function createFITRecorder (config) {
       true
     )
 
+    // The below message deliberately leans on the config.userSettings as they might be changed by external sources
+    fitWriter.writeMessage(
+      'user_profile',
+      {
+        gender: config.userSettings.sex,
+        weight: config.userSettings.weight,
+        weight_setting: 'metric',
+        resting_heart_rate: config.userSettings.restingHR,
+        default_max_heart_rate: config.userSettings.maxHR
+      },
+      null,
+      true
+    )
+
     fitWriter.writeMessage(
       'sport',
       {
         sport: 'rowing',
         sub_sport: 'indoorRowing',
-        name: 'Row Indoor'
+        name: 'Indoor rowing'
       },
       null,
       true
@@ -318,7 +371,9 @@ export function createFITRecorder (config) {
     // Write the metrics
     await createActivity(fitWriter, workout)
 
-    return fitWriter.finish()
+    fitfileContent = fitWriter.finish()
+    fitfileContentIsCurrent = true
+    return fitfileContent
   }
 
   async function createActivity (writer, workout) {
@@ -358,6 +413,8 @@ export function createFITRecorder (config) {
       null,
       true
     )
+
+    await createVO2MaxRecord(writer, workout)
 
     // Conclude with a session summary
     // See https://developer.garmin.com/fit/cookbook/durations/ for explanation about times
@@ -409,6 +466,8 @@ export function createFITRecorder (config) {
       null,
       true
     )
+
+    await addHRR2Event(writer)
   }
 
   async function addTimerEvent (writer, time, eventType) {
@@ -514,7 +573,7 @@ export function createFITRecorder (config) {
     writer.writeMessage(
       'record',
       {
-        timestamp: writer.time(trackpoint.timeStamp),
+        timestamp: writer.time(trackpoint.timestamp),
         distance: trackpoint.totalLinearDistance,
         total_cycles: trackpoint.totalNumberOfStrokes,
         activity_type: 'fitnessEquipment',
@@ -549,7 +608,7 @@ export function createFITRecorder (config) {
       switch (true) {
         case (workout.workoutplan[i].type === 'distance' && workout.workoutplan[i].targetDistance > 0):
           // A target distance is set
-          createWorkoutStep(writer, i, 'distance', workout.workoutplan[i].targetDistance, 'active')
+          createWorkoutStep(writer, i, 'distance', workout.workoutplan[i].targetDistance * 100, 'active')
           break
         case (workout.workoutplan[i].type === 'time' && workout.workoutplan[i].targetTime > 0):
           // A target time is set
@@ -583,6 +642,39 @@ export function createFITRecorder (config) {
     )
   }
 
+  async function createVO2MaxRecord (writer, workout) {
+    if (!isNaN(VO2max.result()) && VO2max.result() > 10 && VO2max.result() < 60) {
+      writer.writeMessage(
+        'max_met_data',
+        {
+          update_time: writer.time(workout.endTime),
+          sport: 'rowing',
+          sub_sport: 'indoorRowing',
+          vo2_max: VO2max.result(),
+          max_met_category: 'generic'
+        },
+        null,
+        true
+      )
+    }
+  }
+
+  async function addHRR2Event (writer) {
+    if (!isNaN(postExerciseHR2) && postExerciseHR2 > 0) {
+      writer.writeMessage(
+        'event',
+        {
+          timestamp: writer.time(new Date()),
+          event: 'recoveryHr',
+          event_type: 'marker',
+          data: postExerciseHR2
+        },
+        null,
+        true
+      )
+    }
+  }
+
   async function createFile (content, filename, compress = false) {
     if (compress) {
       const gzipContent = await gzip(content)
@@ -597,6 +689,14 @@ export function createFITRecorder (config) {
       } catch (err) {
         log.error(err)
       }
+    }
+  }
+
+  function measureRecoveryHR () {
+    if (!isNaN(heartRate) && config.userSettings.restingHR <= heartRate && heartRate <= config.userSettings.maxHR) {
+      postExerciseHR2 = heartRate
+      allDataHasBeenWritten = false
+      createFitFile()
     }
   }
 
@@ -625,6 +725,7 @@ export function createFITRecorder (config) {
     setBaseFileName,
     setIntervalParameters,
     recordRowingMetrics,
-    recordHeartRate
+    recordHeartRate,
+    fileContent
   }
 }

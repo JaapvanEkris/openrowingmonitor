@@ -20,6 +20,7 @@ export function createSessionManager (config) {
   let metrics
   let lastBroadcastedMetrics = {}
   let pauseTimer
+  let pauseCountdownTimer = 0
   let watchdogTimer
   const watchdogTimout = 1000 * config.rowerSettings.maximumStrokeTimeBeforePause // Pause timeout in miliseconds
   let sessionState = 'WaitingForStart'
@@ -47,19 +48,21 @@ export function createSessionManager (config) {
     resetMetricsSessionContext(metrics)
     switch (commandName) {
       case ('updateIntervalSettings'):
-        setIntervalParameters(data)
+        if (sessionState !== 'Rowing') {
+          setIntervalParameters(data)
+        }
         break
       case ('start'):
         if (sessionState !== 'Rowing') {
           clearTimeout(pauseTimer)
-          allowStartOrResumeTraining(metrics)
+          StartOrResumeTraining(metrics)
           sessionState = 'WaitingForStart'
         }
         break
       case ('startOrResume'):
         if (sessionState !== 'Rowing') {
           clearTimeout(pauseTimer)
-          allowStartOrResumeTraining(metrics)
+          StartOrResumeTraining(metrics)
           sessionState = 'WaitingForStart'
         }
         break
@@ -110,7 +113,7 @@ export function createSessionManager (config) {
     lastSessionState = sessionState
   }
 
-  function allowStartOrResumeTraining (metrics) {
+  function StartOrResumeTraining (metrics) {
     rowingStatistics.allowStartOrResumeTraining()
     intervalAndPauseStartTime = new Date()
     intervalAndPause.setStart(metrics)
@@ -138,6 +141,7 @@ export function createSessionManager (config) {
     intervalSettings = null
     intervalSettings = []
     currentIntervalNumber = -1
+    pauseCountdownTimer = 0
     splitNumber = 0
     distanceOverTime.reset()
     metrics = rowingStatistics.getMetrics()
@@ -168,7 +172,7 @@ export function createSessionManager (config) {
     // This is the core of the finite state machine that defines all state transitions
     switch (true) {
       case (lastSessionState === 'WaitingForStart' && metrics.metricsContext.isMoving === true):
-        allowStartOrResumeTraining(metrics)
+        StartOrResumeTraining(metrics)
         sessionState = 'Rowing'
         metrics.metricsContext.isIntervalStart = true
         metrics.metricsContext.isSessionStart = true
@@ -177,7 +181,7 @@ export function createSessionManager (config) {
         // We can't change into the "Rowing" state since we are waiting for a drive phase that didn't come
         break
       case (lastSessionState === 'Paused' && metrics.metricsContext.isMoving === true):
-        allowStartOrResumeTraining(metrics)
+        StartOrResumeTraining(metrics)
         sessionState = 'Rowing'
         metrics.metricsContext.isIntervalStart = true
         metrics.metricsContext.isPauseEnd = true
@@ -226,21 +230,25 @@ export function createSessionManager (config) {
         // As we typically overshoot our interval target, we project the intermediate value
         stopTraining()
         temporaryDatapoint = interval.interpolateEnd(lastBroadcastedMetrics, metrics)
-        currentIntervalNumber++
-        pauseTimer = setTimeout(onPauseTimer, (intervalSettings[currentIntervalNumber].targetTime * 1000))
         sessionState = 'Paused'
+        currentIntervalNumber++
         if (temporaryDatapoint.modified) {
           // The intermediate datapoint is actually different
           resetMetricsSessionContext(temporaryDatapoint)
           temporaryDatapoint.metricsContext.isIntervalStart = true
           temporaryDatapoint.metricsContext.isSplitEnd = true
           temporaryDatapoint.metricsContext.isPauseStart = true
+          interval.setStart(temporaryDatapoint)
           emitMetrics(temporaryDatapoint)
         } else {
           metrics.metricsContext.isIntervalStart = true
           metrics.metricsContext.isSplitEnd = true
           metrics.metricsContext.isPauseStart = true
+          interval.setStart(metrics)
         }
+        interval.setEnd(intervalSettings[currentIntervalNumber])
+        pauseCountdownTimer = interval.timeToEnd(metrics)
+        pauseTimer = setTimeout(onPauseTimer, 100)
         break
       case (lastSessionState === 'Rowing' && metrics.metricsContext.isMoving && interval.isEndReached(metrics)):
         // Here we do NOT want zero the metrics, as we want to keep the metrics we had when we crossed the finishline
@@ -296,6 +304,7 @@ export function createSessionManager (config) {
   }
 
   function setIntervalParameters (intervalParameters) {
+    intervalSettings = null
     intervalSettings = intervalParameters
     currentIntervalNumber = -1
     if (intervalSettings.length > 0) {
@@ -349,13 +358,21 @@ export function createSessionManager (config) {
   }
 
   function onPauseTimer () {
-    pauseTraining()
-    sessionState = 'Paused'
-    metrics = rowingStatistics.getMetrics()
-    activateNextIntervalParameters(metrics)
-    resetMetricsSessionContext(metrics)
+    pauseCountdownTimer = pauseCountdownTimer - 0.1
+    if (pauseCountdownTimer > 0) {
+      // The countdowntimer still has some time left on itq
+      pauseTimer = setTimeout(onPauseTimer, 100)
+    } else {
+      // The timer has run out
+      pauseTraining()
+      sessionState = 'Paused'
+      metrics = rowingStatistics.getMetrics()
+      activateNextIntervalParameters(metrics)
+      resetMetricsSessionContext(metrics)
+      pauseCountdownTimer = 0
+      log.debug(`Time: ${metrics.totalMovingTime}, rest interval ended`)
+    }
     emitMetrics(metrics)
-    log.debug(`Time: ${metrics.totalMovingTime}, rest interval ended`)
   }
 
   function emitMetrics (metricsToEmit) {
@@ -369,6 +386,7 @@ export function createSessionManager (config) {
     metricsToEnrich.sessiontype = interval.type()
     metricsToEnrich.sessionStatus = sessionState // ToDo: remove this naming change by changing the consumers
     metricsToEnrich.workoutStepNumber = Math.max(currentIntervalNumber, 0) // Interval number, to keep in sync with the workout plan
+    metricsToEnrich.pauseCountdownTime = Math.max(pauseCountdownTimer, 0) // Time left on the countdown timer
     metricsToEnrich.intervalMovingTime = interval.timeSinceStart(metricsToEnrich)
     metricsToEnrich.intervalTargetTime = interval.targetTime()
     metricsToEnrich.intervalAndPauseMovingTime = intervalAndPause.timeSinceStart(metricsToEnrich)
@@ -382,7 +400,7 @@ export function createSessionManager (config) {
   }
 
   function onWatchdogTimeout () {
-    log.error(`Time: ${metrics.totalMovingTime}, Watchdog timout forces a hard stop due to exceeding the twice maximumStrokeTimeBeforePause (i.e. ${watchdogTimout} seconds) without drive/recovery change`)
+    log.error(`Time: ${metrics.totalMovingTime}, Forced a session stop due to unexpeted flywheel stop, exceeding the maximumStrokeTimeBeforePause (i.e. ${watchdogTimout} seconds) without new datapoints`)
     stopTraining()
     metrics = rowingStatistics.getMetrics()
     resetMetricsSessionContext(metrics)

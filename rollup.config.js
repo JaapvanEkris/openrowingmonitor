@@ -1,9 +1,13 @@
+/*
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
+*/
+
 // Import rollup plugins
-import html from '@web/rollup-plugin-html'
+import { rollupPluginHTML as html } from "@web/rollup-plugin-html"
 import resolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import { babel } from '@rollup/plugin-babel'
-import { terser } from 'rollup-plugin-terser'
+import terser from '@rollup/plugin-terser'
 import summary from 'rollup-plugin-summary'
 
 // Configure an instance of @web/rollup-plugin-html

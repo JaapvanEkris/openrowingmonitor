@@ -70,6 +70,14 @@ export function createWorkoutSegment () {
 
     // Set the split parameters
     switch (true) {
+      case (intervalSettings.type === 'rest'):
+        // A rest interval has no split defined
+        _split = {
+          type: 'justrow',
+          targetDistance: 0,
+          targetTime: 0
+        }
+        break
       case (intervalSettings.split !== undefined && intervalSettings.split.type === 'distance' && intervalSettings.split.targetDistance > 0):
         // A target distance is set
         _split = {
@@ -127,7 +135,7 @@ export function createWorkoutSegment () {
 
   // Returns the time to the endpoint
   function timeToEnd (baseMetrics) {
-    if (_type === 'time' && _endTime > 0) {
+    if ((_type === 'time' || _type === 'rest') && _endTime > 0) {
       // We have exceeded the boundary
       return _endTime - baseMetrics.totalMovingTime
     } else {

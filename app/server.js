@@ -47,8 +47,8 @@ if (config.appPriority) {
 // When set, the GUI will behave similar to a PM5 in that it counts down from the target to 0
 const intervalSettings = []
 
-/* an example of the workout setting that the sessionManager will obey: a 1 minute warmup, a 2K timed piece followed by a 1 minute cooldown
-// All with a 500 meter split
+/* an example of the workout setting that the sessionManager will obey: a 1 minute warmup, one minute rest, a 2K timed piece, followed by one minute rest, and a 1 minute cooldown
+// Some with a 500 meter split, one with a 30 second split
 // ToDo: This should normally come from the PM5 interface, the webinterface or one of the integration partners
 intervalSettings[0] = {
   type: 'time',
@@ -56,13 +56,18 @@ intervalSettings[0] = {
   targetTime: 60,
   split: {
     type: 'distance',
-    targetDistance: 500,
-    targetTime: 0
+    targetDistance: 0,
+    targetTime: 30
   }
 }
 
-/* Additional intervals for testing
-intervalSettings[0] = {
+intervalSettings[1] = {
+  type: 'rest',
+  targetDistance: 0,
+  targetTime: 60,
+}
+
+intervalSettings[2] = {
   type: 'distance',
   targetDistance: 2000,
   targetTime: 0,
@@ -73,7 +78,13 @@ intervalSettings[0] = {
   }
 }
 
-intervalSettings[0] = {
+intervalSettings[3] = {
+  type: 'rest',
+  targetDistance: 0,
+  targetTime: 60,
+}
+
+intervalSettings[4] = {
   type: 'time',
   targetDistance: 0,
   targetTime: 60,
