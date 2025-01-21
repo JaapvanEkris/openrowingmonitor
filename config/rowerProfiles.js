@@ -163,7 +163,7 @@ export default {
     minimumRecoveryTime: 0.90,
     flywheelInertia: 0.101255,
     magicConstant: 2.8
-   },
+  },
 
   // DKN R-320 Air Rower
   DKN_R320: {
