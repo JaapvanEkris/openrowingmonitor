@@ -37,7 +37,7 @@ Uploading your sessions to [Strava](https://www.strava.com) is an integrated fea
 
 ## RowsAndAll.com
 
-Uploading to [RowsAndAll](https://rowsandall.com/) can be automated through their e-mail interface, see [this description](https://rowsandall.com/rowers/developers/). Once you setup of your mail sending client has been done on the Raspberry Pi, you can do the following
+[RowsAndAll](https://rowsandall.com/) provides the most extensive on-line data analysis environment for rowing. Our RowingData export is made in collaboration with them, and provides the most extensve dataset OpenRowingMonitor can provide. Uploading can be automated through their e-mail interface, see [this description](https://rowsandall.com/rowers/developers/). Once you setup of your mail sending client has been done on the Raspberry Pi, you can do the following
 
 ```sh
 echo -e "workouttype rower (Indoor rower)\nnote ${note}" | mail -r YOUR@EMAIL.com -s "${descriptor}" --content-type=text/csv --content-filename "Workout.csv" -A ${fileName} workouts@rowsandall.com --content-type=text/plain
