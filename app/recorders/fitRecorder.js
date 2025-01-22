@@ -695,6 +695,7 @@ export function createFITRecorder (config) {
   function measureRecoveryHR () {
     if (!isNaN(heartRate) && config.userSettings.restingHR <= heartRate && heartRate <= config.userSettings.maxHR) {
       postExerciseHR2 = heartRate
+      fitfileContentIsCurrent = false
       allDataHasBeenWritten = false
       createFitFile()
     }
