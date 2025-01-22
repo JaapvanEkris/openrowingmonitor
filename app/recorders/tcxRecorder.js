@@ -419,6 +419,7 @@ export function createTCXRecorder (config) {
       postExerciseHR.push(heartRate)
       if ((postExerciseHR.length > 1) && (postExerciseHR.length <= 4)) {
         // We skip reporting postExerciseHR[0] and only report measuring postExerciseHR[1], postExerciseHR[2], postExerciseHR[3]
+        tcxfileContentIsCurrent = false
         allDataHasBeenWritten = false
         createTcxFile()
       }
