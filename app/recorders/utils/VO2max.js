@@ -98,7 +98,7 @@ export function createVO2max (config) {
     bucketedLinearSeries.reset()
     let i = 0
     while (i < metrics.length) {
-      bucketedLinearSeries.push(metrics.heartrate, metrics.cyclePower)
+      bucketedLinearSeries.push(metrics[i].heartrate, metrics[i].cyclePower)
       i++
     }
 
