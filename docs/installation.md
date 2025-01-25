@@ -13,18 +13,24 @@ This guide roughly explains how to set up the rowing software and hardware.
   * with a build in reed sensor that you can directly connect to the GPIO pins of the Raspberry Pi
   * if your machine doesn't have a sensor, it should be easy to build something similar (magnetically or optical)
 * Some Dupont cables to connect the GPIO pins to the sensor
+* Optionally, an ANT+ USB stick
+
+The cheapest solution is a headless Raspberry Pi Zero 2W (roughly $15), the most expensive is a Raspberry Pi 4 Model B with a 7' tocuh screen in an ABS case (roughly $180). The choice is really yours, but for some data intensive machines (air based rowers with 4 or more magnets) do much better with a Raspberry Pi 4.
 
 ## Software Installation
 
 ### Initialization of the Raspberry Pi
 
-* Install **Raspberry Pi OS Lite** on the SD Card i.e. with the [Raspberry Pi Imager](https://www.raspberrypi.org/software). Here, Raspberry Pi OS Lite 64 Bit is recommended as it is better suited for real-time environments. Please note that on a Raspberry Pi Zero or Zero 2, you need to increase the swap-size to 1024 otherwise the installation will fail (see [this manual how to do this](https://pimylifeup.com/raspberry-pi-swap-file/));
+* Install **Raspberry Pi OS Lite** on the SD Card i.e. with the [Raspberry Pi Imager](https://www.raspberrypi.org/software). Here, Raspberry Pi OS Lite 64 Bit is recommended as it is better suited for real-time environments. This can be done by selecting "other" Raspberry Pi OS in the imager and select OS Lite 64 Bit. We typically support the current and previous (Legacy) version of Raspberry Pi OS.
 * Configure the network connection and enable SSH, if you use the Raspberry Pi Imager, you can automatically do this while writing the SD Card, just press `Ctrl-Shift-X`(see [here](https://www.raspberrypi.org/blog/raspberry-pi-imager-update-to-v1-6/) for a description), otherwise follow the instructions below
 * Connect the device to your network ([headless](https://www.raspberrypi.org/documentation/configuration/wireless/headless.md) or via [command line](https://www.raspberrypi.org/documentation/configuration/wireless/wireless-cli.md))
 * Enable [SSH](https://www.raspberrypi.org/documentation/remote-access/ssh/README.md)
 * Tune the OS if needed [by following our performance improvement guide](Improving_Raspberry_Performance.md)
 
-### Installation of the Open Rowing Monitor
+> [!NOTE]
+> On a Raspberry Pi Zero or Zero 2, you need to increase the swap-size to 1024 otherwise the installation of OpenRowingMonitor (i.e. the next step) will fail (see [this manual how to do this](https://pimylifeup.com/raspberry-pi-swap-file/));
+
+### Installation of the OpenRowingMonitor software
 
 Connect to the device with SSH and initiate the following command to set up all required dependencies and to install OpenRowingMonitor as an automatically starting system service:
 
@@ -33,6 +39,9 @@ Connect to the device with SSH and initiate the following command to set up all 
 ```
 
 Just answer the questions from the script and OpenRowingMonitor will be installed for you completely.
+
+> [!NOTE]
+> Might this install process fail for some reason, you can start it again withoug issue and it will continue. Especially during installation of npm packages, this is known to happen.
 
 <!-- markdownlint-disable-next-line no-inline-html -->
 <details>
