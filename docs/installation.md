@@ -192,10 +192,11 @@ ATTRS{idVendor}=="0fcf", ATTRS{idProduct}=="1009", MODE="0666"
 
 Basically all that's left to do is hook up your sensor to the GPIO pins of the Raspberry Pi and configure the rowing machine specific parameters of the software. Please check the [supported rower list](Supported_Rowers.md) if your machine requires additional electrical modification.
 
-Open Rowing Monitor reads the sensor signal from GPIO port 17 and expects it to pull on GND if the sensor is closed. So yur wiring probably looks like this:
+Open Rowing Monitor reads the sensor signal from GPIO port 17 and expects it to pull on GND if the sensor is closed. So your wiring probably looks like this:
 
 <!-- markdownlint-disable-next-line no-inline-html -->
 <img src="img/raspberrypi_internal_wiring.jpg" alt="Image showing the internal wiring of Raspberry Pi" title="Internal wiring of the Raspberry Pi" width="700"><br clear="left">
+
 To get a stable reading you should add a pull-up resistor to that pin. It is advised to use the internal resistor of the Raspberry Pi to keep the wiring simple but of course you can also go with an external circuit. The internal pull-up can be enabled as described [here](https://www.raspberrypi.org/documentation/configuration/config-txt/gpio.md). So its as simple as adding the following to `/boot/config.txt` and then rebooting the device.
 
 ``` Properties
