@@ -21,7 +21,7 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz]
 
 ### Known issues in 0.9.5
 
-- **Bluetooth Heartrate can't be switched dynamically**: due to some underlying changes in the OS, BLE heartrate monitors can't be activated through the GUI without crashing the BLE metrics broadcast (see [the description of issue 69][https://github.com/JaapvanEkris/openrowingmonitor/issues/69]). As this is an issue in the OS, all previous versions of OpenRowingMonitor are also affected by this issue. Version 0.9.5 has a workout implemented that mitigates this at startup. So configuring the use of a BLE heartrate monitor should work.
+- **Bluetooth Heartrate can't be switched dynamically**: due to some underlying changes in the OS, BLE heartrate monitors can't be activated through the GUI without crashing the BLE metrics broadcast (see [the description of issue 69](https://github.com/JaapvanEkris/openrowingmonitor/issues/69)). As this is an issue in the OS, and all previous versions of OpenRowingMonitor are also affected by this issue. Version 0.9.5 has a workaround implemented that mitigates this at startup. So configuring the use of a BLE heartrate monitor in the config file should work.
 
 ## From 0.8.4 to 0.9.0 (January 2024)
 
