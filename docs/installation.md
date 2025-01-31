@@ -40,7 +40,7 @@ Connect to the device with SSH and initiate the following command to set up all 
 
 Just answer the questions from the script and OpenRowingMonitor will be installed for you completely.
 
-> [!NOTE]
+> [!TIP]
 > Might this install process fail for some reason, you can start it again withoug issue and it will continue. Especially during installation of npm packages, this is known to happen.
 
 <!-- markdownlint-disable-next-line no-inline-html -->

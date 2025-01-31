@@ -42,8 +42,9 @@ export function createPeripheralManager (config) {
   setupPeripherals()
 
   async function setupPeripherals () {
-    await createBlePeripheral(config.bluetoothMode)
     await createHrmPeripheral(config.heartRateMode)
+    await delay(10000)
+    await createBlePeripheral(config.bluetoothMode)
     await createAntPeripheral(config.antPlusMode)
   }
 
@@ -339,5 +340,11 @@ export function createPeripheralManager (config) {
     handleCommand,
     notifyMetrics,
     notifyStatus
+  })
+}
+
+function delay (ms) {
+  return new Promise(resolve => {
+    setTimeout(() => resolve(), ms)
   })
 }

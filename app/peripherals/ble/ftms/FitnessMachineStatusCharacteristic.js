@@ -9,7 +9,7 @@
   If the Server supports the Fitness Machine Control Point, the Fitness Machine Status characteristic
   shall be exposed by the Server. Otherwise, supporting the Fitness Machine Status characteristic is optional.
 */
-import bleno from '@abandonware/bleno'
+import bleno from '@stoprocent/bleno'
 import log from 'loglevel'
 
 // see page 67 https://www.bluetooth.com/specifications/specs/fitness-machine-service-1-0

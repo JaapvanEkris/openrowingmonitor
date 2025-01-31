@@ -11,7 +11,7 @@
   The Fitness Machine may instantiate the Device Information Service
   (Manufacturer Name String, Model Number String)
 */
-import bleno from '@abandonware/bleno'
+import bleno from '@stoprocent/bleno'
 import FitnessMachineService from './ftms/FitnessMachineService.js'
 import log from 'loglevel'
 import DeviceInformationService from './common/DeviceInformationService.js'
@@ -34,7 +34,10 @@ export function createFtmsPeripheral (controlCallback, config, simulateIndoorBik
   let timer = setTimeout(onBroadcastInterval, broadcastInterval)
 
   bleno.on('stateChange', (state) => {
-    triggerAdvertising(state)
+    log.debug(`BLE Peripheral stateChange: ${state}`)
+    if (state === 'poweredOn') {
+      triggerAdvertising(state)
+    }
   })
 
   bleno.on('advertisingStart', (error) => {

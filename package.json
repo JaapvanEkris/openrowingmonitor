@@ -19,7 +19,7 @@
   ],
   "scripts": {
     "lint": "eslint ./app ./config && markdownlint-cli2 '**/*.md' '#node_modules'",
-    "start": "node app/server.js",
+    "start": "NOBLE_MULTI_ROLE=1 node app/server.js",
     "build": "rollup -c",
     "build:watch": "rollup -cw",
     "test": "uvu"
@@ -28,11 +28,9 @@
     "pre-commit": "npm run lint && npm test"
   },
   "//fix1Comment": "We install lit@2.8.0 as lit@3.0.0 breaks the webpage displaying metrics",
-  "//fix2Comment": "We hold back @abandonware/bleno at 0.5.1-4, @abandonware/noble at 1.9.2-15 and @abandonware/bluetooth-hci-socket@0.5.3-7, as upgrading any of them destroys HRM compatibility",
   "dependencies": {
-    "@abandonware/bleno": "0.5.1-4",
-    "@abandonware/bluetooth-hci-socket": "0.5.3-7",
-    "@abandonware/noble": "1.9.2-15",
+    "@stoprocent/bleno": "^0.8.2",
+    "@stoprocent/noble": "^1.18.2",
     "@markw65/fit-file-writer": "^0.1.6",
     "chart.js": "^4.4.7",
     "chartjs-plugin-datalabels": "^2.2.0",

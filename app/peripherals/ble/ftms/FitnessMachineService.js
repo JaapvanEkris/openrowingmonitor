@@ -15,7 +15,7 @@
   - Fitness Machine Status Characteristic
   - Fitness Machine Control Point Characteristic
 */
-import bleno from '@abandonware/bleno'
+import bleno from '@stoprocent/bleno'
 
 import RowerDataCharacteristic from './RowerDataCharacteristic.js'
 import IndoorBikeDataCharacteristic from './IndoorBikeDataCharacteristic.js'

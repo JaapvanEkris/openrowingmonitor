@@ -2,7 +2,7 @@
 /*
   Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
 */
-import bleno from '@abandonware/bleno'
+import bleno from '@stoprocent/bleno'
 import BufferBuilder from '../BufferBuilder.js'
 import { SensorLocationAsBuffer } from '../common/SensorLocation.js'
 import StaticReadCharacteristic from '../common/StaticReadCharacteristic.js'

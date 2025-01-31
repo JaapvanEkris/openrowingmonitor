@@ -6,7 +6,7 @@
 
   But for our use case proper implementation is not necessary (its mere existence with an empty handler suffice)
 */
-import bleno from '@abandonware/bleno'
+import bleno from '@stoprocent/bleno'
 
 export default class CyclingSpeedCadenceControlPointCharacteristic extends bleno.Characteristic {
   constructor (controlPointCallback) {

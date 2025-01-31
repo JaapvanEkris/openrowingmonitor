@@ -5,7 +5,7 @@
   Creates a Bluetooth Low Energy (BLE) Peripheral with all the Services that are required for
   a Cycling Power Profile
 */
-import bleno from '@abandonware/bleno'
+import bleno from '@stoprocent/bleno'
 import log from 'loglevel'
 import CyclingPowerService from './cps/CyclingPowerMeterService.js'
 import DeviceInformationService from './common/DeviceInformationService.js'
