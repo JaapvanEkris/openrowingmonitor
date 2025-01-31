@@ -18,6 +18,10 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz]
 - **Improved robustness of the stroke detection algorithm**
 - **Validation of the engine against a PM5 for over 3000KM**, where the deviation is a maximum of 0.1%
 
+### Known issues in 0.9.5
+
+- **Bluetooth Heartrate can't be switched dynamically**: due to some underlying changes in the OS, BLE heartrate monitors can't be activated through the GUI without crashing the BLE metrics broadcast (see https://github.com/JaapvanEkris/openrowingmonitor/issues/69). As this is an issue in the OS, all previous versions of OpenRowingMonitor are also affected by this issue. Version 0.9.5 has a workout implemented that mitigates this at startup. So configuring the use of a BLE heartrate monitor should work.
+
 ## From 0.8.4 to 0.9.0 (January 2024)
 
 Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz](https://github.com/Abasz)
