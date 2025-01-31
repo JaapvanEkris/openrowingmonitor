@@ -13,18 +13,24 @@ This guide roughly explains how to set up the rowing software and hardware.
   * with a build in reed sensor that you can directly connect to the GPIO pins of the Raspberry Pi
   * if your machine doesn't have a sensor, it should be easy to build something similar (magnetically or optical)
 * Some Dupont cables to connect the GPIO pins to the sensor
+* Optionally, an ANT+ USB stick
+
+The cheapest solution is a headless Raspberry Pi Zero 2W (roughly $15), the most expensive is a Raspberry Pi 4 Model B with a 7' tocuh screen in an ABS case (roughly $180). The choice is really yours, but for some data intensive machines (air based rowers with 4 or more magnets) do much better with a Raspberry Pi 4.
 
 ## Software Installation
 
 ### Initialization of the Raspberry Pi
 
-* Install **Raspberry Pi OS Lite** on the SD Card i.e. with the [Raspberry Pi Imager](https://www.raspberrypi.org/software). Here, Raspberry Pi OS Lite 64 Bit is recommended as it is better suited for real-time environments. Use of Raspberry Pi OS Bullseye or Bookworm is recommended. Please note that on a Raspberry Pi Zero 2W, you need to increase the swap-size to 1024 otherwise the installation will fail (see [this manual how to do this](https://pimylifeup.com/raspberry-pi-swap-file/));
+* Install **Raspberry Pi OS Lite** on the SD Card i.e. with the [Raspberry Pi Imager](https://www.raspberrypi.org/software). Here, Raspberry Pi OS Lite 64 Bit is recommended as it is better suited for real-time environments. This can be done by selecting "other" Raspberry Pi OS in the imager and select OS Lite 64 Bit. We typically support the current and previous (Legacy) version of Raspberry Pi OS.
 * Configure the network connection and enable SSH, if you use the Raspberry Pi Imager, you can automatically do this while writing the SD Card, just press `Ctrl-Shift-X`(see [here](https://www.raspberrypi.org/blog/raspberry-pi-imager-update-to-v1-6/) for a description), otherwise follow the instructions below
 * Connect the device to your network ([headless](https://www.raspberrypi.org/documentation/configuration/wireless/headless.md) or via [command line](https://www.raspberrypi.org/documentation/configuration/wireless/wireless-cli.md))
 * Enable [SSH](https://www.raspberrypi.org/documentation/remote-access/ssh/README.md)
 * Tune the OS if needed [by following our performance improvement guide](Improving_Raspberry_Performance.md)
 
-### Installation of the Open Rowing Monitor
+> [!NOTE]
+> On a Raspberry Pi Zero or Zero 2, you need to increase the swap-size to 1024 otherwise the installation of OpenRowingMonitor (i.e. the next step) will fail (see [this manual how to do this](https://pimylifeup.com/raspberry-pi-swap-file/));
+
+### Installation of the OpenRowingMonitor software
 
 Connect to the device with SSH and initiate the following command to set up all required dependencies and to install OpenRowingMonitor as an automatically starting system service:
 
@@ -35,7 +41,7 @@ Connect to the device with SSH and initiate the following command to set up all 
 Just answer the questions from the script and OpenRowingMonitor will be installed for you completely.
 
 > [!TIP]
-> Sometimes, the process can fail due to network issues. Starting the installation process again should finish the install as intended.
+> Might this install process fail for some reason, you can start it again withoug issue and it will continue. Especially during installation of npm packages, this is known to happen.
 
 <!-- markdownlint-disable-next-line no-inline-html -->
 <details>
@@ -184,29 +190,31 @@ ATTRS{idVendor}=="0fcf", ATTRS{idProduct}=="1009", MODE="0666"
 
 ## Hardware Installation
 
-Basically all that's left to do is hook up your sensor to the GPIO pins of the Raspberry Pi and configure the rowing machine specific parameters of the software.
+Basically all that's left to do is hook up your sensor to the GPIO pins of the Raspberry Pi and configure the rowing machine specific parameters of the software. Please check the [supported rower list](Supported_Rowers.md) if your machine requires additional electrical modification.
 
-Open Rowing Monitor reads the sensor signal from GPIO port 17 and expects it to pull on GND if the sensor is closed. To get a stable reading you should add a pull-up resistor to that pin. I prefer to use the internal resistor of the Raspberry Pi to keep the wiring simple but of course you can also go with an external circuit.
+Open Rowing Monitor reads the sensor signal from GPIO port 17 and expects it to pull on GND if the sensor is closed. So your wiring probably looks like this:
 
 <!-- markdownlint-disable-next-line no-inline-html -->
 <img src="img/raspberrypi_internal_wiring.jpg" alt="Image showing the internal wiring of Raspberry Pi" title="Internal wiring of the Raspberry Pi" width="700"><br clear="left">
 
-The internal pull-up can be enabled as described [here](https://www.raspberrypi.org/documentation/configuration/config-txt/gpio.md). So its as simple as adding the following to `/boot/config.txt` and then rebooting the device.
+To get a stable reading you should add a pull-up resistor to that pin. It is advised to use the internal resistor of the Raspberry Pi to keep the wiring simple but of course you can also go with an external circuit. The internal pull-up can be enabled as described [here](https://www.raspberrypi.org/documentation/configuration/config-txt/gpio.md). So its as simple as adding the following to `/boot/config.txt` and then rebooting the device.
 
 ``` Properties
 # configure GPIO 17 as input and enable the pull-up resistor
 gpio=17=pu,ip
 ```
 
-How to connect this to your rowing machine is specific to your device. You need some kind of mechanism to convert the rotation of the flywheel into impulses. Some rowers have a reed sensor for this built-in, so hooking it up is as simple as connecting the cables. Such a sensor has one or more magnets on the wheel and each one gives an impulse when it passes the sensor. For a specific hardware-setup, please look at:
+How to connect this to your rowing machine is specific to your device. You need some kind of mechanism to convert the rotation of the flywheel into impulses. Some rowers have a reed sensor for this built-in, so hooking it up is as simple as connecting the cables. Such a sensor has one or more magnets on the wheel and each one gives an impulse when it passes the sensor.
+
+<!-- markdownlint-disable-next-line no-inline-html -->
+<img src="img/raspberrypi_reedsensor_wiring.jpg" alt="Image showing the connection of the reed sensor" title="Connecting the reed sensor" width="700"><br clear="left">
+
+There are some manuals covering a specific hardware-setup using the existing sensors, so please look at when relevant:
 
 * [Concept 2 RowErg](hardware_setup_Concept2_RowErg.md)
 * [Sportstech WRX700](hardware_setup_WRX700.md)
 
-If your machine isn't listed, you can still follow this generic manual for hardware setup, and [adjust the software settings following the settings adjustment guide](rower_settings.md).
-
-<!-- markdownlint-disable-next-line no-inline-html -->
-<img src="img/raspberrypi_reedsensor_wiring.jpg" alt="Image showing the connection of the reed sensor" title="Connecting the reed sensor" width="700"><br clear="left">
+If your machine isn't listed, you are adviced to follow the [setup guide for unknown rowing machines (and adjust settings)](rower_settings.md) as it goes into much more depth about installing OpenRowingMonitor on an unknown machine.
 
 If you do not have and does not have something like this or if the sensor is not accessible, you can still build something similar quite easily. Some ideas on what to use:
 
@@ -214,6 +222,8 @@ If you do not have and does not have something like this or if the sensor is not
 * HAL effect sensor
 * PAS sensor (i.e. from an E-bike)
 * Optical chopper wheel
+
+From there on, also follow the [setup guide for unknown rowing machines (and adjust settings)](rower_settings.md) to get it working for your setup.
 
 ## Rower Settings
 

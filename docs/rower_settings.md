@@ -111,9 +111,7 @@ This shows that OpenRowingMonitor is running, and that bluetooth and the webserv
 
 ## Making sure the hardware is connected correctly and works as intended
 
-Because any system follows the mantra "Garbage in is garbage out", we first make sure that the signals OpenRowingMonitor recieves are decent. First we check the physical properties, then the electrical properties and last we check the quality of the incoming signal.
-
-**Please check and fix any mechanical/electrical/quality issues before proceeding, as the subsequent steps depend on a signal with decent quality!!**
+Because any system follows the mantra "Garbage in is garbage out", we first make sure that the signals OpenRowingMonitor recieves are decent. First we check the physical properties, then the electrical properties and last we check the quality of the incoming signal. As this is quite a critical step, please make sure you fixed any mechanical/electrical/quality issues before proceeding, as the subsequent steps in this manual depend on a signal with decent quality!!
 
 ### Checking the physical properties of the rower
 
@@ -159,7 +157,7 @@ When the line goes up, the time between impulses from the flywheel goes up, and 
 
 #### Fixing switch bounce
 
-A specific issue to be aware of is *switch bounce*, which typically is seen as a valid signal followed by a very short spike. When looking at a set of plotted signals in Excel, it manafests itself as the following:
+A specific issue to be aware of is *switch bounce*, which typically is seen as a valid signal followed by a very short spike. Dirst step is to activate raw recording and row at least ten seconds. OpenRowingMonitor will produce a csv-file. When looking at a set of plotted signals in Excel (please note: OpenRowingMonitor records in US-notation, so please replace all decimal points with commas if you are not US-based), it manafests itself as the following:
 
 <img src="img/CurrentDt_With_Lots_Of_Bounce.jpg" alt="A scatter plot showing the typical progress of currentDt with switch bounce" width="700">
 
@@ -191,7 +189,7 @@ When you look at the raw dump of *CurrentDT*, it should provide a nice curve. Wh
 
 Another option is to change the *gpioPollingInterval*, which determines how accurate the measurements are. Please note that increasing this will increase the CPU load, so setting it to 1us might come at a price. Setting this from the default value of 5us to 1us might increase precission, but it could disrupt the entire process as the CPU might get overloeded. So experimenting with this value is key.
 
-**gpioTriggeredFlank** and **gpioMinimumPulseLength** are typically used to prevent bounces in the signal: magnets passing could trigger a reed switch twice (as described above). The logs provide help here, as the logs indicate abnormal short and long times between impulses (via the minimumTimeBetweenImpulses and maximumTimeBetweenImpulses settings). Please note that during a first stroke, the **CurrentDt** values obviously are longer.
+**gpioTriggeredFlank** and **gpioMinimumPulseLength** are typically used to prevent bounces in the signal: magnets passing could trigger a reed switch twice (as described above). The logs provide help here, as the logs indicate abnormal short and long times between impulses (via the minimumTimeBetweenImpulses and maximumTimeBetweenImpulses settings). Please note that during a first stroke, the **CurrentDt** values obviously are longer. Switching *gpioTriggeredFlank* from 'up' to 'down' or vice verse is known to fix switch bounce. *gpioMinimumPulseLength* is also an approach, basically preventing short spikes. It is adviced to first see what *gpioTriggeredFlank* does, before you start surpressing signals via *gpioMinimumPulseLength*.
 
 ### Setting minimumTimeBetweenImpulses and maximumTimeBetweenImpulses
 

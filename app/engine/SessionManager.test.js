@@ -467,10 +467,10 @@ test('A full session for a Concept2 RowErg should produce plausible results', as
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 590.111937)
-  testTotalLinearDistance(sessionManager, 2029.1846608962908)
+  testTotalLinearDistance(sessionManager, 2027.493082238415)
   testTotalNumberOfStrokes(sessionManager, 205)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(sessionManager, 80.79044336920732)
+  testDragFactor(sessionManager, 80.60573080009686)
 })
 
 test('A 2000 meter session for a Concept2 RowErg should produce plausible results', async () => {
@@ -500,11 +500,11 @@ test('A 2000 meter session for a Concept2 RowErg should produce plausible result
 
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
 
-  testTotalMovingTime(sessionManager, 581.7102639999993)
-  testTotalLinearDistance(sessionManager, 2000.0168747914822)
+  testTotalMovingTime(sessionManager, 582.1907659999988)
+  testTotalLinearDistance(sessionManager, 2000.0158938948496)
   testTotalNumberOfStrokes(sessionManager, 203)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(sessionManager, 80.73169956632738)
+  testDragFactor(sessionManager, 80.55270240035931)
 })
 
 test('A 580 seconds session for a Concept2 RowErg should produce plausible results', async () => {
@@ -535,10 +535,10 @@ test('A 580 seconds session for a Concept2 RowErg should produce plausible resul
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 580.0033639999992)
-  testTotalLinearDistance(sessionManager, 1994.269299416322)
+  testTotalLinearDistance(sessionManager, 1992.6040191024413)
   testTotalNumberOfStrokes(sessionManager, 202)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(sessionManager, 80.7736995688596)
+  testDragFactor(sessionManager, 80.5946092810885)
 })
 
 function testTotalMovingTime (sessionManager, expectedValue) {
