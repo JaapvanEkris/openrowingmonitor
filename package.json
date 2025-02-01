@@ -1,6 +1,6 @@
 {
   "name": "openrowingmonitor",
-  "version": "0.9.0",
+  "version": "0.9.5",
   "description": "A free and open source performance monitor for rowing machines",
   "main": "app/server.js",
   "author": "Jaap van Ekris",
@@ -42,8 +42,7 @@
     "nosleep.js": "0.12.0",
     "pigpio": "3.3.1",
     "serve-static": "^1.15.0",
-    "ws": "^8.18.0",
-    "xml2js": "^0.6.2"
+    "ws": "^8.18.0"
   },
   "//fix3Comment": "We list node-gyp@10.0.1 as an explicit dev dependency as omitting it results in node-gyp@7.1.2 being installed, which breaks the build on Node.js v20",
   "devDependencies": {
