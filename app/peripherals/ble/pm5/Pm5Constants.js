@@ -1,12 +1,12 @@
 'use strict'
-
-import { PeripheralConstants } from '../../PeripheralConstants.js'
-
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Some PM5 specific constants
 */
+
+import { PeripheralConstants } from '../../PeripheralConstants.js'
+
 const pm5Constants = {
   ...PeripheralConstants,
   // See https://www.concept2.com/service/monitors/pm5/firmware for available versions
