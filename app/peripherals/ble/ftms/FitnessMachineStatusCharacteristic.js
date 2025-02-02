@@ -1,6 +1,6 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Implements the Status Characteristics, that can be used to notify the central about the current
   training machine settings. Currently only used to notify the central about training resets.
