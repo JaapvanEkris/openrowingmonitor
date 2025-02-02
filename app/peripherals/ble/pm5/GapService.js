@@ -1,6 +1,6 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Provides all required GAP Characteristics of the PM5
   todo: not sure if this is correct, the normal GAP service has 0x1800
