@@ -1,6 +1,6 @@
 # OpenRowingMonitor Release Notes
 
-## From 0.9.0 to 0.9.5 (January 2025)
+## From 0.9.0 to 0.9.5 (February 2025)
 
 Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz](https://github.com/Abasz)
 
@@ -13,7 +13,7 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz]
 ### Bugfixes and robustness improvements in 0.9.5
 
 - **Improvement of the architecture**: we cleaned up the old architecture and went to a more message bus structure where clients are responsible for listening to the datatransmissions they are interested in. See [the architecture description](Architecture.md) for a deep-dive of the implementation. Key benefit is that this is more maintainable as it allows serving data more easily to totally different clients (webGUI, recorders and BLE/ANT+) with totally different needs, making future enhancements easier.
-- **Improvement of Bluetooth stability**: we moved away from abandonware's BLE NoBle/BleNo implementation and moved to stoprocent's, as that package is better maintained and works better with newer installs of BlueZ, which should fix issues on Raspberry Pi Bookworm
+- **Improvement of Bluetooth stability**: we moved away from abandonware's BLE NoBle/BleNo implementation and moved to stoprocent's implementation, as that package is better maintained and works better with newer installs of BlueZ, which should fix some issues on Raspberry Pi Bookworm. Unfortunatly, none of the NoBle/BleNo descendents are immune to some specific BlueZ issues (see known issues).
 - **Performance improvement of the TS estimator**, further reducing CPU load, which significantly improves accuracy of the measurements and metrics as the Linux kernel has an easier job keeping the time accurate.
 - **Removed a lot of memory leaks**, although only being problematic in large simulations (i.e. over 3000K), we want to keep our code to behave nice
 - **Improved robustness of the stroke detection algorithm**
