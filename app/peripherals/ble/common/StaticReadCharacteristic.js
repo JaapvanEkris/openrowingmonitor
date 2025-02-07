@@ -2,7 +2,7 @@
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 */
-import bleno from '@abandonware/bleno'
+import bleno from '@stoprocent/bleno'
 import log from 'loglevel'
 
 export default class StaticReadCharacteristic extends bleno.Characteristic {

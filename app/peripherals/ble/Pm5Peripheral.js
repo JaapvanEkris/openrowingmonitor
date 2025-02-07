@@ -7,7 +7,7 @@
 
   see: https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
 */
-import bleno from '@abandonware/bleno'
+import bleno from '@stoprocent/bleno'
 import { pm5Constants } from './pm5/Pm5Constants.js'
 import DeviceInformationService from './pm5/DeviceInformationService.js'
 import GapService from './pm5/GapService.js'

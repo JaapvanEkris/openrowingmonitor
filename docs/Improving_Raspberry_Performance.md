@@ -70,6 +70,24 @@ To disable triggerhappy, do the following:
 sudo systemctl disable triggerhappy.service
 ```
 
+#### Avahi
+
+To disable Avahi deamon, do the following:
+
+```zsh
+sudo systemctl disable avahi-daemon.service
+```
+
+#### nfs-client
+
+To disable the nfs-client, do the following:
+
+```zsh
+sudo systemctl disable nfs-client.target
+```
+
+#### others
+
 There are some other services that can be stopped, but where the effects on Open Rowing Monitor are untested, [which can be found here](https://wiki.linuxaudio.org/wiki/raspberrypi).
 
 ## Things you can do in OpenRowingMonitor

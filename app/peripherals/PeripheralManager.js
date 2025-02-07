@@ -42,8 +42,9 @@ export function createPeripheralManager (config) {
   setupPeripherals()
 
   async function setupPeripherals () {
-    await createBlePeripheral(config.bluetoothMode)
     await createHrmPeripheral(config.heartRateMode)
+    if (config.heartRateMode === 'BLE') { await delay(10000) } // WORKAROUND for BLE-Fix. ToDo: remove the need for this delay in the bluetooth startup completely
+    await createBlePeripheral(config.bluetoothMode)
     await createAntPeripheral(config.antPlusMode)
   }
 
@@ -339,5 +340,11 @@ export function createPeripheralManager (config) {
     handleCommand,
     notifyMetrics,
     notifyStatus
+  })
+}
+
+function delay (ms) {
+  return new Promise(resolve => {
+    setTimeout(() => resolve(), ms)
   })
 }

@@ -6,7 +6,7 @@
   https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
   todo: we could calculate all the missing stroke metrics in the RowerEngine
 */
-import bleno from '@abandonware/bleno'
+import bleno from '@stoprocent/bleno'
 import { getFullUUID } from '../Pm5Constants.js'
 import log from 'loglevel'
 import BufferBuilder from '../../BufferBuilder.js'

@@ -40,7 +40,7 @@ Connect to the device with SSH and initiate the following command to set up all 
 
 Just answer the questions from the script and OpenRowingMonitor will be installed for you completely.
 
-> [!NOTE]
+> [!TIP]
 > Might this install process fail for some reason, you can start it again withoug issue and it will continue. Especially during installation of npm packages, this is known to happen.
 
 <!-- markdownlint-disable-next-line no-inline-html -->
@@ -252,16 +252,9 @@ This allows you to see the current state of the rower. Typically this will show:
 
 Please check if there are no errors reported, especially for configuration parameters. OpenRowingMonitor will report if it detects abnormal or missing parameters.
 
-### Setting up Strava upload
+### Setting up integrations to Strava, intervals.icu and RowsAndAll.com
 
-Part of the specific parameters in `config/config.js` are the Strava settings. To use this, you have to create a Strava API Application as described [here](https://developers.strava.com/docs/getting-started/#account) and use the corresponding values. When creating your Strava API application, set the "Authorization Callback Domain" to the IP address of your Raspberry Pi.
-
-Once you get your Strava credentials, you can add them in `config/config.js`:
-
-```js
-stravaClientId: "StravaClientID",
-stravaClientSecret: "client_secret_string_from_the_Strava_API",
-```
+See our [integrations page](Integrations.md).
 
 ## Updating OpenRowingMonitor to a new version
 

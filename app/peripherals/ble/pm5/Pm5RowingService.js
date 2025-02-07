@@ -15,7 +15,7 @@
   - EXR: subscribes to: 'general status', 'additional status', 'additional status 2', 'additional stroke data'
 */
 
-import bleno from '@abandonware/bleno'
+import bleno from '@stoprocent/bleno'
 import { getFullUUID } from './Pm5Constants.js'
 import MultiplexedCharacteristic from './characteristic/MultiplexedCharacteristic.js'
 import GeneralStatus from './characteristic/GeneralStatus.js'

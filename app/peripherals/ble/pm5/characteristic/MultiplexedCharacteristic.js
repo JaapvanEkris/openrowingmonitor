@@ -1,6 +1,6 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Implements the Multiplexed Characteristic as defined by the spec:
 
@@ -9,7 +9,7 @@
   info) exists to allow multiple characteristics to be multiplexed onto a single characteristic. The last byte in the
   characteristic will indicate which data characteristic is multiplexed."
 */
-import bleno from '@abandonware/bleno'
+import bleno from '@stoprocent/bleno'
 import { getFullUUID } from '../Pm5Constants.js'
 import log from 'loglevel'
 

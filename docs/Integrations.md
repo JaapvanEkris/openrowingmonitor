@@ -33,7 +33,14 @@ OpenRowingMonitor supports the following exports, which can be obtained via the 
 
 ## Strava
 
-Uploading your sessions to [Strava](https://www.strava.com) is an integrated feature. Strava can handle both tcx- and fit-files, but it will only display the data from the tcx-file.
+Uploading your sessions to [Strava](https://www.strava.com) is an integrated feature. Strava can handle both tcx- and fit-files, but it will only display the data from the tcx-file. Part of the specific parameters in `config/config.js` are the Strava settings. To use this, you have to create a Strava API Application as described [here](https://developers.strava.com/docs/getting-started/#account) and use the corresponding values. When creating your Strava API application, set the "Authorization Callback Domain" to the IP address of your Raspberry Pi.
+
+Once you get your Strava credentials, you can add them in `config/config.js`:
+
+```js
+stravaClientId: "StravaClientID",
+stravaClientSecret: "client_secret_string_from_the_Strava_API",
+```
 
 ## RowsAndAll.com
 
