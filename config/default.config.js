@@ -14,6 +14,7 @@
 import rowerProfiles from './rowerProfiles.js'
 
 export default {
+  logToFile: false,
   // Available log levels: trace, debug, info, warn, error, silent
   loglevel: {
     // The default log level

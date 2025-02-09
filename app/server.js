@@ -6,6 +6,7 @@ import os from 'os'
 import child_process from 'child_process'
 import { promisify } from 'util'
 import log from 'loglevel'
+import fs from 'node:fs' // Import the fs module
 import config from './tools/ConfigManager.js'
 import { createSessionManager } from './engine/SessionManager.js'
 import { createWebServer } from './WebServer.js'
@@ -19,8 +20,37 @@ const exec = promisify(child_process.exec)
 
 const shutdownEnabled = !!config.shutdownCommand
 
-// set the log levels
+// set the log levels (now including file writing)
 log.setLevel(config.loglevel.default)
+
+// --- Configure loglevel to also write to a file ---
+const logBestand = './logs/open-rowing-monitor.log' // Name of the log file
+const logWriteStream = fs.createWriteStream(logBestand, { flags: 'a' }) // 'a' for append mode
+
+function writeToFile (level, message) {
+  if (config.logToFile !== true) return // respect config setting
+
+  const timestamp = new Date().toISOString()
+  const logregel = `[${timestamp}] ${level.toUpperCase()}: ${message}\n`
+  logWriteStream.write(logregel)
+}
+
+const originalMethodFactory = log.methodFactory
+
+log.methodFactory = function (methodName, logLevel, loggerName) {
+  const originalLogMethod = originalMethodFactory(methodName, logLevel, loggerName)
+
+  return function (...args) {
+    originalLogMethod(...args) // Call the original log method (console output)
+
+    const message = args.join(' ')
+    writeToFile(methodName, message) // Write to the log file
+  }
+}
+
+log.setLevel(log.getLevel()) // Reset level to apply the new methodFactory
+// --- End of logfile configuration ---
+
 for (const [loggerName, logLevel] of Object.entries(config.loglevel)) {
   if (loggerName !== 'default') {
     log.getLogger(loggerName).setLevel(logLevel)
