@@ -204,7 +204,7 @@ sequenceDiagram
 
 ##### sessionStates in SessionManager.js
 
-`SessionManager.js` maintains the following sessionstates:
+The `handleRotationImpulse` function of the `SessionManager.js` implements all the state transitions regarding the sessionstates:
 
 ```mermaid
 stateDiagram-v2
@@ -223,8 +223,8 @@ stateDiagram-v2
 ```
 
 > [!NOTE]
-> `handleRotationImpulse` implements all these state transitions, where the state transitions for the end of an interval and the end of a session are handled individually as the metrics updates differ slightly.
-&nbsp;
+> The state transitions for the end of an interval and the end of a session (i.e. no next interval) are handled individually as the resulting metrics updates differ slightly.
+<!-- MD028/no-blanks-blockquote -->
 > [!NOTE]
 > A session being 'stopped' can technically be turned into a 'Paused' by sending the 'startOrResume' command to the `handleCommand` function of `SessionManager.js`. Some peripherals send this command routinely.
 
