@@ -218,7 +218,7 @@ stateDiagram-v2
     }
     Rowing --> Paused: strokeState is 'WaitingForDrive'<br>OR<br>Next interval is of 'rest' type
     Paused --> Rowing: strokeState<br>is 'Drive'
-    Rowing --> Stopped
+    Rowing --> Stopped: Last interval completed
     Stopped --> [*]
 ```
 
