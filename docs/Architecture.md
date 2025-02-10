@@ -223,6 +223,9 @@ stateDiagram-v2
 ```
 
 > [!NOTE]
+> There is a watchdog timeout on recieving new *currentDt* values, which forces the state machine into 'Paused' when triggered. This watchdog is needed for specific high drag magnetic rowers that completely stop their flywheel within seconds.
+<!-- MD028/no-blanks-blockquote -->
+> [!NOTE]
 > The state transitions for the end of an interval and the end of a session (i.e. no next interval) are handled individually as the resulting metrics updates differ slightly.
 <!-- MD028/no-blanks-blockquote -->
 > [!NOTE]
