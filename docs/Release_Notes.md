@@ -6,14 +6,14 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz]
 
 ### New functionality in 0.9.5
 
-- Added **FIT-File support**: you an now automatically generate a FIT-file after a rowing session, which alows for a more detailed reporting than the tcx-format, and is commonly accepted by most platforms
-- **Introduction of the session manager**, which provides support for intervals, splits, rest intervals and spontanuous pauses in the session and also adds these to the FIT, tcx and RowingData recordings. Please note, setting predetermined intervals and splits in a user friendly way (via PM5 and webinterface) is still a ToDo that is intended for 1.0.0.
+- Added **FIT-File support**: you can now automatically generate a FIT-file after a rowing session, which allows for a more detailed reporting than the tcx-format, and is commonly accepted by most platforms
+- **Introduction of the session manager**, which provides support for intervals, splits, rest intervals and spontaneous pauses in the session and also adds these to the FIT, tcx and RowingData recordings. Please note, setting predetermined intervals and splits in a user friendly way (via PM5 and webinterface) is still a ToDo that is intended for 1.0.0.
 - **Improvement of Magnetic rower support**: the new session manager makes sure that the session is nicely stopped, even when the flywheel has stopped quite abruptly before pause timeouts have time to kick in. This is the case on some magnetic rowers which have an extreme high drag, resulting in very short spin down times of their flywheel.
 
 ### Bugfixes and robustness improvements in 0.9.5
 
-- **Improvement of the architecture**: we cleaned up the old architecture and went to a more message bus structure where clients are responsible for listening to the datatransmissions they are interested in. See [the architecture description](Architecture.md) for a deep-dive of the implementation. Key benefit is that this is more maintainable as it allows serving data more easily to totally different clients (webGUI, recorders and BLE/ANT+) with totally different needs, making future enhancements easier.
-- **Improvement of Bluetooth stability**: we moved away from abandonware's BLE NoBle/BleNo implementation and moved to stoprocent's implementation, as that package is better maintained and works better with newer installs of BlueZ, which should fix some issues on Raspberry Pi Bookworm. Unfortunatly, none of the NoBle/BleNo descendents are immune to some specific BlueZ issues (see known issues).
+- **Improvement of the architecture**: we cleaned up the old architecture and went to a more message bus structure where clients are responsible for listening to the data transmissions they are interested in. See [the architecture description](Architecture.md) for a deep-dive of the implementation. Key benefit is that this is more maintainable as it allows serving data more easily to totally different clients (webGUI, recorders and BLE/ANT+) with totally different needs, making future enhancements easier.
+- **Improvement of Bluetooth stability**: we moved away from abandonware's BLE NoBle/BleNo implementation and moved to stoprocent's implementation, as that package is better maintained and works better with newer installs of BlueZ, which should fix some issues on Raspberry Pi Bookworm. Unfortunately, none of the NoBle/BleNo descendants are immune to some specific BlueZ issues (see known issues).
 - **Performance improvement of the TS estimator**, further reducing CPU load, which significantly improves accuracy of the measurements and metrics as the Linux kernel has an easier job keeping the time accurate.
 - **Removed a lot of memory leaks**, although only being problematic in large simulations (i.e. over 3000K), we want to keep our code to behave nice
 - **Improved robustness of the stroke detection algorithm**
@@ -21,7 +21,7 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz]
 
 ### Known issues in 0.9.5
 
-- **Bluetooth Heartrate can't be switched dynamically**: due to some underlying changes in the OS, BLE heartrate monitors can't be activated through the GUI without crashing the BLE metrics broadcast (see [the description of issue 69](https://github.com/JaapvanEkris/openrowingmonitor/issues/69)). As this is an issue in the OS, and all previous versions of OpenRowingMonitor are also affected by this issue. Version 0.9.5 has a workaround implemented that mitigates this at startup. So configuring the use of a BLE heartrate monitor in the config file should work.
+- **Bluetooth Heartrate can't be switched dynamically**: due to some underlying changes in the OS, BLE heartrate monitors can't be activated through the GUI without crashing the BLE metrics broadcast (see [the description of issue 69](https://github.com/JaapvanEkris/openrowingmonitor/issues/69)). As this is an issue in the OS, **all previous versions of OpenRowingMonitor are also affected by this issue**. In version 0.9.5 has a workaround implemented that mitigates this at startup. So configuring the use of a BLE heartrate monitor in the config file should work. However, dynamic switching via the GUI will crash the BLE connections.
 
 ## From 0.8.4 to 0.9.0 (January 2024)
 
