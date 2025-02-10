@@ -216,7 +216,7 @@ stateDiagram-v2
         strokeState=Recovery --> strokeState=Drive
         strokeState=Recovery --> strokeState=Recovery
     }
-    Rowing --> Paused: strokeState is 'WaitingForDrive<br>OR<br>Next interval is rest'
+    Rowing --> Paused: strokeState is 'WaitingForDrive'<br>OR<br>Next interval is of 'rest' type
     Paused --> Rowing: strokeState<br>is 'Drive'
     Rowing --> Stopped
     Stopped --> [*]
