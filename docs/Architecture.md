@@ -224,6 +224,7 @@ stateDiagram-v2
 
 > [!NOTE]
 > `handleRotationImpulse` implements all these state transitions, where the state transitions for the end of an interval and the end of a session are handled individually as the metrics updates differ slightly.
+&nbsp;
 > [!NOTE]
 > A session being 'stopped' can technically be turned into a 'Paused' by sending the 'startOrResume' command to the `handleCommand` function of `SessionManager.js`. Some peripherals send this command routinely.
 
