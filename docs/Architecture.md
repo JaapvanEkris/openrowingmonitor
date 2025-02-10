@@ -240,14 +240,11 @@ In total, this takes full control of the displayed metrics in a specific interva
 
 #### RowingStatistics.js
 
-`RowingStatistics.js` recieves *currentDt* updates, forwards them to `Rower.js` and subsequently inspects `Rower.js` for the resulting strokestate and associated metrics. Based on this inspection, it updates the associated metrics (i.e. linear velocity, linear distance, power, etc.).
-
-##### metrics maintained in RowingStatistics.js
-
-The goal is to translate the linear rowing metrics from `Rower.js` into meaningful information for the consumers of data. As `Rower.js` can only provide a limited set of absolute metrics at a specific time (as most are stroke state dependent) and is unaware of previous strokes and the context of the interval, `RowingStatistics.js` will consume this data and transform it into a consistent and more stable set of metrics useable for presentation. `RowingStatistics.js` also buffers data as well, providing a complete set of metrics regardless of stroke state. Adittionally, `RowingStatistics.js` also smoothens data across strokes to remove eratic behaviour of metrics due to small measurement errors.
+`RowingStatistics.js` recieves *currentDt* updates, forwards them to `Rower.js` and subsequently inspects `Rower.js` for the resulting strokestate and associated metrics. Based on this inspection, it updates the associated metrics (i.e. linear velocity, linear distance, power, etc.). The goal is to translate the linear state-dependent rowing metrics from `Rower.js` into meaningful stream of information for the consumers of data. As `Rower.js` can only provide a limited set of absolute metrics at a specific time (as most are stroke state dependent) and is unaware of previous strokes, `RowingStatistics.js` will consume this data and transform it into a consistent and more stable set of metrics useable for presentation. `RowingStatistics.js` also buffers data as well, providing a complete set of metrics regardless of stroke state. Adittionally, `RowingStatistics.js` also smoothens data across strokes to remove eratic behaviour of metrics due to small measurement errors.
 
 In a nutshell:
 
+* `RowingStatistics.js` persists metrics to guarantee that they will always reflect the last known valid state to data consumers, removing the need for consumers to understand the effect of stroke state upon metrics validity,
 * `RowingStatistics.js` applies a moving median filter across strokes to make metrics less volatile and thus better suited for presentation,
 * `RowingStatistics.js` calculates derived metrics (like Calories) and trands (like Calories per hour),
 
