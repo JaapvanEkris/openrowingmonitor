@@ -89,9 +89,13 @@ Uploading your sessions to Strava is an integrated feature, for all other platfo
 
 ## Installation
 
-You will need a Raspberry Pi Zero 2 W, Raspberry Pi 3, Raspberry Pi 4 with a fresh installation of Raspberry Pi OS Lite for this (the 64Bit kernel is preferred). Currently, a Raspberry Pi 5 will not work (see [this issue](https://github.com/JaapvanEkris/openrowingmonitor/issues/52)). Connect to the device with SSH and folow the [Detailed Installation Instructions](installation.md) for more information on the software installation and for instructions on how to connect the rowing machine. Don't have a Raspberry Pi, but do have an ESP32 lying about? No problem, our sister project ported [OpenRowingMonitor for the ESP32](https://github.com/Abasz/ESPRowingMonitor), which works well (although uses a bit less accurate math due to platform limitations).
+You will need a Raspberry Pi Zero 2 W, Raspberry Pi 3, Raspberry Pi 4 with a fresh installation of Raspberry Pi OS Lite for this (the 64Bit kernel is preferred). Connect to the device with SSH and folow the [Detailed Installation Instructions](installation.md). This guide will help you install the software and explain how to connect the rowing machine. If you can follow the guide, it will work.
 
-Please observe that active support for the Raspberry Pi Zero W has been dropped as of february 2024 (see [this discussion for more information](https://github.com/JaapvanEkris/openrowingmonitor/discussions/33)), due to package conflicts beyond our control. We do [maintain branch where we will backport functional improvements until April 2025](https://github.com/JaapvanEkris/openrowingmonitor/tree/v1beta_updates_Pi_Zero_W), which should run on legacy versions of Raspberry Pi OS (not on Bookworm).
+> [!IMPORTANT]
+> Due to architecture changes, both a Raspberry Pi Zero W (see [this discussion for more information](https://github.com/JaapvanEkris/openrowingmonitor/discussions/33)) Raspberry Pi 5 (see [this discussion for more information](https://github.com/JaapvanEkris/openrowingmonitor/issues/52)) will not work.
+
+> [!TIP]
+> Don't have a Raspberry Pi, but do have an ESP32 lying about? No problem, our sister project ported [OpenRowingMonitor for the ESP32](https://github.com/Abasz/ESPRowingMonitor), which works well (although it is a bit less accurate due to platform limitations).
 
 ## How it all started
 
