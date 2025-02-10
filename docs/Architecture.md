@@ -108,7 +108,8 @@ Both the `webServer.js` and `PeripheralManager.js` can trigger a command. Server
 | stravaAuthorizationCode | An authorization code is provided to upload a training to Strava |
 | shutdown | A shutdown is requested, also used when a part of the application crashes or the application recieves a 'SIGINT' |
 
-Please note, to guarantee a decent closure of data, a 'stop' command from the user will be ignored by `RecordingManager.js` and `PeripheralManager.js`, as the `SessionManager.js` will respond with a new set of metrics, with the 'isSessionStop' flag embedded. On a 'shutdown' command, `RecordingManager.js` and `PeripheralManager.js` do respond by closing their datastreams as if a session-stop was given, to ensure a decent closure.
+> [!NOTE]
+> To guarantee a decent closure of data, a 'stop' command from the user will be ignored by `RecordingManager.js` and `PeripheralManager.js`, as the `SessionManager.js` will respond with a new set of metrics, with the 'isSessionStop' flag embedded. On a 'shutdown' command, `RecordingManager.js` and `PeripheralManager.js` do respond by closing their datastreams as if a session-stop was given, to ensure a decent closure.
 
 ### Rowing metrics flow
 
@@ -175,7 +176,8 @@ sequenceDiagram
   server.js-)RecordingManager.js: heartrate data<br>(interrupt based)
 ```
 
-Please note: the `PeripheralManager.js` will internally also distribute heartrate updats to data consuming ANT+ and BLE peripherals.
+> [!NOTE]
+> The `PeripheralManager.js` will internally also distribute heartrate updats to data consuming ANT+ and BLE peripherals.
 
 ### Key components
 
@@ -220,10 +222,11 @@ stateDiagram-v2
     Stopped --> [*]
 ```
 
-Please note:
+> [!NOTE]
+> `handleRotationImpulse` implements all these state transitions, where the state transitions for the end of an interval and the end of a session are handled individually as the metrics updates differ slightly.
 
-* `handleRotationImpulse` implements all these state transitions, where the state transitions for the end of an interval and the end of a session are handled individually as the metrics updates differ slightly.
-* A session being 'stopped' can technically be turned into a 'Paused' by sending the 'startOrResume' command to the `handleCommand` function of `SessionManager.js`.
+> [!NOTE]
+> A session being 'stopped' can technically be turned into a 'Paused' by sending the 'startOrResume' command to the `handleCommand` function of `SessionManager.js`. Some peripherals send this command routinely.
 
 In a nutshell:
 
@@ -269,7 +272,8 @@ stateDiagram-v2
   Stopped --> [*]
 ```
 
-Please note: the `Stopped` state is only used for external events (i.e. `RowingStatistics.js` calling the stopMoving() command), which will stop `Rower.js` from processing data. This is a different state than `WaitingForDrive`, which can automatically move into `Drive` by accelerating the flywheel. This is typically used for a forced exact stop of a rowing session (i.e. reaching the end of an interval).
+> [!NOTE]
+> The `Stopped` state is only used for external events (i.e. `RowingStatistics.js` calling the stopMoving() command), which will stop `Rower.js` from processing data. This is a different state than `WaitingForDrive`, which can automatically move into `Drive` by accelerating the flywheel. This is typically used for a forced exact stop of a rowing session (i.e. reaching the end of an interval).
 
 ##### Linear metrics in Rower.js
 
