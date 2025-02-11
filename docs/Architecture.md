@@ -70,8 +70,8 @@ Key element is that consuming functional blocks (clients) always will filter for
 
 Accurate time keeping and on-time data processing are crucial for OpenRowingMonitor to function well. To realize this, there are several blocks recognized:
 
-* The **high accurate time measurement process**: in essence, this is the `GpioTimerService.js` which measures with nanoseconds accuracy, requiring an extremely low latency. Frustrating this process will lead to measurement noise. Therefore, this process tends to run on quite an agressive NICE-level. This part of the application is kept clean deliberatly small. On data intensive machines, this can produce a measurement (a *currentDt*) every 2 miliseconds.
-* The **high frequency metrics calculation**: in essence, this is the `RowingEngine`. Although processing isn't too time-critical per se, not having processed a *currentDt* before the next measurement arrives can frustrate the `GpioTimerService.js`. Therefore, this part still is considered critical and it should run on a more relaxed NICE-level compared to the `GpioTimerService.js`, but more agressive than 0. Please realise that the use of Theil-Sen estimators causes a significant CPU-load, making this the most CPU-intensive part of OpenRowingMonitor. As the `RowingEngine` will produce a set of metrics as a response to a *currentDt*, it will produce metrics every 2 milliseconds.
+* The **extreme low latency measurement process**: in essence, this is the `GpioTimerService.js` which measures with nanoseconds accuracy, requiring an extremely low latency. Frustrating this process will lead to measurement noise, requiring this process to run on quite an agressive NICE-level. This part of the application is kept deliberatly small to reduce overhead. On data intensive machines, this can produce a (*currentDt*) measurement every 2 miliseconds.
+* The **high frequency metrics calculation**: in essence, this is `server.js` and the `RowingEngine`. Although processing isn't too time-critical per se, not having processed a *currentDt* before the next measurement arrives can frustrate the `GpioTimerService.js`. Setting the NICE-level too agressive will frustrate `GpioTimerService.js` as it easily consumes a lot of CPU cycles from it. Therefore, this part still is considered time critical but it can (and should) run on a more relaxed NICE-level compared to the `GpioTimerService.js`, but more agressive than regular processes. Please realise that the use of Theil-Sen estimators causes a significant CPU-load, making this the most CPU-intensive part of OpenRowingMonitor. As the `RowingEngine` will produce a set of metrics as a response to each *currentDt*, it will produce metrics every 2 milliseconds.
 * The **non-time critical parts** of OpenRowingMonitor. Specificallythese are the recorders and the peripherals. Missing data for a couple of milliseconds will not be problematic here. To reduce CPU-load, in-session these will only filter the data and do heavy processing only when really needed, preferably after the session. These blocks recieve a message every 4 milliseconds, but peripherals typicall broadcast around 500 milliseconds, and recorders will typically record around every 2500 milliseconds.
 
 Heartrate data is typically reported every 1000 milliseconds.
@@ -89,10 +89,10 @@ B(server.js) -->|Rowing metrics, every 2ms| M(WebServer.js)
 ```
 
 > [!NOTE]
-> An avenue for further improvement is to isolate the `GpioTimerService.js` process on a dedicated CPU, to prevent other processes from interfering with its timing. This is an option for the Raspberry Pi 3 and 4
+> An avenue for further improvement is to isolate the `GpioTimerService.js` process on a dedicated CPU, to prevent other processes from interfering with its timing. This is an option for the Raspberry Pi 3 and 4, but not on single-core machines like the Raspberry Pi Zero 2W
 <!-- MD028/no-blanks-blockquote -->
 > [!NOTE]
-> To further reduce CPU load, an option would be to move the non-time critical parts into seperate processes, with their own (more relaxed) NICE-level.
+> To further reduce CPU load, an option would be to move the non-time critical parts (i.e. the recorders and peripherals) into seperate processes, with their own (more relaxed) NICE-level.
 
 ### Command flow
 
