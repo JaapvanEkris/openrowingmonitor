@@ -88,6 +88,9 @@ B(server.js) -->|Rowing metrics, every 2ms| M(WebServer.js)
 ```
 
 > [!NOTE]
+> An avenue for further improvement is to isolate the `GpioTimerService.js` process on a dedicated CPU, to prevent other processes from interfering with its timing. This is an option for the Raspberry Pi 3 and 4
+<!-- MD028/no-blanks-blockquote -->
+> [!NOTE]
 > To further reduce CPU load, an option would be to move the non-time critical parts into seperate processes, with their own (more relaxed) NICE-level.
 
 ### Command flow
