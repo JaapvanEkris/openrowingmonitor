@@ -66,6 +66,30 @@ Here, *currentDt* stands for the time between the impulses of the sensor, as mea
 
 Key element is that consuming functional blocks (clients) always will filter for themselves: the RowingEngine essentially transforms *currentDt*'s into useable rowing metrics, and attach flags onto them in the `metricsContext` object contained in the metrics. This context allows clients to act upon states that are specifically relevant to them (like the start of the drive, the start of a session, etc.), while ignoring updates that are irrelevant for them.
 
+### Timing behaviour
+
+Accurate time keeping and on-time data processing are crucial for OpenRowingMonitor to function well. To realize this, there are several blocks recognized:
+
+* The **high accurate time measurement process**: in essence, this is the `GpioTimerService.js` which measures with nanoseconds accuracy. Frustrating this process will lead to measurement noise. Therefore, this process tends to run on quite an agressive NICE-level. This part of the application is kept clean deliberatly small. On data intensive machines, this can produce a measurement (a *currentDt*) every 2 miliseconds.
+* The **high frequency metrics calculation**: in essence, this is the `RowingEngine`. Although processing isn't too time-critical per se, not having processed a *currentDt* before the next measurement arrives can frustrate the `GpioTimerService.js`. Therefore, this part still is considered critical and it should run on a more relaxed NICE-level compared to the `GpioTimerService.js`, but more agressive than 0. Please realise that the use of Theil-Sen estimators causes a significant CPU-load, making this the most CPU-intensive part of OpenRowingMonitor. As the `RowingEngine` will produce a set of metrics as a response to a *currentDt*, it will produce metrics every 2 milliseconds.
+* The **non-time critical parts** of OpenRowingMonitor. Specificallythese are the recorders and the peripherals. Missing data for a couple of milliseconds will not be problematic here. To reduce CPU-load, in-session these will only filter the data and do heavy processing only when really needed, preferably after the session. These blocks recieve a message every 4 milliseconds, but peripherals typicall broadcast around 500 milliseconds, and recorders will typically record around every 2500 milliseconds.
+
+Heartrate data is typically reported every 1000 milliseconds.
+
+To put it more visually:
+```mermaid
+flowchart LR
+A(GpioTimerService.js) -->|currentDt, every 2 ms| B(server.js)
+B(server.js) -->|currentDt, every 2 ms| D(RowingEngine)
+D(RowingEngine) -->|Rowing metrics, every 2ms| B(server.js)
+B(server.js) -->|Rowing metrics, every 2ms| E(PeripheralManager.js)
+B(server.js) -->|Rowing metrics, every 2ms| H(RecordingManager.js)
+B(server.js) -->|Rowing metrics, every 2ms| M(WebServer.js)
+```
+
+> [!NOTE]
+> To further reduce CPU load, an option would be to move the non-time critical parts into seperate processes, with their own (more relaxed) NICE-level.
+
 ### Command flow
 
 All functional blocks have a 'manager', which expose a `handleCommand()` function, which respond to a defined set of commands. These commands are explicitly restricted to user actions (i.e. inputs via the web-interface or a peripheral). In essence, this is a user of external session control (via Bluetooth or ANT+) dictating behaviour of OpenRowingMonitor as an external trigger. Effects of metrics upon a session-state (i.e. session start or end based on a predefined session end) should be handled via the metrics updates. Adittionally, effects upon a session state as a result of a command (i.e. session ends because of a command) should also be handled via the metrics updates whenever possible. These manual commands are connected as follows:
