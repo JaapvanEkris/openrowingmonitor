@@ -28,7 +28,7 @@ export function createRowingDataRecorder (config) {
       case ('updateIntervalSettings'):
         break
       case ('reset'):
-        if (lastMetrics !== undefined && lastMetrics.metricsContext !== undefined && lastMetrics.metricsContext.isMoving && lastMetrics.length > 0 && lastMetrics.totalMovingTime > strokes[strokes.length - 1].totalMovingTime) {
+        if (lastMetrics !== undefined && lastMetrics.hasOwnProperty('metricsContext') && lastMetrics.metricsContext.isMoving && lastMetrics.length > 0 && lastMetrics.totalMovingTime > strokes[strokes.length - 1].totalMovingTime) {
           addMetricsToStrokesArray(lastMetrics)
         }
         await createRowingDataFile()
@@ -44,7 +44,7 @@ export function createRowingDataRecorder (config) {
         allDataHasBeenWritten = true
         break
       case 'shutdown':
-        if (lastMetrics !== undefined && lastMetrics.metricsContext !== undefined && lastMetrics.metricsContext.isMoving && lastMetrics.length > 0 && lastMetrics.totalMovingTime > strokes[strokes.length - 1].totalMovingTime) {
+        if (lastMetrics !== undefined && lastMetrics.hasOwnProperty('metricsContext') && lastMetrics.metricsContext.isMoving && lastMetrics.length > 0 && lastMetrics.totalMovingTime > strokes[strokes.length - 1].totalMovingTime) {
           addMetricsToStrokesArray(lastMetrics)
         }
         await createRowingDataFile()
