@@ -35,7 +35,7 @@ export function createTCXRecorder (config) {
       case ('updateIntervalSettings'):
         break
       case ('reset'):
-        if (lastMetrics !== undefined && lastMetrics.hasOwnProperty('metricsContext') && lastMetrics.metricsContext.isMoving && lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
+        if (lastMetrics !== undefined && lastMetrics.hasOwn('metricsContext') && lastMetrics.metricsContext.isMoving && lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
           // We apperantly get a reset during session
           updateLapMetrics(lastMetrics)
           addMetricsToStrokesArray(lastMetrics)
@@ -56,7 +56,7 @@ export function createTCXRecorder (config) {
         allDataHasBeenWritten = true
         break
       case 'shutdown':
-        if (lastMetrics !== undefined && lastMetrics.hasOwnProperty('metricsContext') && lastMetrics.metricsContext.isMoving && lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
+        if (lastMetrics !== undefined && lastMetrics.hasOwn('metricsContext') && lastMetrics.metricsContext.isMoving && lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
           // We apperantly get a shutdown/crash during session
           updateLapMetrics(lastMetrics)
           addMetricsToStrokesArray(lastMetrics)
