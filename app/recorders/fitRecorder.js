@@ -49,7 +49,7 @@ export function createFITRecorder (config) {
         }
         break
       case ('reset'):
-        if (lastMetrics.metricsContext.isMoving && lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
+        if (lastMetrics.hasOwnProperty('metricsContext') && lastMetrics.metricsContext.isMoving && lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
           // We apperantly get a reset during session
           updateLapMetrics(lastMetrics)
           updateSessionMetrics(lastMetrics)
@@ -68,7 +68,7 @@ export function createFITRecorder (config) {
         lastMetrics = {}
         break
       case 'shutdown':
-        if (lastMetrics.metricsContext.isMoving && lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
+        if (lastMetrics.hasOwnProperty('metricsContext') && lastMetrics.metricsContext.isMoving && lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
           // We apperantly get a shutdown/crash during session
           updateLapMetrics(lastMetrics)
           updateSessionMetrics(lastMetrics)
