@@ -189,7 +189,7 @@ export default {
     },
 
     // Configuration for the intervals.icu upload
-    intervals : {
+    intervals: {
       upload: false,
       athleteId: '',
       apiKey: ''
