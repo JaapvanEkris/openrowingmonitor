@@ -6,7 +6,7 @@
 */
 import log from 'loglevel'
 import { createName, createDragLine, createVO2MaxLine, createHRRLine } from './utils/decorators.js'
-import fetch, { FormData, fileFromSync } from 'node-fetch'
+import fetch, { FormData } from 'node-fetch'
 
 export function createIntervalsInterface (config) {
   let basefilename = ''
@@ -28,7 +28,7 @@ export function createIntervalsInterface (config) {
     form.append('name', sessionName)
 
     const fileContent = await recorder.fileContent()
-    const file = new File([fileContent], `${basefilename}${recorder.postfix}.${recorder.type}`, { type: "text/plain" })
+    const file = new File([fileContent], `${basefilename}${recorder.postfix}.${recorder.type}`, { type: 'text/plain' })
     form.append('file', file)
 
     const dragLine = createDragLine(recorder.sessionDrag())
@@ -46,17 +46,16 @@ export function createIntervalsInterface (config) {
     form.append('total_elevation_gain', '0')
 
     try {
-      const response = await fetch(`https://intervals.icu/api/v1/athlete/${config.userSettings.intervals.athleteId}/activities`, {
+      await fetch(`https://intervals.icu/api/v1/athlete/${config.userSettings.intervals.athleteId}/activities`, {
         method: 'POST',
         headers: {
-          'Authorization': 'Basic ' + btoa(`API_KEY:${config.userSettings.intervals.apiKey}`)
+          Authorization: 'Basic ' + btoa(`API_KEY:${config.userSettings.intervals.apiKey}`)
         },
         body: form
       })
       log.info('Intervals.icu interface: uploaded session data')
-
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
   }
 
