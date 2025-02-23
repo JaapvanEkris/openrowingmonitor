@@ -2,28 +2,28 @@
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
-  This Module captures the metrics of a rowing session and persists them in the tcx format.
+  This Module captures the metrics of a rowing session and persists them into the tcx format
+  It provides a tcx-file content, and some metadata for the filewriter and the file-uploaders
 */
 import log from 'loglevel'
-import zlib from 'zlib'
-import fs from 'fs/promises'
+import { createName, createDragLine, createVO2MaxLine, createHRRLine } from './utils/decorators.js'
 import { createSeries } from '../engine/utils/Series.js'
 import { createVO2max } from './utils/VO2max.js'
-import { promisify } from 'util'
-const gzip = promisify(zlib.gzip)
 
 export function createTCXRecorder (config) {
+  const type = 'tcx'
+  const postfix = '_rowing'
+  const presentationName = 'Garmin tcx'
   const powerSeries = createSeries()
   const speedSeries = createSeries()
   const heartrateSeries = createSeries()
   const VO2max = createVO2max(config)
   const drag = createSeries()
-  let filename
   let heartRate = 0
   let sessionData
   let lapnumber = 0
   let postExerciseHR = []
-  let lastMetrics
+  let lastMetrics = {}
   let tcxfileContent
   let tcxfileContentIsCurrent = true
   let allDataHasBeenWritten = true
@@ -35,43 +35,38 @@ export function createTCXRecorder (config) {
       case ('updateIntervalSettings'):
         break
       case ('reset'):
-        if (lastMetrics !== undefined && lastMetrics.hasOwn('metricsContext') && lastMetrics.metricsContext.isMoving && lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
+        if (lastMetrics !== undefined && !!lastMetrics.metricsContext && lastMetrics.metricsContext.isMoving && lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
           // We apperantly get a reset during session
           updateLapMetrics(lastMetrics)
           addMetricsToStrokesArray(lastMetrics)
           calculateLapMetrics(lastMetrics)
         }
-        await createTcxFile()
         heartRate = 0
         sessionData = null
         sessionData = {}
         sessionData.lap = []
         lapnumber = 0
+        lastMetrics = {}
         postExerciseHR = null
         postExerciseHR = []
         powerSeries.reset()
         speedSeries.reset()
         heartrateSeries.reset()
+        drag.reset()
         VO2max.reset()
         allDataHasBeenWritten = true
         break
       case 'shutdown':
-        if (lastMetrics !== undefined && lastMetrics.hasOwn('metricsContext') && lastMetrics.metricsContext.isMoving && lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
+        if (lastMetrics !== undefined && !!lastMetrics.metricsContext && lastMetrics.metricsContext.isMoving && lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
           // We apperantly get a shutdown/crash during session
           updateLapMetrics(lastMetrics)
           addMetricsToStrokesArray(lastMetrics)
           calculateLapMetrics(lastMetrics)
         }
-        await createTcxFile()
         break
       default:
         log.error(`tcxRecorder: Recieved unknown command: ${commandName}`)
     }
-  }
-
-  function setBaseFileName (baseFileName) {
-    filename = `${baseFileName}_rowing.tcx`
-    log.info(`Garmin tcx-file will be saved as ${filename} (after the session)`)
   }
 
   function recordRowingMetrics (metrics) {
@@ -89,7 +84,6 @@ export function createTCXRecorder (config) {
         calculateLapMetrics(metrics)
         postExerciseHR = null
         postExerciseHR = []
-        createTcxFile()
         measureRecoveryHR()
         break
       case (metrics.metricsContext.isPauseStart):
@@ -99,7 +93,6 @@ export function createTCXRecorder (config) {
         resetLapMetrics()
         postExerciseHR = null
         postExerciseHR = []
-        createTcxFile()
         measureRecoveryHR()
         break
       case (metrics.metricsContext.isPauseEnd):
@@ -201,42 +194,17 @@ export function createTCXRecorder (config) {
     heartRate = value.heartrate
   }
 
-  async function createTcxFile () {
-    // Do not write again if not needed
-    if (allDataHasBeenWritten) return
-
-    // we need at least two strokes and ten seconds to generate a valid tcx file
-    if (!minimumNumberOfStrokesHaveCompleted() || !minimumRecordingTimeHasPassed()) {
-      log.info('tcx file has not been written, as there were not enough strokes recorded (minimum 10 seconds and two strokes)')
-      return
-    }
-
-    const tcxRecord = await workoutToTcx(sessionData)
-    if (tcxRecord === undefined) {
-      log.error('error creating tcx file')
-    } else {
-      await createFile(tcxRecord, `${filename}`, config.gzipTcxFiles)
-      allDataHasBeenWritten = true
-      log.info(`Garmin tcx data has been written as ${filename}`)
-    }
-  }
-
   async function fileContent () {
-    // Be aware, this is exposed to the Strava and intervals.icu exporters
     const tcx = await workoutToTcx(sessionData)
     if (tcx === undefined) {
       log.error('error creating tcx file content')
       return undefined
     } else {
-      return {
-        tcx,
-        filename
-      }
+      return tcx
     }
   }
 
   async function workoutToTcx (workout) {
-    // Be aware, this function has two entry points: createTcxFile and fileContent
     // The file content is filled and hasn't changed
     if (tcxfileContentIsCurrent === true && tcxfileContent !== undefined) { return tcxfileContent }
 
@@ -346,31 +314,10 @@ export function createTCXRecorder (config) {
   }
 
   async function createNotes (workout) {
-    let VO2maxoutput
-
-    // VO2Max calculation
-    const VO2maxResult = VO2max.result()
-    if (VO2maxResult > 10 && VO2maxResult < 60) {
-      VO2maxoutput = `${VO2maxResult.toFixed(1)} mL/(kg*min)`
-    } else {
-      VO2maxoutput = 'UNDEFINED'
-    }
-
-    // Addition of HRR data
-    let hrrAdittion = ''
-    if (postExerciseHR.length > 1 && (postExerciseHR[0] > (0.7 * config.userSettings.maxHR))) {
-      // Recovery Heartrate is only defined when the last excercise HR is above 70% of the maximum Heartrate
-      if (postExerciseHR.length === 2) {
-        hrrAdittion = `, HRR1: ${postExerciseHR[1] - postExerciseHR[0]} (${postExerciseHR[1]} BPM)`
-      }
-      if (postExerciseHR.length === 3) {
-        hrrAdittion = `, HRR1: ${postExerciseHR[1] - postExerciseHR[0]} (${postExerciseHR[1]} BPM), HRR2: ${postExerciseHR[2] - postExerciseHR[0]} (${postExerciseHR[2]} BPM)`
-      }
-      if (postExerciseHR.length >= 4) {
-        hrrAdittion = `, HRR1: ${postExerciseHR[1] - postExerciseHR[0]} (${postExerciseHR[1]} BPM), HRR2: ${postExerciseHR[2] - postExerciseHR[0]} (${postExerciseHR[2]} BPM), HRR3: ${postExerciseHR[3] - postExerciseHR[0]} (${postExerciseHR[3]} BPM)`
-      }
-    }
-    const tcxData = `      <Notes>Indoor Rowing, Drag factor: ${drag.average().toFixed(1)} 10-6 N*m*s2, Estimated VO2Max: ${VO2maxoutput}${hrrAdittion}</Notes>\n`
+    const dragLine = createDragLine(drag.average())
+    const VO2MaxLine = createVO2MaxLine(VO2max.result())
+    const HRRLine = createHRRLine(postExerciseHR)
+    const tcxData = `      <Notes>Indoor Rowing, ${dragLine}${VO2MaxLine}${HRRLine}</Notes>\n`
     return tcxData
   }
 
@@ -394,34 +341,16 @@ export function createTCXRecorder (config) {
     return tcxData
   }
 
-  async function createFile (content, filename, compress = false) {
-    if (compress) {
-      const gzipContent = await gzip(content)
-      try {
-        await fs.writeFile(filename, gzipContent)
-      } catch (err) {
-        log.error(err)
-      }
-    } else {
-      try {
-        await fs.writeFile(filename, content)
-      } catch (err) {
-        log.error(err)
-      }
-    }
-  }
-
   function measureRecoveryHR () {
     // This function is called when the rowing session is stopped. postExerciseHR[0] is the last measured excercise HR
     // Thus postExerciseHR[1] is Recovery HR after 1 min, etc..
     if (!isNaN(heartRate) && config.userSettings.restingHR <= heartRate && heartRate <= config.userSettings.maxHR) {
-      log.debug(`*** HRR-${postExerciseHR.length}: ${heartRate}`)
+      log.debug(`*** tcx-recorder HRR-${postExerciseHR.length}: ${heartRate}`)
       postExerciseHR.push(heartRate)
       if ((postExerciseHR.length > 1) && (postExerciseHR.length <= 4)) {
         // We skip reporting postExerciseHR[0] and only report measuring postExerciseHR[1], postExerciseHR[2], postExerciseHR[3]
         tcxfileContentIsCurrent = false
         allDataHasBeenWritten = false
-        createTcxFile()
       }
       if (postExerciseHR.length < 4) {
         // We haven't got three post-exercise HR measurements yet, let's schedule the next measurement
@@ -430,6 +359,10 @@ export function createTCXRecorder (config) {
         log.debug('*** Skipped HRR measurement')
       }
     }
+  }
+
+  function minimumDataAvailable () {
+    return (minimumRecordingTimeHasPassed() && minimumNumberOfStrokesHaveCompleted())
   }
 
   function minimumRecordingTimeHasPassed () {
@@ -452,11 +385,58 @@ export function createTCXRecorder (config) {
     }
   }
 
+  function totalRecordedDistance () {
+    if (minimumRecordingTimeHasPassed() && lastMetrics.totalLinearDistance > 0) {
+      return lastMetrics.totalLinearDistance
+    } else {
+      return 0
+    }
+  }
+
+  function totalRecordedMovingTime () {
+    if (minimumRecordingTimeHasPassed() && lastMetrics.totalMovingTime > 0) {
+      return lastMetrics.totalMovingTime
+    } else {
+      return 0
+    }
+  }
+
+  function sessionDrag () {
+    return drag.average()
+  }
+
+  function sessionVO2Max () {
+    let VO2maxoutput = ''
+    if (VO2max.result() > 10 && VO2max.result() < 60) {
+      return VO2max.result()
+    } else {
+      return undefined
+    }
+  }
+
+  function sessionHRR () {
+    if (postExerciseHR.length > 1 && (postExerciseHR[0] > (0.7 * config.userSettings.maxHR))) {
+      // Recovery Heartrate is only defined when the last excercise HR is above 70% of the maximum Heartrate
+      return postExerciseHR
+    } else {
+      return []
+    }
+  }
+
   return {
     handleCommand,
-    setBaseFileName,
     recordRowingMetrics,
     recordHeartRate,
-    fileContent
+    minimumDataAvailable,
+    fileContent,
+    type,
+    postfix,
+    presentationName,
+    totalRecordedDistance,
+    totalRecordedMovingTime,
+    sessionDrag,
+    sessionVO2Max,
+    sessionHRR,
+    allDataHasBeenWritten
   }
 }
