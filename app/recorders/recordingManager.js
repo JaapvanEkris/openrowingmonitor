@@ -6,19 +6,30 @@
 */
 import log from 'loglevel'
 import fs from 'fs/promises'
+import { createFileWriter } from './fileWriter.js'
 import { createLogRecorder } from './logRecorder.js'
 import { createRawRecorder } from './rawRecorder.js'
 import { createTCXRecorder } from './tcxRecorder.js'
 import { createFITRecorder } from './fitRecorder.js'
 import { createRowingDataRecorder } from './rowingDataRecorder.js'
+import { createRowsAndAllInterface } from './rowsAndAllInterface.js'
+import { createIntervalsInterface } from './intervalsInterface.js'
 
 export function createRecordingManager (config) {
   let startTime
+  let allRecordingsHaveBeenUploaded = true // Neerleggen bij uploader!
+  const fileWriter = createFileWriter(config)
   const logRecorder = createLogRecorder(config)
   const rawRecorder = createRawRecorder(config)
   const tcxRecorder = createTCXRecorder(config)
   const fitRecorder = createFITRecorder(config)
   const rowingDataRecorder = createRowingDataRecorder(config)
+  const rowsAndAllInterface = createRowsAndAllInterface(config)
+  const intervalsInterface = createIntervalsInterface(config)
+  const recordRawData = config.createRawDataFiles
+  const recordTcxData = config.createTcxFiles || config.stravaClientId !== ''
+  const recordFitData = config.createFitFiles || config.userSettings.intervals.upload
+  const recordRowingData = config.createRowingDataFiles || config.userSettings.rowsAndAll.upload
 
   // This function handles all incomming commands. As all commands are broadasted to all application parts,
   // we need to filter here what the WorkoutRecorder will react to and what it will ignore
@@ -37,8 +48,10 @@ export function createRecordingManager (config) {
       case ('stop'):
         break
       case ('reset'):
+        await executeCommandsInParralel(commandName, data, client)
+        await writeRecordings()
+        await uploadRecordings()
         startTime = undefined
-        executeCommandsInParralel(commandName, data, client)
         break
       case 'switchBlePeripheralMode':
         break
@@ -56,6 +69,8 @@ export function createRecordingManager (config) {
         break
       case 'shutdown':
         await executeCommandsInParralel(commandName, data, client)
+        await writeRecordings()
+        await uploadRecordings()
         break
       default:
         log.error(`recordingManager: Recieved unknown command: ${commandName}`)
@@ -63,37 +78,44 @@ export function createRecordingManager (config) {
   }
 
   async function recordRotationImpulse (impulse) {
-    if (startTime === undefined && (config.createRawDataFiles || config.createTcxFiles || config.createRowingDataFiles || config.createFitFiles)) {
+    if (startTime === undefined && (recordRawData || recordTcxData || recordFitData || recordRowingData)) {
       await nameFilesAndCreateDirectory()
     }
-    if (config.createRawDataFiles) { await rawRecorder.recordRotationImpulse(impulse) }
+    if (recordRawData) { await rawRecorder.recordRotationImpulse(impulse) }
   }
 
   async function recordMetrics (metrics) {
-    if (startTime === undefined && (config.createRawDataFiles || config.createTcxFiles || config.createRowingDataFiles || config.createFitFiles)) {
+    if (startTime === undefined && (recordRawData || recordTcxData || recordFitData || recordRowingData)) {
       await nameFilesAndCreateDirectory()
     }
     logRecorder.recordRowingMetrics(metrics)
-    if (config.createRawDataFiles) { rawRecorder.recordRowingMetrics(metrics) }
-    if (config.createTcxFiles) { tcxRecorder.recordRowingMetrics(metrics) }
-    if (config.createFitFiles) { fitRecorder.recordRowingMetrics(metrics) }
-    if (config.createRowingDataFiles) { rowingDataRecorder.recordRowingMetrics(metrics) }
+    if (recordRawData) { rawRecorder.recordRowingMetrics(metrics) }
+    if (recordTcxData) { tcxRecorder.recordRowingMetrics(metrics) }
+    if (recordFitData) { fitRecorder.recordRowingMetrics(metrics) }
+    if (recordRowingData) { rowingDataRecorder.recordRowingMetrics(metrics) }
+    allRecordingsHaveBeenUploaded = false
+
+    if (metrics.metricsContext.isSessionStop || metrics.metricsContext.isPauseStart) {
+      writeRecordings()
+      setTimeout(writeRecordings, 195000)
+      setTimeout(uploadRecordings, 200000)
+    }
   }
 
   async function recordHeartRate (hrmData) {
     logRecorder.recordHeartRate(hrmData)
-    if (config.createTcxFiles) { tcxRecorder.recordHeartRate(hrmData) }
-    if (config.createFitFiles) { fitRecorder.recordHeartRate(hrmData) }
-    if (config.createRowingDataFiles) { rowingDataRecorder.recordHeartRate(hrmData) }
+    if (recordTcxData) { tcxRecorder.recordHeartRate(hrmData) }
+    if (recordFitData) { fitRecorder.recordHeartRate(hrmData) }
+    if (recordRowingData) { rowingDataRecorder.recordHeartRate(hrmData) }
   }
 
   async function executeCommandsInParralel (commandName, data, client) {
     const parallelCalls = []
     parallelCalls.push(logRecorder.handleCommand(commandName, data, client))
-    if (config.createRawDataFiles) { parallelCalls.push(rawRecorder.handleCommand(commandName, data, client)) }
-    if (config.createTcxFiles) { parallelCalls.push(tcxRecorder.handleCommand(commandName, data, client)) }
-    if (config.createFitFiles) { parallelCalls.push(fitRecorder.handleCommand(commandName, data, client)) }
-    if (config.createRowingDataFiles) { parallelCalls.push(rowingDataRecorder.handleCommand(commandName, data, client)) }
+    if (recordRawData) { parallelCalls.push(rawRecorder.handleCommand(commandName, data, client)) }
+    if (recordTcxData) { parallelCalls.push(tcxRecorder.handleCommand(commandName, data, client)) }
+    if (recordFitData) { parallelCalls.push(fitRecorder.handleCommand(commandName, data, client)) }
+    if (recordRowingData) { parallelCalls.push(rowingDataRecorder.handleCommand(commandName, data, client)) }
     await Promise.all(parallelCalls)
   }
 
@@ -112,14 +134,31 @@ export function createRecordingManager (config) {
     // Determine the base filename to be used by all recorders
     const stringifiedStartTime = startTime.toISOString().replace(/T/, '_').replace(/:/g, '-').replace(/\..+/, '')
     const fileBaseName = `${directory}/${stringifiedStartTime}`
-    if (config.createRawDataFiles) { rawRecorder.setBaseFileName(fileBaseName) }
-    if (config.createTcxFiles) { tcxRecorder.setBaseFileName(fileBaseName) }
-    if (config.createFitFiles) { fitRecorder.setBaseFileName(fileBaseName) }
-    if (config.createRowingDataFiles) { rowingDataRecorder.setBaseFileName(fileBaseName) }
+    fileWriter.setBaseFileName(fileBaseName)
+    rowsAndAllInterface.setBaseFileName(fileBaseName)
+  }
+
+  async function writeRecordings () {
+    if (config.createRawDataFiles) { fileWriter.writeFile(rawRecorder, config.gzipRawDataFiles) }
+    if (config.createRowingDataFiles) { fileWriter.writeFile(rowingDataRecorder, false) }
+    if (config.createFitFiles) { fileWriter.writeFile(fitRecorder, config.gzipFitFiles) }
+    if (config.createTcxFiles) { fileWriter.writeFile(tcxRecorder, config.gzipTcxFiles) }
+  }
+
+  async function uploadRecordings () {
+    if ( allRecordingsHaveBeenUploaded === true ) { return }
+    if (config.userSettings.rowsAndAll.upload) { await rowsAndAllInterface.uploadSessionResults(rowingDataRecorder) }
+    if (config.userSettings.intervals.upload) { await intervalsInterface.uploadSessionResults(fitRecorder) }
+    allRecordingsHaveBeenUploaded = true
   }
 
   async function activeWorkoutToTcx () {
-    return await tcxRecorder.fileContent()
+    const tcx = await tcxRecorder.fileContent()
+    const filename = 'results.tcx'
+    return {
+      tcx,
+      filename
+    }
   }
 
   return {
