@@ -165,7 +165,7 @@ export function createRowingDataRecorder (config) {
     return rowingDataFileContent
   }
 
- function measureRecoveryHR () {
+  function measureRecoveryHR () {
     // This function is called when the rowing session is stopped. postExerciseHR[0] is the last measured excercise HR
     // Thus postExerciseHR[1] is Recovery HR after 1 min, etc..
     if (!isNaN(heartRate) && config.userSettings.restingHR <= heartRate && heartRate <= config.userSettings.maxHR) {
@@ -211,7 +211,6 @@ export function createRowingDataRecorder (config) {
   }
 
   function sessionVO2Max () {
-    let VO2maxoutput = ''
     if (VO2max.result() > 10 && VO2max.result() < 60) {
       return VO2max.result()
     } else {
