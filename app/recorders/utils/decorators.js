@@ -36,7 +36,7 @@ export function createName (distance, time) {
 }
 
 export function createDragLine (drag) {
- return `Drag factor: ${drag.toFixed(1)} 10-6 N*m*s2`
+  return `Drag factor: ${drag.toFixed(1)} 10-6 N*m*s2`
 }
 
 export function createVO2MaxLine (VO2MaxResult) {
