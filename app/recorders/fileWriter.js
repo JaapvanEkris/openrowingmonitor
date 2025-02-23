@@ -29,7 +29,7 @@ export function createFileWriter (config) {
     const fileContent = await recorder.fileContent()
 
     if (fileContent === undefined) {
-      log.error('error creating ${recorder.presentationName} file')
+      log.error(`Error creating ${recorder.presentationName} file`)
     } else {
       await createFile(fileContent, `${filename}`, compress)
       recorder.allDataHasBeenWritten = true
