@@ -146,7 +146,7 @@ export function createRecordingManager (config) {
   }
 
   async function uploadRecordings () {
-    if ( allRecordingsHaveBeenUploaded === true ) { return }
+    if (allRecordingsHaveBeenUploaded === true) { return }
     if (config.userSettings.rowsAndAll.upload) { await rowsAndAllInterface.uploadSessionResults(rowingDataRecorder) }
     if (config.userSettings.intervals.upload) { await intervalsInterface.uploadSessionResults(fitRecorder) }
     allRecordingsHaveBeenUploaded = true
