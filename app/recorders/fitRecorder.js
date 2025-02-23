@@ -2,19 +2,20 @@
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
-  This Module captures the metrics of a rowing session and persists them in the fit format.
+  This Module captures the metrics of a rowing session and persists them into the fit format
+  It provides a fit-file content, and some metadata for the filewriter and the file-uploaders
+
 */
 import log from 'loglevel'
-import zlib from 'zlib'
-import fs from 'fs/promises'
+import { createName } from './utils/decorators.js'
 import { createSeries } from '../engine/utils/Series.js'
 import { createVO2max } from './utils/VO2max.js'
-import { promisify } from 'util'
 import { FitWriter } from '@markw65/fit-file-writer'
 
-const gzip = promisify(zlib.gzip)
-
 export function createFITRecorder (config) {
+  const type = 'fit'
+  const postfix = '_rowing'
+  const presentationName = 'Garmin fit'
   const lapPowerSeries = createSeries()
   const lapSpeedSeries = createSeries()
   const lapStrokerateSeries = createSeries()
@@ -26,14 +27,14 @@ export function createFITRecorder (config) {
   const sessionStrokedistanceSeries = createSeries()
   const sessionHeartrateSeries = createSeries()
   const VO2max = createVO2max(config)
-  let filename
+  const drag = createSeries()
   let heartRate = 0
   let sessionData = {}
   sessionData.workoutplan = []
   sessionData.workoutplan[0] = { type: 'justrow' }
   sessionData.lap = []
   let lapnumber = 0
-  let postExerciseHR2 = 0
+  let postExerciseHR = []
   let lastMetrics = {}
   let fitfileContent
   let fitfileContentIsCurrent = true
@@ -49,13 +50,12 @@ export function createFITRecorder (config) {
         }
         break
       case ('reset'):
-        if (lastMetrics !== undefined && lastMetrics.hasOwn('metricsContext') && lastMetrics.metricsContext.isMoving && lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
+        if (lastMetrics !== undefined && !!lastMetrics.metricsContext && lastMetrics.metricsContext.isMoving && lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
           // We apperantly get a reset during session
           updateLapMetrics(lastMetrics)
           updateSessionMetrics(lastMetrics)
           addMetricsToStrokesArray(lastMetrics)
         }
-        await createFitFile()
         heartRate = 0
         lapnumber = 0
         resetSessionMetrics()
@@ -65,25 +65,23 @@ export function createFITRecorder (config) {
         sessionData.workoutplan = []
         sessionData.workoutplan[0] = { type: 'justrow' }
         sessionData.lap = []
+        postExerciseHR = null
+        postExerciseHR = []
+        VO2max.reset()
+        drag.reset()
         lastMetrics = {}
         break
       case 'shutdown':
-        if (lastMetrics !== undefined && lastMetrics.hasOwn('metricsContext') && lastMetrics.metricsContext.isMoving && lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
+        if (lastMetrics !== undefined && !!lastMetrics.metricsContext && lastMetrics.metricsContext.isMoving && lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
           // We apperantly get a shutdown/crash during session
           updateLapMetrics(lastMetrics)
           updateSessionMetrics(lastMetrics)
           addMetricsToStrokesArray(lastMetrics)
         }
-        await createFitFile()
         break
       default:
         log.error(`fitRecorder: Recieved unknown command: ${commandName}`)
     }
-  }
-
-  function setBaseFileName (baseFileName) {
-    filename = `${baseFileName}_rowing.fit`
-    log.info(`Garmin fit-file will be saved as ${filename} (after the session)`)
   }
 
   function setIntervalParameters (intervalParameters) {
@@ -107,9 +105,9 @@ export function createFITRecorder (config) {
         addMetricsToStrokesArray(metrics)
         calculateLapMetrics(metrics)
         calculateSessionMetrics(metrics)
-        postExerciseHR2 = 0
-        createFitFile()
-        setTimeout(measureRecoveryHR, 120000)
+        postExerciseHR = null
+        postExerciseHR = []
+        measureRecoveryHR()
         break
       case (metrics.metricsContext.isPauseStart):
         updateLapMetrics(metrics)
@@ -118,9 +116,9 @@ export function createFITRecorder (config) {
         calculateLapMetrics(metrics)
         calculateSessionMetrics(metrics)
         resetLapMetrics()
-        postExerciseHR2 = 0
-        createFitFile()
-        setTimeout(measureRecoveryHR, 120000)
+        postExerciseHR = null
+        postExerciseHR = []
+        measureRecoveryHR()
         break
       case (metrics.metricsContext.isPauseEnd):
         // The session is resumed, so it was a pause instead of a stop
@@ -165,6 +163,7 @@ export function createFITRecorder (config) {
     addHeartRateToMetrics(metrics)
     sessionData.lap[lapnumber].strokes.push(metrics)
     VO2max.push(metrics)
+    if (!isNaN(metrics.dragFactor) && metrics.dragFactor > 0) { drag.push(metrics.dragFactor) }
     fitfileContentIsCurrent = false
     allDataHasBeenWritten = false
   }
@@ -262,29 +261,7 @@ export function createFITRecorder (config) {
     }
   }
 
-  async function createFitFile () {
-    // Do not write again if not needed
-    if (allDataHasBeenWritten) return
-
-    // we need at least two strokes and ten seconds to generate a valid FIT file
-    if (!minimumNumberOfStrokesHaveCompleted() || !minimumRecordingTimeHasPassed()) {
-      log.info('fit file has not been written, as there were not enough strokes recorded (minimum 10 seconds and two strokes)')
-      return
-    }
-
-    const fitData = await workoutToFit(sessionData)
-
-    if (fitData === undefined) {
-      log.error('error creating fit file')
-    } else {
-      await createFile(fitData, `${filename}`, config.gzipFitFiles)
-      allDataHasBeenWritten = true
-      log.info(`Garmin fit data has been written as ${filename}`)
-    }
-  }
-
   async function fileContent () {
-    // Be aware, this is exposed to the Strava and intervals.icu exporter
     const fitData = await workoutToFit(sessionData)
     if (fitData === undefined) {
       log.error('error creating fit file content')
@@ -295,7 +272,6 @@ export function createFITRecorder (config) {
   }
 
   async function workoutToFit (workout) {
-    // Be aware, this function has two entry points: createFitFile and fileContent
     // The file content is filled and hasn't changed
     if (fitfileContentIsCurrent === true && fitfileContent !== undefined) { return fitfileContent }
 
@@ -597,7 +573,7 @@ export function createFITRecorder (config) {
         sub_sport: 'indoorRowing',
         capabilities: 'fitnessEquipment',
         num_valid_steps: workout.workoutplan.length,
-        wkt_name: `Indoor rowing ${workout.totalLinearDistance / 1000}K`
+        wkt_name: `Indoor rowing ${createName(workout.totalLinearDistance, workout.totalMovingTime)}`
       },
       null,
       true
@@ -660,14 +636,14 @@ export function createFITRecorder (config) {
   }
 
   async function addHRR2Event (writer) {
-    if (!isNaN(postExerciseHR2) && postExerciseHR2 > 0) {
+    if (postExerciseHR.length >= 2 && !isNaN(postExerciseHR[2]) && postExerciseHR[2] > 0) {
       writer.writeMessage(
         'event',
         {
           timestamp: writer.time(new Date()),
           event: 'recoveryHr',
           event_type: 'marker',
-          data: postExerciseHR2
+          data: postExerciseHR[2]
         },
         null,
         true
@@ -675,30 +651,25 @@ export function createFITRecorder (config) {
     }
   }
 
-  async function createFile (content, filename, compress = false) {
-    if (compress) {
-      const gzipContent = await gzip(content)
-      try {
-        await fs.writeFile(filename, gzipContent)
-      } catch (err) {
-        log.error(err)
-      }
-    } else {
-      try {
-        await fs.writeFile(filename, content)
-      } catch (err) {
-        log.error(err)
+ function measureRecoveryHR () {
+    // This function is called when the rowing session is stopped. postExerciseHR[0] is the last measured excercise HR
+    // Thus postExerciseHR[1] is Recovery HR after 1 min, etc..
+    if (!isNaN(heartRate) && config.userSettings.restingHR <= heartRate && heartRate <= config.userSettings.maxHR) {
+      log.debug(`*** Fit-recorder HRR-${postExerciseHR.length}: ${heartRate}`)
+      postExerciseHR.push(heartRate)
+      fitfileContentIsCurrent = false
+      allDataHasBeenWritten = false
+      if (postExerciseHR.length < 4) {
+        // We haven't got three post-exercise HR measurements yet, let's schedule the next measurement
+        setTimeout(measureRecoveryHR, 60000)
+      } else {
+        log.debug('*** Skipped HRR measurement')
       }
     }
   }
 
-  function measureRecoveryHR () {
-    if (!isNaN(heartRate) && config.userSettings.restingHR <= heartRate && heartRate <= config.userSettings.maxHR) {
-      postExerciseHR2 = heartRate
-      fitfileContentIsCurrent = false
-      allDataHasBeenWritten = false
-      createFitFile()
-    }
+  function minimumDataAvailable () {
+    return (minimumRecordingTimeHasPassed() && minimumNumberOfStrokesHaveCompleted())
   }
 
   function minimumRecordingTimeHasPassed () {
@@ -721,12 +692,59 @@ export function createFITRecorder (config) {
     }
   }
 
+  function totalRecordedDistance () {
+    if (!!sessionData.totalLinearDistance && sessionData.totalLinearDistance > 0) {
+      return sessionData.totalLinearDistance
+    } else {
+      return 0
+    }
+  }
+
+  function totalRecordedMovingTime () {
+    if (!!sessionData.totalMovingTime && sessionData.totalMovingTime > 0) {
+      return sessionData.totalMovingTime
+    } else {
+      return 0
+    }
+  }
+
+  function sessionDrag () {
+    return drag.average()
+  }
+
+  function sessionVO2Max () {
+    let VO2maxoutput = ''
+    if (VO2max.result() > 10 && VO2max.result() < 60) {
+      return VO2max.result()
+    } else {
+      return undefined
+    }
+  }
+
+  function sessionHRR () {
+    if (postExerciseHR.length > 1 && (postExerciseHR[0] > (0.7 * config.userSettings.maxHR))) {
+      // Recovery Heartrate is only defined when the last excercise HR is above 70% of the maximum Heartrate
+      return postExerciseHR
+    } else {
+      return []
+    }
+  }
+
   return {
     handleCommand,
-    setBaseFileName,
     setIntervalParameters,
     recordRowingMetrics,
     recordHeartRate,
-    fileContent
+    minimumDataAvailable,
+    fileContent,
+    type,
+    postfix,
+    presentationName,
+    totalRecordedDistance,
+    totalRecordedMovingTime,
+    sessionDrag,
+    sessionVO2Max,
+    sessionHRR,
+    allDataHasBeenWritten
   }
 }
