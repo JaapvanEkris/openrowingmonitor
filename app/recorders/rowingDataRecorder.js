@@ -2,20 +2,24 @@
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
-  This Module captures the metrics of a rowing session and persists them.
+  This Module captures the metrics of a rowing session and persists them into a RowingData format
+  It provides a RowingData file content, and some metadata for the filewriter and the file-uploaders
 */
 import log from 'loglevel'
-import zlib from 'zlib'
-import fs from 'fs/promises'
-import { promisify } from 'util'
-const gzip = promisify(zlib.gzip)
+import { createSeries } from '../engine/utils/Series.js'
+import { createVO2max } from './utils/VO2max.js'
 
 export function createRowingDataRecorder (config) {
-  let filename
+  const type = 'csv'
+  const postfix = '_rowingData'
+  const presentationName = 'RowingData'
+  const VO2max = createVO2max(config)
+  const drag = createSeries()
   let startTime
   let splitNumber = 0
   let heartRate = 0
   let strokes = []
+  let postExerciseHR = []
   let lastMetrics = {}
   let rowingDataFileContent
   let rowingDataFileContentIsCurrent = true
@@ -28,35 +32,31 @@ export function createRowingDataRecorder (config) {
       case ('updateIntervalSettings'):
         break
       case ('reset'):
-        if (lastMetrics !== undefined && lastMetrics.hasOwn('metricsContext') && lastMetrics.metricsContext.isMoving && lastMetrics.length > 0 && lastMetrics.totalMovingTime > strokes[strokes.length - 1].totalMovingTime) {
+        if (lastMetrics !== undefined && !!lastMetrics.metricsContext && lastMetrics.metricsContext.isMoving && lastMetrics.length > 0 && lastMetrics.totalMovingTime > strokes[strokes.length - 1].totalMovingTime) {
           addMetricsToStrokesArray(lastMetrics)
         }
-        await createRowingDataFile()
-        filename = ''
         startTime = undefined
         heartRate = 0
         strokes = null
         strokes = []
         rowingDataFileContent = null
         rowingDataFileContent = {}
+        postExerciseHR = null
+        postExerciseHR = []
+        VO2max.reset()
+        drag.reset()
         lastMetrics = null
         lastMetrics = {}
         allDataHasBeenWritten = true
         break
       case 'shutdown':
-        if (lastMetrics !== undefined && lastMetrics.hasOwn('metricsContext') && lastMetrics.metricsContext.isMoving && lastMetrics.length > 0 && lastMetrics.totalMovingTime > strokes[strokes.length - 1].totalMovingTime) {
+        if (lastMetrics !== undefined && !!lastMetrics.metricsContext && lastMetrics.metricsContext.isMoving && lastMetrics.length > 0 && lastMetrics.totalMovingTime > strokes[strokes.length - 1].totalMovingTime) {
           addMetricsToStrokesArray(lastMetrics)
         }
-        await createRowingDataFile()
         break
       default:
         log.error(`RowingDataRecorder: Recieved unknown command: ${commandName}`)
     }
-  }
-
-  function setBaseFileName (baseFileName) {
-    filename = `${baseFileName}_rowingData.csv`
-    log.info(`RowingData file will be saved as ${filename} (after the session)`)
   }
 
   // initiated when a new heart rate value is received from heart rate sensor
@@ -74,7 +74,9 @@ export function createRowingDataRecorder (config) {
         break
       case (metrics.metricsContext.isSessionStop):
         addMetricsToStrokesArray(metrics)
-        createRowingDataFile()
+        postExerciseHR = null
+        postExerciseHR = []
+        measureRecoveryHR()
         break
       case (metrics.metricsContext.isIntervalStart):
         addMetricsToStrokesArray(metrics)
@@ -82,7 +84,9 @@ export function createRowingDataRecorder (config) {
         break
       case (metrics.metricsContext.isPauseStart):
         addMetricsToStrokesArray(metrics)
-        createRowingDataFile()
+        postExerciseHR = null
+        postExerciseHR = []
+        measureRecoveryHR()
         break
       case (metrics.metricsContext.isPauseEnd):
         splitNumber++
@@ -103,6 +107,8 @@ export function createRowingDataRecorder (config) {
     addHeartRateToMetrics(metrics)
     addSplitnumberToMetrics(metrics)
     strokes.push(metrics)
+    VO2max.push(metrics)
+    if (!isNaN(metrics.dragFactor) && metrics.dragFactor > 0) { drag.push(metrics.dragFactor) }
     allDataHasBeenWritten = false
     rowingDataFileContentIsCurrent = false
   }
@@ -119,29 +125,7 @@ export function createRowingDataRecorder (config) {
     metrics.rowingDataSplitNumber = splitNumber
   }
 
-  async function createRowingDataFile () {
-    // Do not write again if not needed
-    if (allDataHasBeenWritten) return
-
-    // we need at least two strokes and ten seconds to generate a valid tcx file
-    if (strokes.length < 2 || !minimumRecordingTimeHasPassed()) {
-      log.info('RowingData file has not been written, as there were not enough strokes recorded (minimum 10 seconds and two strokes)')
-      return
-    }
-
-    const RowingData = await workoutToRowingData(strokes)
-
-    if (RowingData === undefined) {
-      log.error('error creating RowingData file')
-    } else {
-      await createFile(RowingData, `${filename}`, false)
-      allDataHasBeenWritten = true
-      log.info(`RowingData has been written as ${filename}`)
-    }
-  }
-
   async function fileContent () {
-    // Be aware, this is exposed to the RowsAndAll exporter
     const RowingData = await workoutToRowingData(strokes)
     if (RowingData === undefined) {
       log.error('error creating RowingData file content')
@@ -152,7 +136,6 @@ export function createRowingDataRecorder (config) {
   }
 
   async function workoutToRowingData (strokedata) {
-    // Be aware, this function has two entry points: createRowingDataFile and fileContent
     // The file content is filled and hasn't changed
     let currentstroke
 
@@ -182,24 +165,22 @@ export function createRowingDataRecorder (config) {
     return rowingDataFileContent
   }
 
-  async function createFile (content, filename, compress = false) {
-    if (compress) {
-      const gzipContent = await gzip(content)
-      try {
-        await fs.writeFile(filename, gzipContent)
-      } catch (err) {
-        log.error(err)
-      }
-    } else {
-      try {
-        await fs.writeFile(filename, content)
-      } catch (err) {
-        log.error(err)
+ function measureRecoveryHR () {
+    // This function is called when the rowing session is stopped. postExerciseHR[0] is the last measured excercise HR
+    // Thus postExerciseHR[1] is Recovery HR after 1 min, etc..
+    if (!isNaN(heartRate) && config.userSettings.restingHR <= heartRate && heartRate <= config.userSettings.maxHR) {
+      log.debug(`*** RowingData HRR-${postExerciseHR.length}: ${heartRate}`)
+      postExerciseHR.push(heartRate)
+      if (postExerciseHR.length < 4) {
+        // We haven't got three post-exercise HR measurements yet, let's schedule the next measurement
+        setTimeout(measureRecoveryHR, 60000)
+      } else {
+        log.debug('*** Skipped HRR measurement')
       }
     }
   }
 
-  function minimumRecordingTimeHasPassed () {
+  function minimumDataAvailable () {
     const minimumRecordingTimeInSeconds = 10
     if (strokes.length > 2) {
       const strokeTimeTotal = strokes[strokes.length - 1].totalMovingTime
@@ -209,11 +190,58 @@ export function createRowingDataRecorder (config) {
     }
   }
 
+  function totalRecordedDistance () {
+    if (minimumDataAvailable() && strokes[strokes.length - 1].totalLinearDistance > 0) {
+      return strokes[strokes.length - 1].totalLinearDistance
+    } else {
+      return 0
+    }
+  }
+
+  function totalRecordedMovingTime () {
+    if (minimumDataAvailable() && strokes[strokes.length - 1].totalMovingTime > 0) {
+      return strokes[strokes.length - 1].totalMovingTime
+    } else {
+      return 0
+    }
+  }
+
+  function sessionDrag () {
+    return drag.average()
+  }
+
+  function sessionVO2Max () {
+    let VO2maxoutput = ''
+    if (VO2max.result() > 10 && VO2max.result() < 60) {
+      return VO2max.result()
+    } else {
+      return undefined
+    }
+  }
+
+  function sessionHRR () {
+    if (postExerciseHR.length > 1 && (postExerciseHR[0] > (0.7 * config.userSettings.maxHR))) {
+      // Recovery Heartrate is only defined when the last excercise HR is above 70% of the maximum Heartrate
+      return postExerciseHR
+    } else {
+      return []
+    }
+  }
+
   return {
     handleCommand,
-    setBaseFileName,
     recordRowingMetrics,
     recordHeartRate,
-    fileContent
+    minimumDataAvailable,
+    fileContent,
+    type,
+    postfix,
+    presentationName,
+    totalRecordedDistance,
+    totalRecordedMovingTime,
+    sessionDrag,
+    sessionVO2Max,
+    sessionHRR,
+    allDataHasBeenWritten
   }
 }
