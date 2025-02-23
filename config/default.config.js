@@ -180,7 +180,20 @@ export default {
     // If you have been rowing regularly for several years, training at least four days per week, doing a variety of workout types
     // and improving your rowing scores, then we suggest selecting "Highly trained" when using the calculator.
     // If you consider yourself a fitness rower and don't push yourself very hard or do any hard pieces, then we suggest selecting "Not highly trained."
-    highlyTrained: false
+    highlyTrained: false,
+
+    // Configuration for the RowsAndAll.com upload
+    rowsAndAll: {
+      upload: false,
+      apiKey: ''
+    },
+
+    // Configuration for the intervals.icu upload
+    intervals : {
+      upload: false,
+      athleteId: '',
+      apiKey: ''
+    }
   },
 
   // The rower specific settings. Either choose a profile from config/rowerProfiles.js or
