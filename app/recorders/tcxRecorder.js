@@ -6,7 +6,7 @@
   It provides a tcx-file content, and some metadata for the filewriter and the file-uploaders
 */
 import log from 'loglevel'
-import { createName, createDragLine, createVO2MaxLine, createHRRLine } from './utils/decorators.js'
+import { createDragLine, createVO2MaxLine, createHRRLine } from './utils/decorators.js'
 import { createSeries } from '../engine/utils/Series.js'
 import { createVO2max } from './utils/VO2max.js'
 
@@ -406,7 +406,6 @@ export function createTCXRecorder (config) {
   }
 
   function sessionVO2Max () {
-    let VO2maxoutput = ''
     if (VO2max.result() > 10 && VO2max.result() < 60) {
       return VO2max.result()
     } else {
