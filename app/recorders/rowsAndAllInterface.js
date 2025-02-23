@@ -6,7 +6,7 @@
 */
 import log from 'loglevel'
 import { createName, createDragLine, createVO2MaxLine, createHRRLine } from './utils/decorators.js'
-import fetch, { FormData, fileFromSync } from 'node-fetch'
+import fetch, { FormData } from 'node-fetch'
 
 export function createRowsAndAllInterface (config) {
   let basefilename = ''
@@ -28,11 +28,11 @@ export function createRowsAndAllInterface (config) {
     form.append('title', sessionName)
 
     const fileContent = await recorder.fileContent()
-    const file = new File([fileContent], `${basefilename}${recorder.postfix}.${recorder.type}`, { type: "text/plain" })
+    const file = new File([fileContent], `${basefilename}${recorder.postfix}.${recorder.type}`, { type: 'text/plain' })
     form.append('file', file)
 
-    form.append('boattype', 'static');
-    form.append('workouttype', 'rower');
+    form.append('boattype', 'static')
+    form.append('workouttype', 'rower')
 
     const dragLine = createDragLine(recorder.sessionDrag())
     const VO2MaxLine = createVO2MaxLine(recorder.sessionVO2Max())
@@ -42,18 +42,17 @@ export function createRowsAndAllInterface (config) {
     form.append('notes', sessionNote)
 
     try {
-        const response = await fetch('https://rowsandall.com/rowers/api/rowingdata/', {
+      await fetch('https://rowsandall.com/rowers/api/rowingdata/', {
         method: 'POST',
         headers: {
           'User-Agent': 'curl/7.87.0',
-          'Authorization': `${config.userSettings.rowsAndAll.apiKey}`
+          Authorization: `${config.userSettings.rowsAndAll.apiKey}`
         },
         body: form
       })
       log.info('RowsAndAll interface: uploaded session data')
-
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
   }
 
