@@ -69,7 +69,7 @@ OpenRowingMonitor can recieve heartrate data via BLE and ANT+. But it also imple
 
 * **BLE Cycling Speed and Cadence Profile**: used for older Garmin Forerunner and Garmin Venu watches and similar types, again simulating a bike activity. Please note to set the wheel circumference to 10mm to make this work well.
 
-* **ANT+ FE-C**: OpenRowingMonitor can broadcast rowing metrics via ANT+ FE-C, which can be recieved by the more expensive series of Garmin smartwatches like the Epux/Fenix series, which then can calculate metrics like training load etc..
+* **ANT+ FE-C**: OpenRowingMonitor can broadcast rowing metrics via ANT+ FE-C, which can be recieved by the more expensive series of Garmin smartwatches like the Epix/Fenix series, which then can calculate metrics like training load etc..
 
 * **MQTT**: this IoT protocol allows you to broadcast metrics for logging or real-time display, but also allows for intwgarion with Home Automatiin systems like [Home Assistant](https://www.home-assistant.io/).
 
