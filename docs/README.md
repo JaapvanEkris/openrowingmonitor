@@ -71,7 +71,7 @@ OpenRowingMonitor can recieve heartrate data via BLE and ANT+. But it also imple
 
 * **ANT+ FE-C**: OpenRowingMonitor can broadcast rowing metrics via ANT+ FE-C, which can be recieved by the more expensive series of Garmin smartwatches like the Epix/Fenix series, which then can calculate metrics like training load etc..
 
-* **MQTT**: this IoT protocol allows you to broadcast metrics for logging or real-time display, but also allows for intwgarion with Home Automatiin systems like [Home Assistant](https://www.home-assistant.io/).
+* **MQTT**: this IoT protocol allows you to broadcast metrics for logging or real-time display, but also allows for integration with Home Automation systems like [Home Assistant](https://www.home-assistant.io/) and [Domiticz](https://www.domoticz.com/).
 
 > [!NOTE]
 > Use of ANT+ requires adding an ANT+ USB-stick to your Raspberry Pi.
