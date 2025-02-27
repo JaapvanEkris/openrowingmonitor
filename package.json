@@ -39,6 +39,7 @@
     "incyclist-ant-plus": "^0.3.1",
     "lit": "^2.8.0",
     "loglevel": "^1.9.1",
+    "mqtt": "^5.10.4",
     "node-fetch": "^3.3.2",
     "nosleep.js": "0.12.0",
     "pigpio": "3.3.1",
