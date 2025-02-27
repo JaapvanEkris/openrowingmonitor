@@ -15,6 +15,7 @@ import AntManager from './ant/AntManager.js'
 import { createAntHrmPeripheral } from './ant/HrmPeripheral.js'
 import { createBleHrmPeripheral } from './ble/HrmPeripheral.js'
 import { createFEPeripheral } from './ant/FEPeripheral.js'
+import { createMQTTPeripheral } from './mqtt/mqtt.js'
 
 const bleModes = ['FTMS', 'FTMSBIKE', 'PM5', 'CSC', 'CPS', 'OFF']
 const antModes = ['FE', 'OFF']
@@ -22,12 +23,15 @@ const hrmModes = ['ANT', 'BLE', 'OFF']
 
 export function createPeripheralManager (config) {
   const emitter = new EventEmitter()
+  const mqttEnabled = (config.mqtt.mqttBroker !== '') && (config.mqtt.username !== '') && (config.mqtt.password !== '') && (config.mqtt.machineName !== '')
   let _antManager
   let blePeripheral
   let bleMode
 
   let antPeripheral
   let antMode
+
+  let mqttPeripheral
 
   let hrmPeripheral
   let hrmMode
@@ -46,6 +50,7 @@ export function createPeripheralManager (config) {
     if (config.heartRateMode === 'BLE') { await delay(10000) } // WORKAROUND for BLE-Fix. ToDo: remove the need for this delay in the bluetooth startup completely
     await createBlePeripheral(config.bluetoothMode)
     await createAntPeripheral(config.antPlusMode)
+    if (mqttEnabled) { mqttPeripheral = createMQTTPeripheral(config) }
   }
 
   // This function handles all incomming commands. As all commands are broadasted to all application parts,
@@ -111,6 +116,7 @@ export function createPeripheralManager (config) {
     addHeartRateToMetrics(metrics)
     if (bleMode !== 'OFF') { blePeripheral?.notifyData(metrics) }
     if (antMode !== 'OFF') { antPeripheral?.notifyData(metrics) }
+    if (mqttEnabled) { mqttPeripheral.notifyData(metrics) }
   }
 
   function notifyStatus (status) {
@@ -331,6 +337,7 @@ export function createPeripheralManager (config) {
       await antPeripheral?.destroy()
       await hrmPeripheral?.destroy()
       await _antManager?.closeAntStick()
+      if (mqttEnabled) { await mqttPeripheral?.destroy() }
     } catch (error) {
       log.error('peripheral shutdown was unsuccessful, restart of Pi may required', error)
     }
