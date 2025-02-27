@@ -74,7 +74,7 @@ Uploading to [Garmin Connect](https://connect.garmin.com) can be done by uploadi
 
 ## MQTT
 
-To publish metrics to a MQTT broker, like a home automation system, you need to add the following to your config.js:
+To publish real-time metrics to a MQTT broker, like a home automation system, you need to add the following to your config.js:
 
 ```js
   mqtt: {
@@ -87,4 +87,4 @@ To publish metrics to a MQTT broker, like a home automation system, you need to 
 
 Here, the `mqttBroker` is the ip/internet adress of the broker (without the protocol descriptor, so for example `broker.emqx.io`), and the `username` and `password` are the ones you use to log in on that broker.
 
-The `machineName` is an element that is used to identify your monitor uniquely in your MQTT environment. The topic '/OpenRowingMonitor/`machineName`/metrics' will contain your metrics.
+The `machineName` is an element that is used to identify your monitor uniquely in your MQTT environment. The topic '/OpenRowingMonitor/`machineName`/metrics' will contain your metrics. One message per stroke, where flags indicate the rowing machine state and all associated metrics.
