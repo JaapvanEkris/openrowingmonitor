@@ -1,5 +1,15 @@
 # OpenRowingMonitor Release Notes
 
+## From 0.9.5 to 0.9.6 (March 2025)
+
+Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz](https://github.com/Abasz)
+
+### New functionality in 0.9.6
+
+- Added [RowsAndAll.com](https://rowsandall.com) integration for workout reporting (i.e. automatic uploading of a result)
+- Added [intervals.icu](https://intervals.icu) integration for workout reporting (i.e. automatic uploading a result)
+- Added a MQTT peripheral to repirt metrics live to MQTT brokers and control home automation, etc. (see [this discussion](https://github.com/laberning/openrowingmonitor/discussions/43) and [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/80))
+
 ## From 0.9.0 to 0.9.5 (February 2025)
 
 Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz](https://github.com/Abasz)
