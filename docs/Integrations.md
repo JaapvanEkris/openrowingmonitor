@@ -10,11 +10,11 @@ Looking at the individual services, we see the following:
 
 | Service | Download workout | Upload results | Remarks |
 |---|---|---|---|
-| File system | No | Yes | |
+| File system | No | Yes | Integrated service |
 | Strava | No | Yes | |
-| RowsAndAll.com | No | Yes | Upoad only, currently requires batch script |
+| RowsAndAll.com | No | Yes | Integrated service |
 | Rowingdata | No | Yes | Upoad only, currently requires batch script |
-| Intervals.icu | No | Yes | Upoad only, currently requires batch script |
+| Intervals.icu | No | Yes | Integrated service |
 | Garmin Connect | No | Yes | Upoad only, currently requires batch script |
 
 In the following sections we describe their pro's and con's, as well as their current limitations with OpenRowingMonitor, and how to set it up.
@@ -70,3 +70,20 @@ Here, you need to replace yOURaPIkEY and yOURaTHELEnUMBER with the data from int
 ## Garmin Connect
 
 Uploading to [Garmin Connect](https://connect.garmin.com) can be done by uploading the fit-file via [python-garminconnect](https://github.com/cyberjunky/python-garminconnect/tree/master) and a batch script.
+
+## MQTT
+
+To publish metrics to a MQTT broker, like a home automation system, you need to add the following to your config.js:
+
+```js
+  mqtt: {
+    mqttBroker: '',
+    username: '',
+    password: '',
+    machineName: ''
+  },
+```
+
+Here, the `mqttBroker` is the ip/internet adress of the broker (without the protocol descriptor, so for example `broker.emqx.io`), and the `username` and `password` are the ones you use to log in on that broker.
+
+The `machineName` is an element that is used to identify your monitor uniquely in your MQTT environment. The topic '/OpenRowingMonitor/`machineName`/metrics' will contain your metrics.
