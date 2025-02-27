@@ -7,16 +7,14 @@ If you would like to contribute to this project, you are more than welcome, but 
 ## In progress
 
 * Switch to a working Bluetooth library that allows dynamic switching (see [issue 69](https://github.com/JaapvanEkris/openrowingmonitor/issues/69))
-* Integrate with rowsandall.com for workout reporting (i.e. uploading a result)
-* Integrate with intervals.icu for workout reporting (i.e. uploading a result)
 
 ## Soon
 
-* Add a MQTT peripheral to control home automation, etc. (see [this discussion](https://github.com/laberning/openrowingmonitor/discussions/43) and [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/80))
 * Improve the user interface (We really need help on this!)
 * Introduce training plans (i.e. a distance/time to row):
   * Integrate with rowsandall.com to retrieve training planning
   * Integrate with intervals.icu to retrieve training planning
+  * Integrate training plan option into the MQTT interface
   * add user friendly possibility for user to define training interval timers in the web frontend (`server.js`, `SessionManager.js` and the recorders can already handle this)
   * add user friendly possibility for user to define training interval timers via the peripherals (`server.js`, `SessionManager.js` and the recorders can already handle this)
 * Introduce workout plans (i.e. intervals with **goals** like a target HR or pace):
