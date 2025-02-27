@@ -114,6 +114,14 @@ export default {
   // Interval between updates of the clients using PM5 Bluetooth profile (miliseconds)
   pm5UpdateInterval: 1000,
 
+  // MQTT perpipheral configuration settings
+  mqtt: {
+    mqttBroker: '',
+    username: '',
+    password: '',
+    machineName: ''
+  },
+
   // The number of stroke phases (i.e. Drive or Recovery) used to smoothen the data displayed on your
   // screens (i.e. the monitor, but also bluetooth devices, etc.) and recorded data. A nice smooth experience is found at 6
   // phases, a much more volatile (but more accurate and responsive) is found around 3. The minimum is 2,
