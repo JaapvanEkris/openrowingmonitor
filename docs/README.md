@@ -57,11 +57,11 @@ If you connect a (optional) physical screen directly to the Raspberry Pi, then t
 
 ### Device connections via BLE, ANT+ and MQTT
 
-OpenRowingMonitor can recieve recieve heartrate data via BLE and ANT+. But it also implements different protocols to share rowing metrics with different applications and devices. We support most industry standards to help you connect to your app and game of choice, OpenRowingMonitor currently supports the following protocols:
+OpenRowingMonitor can recieve heartrate data via BLE and ANT+. But it also implements different protocols to share your rowing metrics with different applications and devices. We support most common industry standards to help you connect to your app and game of choice, OpenRowingMonitor currently supports the following protocols:
 
-* **Concept2 PM**: OpenRowingMonitor implements part of the Concept2 PM Bluetooth Smart Communication Interface Definition. This is still work in progress and only implements the most common parts of the spec, so it is not guaranteed to work with all applications that support C2 rowing machines. Our interface currently can only report metrics, but can't recieve commands and session parameters from the app yet. It is known to work with [EXR](https://www.exrgame.com) and all the samples from [The Erg Arcade](https://ergarcade.com), for example you can [row in the clouds](https://ergarcade.github.io/mrdoob-clouds/).
+* **Concept2 PM**: OpenRowingMonitor implements can simulate a Concept2 PM5, providing compatibility with most rowing apps. This is still work in progress and only implements the most common parts of the spec, so it is not guaranteed to work with all applications. Our interface currently can only report metrics, but can't recieve commands and session parameters from the app yet. It is known to work with [EXR](https://www.exrgame.com) and all the samples from [The Erg Arcade](https://ergarcade.com), for example you can [row in the clouds](https://ergarcade.github.io/mrdoob-clouds/).
 
-* **FTMS Rower**: This is the FTMS profile for rowing machines and supports all rowing specific metrics (such as stroke rate). So far not many training applications for this profile exist, but the market is evolving. We've successfully tested it with [EXR](https://www.exrgame.com) (preferred method), [MyHomeFit](https://myhomefit.de) and [Kinomap](https://www.kinomap.com).
+* **FTMS Rower**: This is the FTMS profile for rowing machines and supports all rowing specific metrics (such as stroke rate). We've successfully tested it with [EXR](https://www.exrgame.com) (preferred method), [MyHomeFit](https://myhomefit.de) and [Kinomap](https://www.kinomap.com).
 
 * **FTMS Indoor Bike**: This FTMS profile is used by Smart Bike Trainers and widely adopted by training applications for bike training. It does not support rowing specific metrics. But it can present metrics such as power and distance to the biking application and use cadence for stroke rate. So why not use your virtual rowing bike to row up a mountain in [Zwift](https://www.zwift.com), [Bkool](https://www.bkool.com), [The Sufferfest](https://thesufferfest.com) or similar :-)
 
@@ -69,7 +69,7 @@ OpenRowingMonitor can recieve recieve heartrate data via BLE and ANT+. But it al
 
 * **BLE Cycling Speed and Cadence Profile**: used for older Garmin Forerunner and Garmin Venu watches and similar types, again simulating a bike activity. Please note to set the wheel circumference to 10mm to make this work well.
 
-* **ANT+ FE-C**: OpenRowingMonitor can broadcast rowing metrics via ANT+ FE-C, which can be recieved by the more expensive series of Garmin smartwatches, which then can calculate metrics like training load etc..
+* **ANT+ FE-C**: OpenRowingMonitor can broadcast rowing metrics via ANT+ FE-C, which can be recieved by the more expensive series of Garmin smartwatches like the Epux/Fenix series, which then can calculate metrics like training load etc..
 
 * **MQTT**: this IoT protocol allows you to broadcast metrics for logging or real-time display, but also allows for intwgarion with Home Automatiin systems like [Home Assistant](https://www.home-assistant.io/).
 
