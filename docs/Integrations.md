@@ -87,14 +87,14 @@ To publish real-time metrics to a MQTT broker, like a home automation system, yo
 
 Here, the `mqttBroker` is the ip/internet adress of the broker (without the protocol descriptor, so for example `broker.emqx.io`), and the `username` and `password` are the ones you use to log in on that broker.
 
-The `machineName` is an element that is used to identify your monitor uniquely in your MQTT environment. The topic '/OpenRowingMonitor/`machineName`/metrics' will contain your metrics. One message per stroke, where flags indicate the rowing machine state and all associated metrics.
+The `machineName` is an element that is used to identify your monitor uniquely in your MQTT environment. The topic '/OpenRowingMonitor/`machineName`/metrics' will contain your metrics. Each completed stroke results in one message, initiated at the beginning of the drive. At the begin/end of splits, intervals and sessions an additional message will be sent. Flags indicate the rowing machine state and all associated metrics.
 
 | Field | Meaning | Unit |
 |---|---|---|
 | timestamp | | JSON timestamp | 
-| sessiontype | |
-| sessionStatus | |
-| strokeState | |
+| sessiontype | | |
+| sessionStatus | | |
+| strokeState | | |
 | isMoving | | Boolean |
 | isDriveStart | | Boolean |
 | isRecoveryStart | | Boolean |
@@ -102,24 +102,24 @@ The `machineName` is an element that is used to identify your monitor uniquely i
 | isPauseStart | | Boolean |
 | isPauseEnd | | Boolean |
 | isSessionStop | | Boolean |
-| totalNumberOfStrokes | |
+| totalNumberOfStrokes | | Counter |
 | totalMovingTime | | Seconds |
-| totalDistance | |
-| totalCalories | |
-| splitNumber | |
-| heartrate | |
+| totalDistance | | Meters |
+| totalCalories | | |
+| splitNumber | | Counter |
+| heartrate | | Beats per minute |
 | velocity | | m/s |
 | pace  | | sec/500m |
 | power | | Watts |
-| driveDuration | | miliseconds |
-| driveLength | |
-| recoveryDuration | | miliseconds |
-| strokeDuration | | miliseconds |
-| strokeRate | |
+| driveDuration | | milliseconds |
+| driveLength | Meters |
+| recoveryDuration | | milliseconds |
+| strokeDuration | | milliseconds |
+| strokeRate | strokes per minute|
 | distancePerStroke | | Meters |
 | peakHandleForce | | Newtons |
 | averageHandleForce | | Newtons |
-| forceCurve | |
-| velocityCurve | |
-| powerCurve | |
-| dragFactor | |
+| forceCurve | | |
+| velocityCurve | | |
+| powerCurve | | |
+| dragFactor | | |
