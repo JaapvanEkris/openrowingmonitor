@@ -112,14 +112,14 @@ The `machineName` is an element that is used to identify your monitor uniquely i
 | pace  | | sec/500m |
 | power | | Watts |
 | driveDuration | | milliseconds |
-| driveLength | Meters |
+| driveLength | | Meters |
 | recoveryDuration | | milliseconds |
 | strokeDuration | | milliseconds |
-| strokeRate | strokes per minute|
+| strokeRate | | strokes per minute|
 | distancePerStroke | | Meters |
-| peakHandleForce | | Newtons |
-| averageHandleForce | | Newtons |
-| forceCurve | | |
-| velocityCurve | | |
-| powerCurve | | |
+| peakHandleForce | Maximum encountered force during the drive | Newtons |
+| averageHandleForce | Average handle force during the drive | Newtons |
+| forceCurve | Handle force during the drive | Newtons over drive length |
+| velocityCurve | Velocity of the handle during the drive | m/s over drive length |
+| powerCurve | Velocity of the handle during the drive | Watts over drive length |
 | dragFactor | | |
