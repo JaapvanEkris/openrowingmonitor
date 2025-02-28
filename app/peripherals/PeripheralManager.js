@@ -32,6 +32,7 @@ export function createPeripheralManager (config) {
   let antMode
 
   let mqttPeripheral
+  if (mqttEnabled) { mqttPeripheral = createMQTTPeripheral(config) }
 
   let hrmPeripheral
   let hrmMode
@@ -50,7 +51,6 @@ export function createPeripheralManager (config) {
     if (config.heartRateMode === 'BLE') { await delay(10000) } // WORKAROUND for BLE-Fix. ToDo: remove the need for this delay in the bluetooth startup completely
     await createBlePeripheral(config.bluetoothMode)
     await createAntPeripheral(config.antPlusMode)
-    if (mqttEnabled) { mqttPeripheral = createMQTTPeripheral(config) }
   }
 
   // This function handles all incomming commands. As all commands are broadasted to all application parts,
