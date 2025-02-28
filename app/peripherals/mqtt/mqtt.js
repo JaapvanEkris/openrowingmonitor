@@ -13,7 +13,7 @@ export function createMQTTPeripheral (config) {
   const host = `${config.mqtt.mqttBroker}`
   const port = '1883'
   const clientId = `mqtt_${Math.random().toString(16).slice(3)}`
-  const topic = `/OpenRowingMonitor/${config.mqtt.machineName}/metrics`
+  const topic = `OpenRowingMonitor/${config.mqtt.machineName}/metrics`
   const connectUrl = `${protocol}://${host}:${port}`
   let lastMetrics = {
     timestamp: (new Date()),
