@@ -1,4 +1,4 @@
-# Intergations with other services
+# Integrations with other services
 
 For services we distinguish between two types of functionality:
 
@@ -88,3 +88,38 @@ To publish real-time metrics to a MQTT broker, like a home automation system, yo
 Here, the `mqttBroker` is the ip/internet adress of the broker (without the protocol descriptor, so for example `broker.emqx.io`), and the `username` and `password` are the ones you use to log in on that broker.
 
 The `machineName` is an element that is used to identify your monitor uniquely in your MQTT environment. The topic '/OpenRowingMonitor/`machineName`/metrics' will contain your metrics. One message per stroke, where flags indicate the rowing machine state and all associated metrics.
+
+| Field | Meaning | Unit |
+|---|---|---|
+| timestamp | | JSON timestamp | 
+| sessiontype | |
+| sessionStatus | |
+| strokeState | |
+| isMoving | | Boolean |
+| isDriveStart | | Boolean |
+| isRecoveryStart | | Boolean |
+| isSessionStart | | Boolean |
+| isPauseStart | | Boolean |
+| isPauseEnd | | Boolean |
+| isSessionStop | | Boolean |
+| totalNumberOfStrokes | |
+| totalMovingTime | | Seconds |
+| totalDistance | |
+| totalCalories | |
+| splitNumber | |
+| heartrate | |
+| velocity | | m/s |
+| pace  | | sec/500m |
+| power | | Watts |
+| driveDuration | | miliseconds |
+| driveLength | |
+| recoveryDuration | | miliseconds |
+| strokeDuration | | miliseconds |
+| strokeRate | |
+| distancePerStroke | | Meters |
+| peakHandleForce | | Newtons |
+| averageHandleForce | | Newtons |
+| forceCurve | |
+| velocityCurve | |
+| powerCurve | |
+| dragFactor | |
