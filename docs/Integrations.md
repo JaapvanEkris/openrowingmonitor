@@ -1,5 +1,6 @@
 # Integrations with other services
 
+<!-- markdownlint-disable no-inline-html -->
 For services we distinguish between two types of functionality:
 
 * **Download workout**: here OpenRowingMonitor will fetch the planned workout parameters (target distance, intervals, etc.) from the service before the session and will program the monitor accordingly
@@ -95,8 +96,8 @@ The topic 'OpenRowingMonitor/`machineName`/metrics' will contain your metrics. E
 
 | Field | Meaning | Unit |
 |---|---|---|
-| timestamp | | JSON timestamp |
-| sessiontype | | |
+| timestamp | The timestamp of the creation of the metrics | JSON timestamp |
+| sessiontype | The type of the current interval | `justrow`, `distance`, `time` or `rest` |
 | sessionStatus | | |
 | strokeState | | |
 | isMoving | | Boolean |
@@ -109,7 +110,7 @@ The topic 'OpenRowingMonitor/`machineName`/metrics' will contain your metrics. E
 | totalNumberOfStrokes | | Counter |
 | totalMovingTime | | Seconds |
 | totalDistance | | Meters |
-| totalCalories | | |
+| totalCalories | | kCal |
 | splitNumber | | Counter |
 | heartrate | | Beats per minute |
 | velocity | | m/s |
@@ -126,7 +127,7 @@ The topic 'OpenRowingMonitor/`machineName`/metrics' will contain your metrics. E
 | forceCurve | Handle force during the drive | Newtons over drive length |
 | velocityCurve | Velocity of the handle during the drive | m/s over drive length |
 | powerCurve | Velocity of the handle during the drive | Watts over drive length |
-| dragFactor | | |
+| dragFactor | | 10<sup>-6</sup> N*m*s<sup>2</sup> |
 
 ### Pushing workouts
 
