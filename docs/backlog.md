@@ -14,7 +14,6 @@ If you would like to contribute to this project, you are more than welcome, but 
 * Introduce training plans (i.e. a distance/time to row):
   * Integrate with rowsandall.com to retrieve training planning
   * Integrate with intervals.icu to retrieve training planning
-  * Integrate training plan option into the MQTT interface
   * add user friendly possibility for user to define training interval timers in the web frontend (`server.js`, `SessionManager.js` and the recorders can already handle this)
   * add user friendly possibility for user to define training interval timers via the peripherals (`server.js`, `SessionManager.js` and the recorders can already handle this)
 * Introduce workout plans (i.e. intervals with **goals** like a target HR or pace):
