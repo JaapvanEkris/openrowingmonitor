@@ -175,16 +175,14 @@ So an alternative session is the following:
   },
   {
     "type": "rest",
-    "targetTime": "60",
+    "targetTime": "60"
   },
   {
     "type": "distance",
-    "targetDistance": "2000",
-    "targetTime": "0",
+    "targetDistance": "2000"
     "split": {
       "type": "distance",
-      "targetDistance": "500",
-      "targetTime": "0"
+      "targetDistance": "500"
     }
   },
   {
