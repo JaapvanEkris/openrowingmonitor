@@ -9,13 +9,17 @@ import * as assert from 'uvu/assert'
 
 import { createWorkoutSegment } from './workoutSegment.js'
 
+const basicConfig = {
+  numOfPhasesForAveragingScreenData: 4
+}
+
 test('Test workoutSegment initialisation behaviour without setting an interval', () => {
   const startingPoint = {
     totalMovingTime: 0,
     totalLinearDistance: 0
   }
 
-  const testSegment = createWorkoutSegment()
+  const testSegment = createWorkoutSegment(basicConfig)
   testDistanceFromStart(testSegment, startingPoint, 0)
   testTimeSinceStart(testSegment, startingPoint, 0)
   testdistanceToEnd(testSegment, startingPoint, undefined)
@@ -36,7 +40,7 @@ test('Test workoutSegment initialisation behaviour without setting an interval, 
     totalLinearDistance: 2050
   }
 
-  const testSegment = createWorkoutSegment()
+  const testSegment = createWorkoutSegment(basicConfig)
   testDistanceFromStart(testSegment, startingPoint, 0)
   testTimeSinceStart(testSegment, startingPoint, 0)
   testdistanceToEnd(testSegment, startingPoint, undefined)
@@ -78,7 +82,7 @@ test('Test workoutSegment behaviour with setting a distance interval', () => {
     totalLinearDistance: 2050
   }
 
-  const testSegment = createWorkoutSegment()
+  const testSegment = createWorkoutSegment(basicConfig)
   testSegment.setStart(startingPoint)
   testSegment.setEnd(distanceInterval)
   testDistanceFromStart(testSegment, startingPoint, 0)
@@ -126,7 +130,7 @@ test('Test workoutSegment behaviour with setting a time interval', () => {
     totalLinearDistance: 2050
   }
 
-  const testSegment = createWorkoutSegment()
+  const testSegment = createWorkoutSegment(basicConfig)
   testSegment.setStart(startingPoint)
   testSegment.setEnd(distanceInterval)
   testDistanceFromStart(testSegment, startingPoint, 0)
@@ -174,8 +178,8 @@ test('Test split behaviour when setting a distance interval', () => {
     totalLinearDistance: 510
   }
 
-  const testSegment = createWorkoutSegment()
-  const testSplit = createWorkoutSegment()
+  const testSegment = createWorkoutSegment(basicConfig)
+  const testSplit = createWorkoutSegment(basicConfig)
   testSegment.setStart(startingPoint)
   testSegment.setEnd(distanceInterval)
   testSplit.setStart(startingPoint)
@@ -224,8 +228,8 @@ test('Test split behaviour with setting a time interval', () => {
     totalLinearDistance: 510
   }
 
-  const testSegment = createWorkoutSegment()
-  const testSplit = createWorkoutSegment()
+  const testSegment = createWorkoutSegment(basicConfig)
+  const testSplit = createWorkoutSegment(basicConfig)
   testSegment.setStart(startingPoint)
   testSegment.setEnd(distanceInterval)
   testSplit.setStart(startingPoint)
@@ -247,6 +251,8 @@ test('Test split behaviour with setting a time interval', () => {
   testIsEndReached(testSplit, endPoint, true)
   testExtrapolation(testSplit, middlePoint, endPoint, 120, 500)
 })
+
+// ToDo: Test the project EndTime and project EndDistance functions
 
 function testDistanceFromStart (testedSegment, testedDatapoint, expectedValue) {
   assert.ok(testedSegment.distanceFromStart(testedDatapoint) === expectedValue, `Expected distance from the start should be ${expectedValue}, encountered ${testedSegment.distanceFromStart(testedDatapoint)}`)
