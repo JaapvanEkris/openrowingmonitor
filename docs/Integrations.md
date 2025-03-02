@@ -136,6 +136,7 @@ In the topic 'OpenRowingMonitor/`machineName`/workoutplans' you can push your wo
 > Workoutplans are only accepted before a session, not during one.
 
 For example:
+
 ```js
 [
   {
