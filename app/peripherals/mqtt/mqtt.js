@@ -1,19 +1,24 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor/prod
 
   This Module broadcastst the rowing metrics to a MQTT broker
   Please note: most brokers get easily flooded by highly frequent reporting, so we only report on a per-stroke basis
+
+  It also allows setting of workout parameters via MQTT
 */
 import log from 'loglevel'
+import EventEmitter from 'node:events'
 import mqtt from 'mqtt'
 
 export function createMQTTPeripheral (config) {
+  const emitter = new EventEmitter()
   const protocol = 'mqtt'
   const host = `${config.mqtt.mqttBroker}`
   const port = '1883'
   const clientId = `mqtt_${Math.random().toString(16).slice(3)}`
-  const topic = `OpenRowingMonitor/${config.mqtt.machineName}/metrics`
+  const metricsTopic = `OpenRowingMonitor/${config.mqtt.machineName}/metrics`
+  const workoutsTopic = `OpenRowingMonitor/${config.mqtt.machineName}/workoutplans`
   const connectUrl = `${protocol}://${host}:${port}`
   let lastMetrics = {
     timestamp: (new Date()),
@@ -62,8 +67,23 @@ export function createMQTTPeripheral (config) {
   })
 
   client.on('connect', () => {
-    log.debug(`MQTT Publisher: connected to ${host}, publishing in ${topic} topic`)
+    log.debug(`MQTT Publisher: connected to ${host}, publishing metrics in ${metricsTopic} topic`)
     publishMetrics(lastMetrics)
+  })
+
+  client.subscribe([workoutsTopic], () => {
+    log.debug(`MQTT Publisher: connected to ${host}, listening to ${workoutsTopic} topic`)
+  })
+
+  client.on('message', (topic, payload) => {
+    console.log('Received Message:', topic, payload.toString())
+    emitter.emit('control', {
+      req: {
+        name: 'updateIntervalSettings',
+        data: JSON.parse(payload.toString()),
+        client: null
+      }
+    })
   })
 
   async function notifyData (metrics) {
@@ -129,7 +149,7 @@ export function createMQTTPeripheral (config) {
       dragfactor: (metrics.dragFactor > 0 ? metrics.dragFactor.toFixed(1) : NaN)
     }
 
-    client.publish(topic, JSON.stringify(jsonMetrics), { qos: 0, retain: false }, (error) => {
+    client.publish(metricsTopic, JSON.stringify(jsonMetrics), { qos: 0, retain: false }, (error) => {
       if (error) {
         console.error(error)
       }
@@ -143,8 +163,8 @@ export function createMQTTPeripheral (config) {
     client.end()
   }
 
-  return {
+  return Object.assign(emitter, {
     notifyData,
     destroy
-  }
+  })
 }
