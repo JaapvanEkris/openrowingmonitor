@@ -130,7 +130,10 @@ The topic 'OpenRowingMonitor/`machineName`/metrics' will contain your metrics. E
 
 ### Pushing workouts
 
-In the topic 'OpenRowingMonitor/`machineName`/workoutplans' you can push your workoutplan in stringified JSON format. Please note: workoutplans are only accepted before a session, not during one.
+In the topic 'OpenRowingMonitor/`machineName`/workoutplans' you can push your workoutplan in stringified JSON format.
+
+> [!NOTE]
+> Workoutplans are only accepted before a session, not during one.
 
 For example:
 ```js
@@ -158,7 +161,7 @@ Valid values for type are:
 * `justrow`: an endless session that will not stop unless you stop rowing. If you like an undetermined cooldown after a session, this is recomended as last interval.
 * `distance`: creates an interval that will end at a specified distance. This requires the `targetDistance` to be greater than 0 meters.
 * `time`: creates an interval that will end at a specified time. This requires the `targetTime` to be greater than 0 seconds.
-* `rest`: creates an rest interval with a minumum duraction of `targetTime` seconds. PLease note, duing a rest interval, no metrics will be recorded.
+* `rest`: creates an rest interval with a minumum duration of `targetTime` seconds. PLease note, duing a rest interval, no metrics will be recorded.
 
 Splits are optional elements. It will allow a session to be split up into smaller pieces for analysis purposes. In OpenRowingMonitor, intervals and splits do not have to be of the same type. So one can have time based splits in a distance based interval. Please observe that in the transition from one interval to the next, splits are reset.
 
