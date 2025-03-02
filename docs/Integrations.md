@@ -16,7 +16,7 @@ Looking at the individual services, we see the following:
 | Rowingdata | No | Yes | Upoad only, currently requires batch script |
 | Intervals.icu | No | Yes | Integrated service |
 | Garmin Connect | No | Yes | Upoad only, currently requires batch script |
-| MQTT | No | Yes | Integrated service |
+| MQTT | Yes | Yes | Integrated service |
 
 In the following sections we describe their pro's and con's, as well as their current limitations with OpenRowingMonitor, and how to set it up.
 
