@@ -233,9 +233,9 @@ export function createWorkoutSegment (config) {
   }
 
   function reset () {
+    _type = 'justrow'
     _startTime = 0
     _startDistance = 0
-    _type = 'justrow'
     _targetTime = 0
     _targetDistance = 0
     _endTime = 0
@@ -245,6 +245,7 @@ export function createWorkoutSegment (config) {
       targetDistance: 0,
       targetTime: 0
     }
+    distanceOverTime.reset()
   }
 
   function endDistance () {
@@ -297,22 +298,6 @@ export function createWorkoutSegment (config) {
     return _type
   }
 
-  function reset () {
-    _type = 'justrow'
-    _startTime = 0
-    _startDistance = 0
-    _targetTime = 0
-    _targetDistance = 0
-    _endTime = 0
-    _endDistance = 0
-    _split = {
-      type: 'justrow',
-      targetDistance: 0,
-      targetTime: 0
-    }
-    distanceOverTime.reset()
-  }
-
   return {
     setStart,
     setEnd,
@@ -323,7 +308,6 @@ export function createWorkoutSegment (config) {
     timeSinceStart,
     timeToEnd,
     setInterval,
-    reset,
     type,
     updateProjections,
     projectedEndTime,
