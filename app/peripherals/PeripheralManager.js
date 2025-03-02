@@ -32,7 +32,13 @@ export function createPeripheralManager (config) {
   let antMode
 
   let mqttPeripheral
-  if (mqttEnabled) { mqttPeripheral = createMQTTPeripheral(config) }
+  if (mqttEnabled) {
+    mqttPeripheral = createMQTTPeripheral(config)
+
+    mqttPeripheral.on('control', (req) => {
+          emitter.emit('control', req)
+    })
+  }
 
   let hrmPeripheral
   let hrmMode
