@@ -4,7 +4,11 @@
 
   This Module supports the creation and use of workoutSegment
 */
-export function createWorkoutSegment () {
+import { createOLSLinearSeries } from './OLSLinearSeries.js'
+
+export function createWorkoutSegment (config) {
+  const numOfDataPointsForAveraging = config.numOfPhasesForAveragingScreenData
+  const distanceOverTime = createOLSLinearSeries(Math.min(4, numOfDataPointsForAveraging))
   let _type = 'justrow'
   let _startTime = 0
   let _startDistance = 0
@@ -39,25 +43,25 @@ export function createWorkoutSegment () {
       case (intervalSettings.type === 'rest' && intervalSettings.targetTime > 0):
         // A target time is set for a rest interval
         _type = 'rest'
-        _targetTime = intervalSettings.targetTime
+        _targetTime = Number(intervalSettings.targetTime)
         _targetDistance = 0
-        _endTime = _startTime + intervalSettings.targetTime
+        _endTime = _startTime + Number(intervalSettings.targetTime)
         _endDistance = 0
         break
       case (intervalSettings.type === 'distance' && intervalSettings.targetDistance > 0):
         // A target distance is set
         _type = 'distance'
         _targetTime = 0
-        _targetDistance = intervalSettings.targetDistance
+        _targetDistance = Number(intervalSettings.targetDistance)
         _endTime = 0
-        _endDistance = _startDistance + intervalSettings.targetDistance
+        _endDistance = _startDistance + Number(intervalSettings.targetDistance)
         break
       case (intervalSettings.type === 'time' && intervalSettings.targetTime > 0):
         // A target time is set
         _type = 'time'
-        _targetTime = intervalSettings.targetTime
+        _targetTime = Number(intervalSettings.targetTime)
         _targetDistance = 0
-        _endTime = _startTime + intervalSettings.targetTime
+        _endTime = _startTime + Number(intervalSettings.targetTime)
         _endDistance = 0
         break
       default:
@@ -78,20 +82,20 @@ export function createWorkoutSegment () {
           targetTime: 0
         }
         break
-      case (intervalSettings.split !== undefined && intervalSettings.split.type === 'distance' && intervalSettings.split.targetDistance > 0):
+      case (!!intervalSettings.split && intervalSettings.split !== undefined && intervalSettings.split.type === 'distance' && intervalSettings.split.targetDistance > 0):
         // A target distance is set
         _split = {
           type: 'distance',
-          targetDistance: intervalSettings.split.targetDistance,
+          targetDistance: Number(intervalSettings.split.targetDistance),
           targetTime: 0
         }
         break
-      case (intervalSettings.split !== undefined && intervalSettings.split.type === 'time' && intervalSettings.split.targetTime > 0):
+      case (!!intervalSettings.split && intervalSettings.split !== undefined && intervalSettings.split.type === 'time' && intervalSettings.split.targetTime > 0):
         // A target time is set
         _split = {
           type: 'time',
           targetDistance: 0,
-          targetTime: intervalSettings.split.targetTime
+          targetTime: Number(intervalSettings.split.targetTime)
         }
         break
       default:
@@ -101,6 +105,11 @@ export function createWorkoutSegment () {
           targetTime: 0
         }
     }
+  }
+
+  // Updates projectiondata
+  function updateProjections (baseMetrics) {
+    distanceOverTime.push(baseMetrics.totalMovingTime, baseMetrics.totalLinearDistance)
   }
 
   // Returns the distance from te startpoint
@@ -133,10 +142,36 @@ export function createWorkoutSegment () {
     }
   }
 
+  // Returns the projected time to the workoutsegment endpoint
+  function projectedEndTime () {
+    switch (true) {
+      case (_type === 'distance' && _endDistance > 0 && distanceOverTime.length() >= numOfDataPointsForAveraging):
+        // We are in a distance based interval, so we need to project
+        return distanceOverTime.projectY(_endDistance)
+      case (_type === 'time' && _endTime > 0):
+        return _endTime
+      default:
+        return undefined
+    }
+  }
+
+  // Returns the projected time to the workoutsegment endpoint
+  function projectedEndDistance () {
+    switch (true) {
+      case (_type === 'distance' && _endDistance > 0):
+        return _endDistance
+      case (_type === 'time' && _endTime > 0 && distanceOverTime.length() >= numOfDataPointsForAveraging):
+        // We are in a time based interval, so we need to project
+        return distanceOverTime.projectX(_endTime())
+      default:
+        return undefined
+    }
+  }
+
   // Returns the time to the endpoint
   function timeToEnd (baseMetrics) {
     if ((_type === 'time' || _type === 'rest') && _endTime > 0) {
-      // We have exceeded the boundary
+      // We are in a time based interval
       return _endTime - baseMetrics.totalMovingTime
     } else {
       return undefined
@@ -262,6 +297,22 @@ export function createWorkoutSegment () {
     return _type
   }
 
+  function reset () {
+    _type = 'justrow'
+    _startTime = 0
+    _startDistance = 0
+    _targetTime = 0
+    _targetDistance = 0
+    _endTime = 0
+    _endDistance = 0
+    _split = {
+      type: 'justrow',
+      targetDistance: 0,
+      targetTime: 0
+    }
+    distanceOverTime.reset()
+  }
+
   return {
     setStart,
     setEnd,
@@ -274,12 +325,16 @@ export function createWorkoutSegment () {
     setInterval,
     reset,
     type,
+    updateProjections,
+    projectedEndTime,
+    projectedEndDistance,
     endTime,
     endDistance,
     getSplit,
     targetTime,
     targetDistance,
     splitTime,
-    splitDistance
+    splitDistance,
+    reset
   }
 }
