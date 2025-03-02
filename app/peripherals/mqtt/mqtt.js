@@ -1,6 +1,6 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor/prod
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   This Module broadcastst the rowing metrics to a MQTT broker
   Please note: most brokers get easily flooded by highly frequent reporting, so we only report on a per-stroke basis
