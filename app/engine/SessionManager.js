@@ -50,6 +50,8 @@ export function createSessionManager (config) {
       case ('updateIntervalSettings'):
         if (sessionState !== 'Rowing') {
           setIntervalParameters(data)
+        } else {
+          log.debug(`SessionManager, time: ${metrics.totalMovingTime}, rejected new interval settings as session was already in progress`)
         }
         break
       case ('start'):
@@ -308,14 +310,14 @@ export function createSessionManager (config) {
     intervalSettings = intervalParameters
     currentIntervalNumber = -1
     if (intervalSettings.length > 0) {
-      log.info(`Workout recieved with ${intervalSettings.length} interval(s)`)
+      log.info(`SessionManager: Workout recieved with ${intervalSettings.length} interval(s)`)
       metrics = rowingStatistics.getMetrics()
       activateNextIntervalParameters(metrics)
       resetMetricsSessionContext(metrics)
       emitMetrics(metrics)
     } else {
       // intervalParameters were empty, lets log this odd situation
-      log.error('Recieved workout containing no intervals')
+      log.error('SessionManager: Recieved workout containing no intervals')
     }
   }
 
