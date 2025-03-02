@@ -127,7 +127,7 @@ The topic 'OpenRowingMonitor/`machineName`/metrics' will contain your metrics. E
 | forceCurve | Handle force during the drive | Newtons over drive length |
 | velocityCurve | Velocity of the handle during the drive | m/s over drive length |
 | powerCurve | Velocity of the handle during the drive | Watts over drive length |
-| dragFactor | | 10<sup>-6</sup> N*m*s<sup>2</sup> |
+| dragFactor | | 10<sup>-6</sup> N\*m\*s<sup>2</sup> |
 
 ### Pushing workouts
 
