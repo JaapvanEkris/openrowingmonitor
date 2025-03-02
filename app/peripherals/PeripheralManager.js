@@ -36,7 +36,7 @@ export function createPeripheralManager (config) {
     mqttPeripheral = createMQTTPeripheral(config)
 
     mqttPeripheral.on('control', (req) => {
-          emitter.emit('control', req)
+      emitter.emit('control', req)
     })
   }
 
