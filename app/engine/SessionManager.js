@@ -7,7 +7,6 @@
 import { EventEmitter } from 'events'
 import { createRowingStatistics } from './RowingStatistics.js'
 import { createWorkoutSegment } from './utils/workoutSegment.js'
-import { createOLSLinearSeries } from './utils/OLSLinearSeries.js'
 import { secondsToTimeString } from '../tools/Helper.js'
 
 import loglevel from 'loglevel'
@@ -27,12 +26,11 @@ export function createSessionManager (config) {
   let lastSessionState = 'WaitingForStart'
   let intervalSettings = []
   let currentIntervalNumber = -1
-  const interval = createWorkoutSegment()
-  const intervalAndPause = createWorkoutSegment()
-  const split = createWorkoutSegment()
+  const interval = createWorkoutSegment(config)
+  const intervalAndPause = createWorkoutSegment(config)
+  const split = createWorkoutSegment(config)
   let intervalAndPauseStartTime = new Date()
   let splitNumber = 0
-  const distanceOverTime = createOLSLinearSeries(Math.min(4, numOfDataPointsForAveraging))
 
   metrics = rowingStatistics.getMetrics()
   resetMetricsSessionContext(metrics)
@@ -69,14 +67,14 @@ export function createSessionManager (config) {
         }
         break
       case ('pause'):
-        pauseTraining()
+        pauseTraining(metrics)
         metrics = rowingStatistics.getMetrics() // as the pause button is forced, we need to fetch the zero'ed metrics
         metrics.metricsContext.isPauseStart = true
         sessionState = 'Paused'
         break
       case ('stop'):
         clearTimeout(pauseTimer)
-        stopTraining()
+        stopTraining(metrics)
         metrics.metricsContext.isSessionStop = true
         sessionState = 'Stopped'
         break
@@ -84,7 +82,7 @@ export function createSessionManager (config) {
         break
       case ('reset'):
         clearTimeout(pauseTimer)
-        resetTraining()
+        resetTraining(metrics)
         metrics.metricsContext.isPauseStart = true
         sessionState = 'WaitingForStart'
         break
@@ -104,7 +102,7 @@ export function createSessionManager (config) {
         break
       case 'shutdown':
         clearTimeout(pauseTimer)
-        stopTraining()
+        stopTraining(metrics)
         metrics.metricsContext.isSessionStop = true
         sessionState = 'Stopped'
         break
@@ -115,29 +113,29 @@ export function createSessionManager (config) {
     lastSessionState = sessionState
   }
 
-  function StartOrResumeTraining (metrics) {
+  function StartOrResumeTraining (baseMetrics) {
     rowingStatistics.allowStartOrResumeTraining()
     intervalAndPauseStartTime = new Date()
-    intervalAndPause.setStart(metrics)
-    split.setStart(metrics)
+    intervalAndPause.setStart(baseMetrics)
+    split.setStart(baseMetrics)
     split.setEnd(interval.getSplit())
   }
 
-  function stopTraining () {
+  function stopTraining (baseMetrics) {
     clearTimeout(watchdogTimer)
-    distanceOverTime.push(metrics.totalMovingTime, metrics.totalLinearDistance)
+    interval.updateProjections(baseMetrics)
     rowingStatistics.stopTraining()
   }
 
   // clear the metrics in case the user pauses rowing
-  function pauseTraining () {
+  function pauseTraining (baseMetrics) {
     clearTimeout(watchdogTimer)
-    distanceOverTime.push(metrics.totalMovingTime, metrics.totalLinearDistance)
+    interval.updateProjections(baseMetrics)
     rowingStatistics.pauseTraining()
   }
 
-  function resetTraining () {
-    stopTraining()
+  function resetTraining (baseMetrics) {
+    stopTraining(baseMetrics)
     rowingStatistics.resetTraining()
     rowingStatistics.allowStartOrResumeTraining()
     intervalSettings = null
@@ -145,11 +143,11 @@ export function createSessionManager (config) {
     currentIntervalNumber = -1
     pauseCountdownTimer = 0
     splitNumber = 0
-    distanceOverTime.reset()
     metrics = rowingStatistics.getMetrics()
     resetMetricsSessionContext(metrics)
     sessionState = 'WaitingForStart'
     lastSessionState = 'WaitingForStart'
+    interval.reset()
     interval.setStart(metrics)
     intervalAndPauseStartTime = new Date()
     intervalAndPause.setStart(metrics)
@@ -168,7 +166,7 @@ export function createSessionManager (config) {
     resetMetricsSessionContext(metrics)
 
     if (metrics.metricsContext.isMoving && (metrics.metricsContext.isDriveStart || metrics.metricsContext.isRecoveryStart)) {
-      distanceOverTime.push(metrics.totalMovingTime, metrics.totalLinearDistance)
+      interval.updateProjections(metrics)
     }
 
     // This is the core of the finite state machine that defines all state transitions
@@ -194,7 +192,7 @@ export function createSessionManager (config) {
       case (lastSessionState !== 'Stopped' && metrics.strokeState === 'Stopped'):
         // We do not need to refetch the metrics as RowingStatistics will already have zero-ed the metrics when strokeState = 'Stopped'
         // This is intended behaviour, as the rower/flywheel indicate the rower has stopped somehow
-        stopTraining()
+        stopTraining(metrics)
         sessionState = 'Stopped'
         metrics.metricsContext.isSessionStop = true
         break
@@ -205,7 +203,7 @@ export function createSessionManager (config) {
       case (lastSessionState === 'Rowing' && metrics.strokeState === 'WaitingForDrive'):
         // We do not need to refetch the metrics as RowingStatistics will already have zero-ed the metrics when strokeState = 'WaitingForDrive'
         // This is intended behaviour, as the rower/flywheel indicate the rower has paused somehow
-        pauseTraining()
+        pauseTraining(metrics)
         sessionState = 'Paused'
         metrics.metricsContext.isPauseStart = true
         break
@@ -230,7 +228,7 @@ export function createSessionManager (config) {
       case (lastSessionState === 'Rowing' && metrics.metricsContext.isMoving && interval.isEndReached(metrics) && isNextIntervalAvailable()):
         // There is a next interval, but it is a rest interval, so we forcefully stop the session
         // As we typically overshoot our interval target, we project the intermediate value
-        stopTraining()
+        stopTraining(metrics)
         temporaryDatapoint = interval.interpolateEnd(lastBroadcastedMetrics, metrics)
         sessionState = 'Paused'
         currentIntervalNumber++
@@ -254,7 +252,7 @@ export function createSessionManager (config) {
         break
       case (lastSessionState === 'Rowing' && metrics.metricsContext.isMoving && interval.isEndReached(metrics)):
         // Here we do NOT want zero the metrics, as we want to keep the metrics we had when we crossed the finishline
-        stopTraining()
+        stopTraining(metrics)
         sessionState = 'Stopped'
         temporaryDatapoint = interval.interpolateEnd(lastBroadcastedMetrics, metrics)
         if (temporaryDatapoint.modified) {
@@ -366,7 +364,7 @@ export function createSessionManager (config) {
       pauseTimer = setTimeout(onPauseTimer, 100)
     } else {
       // The timer has run out
-      pauseTraining()
+      pauseTraining(metrics)
       sessionState = 'Paused'
       metrics = rowingStatistics.getMetrics()
       activateNextIntervalParameters(metrics)
@@ -397,18 +395,18 @@ export function createSessionManager (config) {
     metricsToEnrich.intervalAndPauseLinearDistance = intervalAndPause.distanceFromStart(metricsToEnrich)
     metricsToEnrich.splitNumber = metrics.metricsContext.isSplitEnd ? splitNumber - 1 : splitNumber // This is needed to satisfy the RowingData recorder, it needs the start of the split to mark the end of the previous split
     metricsToEnrich.splitLinearDistance = metrics.metricsContext.isSplitEnd ? interval.splitDistance() : split.distanceFromStart(metricsToEnrich) // This is needed to satisfy the RowingData recorder
-    metricsToEnrich.cycleProjectedEndTime = interval.endDistance() > 0 ? distanceOverTime.projectY(interval.endDistance()) : interval.endTime()
-    metricsToEnrich.cycleProjectedEndLinearDistance = interval.endTime() > 0 ? distanceOverTime.projectX(interval.endTime()) : interval.endDistance()
+    metricsToEnrich.cycleProjectedEndTime = interval.projectedEndTime()
+    metricsToEnrich.cycleProjectedEndLinearDistance = interval.projectedEndDistance()
   }
 
   function onWatchdogTimeout () {
     log.error(`Time: ${metrics.totalMovingTime}, Forced a session stop due to unexpeted flywheel stop, exceeding the maximumStrokeTimeBeforePause (i.e. ${watchdogTimout} seconds) without new datapoints`)
-    stopTraining()
     metrics = rowingStatistics.getMetrics()
+    stopTraining(metrics)
     resetMetricsSessionContext(metrics)
     metrics.metricsContext.isSessionStop = true
     sessionState = 'Stopped'
-    distanceOverTime.push(metrics.totalMovingTime, metrics.totalLinearDistance)
+    interval.updateProjections(metrics)
     emitMetrics(metrics)
   }
 
