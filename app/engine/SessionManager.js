@@ -13,7 +13,6 @@ import loglevel from 'loglevel'
 const log = loglevel.getLogger('RowingEngine')
 
 export function createSessionManager (config) {
-  const numOfDataPointsForAveraging = config.numOfPhasesForAveragingScreenData
   const emitter = new EventEmitter()
   const rowingStatistics = createRowingStatistics(config)
   let metrics
