@@ -8,7 +8,8 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz]
 
 - Added [RowsAndAll.com](https://rowsandall.com) integration for workout reporting (i.e. automatic uploading of a result)
 - Added [intervals.icu](https://intervals.icu) integration for workout reporting (i.e. automatic uploading a result)
-- Added a MQTT peripheral to repirt metrics live to MQTT brokers and control home automation, etc. (see [this discussion](https://github.com/laberning/openrowingmonitor/discussions/43) and [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/80))
+- Added a MQTT peripheral to report metrics live to MQTT brokers and control home automation, etc. (see [this discussion](https://github.com/laberning/openrowingmonitor/discussions/43) and [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/80))
+- Added a MQTT listener to allow the MQTT broker to push workout plans to OpenRowingMonitor (see [the integrations page](Integrations.md) for more information).
 
 ## From 0.9.0 to 0.9.5 (February 2025)
 
