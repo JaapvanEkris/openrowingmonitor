@@ -162,7 +162,7 @@ export function createWorkoutSegment (config) {
         return _endDistance
       case (_type === 'time' && _endTime > 0 && distanceOverTime.length() >= numOfDataPointsForAveraging):
         // We are in a time based interval, so we need to project
-        return distanceOverTime.projectX(_endTime())
+        return distanceOverTime.projectX(_endTime)
       default:
         return undefined
     }
