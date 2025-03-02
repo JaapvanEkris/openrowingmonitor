@@ -72,11 +72,11 @@ export function createMQTTPeripheral (config) {
   })
 
   client.subscribe([workoutsTopic], () => {
-    log.debug(`MQTT Publisher: connected to ${host}, listening to ${workoutsTopic} topic`)
+    log.debug(`MQTT Listener: connected to ${host}, listening to ${workoutsTopic} topic`)
   })
 
   client.on('message', (topic, payload) => {
-    console.log('Received Message:', topic, payload.toString())
+    log.debug('MQTT Listener: Received Message:', topic, payload.toString())
     emitter.emit('control', {
       req: {
         name: 'updateIntervalSettings',
