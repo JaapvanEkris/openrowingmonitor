@@ -76,6 +76,7 @@ export function createMQTTPeripheral (config) {
   })
 
   client.on('message', (topic, payload) => {
+    // Be aware: application-level input validation of the payload is done centrally at ./engine/utils/workoutSegments.js
     log.debug('MQTT Listener: Received Message:', topic, payload.toString())
     emitter.emit('control', {
       req: {
