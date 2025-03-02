@@ -87,11 +87,15 @@ To publish real-time metrics to a MQTT broker, like a home automation system, yo
 
 Here, the `mqttBroker` is the ip/internet adress of the broker (without the protocol descriptor, so for example `broker.emqx.io`), and the `username` and `password` are the ones you use to log in on that broker.
 
-The `machineName` is an element that is used to identify your monitor uniquely in your MQTT environment. The topic '/OpenRowingMonitor/`machineName`/metrics' will contain your metrics. Each completed stroke results in one message, initiated at the beginning of the drive. At the begin/end of splits, intervals and sessions an additional message will be sent. Flags indicate the rowing machine state and all associated metrics.
+The `machineName` is an element that is used to identify your monitor uniquely in your MQTT environment.
+
+### Recieving metrics
+
+The topic 'OpenRowingMonitor/`machineName`/metrics' will contain your metrics. Each completed stroke results in one message, initiated at the beginning of the drive. At the begin/end of splits, intervals and sessions an additional message will be sent. Flags indicate the rowing machine state and all associated metrics.
 
 | Field | Meaning | Unit |
 |---|---|---|
-| timestamp | | JSON timestamp | 
+| timestamp | | JSON timestamp |
 | sessiontype | | |
 | sessionStatus | | |
 | strokeState | | |
@@ -123,3 +127,67 @@ The `machineName` is an element that is used to identify your monitor uniquely i
 | velocityCurve | Velocity of the handle during the drive | m/s over drive length |
 | powerCurve | Velocity of the handle during the drive | Watts over drive length |
 | dragFactor | | |
+
+### Pushing workouts
+
+In the topic 'OpenRowingMonitor/`machineName`/workoutplans' you can push your workoutplan in stringified JSON format. Please note: workoutplans are only accepted before a session, not during one.
+
+For example:
+```js
+[
+  {
+    "type": "distance",
+    "targetDistance": "5000",
+    "targetTime": "0",
+    "split": {
+      "type": "distance",
+      "targetDistance": "500",
+      "targetTime": "0"
+    }
+  }
+]
+```
+
+Will create a session that will stop at exactly 5000 meters, and will create a split every 500 meters.
+
+> [!NOTE]
+> Please observe that a workoutplan will always have to be an array (square brackets). This allows the use of multiple sequential intervals. After completing the last interval, the session will be stopped.
+
+Valid values for type are:
+
+* `justrow`: an endless session that will not stop unless you stop rowing. If you like an undetermined cooldown after a session, this is recomended as last interval.
+* `distance`: creates an interval that will end at a specified distance. This requires the `targetDistance` to be greater than 0 meters.
+* `time`: creates an interval that will end at a specified time. This requires the `targetTime` to be greater than 0 seconds.
+* `rest`: creates an rest interval with a minumum duraction of `targetTime` seconds. PLease note, duing a rest interval, no metrics will be recorded.
+
+Splits are optional elements. It will allow a session to be split up into smaller pieces for analysis purposes. In OpenRowingMonitor, intervals and splits do not have to be of the same type. So one can have time based splits in a distance based interval. Please observe that in the transition from one interval to the next, splits are reset.
+
+So an alternative session is the following:
+
+```js
+[
+  {
+    "type": "time",
+    "targetTime": "120"
+  },
+  {
+    "type": "rest",
+    "targetTime": "60",
+  },
+  {
+    "type": "distance",
+    "targetDistance": "2000",
+    "targetTime": "0",
+    "split": {
+      "type": "distance",
+      "targetDistance": "500",
+      "targetTime": "0"
+    }
+  },
+  {
+    "type": "justrow"
+  }
+]
+```
+
+This will create a session that starts with a 120 seconds warmup interval, followed by at least 60 seconds rest, then a 2K, followed by an indefinite cooldown.
