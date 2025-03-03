@@ -17,6 +17,9 @@ This guide roughly explains how to set up the rowing software and hardware.
 
 The cheapest solution is a headless Raspberry Pi Zero 2W (roughly $15), the most expensive is a Raspberry Pi 4 Model B with a 7' tocuh screen in an ABS case (roughly $180). The choice is really yours, but for some data intensive machines (air based rowers with 4 or more magnets) do much better with a Raspberry Pi 4.
 
+> [!NOTE]
+> Due to architectual differences, OpenRowingMonitor will **NOT** work on a Raspberry Pi Zero or a Raspberry Pi 5
+
 ## Software Installation
 
 ### Initialization of the Raspberry Pi
@@ -82,26 +85,26 @@ Just answer the questions from the script and OpenRowingMonitor will be installe
 
 Next, check you need to do is to check the status of the Open Rowing Monitor service, which you can do with the command:
 
-  ```zsh
-  sudo systemctl status openrowingmonitor
-  ```
+```zsh
+sudo systemctl status openrowingmonitor
+```
 
 Which typically results in the following response (with some additional logging):
 
-  ```zsh
-  ● openrowingmonitor.service - Open Rowing Monitor
-       Loaded: loaded (/lib/systemd/system/openrowingmonitor.service; enabled; vendor preset: enabled)
-       Active: active (running) since Sun 2022-09-04 10:27:31 CEST; 12h ago
-     Main PID: 755 (npm start)
-        Tasks: 48 (limit: 8986)
-          CPU: 6min 48.869s
-       CGroup: /system.slice/openrowingmonitor.service
-               ├─755 npm start
-               ├─808 sh /tmp/start-6f31a085.sh
-               ├─809 node app/server.js
-               ├─866 /usr/bin/node ./app/gpio/GpioTimerService.js
-               └─872 /usr/bin/node ./app/ble/CentralService.js
-  ```
+```zsh
+● openrowingmonitor.service - Open Rowing Monitor
+     Loaded: loaded (/lib/systemd/system/openrowingmonitor.service; enabled; vendor preset: enabled)
+     Active: active (running) since Sun 2022-09-04 10:27:31 CEST; 12h ago
+   Main PID: 755 (npm start)
+      Tasks: 48 (limit: 8986)
+        CPU: 6min 48.869s
+     CGroup: /system.slice/openrowingmonitor.service
+             ├─755 npm start
+             ├─808 sh /tmp/start-6f31a085.sh
+             ├─809 node app/server.js
+             ├─866 /usr/bin/node ./app/gpio/GpioTimerService.js
+             └─872 /usr/bin/node ./app/ble/CentralService.js
+```
 
 Please check if there are no errors reported.
 
@@ -109,24 +112,24 @@ Please note that the process identification numbers will differ.
 
 You can also look at the the log output of the OpenRowingMonitor-service by putting the following in the command-line:
 
-  ```zsh
-  sudo journalctl -u openrowingmonitor
-  ```
+```zsh
+sudo journalctl -u openrowingmonitor
+```
 
 This allows you to see the current state of the rower. Typically this will show:
 
-  ```zsh
-  Sep 12 20:37:45 roeimachine systemd[1]: Started Open Rowing Monitor.
-  Sep 12 20:38:03 roeimachine npm[751]: > openrowingmonitor@0.9.0 start
-  Sep 12 20:38:03 roeimachine npm[751]: > node app/server.js
-  Sep 12 20:38:06 roeimachine npm[802]: ==== Open Rowing Monitor 0.9.0 ====
-  Sep 12 20:38:06 roeimachine npm[802]: Setting priority for the main server thread to -5
-  Sep 12 20:38:06 roeimachine npm[802]: Session settings: distance limit none meters, time limit none seconds
-  Sep 12 20:38:06 roeimachine npm[802]: bluetooth profile: Concept2 PM5
-  Sep 12 20:38:06 roeimachine npm[802]: webserver running on port 80
-  Sep 12 20:38:06 roeimachine npm[862]: Setting priority for the Gpio-service to -7
-  Sep 12 20:38:09 roeimachine npm[802]: websocket client connected
-  ```
+```zsh
+Sep 12 20:37:45 roeimachine systemd[1]: Started Open Rowing Monitor.
+Sep 12 20:38:03 roeimachine npm[751]: > openrowingmonitor@0.9.0 start
+Sep 12 20:38:03 roeimachine npm[751]: > node app/server.js
+Sep 12 20:38:06 roeimachine npm[802]: ==== Open Rowing Monitor 0.9.0 ====
+Sep 12 20:38:06 roeimachine npm[802]: Setting priority for the main server thread to -5
+Sep 12 20:38:06 roeimachine npm[802]: Session settings: distance limit none meters, time limit none seconds
+Sep 12 20:38:06 roeimachine npm[802]: bluetooth profile: Concept2 PM5
+Sep 12 20:38:06 roeimachine npm[802]: webserver running on port 80
+Sep 12 20:38:06 roeimachine npm[862]: Setting priority for the Gpio-service to -7
+Sep 12 20:38:09 roeimachine npm[802]: websocket client connected
+```
 
 Please check if there are no errors reported. The above snippet shows that OpenRowingMonitor is running, and that bluetooth and the webserver are alive, and that the webclient has connected.
 
@@ -134,13 +137,13 @@ Please check if there are no errors reported. The above snippet shows that OpenR
 
 Next, check you need to do is to check the status of the Open Rowing Monitor service, which you can do with the command:
 
-  ```zsh
-  sudo systemctl status webbrowserkiosk
-  ```
+```zsh
+sudo systemctl status webbrowserkiosk
+```
 
 Which typically results in the following response (with some additional logging):
 
-  ```zsh
+```zsh
 ● webbrowserkiosk.service - X11 Web Browser Kiosk
      Loaded: loaded (/lib/systemd/system/webbrowserkiosk.service; enabled; vendor preset: enabled)
      Active: active (running) since Wed 2024-01-31 23:46:27 CET; 11h ago
@@ -163,7 +166,7 @@ Which typically results in the following response (with some additional logging)
              ├─858 /usr/lib/chromium-browser/chromium-browser --type=utility --utility-sub-type=storage.mojom.StorageService --lang=en-US --service-sandbox-type=utility --ignore-certificate-errors --ignore-certificate-errors --crashpad->
              ├─877 /usr/lib/chromium-browser/chromium-browser --type=broker
              └─884 /usr/lib/chromium-browser/chromium-browser --type=renderer --crashpad-handler-pid=0 --enable-crash-reporter=,Built on Debian , running on Debian 11 --noerrdialogs --change-stack-guard-on-fork=enable --first-renderer-p>
-  ```
+```
 
 Please check if there are no errors reported.
 
@@ -214,8 +217,6 @@ There are some manuals covering a specific hardware-setup using the existing sen
 * [Concept 2 RowErg](hardware_setup_Concept2_RowErg.md)
 * [Sportstech WRX700](hardware_setup_WRX700.md)
 
-If your machine isn't listed, you are adviced to follow the [setup guide for unknown rowing machines (and adjust settings)](rower_settings.md) as it goes into much more depth about installing OpenRowingMonitor on an unknown machine.
-
 If you do not have and does not have something like this or if the sensor is not accessible, you can still build something similar quite easily. Some ideas on what to use:
 
 * Reed sensor (i.e. of an old bike tachometer)
@@ -223,38 +224,66 @@ If you do not have and does not have something like this or if the sensor is not
 * PAS sensor (i.e. from an E-bike)
 * Optical chopper wheel
 
-From there on, also follow the [setup guide for unknown rowing machines (and adjust settings)](rower_settings.md) to get it working for your setup.
+From there on, please make sure to also follow the [setup guide for unknown rowing machines (and adjust settings)](rower_settings.md) to get the right parameters to get your setup working.
 
 ## Rower Settings
 
-You should now adjust the rower specific parameters in `config/config.js` to suit your rowing machine. You should select a specific rower from the `rowerProfiles.js`, or create your own settings following this [guide for creating the rower specific settings](rower_settings.md). Also have a look at `config/default.config.js` to see what additional config parameters are available to suit your needs.
+You should now adjust the rower specific parameters in `config/config.js` to suit your rowing machine. You should select a specific rower from the `rowerProfiles.js`, or create your own settings following this [guide for creating the rower specific settings](rower_settings.md). Also have a look at `config/default.config.js` to see what additional config parameters are available to suit your needs. To open the configuration, you can do
 
-Once all parameters are set, look at the the log output of the OpenRowingMonitor-service by putting the following in the command-line:
+```zsh
+sudo nano /opt/openrowingmonitor/config/config.js
+```
 
-  ```zsh
-  sudo journalctl -u openrowingmonitor
-  ```
+> [!TIP]
+> This essentially is a JSON structure, which is quite sensitive to missing or extra commas. Unless it is the last property in a list (i.e. before a closing curly brace), always end a property with a comma.
 
-This allows you to see the current state of the rower. Typically this will show:
+### Setting up the hardware and OS configuration
 
-  ```zsh
-  Sep 12 20:37:45 roeimachine systemd[1]: Started Open Rowing Monitor.
-  Sep 12 20:38:03 roeimachine npm[751]: > openrowingmonitor@0.9.0 start
-  Sep 12 20:38:03 roeimachine npm[751]: > node app/server.js
-  Sep 12 20:38:06 roeimachine npm[802]: ==== Open Rowing Monitor 0.9.0 ====
-  Sep 12 20:38:06 roeimachine npm[802]: Setting priority for the main server thread to -5
-  Sep 12 20:38:06 roeimachine npm[802]: Session settings: distance limit none meters, time limit none seconds
-  Sep 12 20:38:06 roeimachine npm[802]: bluetooth profile: Concept2 PM5
-  Sep 12 20:38:06 roeimachine npm[802]: webserver running on port 80
-  Sep 12 20:38:06 roeimachine npm[862]: Setting priority for the Gpio-service to -7
-  Sep 12 20:38:09 roeimachine npm[802]: websocket client connected
-  ```
+### Setting up the rowing machine connected
 
-Please check if there are no errors reported, especially for configuration parameters. OpenRowingMonitor will report if it detects abnormal or missing parameters.
+Please check the [list of known configurations](Supported_Rowers.md), as for many machines the configuration is already listed in the `/opt/openrowingmonitor/config/rowerProfiles.js` file. If this is the case, copy its name, and add it to the config as follows:
+
+```js
+rowerSettings: rowerProfiles.Concept2_RowErg
+```
+
+If your machine isn't listed, you are adviced to follow the [setup guide for unknown rowing machines (and adjust settings)](rower_settings.md) as it goes into much more depth about installing OpenRowingMonitor on an unknown machine.
+
+### Setting up reporting parameters
+
+### Setting up recording parameters
+
+### Setting up a user profile
 
 ### Setting up integrations to Strava, intervals.icu and RowsAndAll.com
 
-See our [integrations page](Integrations.md).
+These are turned off by default. To see how you turn thm on and how to configure them, see our [integrations page](Integrations.md).
+
+### Checking the configuration
+
+Once all parameters are set, restart OpenRowingMonitor and look at the the log output of the OpenRowingMonitor-service by putting the following in the command-line:
+
+```zsh
+sudo systemctl restart openrowingmonitor 
+sudo journalctl -u openrowingmonitor
+```
+
+This allows you to see the current state of the rower. Typically this will show:
+
+```zsh
+Sep 12 20:37:45 roeimachine systemd[1]: Started Open Rowing Monitor.
+Sep 12 20:38:03 roeimachine npm[751]: > openrowingmonitor@0.9.0 start
+Sep 12 20:38:03 roeimachine npm[751]: > node app/server.js
+Sep 12 20:38:06 roeimachine npm[802]: ==== Open Rowing Monitor 0.9.0 ====
+Sep 12 20:38:06 roeimachine npm[802]: Setting priority for the main server thread to -5
+Sep 12 20:38:06 roeimachine npm[802]: Session settings: distance limit none meters, time limit none seconds
+Sep 12 20:38:06 roeimachine npm[802]: bluetooth profile: Concept2 PM5
+Sep 12 20:38:06 roeimachine npm[802]: webserver running on port 80
+Sep 12 20:38:06 roeimachine npm[862]: Setting priority for the Gpio-service to -7
+Sep 12 20:38:09 roeimachine npm[802]: websocket client connected
+```
+
+Please check if there are no errors reported, especially for configuration parameters. OpenRowingMonitor will report if it detects abnormal or missing parameters.
 
 ## Updating OpenRowingMonitor to a new version
 
