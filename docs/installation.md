@@ -193,7 +193,7 @@ ATTRS{idVendor}=="0fcf", ATTRS{idProduct}=="1009", MODE="0666"
 
 ## Hardware Installation
 
-Basically all that's left to do is hook up your sensor to the GPIO pins of the Raspberry Pi and configure the rowing machine specific parameters of the software. Please check the [supported rower list](Supported_Rowers.md) if your machine requires additional electrical modification.
+Next step is is to hook up your sensor to the GPIO pins of the Raspberry Pi. Please check the [supported rower list](Supported_Rowers.md) if your machine requires additional electrical modification.
 
 Open Rowing Monitor reads the sensor signal from GPIO port 17 and expects it to pull on GND if the sensor is closed. So your wiring probably looks like this:
 
@@ -228,7 +228,7 @@ From there on, please make sure to also follow the [setup guide for unknown rowi
 
 ## Rower Settings
 
-You should now adjust the rower specific parameters in `config/config.js` to suit your rowing machine. You can also have a look at `config/default.config.js` to see what additional config parameters are available to suit your needs. To open the configuration, you can do
+Last step is to configure the rowing machine specific parameters of the software. To do this, you should now adjust the rower specific parameters in `config/config.js` to suit your rowing machine and your personal needs. You can also have a look at `config/default.config.js` to see what additional config parameters are available. To open the configuration, you can do
 
 ```zsh
 sudo nano /opt/openrowingmonitor/config/config.js
@@ -257,7 +257,7 @@ If your machine isn't listed, you are adviced to follow the [setup guide for unk
 
 ### Setting up integrations to Strava, intervals.icu and RowsAndAll.com
 
-These are turned off by default. To see how you turn thm on and how to configure them, see our [integrations page](Integrations.md).
+These are turned off by default. To see how you turn them on and how to configure them, see our [integrations page](Integrations.md).
 
 ### Checking the configuration
 
