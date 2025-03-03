@@ -228,7 +228,7 @@ From there on, please make sure to also follow the [setup guide for unknown rowi
 
 ## Rower Settings
 
-You should now adjust the rower specific parameters in `config/config.js` to suit your rowing machine. You should select a specific rower from the `rowerProfiles.js`, or create your own settings following this [guide for creating the rower specific settings](rower_settings.md). Also have a look at `config/default.config.js` to see what additional config parameters are available to suit your needs. To open the configuration, you can do
+You should now adjust the rower specific parameters in `config/config.js` to suit your rowing machine. You can also have a look at `config/default.config.js` to see what additional config parameters are available to suit your needs. To open the configuration, you can do
 
 ```zsh
 sudo nano /opt/openrowingmonitor/config/config.js
