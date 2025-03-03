@@ -25,8 +25,8 @@ export default {
   // on how to do this). If you find good settings for a new rowing device please send them to us (together
   // with a raw recording of at least 10 strokes) so we can add the device to the profiles.
 
-  // EXAMPLE ROWER CONFIG : using a DKN R-320 Air Rower as is
-  // rowerSettings: rowerProfiles.DKN_R320
+  // EXAMPLE ROWER CONFIG : using a Concept 2 RowErg as is
+  // rowerSettings: rowerProfiles.Concept2_RowErg
 
   // EXAMPLE ROWER CONFIG: Just set custom rower settings to make it work
   // rowerSettings: {
