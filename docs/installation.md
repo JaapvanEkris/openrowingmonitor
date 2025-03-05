@@ -1,7 +1,12 @@
 # Set up of Open Rowing Monitor
 
 <!-- markdownlint-disable no-inline-html -->
-This guide roughly explains how to set up the rowing software and hardware.
+This guide roughly explains how to set up the rowing software and hardware. In this manual, we cover the follwong topics:
+
+- [Requirements](#Requirements)
+- [Installing OpenRowingMonitor on your Raspberry Pi](#Software-Installation)
+- [Physically connecting your rower to your Raspberry Pi](#Hardware-Installation)
+- [Configuration of OpenRowingMonitor](#Rower-Settings)
 
 ## Requirements
 
@@ -198,7 +203,6 @@ Next step is is to hook up your sensor to the GPIO pins of the Raspberry Pi. Ple
 
 Open Rowing Monitor reads the sensor signal from GPIO port 17 and expects it to pull on GND if the sensor is closed. So your wiring probably looks like this:
 
-<!-- markdownlint-disable-next-line no-inline-html -->
 <img src="img/raspberrypi_internal_wiring.jpg" alt="Image showing the internal wiring of Raspberry Pi" title="Internal wiring of the Raspberry Pi" width="700"><br clear="left">
 
 To get a stable reading you should add a pull-up resistor to that pin. It is advised to use the internal resistor of the Raspberry Pi to keep the wiring simple but of course you can also go with an external circuit. The internal pull-up can be enabled as described [here](https://www.raspberrypi.org/documentation/configuration/config-txt/gpio.md). So its as simple as adding the following to `/boot/config.txt` and then rebooting the device.
@@ -208,9 +212,8 @@ To get a stable reading you should add a pull-up resistor to that pin. It is adv
 gpio=17=pu,ip
 ```
 
-How to connect this to your rowing machine is specific to your device. You need some kind of mechanism to convert the rotation of the flywheel into impulses. Some rowers have a reed sensor for this built-in, so hooking it up is as simple as connecting the cables. Such a sensor has one or more magnets on the wheel and each one gives an impulse when it passes the sensor.
+How to connect this to your rowing machine physically is specific to your device. You need some kind of mechanism to convert the rotation of the flywheel into impulses. Some rowers have a reed sensor for this built-in, so hooking it up is as simple as connecting the cables. Such a sensor has one or more magnets on the wheel and each one gives an impulse when it passes the sensor.
 
-<!-- markdownlint-disable-next-line no-inline-html -->
 <img src="img/raspberrypi_reedsensor_wiring.jpg" alt="Image showing the connection of the reed sensor" title="Connecting the reed sensor" width="700"><br clear="left">
 
 There are some manuals covering a specific hardware-setup using the existing sensors, so please look at when relevant:
