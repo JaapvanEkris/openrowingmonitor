@@ -77,14 +77,19 @@ export function createMQTTPeripheral (config) {
 
   client.on('message', (topic, payload) => {
     // Be aware: application-level input validation of the payload is done centrally at ./engine/utils/workoutSegments.js
-    log.debug('MQTT Listener: Received Message:', topic, payload.toString())
-    emitter.emit('control', {
-      req: {
-        name: 'updateIntervalSettings',
-        data: JSON.parse(payload.toString()),
-        client: null
-      }
-    })
+    try {
+      const parsedData = JSON.parse(payload.toString())
+      log.debug('MQTT Listener: Received Message from ', topic, parsedData)
+      emitter.emit('control', {
+        req: {
+          name: 'updateIntervalSettings',
+          data: JSON.parse(payload.toString()),
+          client: null
+        }
+      })
+    } catch (error) {
+      log.debug('MQTT Listener, Error parsing JSON:', payload, error)
+    }
   })
 
   async function notifyData (metrics) {
