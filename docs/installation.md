@@ -1,5 +1,6 @@
 # Set up of Open Rowing Monitor
 
+<!-- markdownlint-disable no-inline-html -->
 This guide roughly explains how to set up the rowing software and hardware.
 
 ## Requirements
@@ -238,6 +239,36 @@ sudo nano /opt/openrowingmonitor/config/config.js
 > This essentially is a JSON structure, which is quite sensitive to missing or extra commas. Unless it is the last property in a list (i.e. before a closing curly brace), always end a property with a comma.
 
 ### Setting up the hardware and OS configuration
+
+A key element is how the app behaves on the operating system itself.
+
+#### Application settings
+
+OpenRowingMonitor essentially consists of two major threads: the gpio-thread, reading data from the flywheel, and the general application thread. In the settings, you can set their priorities individually. This is the Linux NICE level: minimum setting is +19 (least agressive), theoretical maximum setting is -20 (most agressive). The lower the NICE-number, the more priority it will claim, at the expense of other functions of the operating system.
+
+Most critical is the `gpioPriority`. This determines the system level priority of the thread that measures the rotation speed of the flywheel. This might improve the precision of the measurements (especially on rowers with a fast spinning flywheel). This is normally set to a NICE-level of 0 (normal OS priority). On a well-configured system, the level of noise in the GPIO-thread can be identified by looking at the reported Goodness of Fit from the drag calculation: the better the fit, the lower the noise level. Setting the NICE-level below -1 on a non-PREEMPT kernel might cause the app to crash. Going beyond -7 on a PREEMPT kernel seems to kill the timing of the gpio-thread as it interferes with the kernel timekeeping. On a dedicated Raspberry Pi 4, best results for a Concept2 RowErg (100 datapoints per second) were attained by using a NICE-level of -6.
+
+The NICE-level of the general application is determined by the `appPriority` setting. This maanges the system level priority of the thread that processes the flywheel and HR data. Although this process is not time critical per se, it could get caught up in Linux housekeeping tasks, preventing it to process data in a timely manner. Again, setting this below -1 on a non-PREEMPT kernel might cause the app to crash. Going beyond -5 on a PREEMPT kernel seems to kill the timing of the app, and best results on a Raspberry Pi 4 with a Concept 2 RowErg were attained at NICE-level -1.
+
+#### GPIO settings
+
+The setting `gpioPin` defines the GPIO Pin that is used to read the sensor data from the rowing machine. Please refer to the [official Rapberry Pi documentation](https://www.raspberrypi.org/documentation/usage/gpio) for the pin layout of the device you are using. If you want to use the internal pull-up resistor of the Raspberry Pi (and you should) you should also configure the pin for that in /boot/config.txt, i.e. 'gpio=17=pu,ip' (see the [official Raspberry Pi documentation](https://www.raspberrypi.org/documentation/configuration/config-txt/gpio.md)).
+
+The setting `gpioPollingInterval` determines the GPIO polling interval: this is the interval at which the GPIO is inspected for state changes on the gpioPin, in microseconds (us). Valid values are 1 (i.e. 1,000,000 samples per second), 2 (i.e. 500,000 per second), 4 (i.e. 250,000 per second), 5 (i.e. 200,000 per second) and 10 (i.e. 100,000 per second). A high sample rate will burden your CPU more. Normal value is 5us, but a Raspberry Pi 4 can handle a polling interval of 1 us, which results in a 16% CPU load.
+
+The setting `gpioTriggeredFlank` determines what flank is used for detecting a magnet. Valid values are
+
+* 'Up' for the upward flank, i.e. the GPIO is triggered when first there was no magnet detected, followed by a detected magnet;
+* 'Down' for the downward flank, i.e. the GPIO is triggered when first there was magnet detected, followed by no detected magnet;
+* 'Both' for both flanks. This option is quite unique, as this requires a strong symmetry in the signal. Normally the magnets provide short pulses, followed by long periods of no magnet. Only very specific machines can use this option.
+
+In practice, it shouldn't matter much which flank you detect, although in the presence of [debounce](https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/rower_settings.md#fixing-switch-bounce), a specific flank might provide better filtering capabilities or is more reliable to detect.
+
+The setting `gpioMinimumPulseLength` is related: it determines the minumum pulse length (i.e. a magnet should be present) in nanoseconds before OpenRowingMonitor considers it a valid signal. Shorter pulses typically are caused by ghost readings of the same magnet twice or more. Normal value is 50 us, but for some rowers, values up to 500 us are known to work. Increasing this value reduces ghost readings due to bouncing reed switches etc., which typically are detected as very short measurements in the raw logs.
+
+<img src="img/CurrentDt_With_Lots_Of_Bounce.jpg" alt="A scatter plot showing the typical progress of currentDt with switch bounce" width="700">
+
+Making this too long results in missed impulses. Both too long and too short impulses can be detected in the raw logs easily by imprting that log into a spreadsheet and plot the pulsetime.
 
 ### Setting up the rowing machine connected
 
