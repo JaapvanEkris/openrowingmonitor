@@ -181,7 +181,7 @@ So an alternative session is the following:
   },
   {
     "type": "distance",
-    "targetDistance": "2000"
+    "targetDistance": "2000",
     "split": {
       "type": "distance",
       "targetDistance": "500"
