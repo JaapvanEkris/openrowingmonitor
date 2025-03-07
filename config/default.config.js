@@ -81,9 +81,9 @@ export default {
   // - OFF: Turns Bluetooth advertisement off
   bluetoothMode: 'FTMS',
 
-  // Selects the AN+ that is broadcasted to external peripherals and apps. Supported modes:
+  // Selects the ANT+ that is broadcasted to external peripherals and apps. Supported modes:
   // - FE: ANT+ Fitness Equipment
-  // - OFF: Turns Bluetooth advertisement off
+  // - OFF: Turns ANT+ Fitness Equipment off
   antPlusMode: 'OFF',
 
   // Selects the heart rate monitor mode. Supported modes:
