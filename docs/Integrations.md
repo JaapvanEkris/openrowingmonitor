@@ -49,7 +49,7 @@ The OpenRowingMonitor installer can set up a network share that contains all tra
 
 ## Strava
 
-Uploading your sessions to [Strava](https://www.strava.com) is an integrated feature. Strava can handle both tcx- and fit-files, but it will only display the data from the tcx-file. Part of the specific parameters in `config/config.js` are the Strava settings. To use this, you have to create a Strava API Application as described [here](https://developers.strava.com/docs/getting-started/#account) and use the corresponding values. When creating your Strava API application, set the "Authorization Callback Domain" to the IP address of your Raspberry Pi.
+Uploading your sessions to [Strava](https://www.strava.com) is an integrated feature. Strava will create and upload the tcx-files automatically, and does not require setting the `createTcxFiles` parameter. Part of the specific parameters in `config/config.js` are the Strava settings. To use this, you have to create a Strava API Application as described [here](https://developers.strava.com/docs/getting-started/#account) and use the corresponding values. When creating your Strava API application, set the "Authorization Callback Domain" to the IP address of your Raspberry Pi.
 
 Once you get your Strava credentials, you can add them in `config/config.js`:
 
@@ -60,7 +60,7 @@ stravaClientSecret: "client_secret_string_from_the_Strava_API",
 
 ## RowsAndAll.com
 
-[RowsAndAll](https://rowsandall.com/) provides the most extensive on-line data analysis environment for rowing. Our RowingData export is made in collaboration with them, and provides the most extensve dataset OpenRowingMonitor can provide. Uploading is activated by adding the API-key (which can be found in your [import settings of you user profile](https://rowsandall.com/rowers/me/exportsettings/)) and setting `upload` to true in the user profile of `config.js`:
+[RowsAndAll](https://rowsandall.com/) provides the most extensive on-line data analysis environment for rowing. Our RowingData export is made in collaboration with them, and provides the most extensve dataset OpenRowingMonitor can provide. The RowsAndAll.com uploader will create and upload the RowingData-files automatically, and does not require setting the `createRowingDataFiles` parameter. Uploading is activated by adding the API-key (which can be found in your [import settings of you user profile](https://rowsandall.com/rowers/me/exportsettings/)) and setting `upload` to true in the user profile of `config.js`:
 
 ```js
     // Configuration for the RowsAndAll.com upload
@@ -79,7 +79,7 @@ stravaClientSecret: "client_secret_string_from_the_Strava_API",
 
 ## Intervals.icu
 
-Uploading of fit-files to [Intervals.icu](https://intervals.icu/) is an integrated service. It is activated by adding the athlete-Id and API-key (which can be found in your [settings of you user profile](https://intervals.icu/settings)) and setting `upload` to true in the user profile of `config.js`:
+Uploading of fit-files to [Intervals.icu](https://intervals.icu/) is an integrated service. The RowsAndAll uploader will create and upload the FIT-files automatically, and does not require setting the `createFitFiles` parameter. It is activated by adding the athlete-Id and API-key (which can be found in your [settings of you user profile](https://intervals.icu/settings)) and setting `upload` to true in the user profile of `config.js`:
 
 ```js
     // Configuration for the intervals.icu upload
