@@ -261,11 +261,11 @@ The setting `gpioPollingInterval` determines the GPIO polling interval: this is 
 
 The setting `gpioTriggeredFlank` determines what flank is used for detecting a magnet. Valid values are
 
-- 'Up' for the upward flank, i.e. the GPIO is triggered when first there was no magnet detected, followed by a detected magnet;
-- 'Down' for the downward flank, i.e. the GPIO is triggered when first there was magnet detected, followed by no detected magnet;
-- 'Both' for both flanks. This option is quite unique, as this requires a strong symmetry in the signal. Normally the magnets provide short pulses, followed by long periods of no magnet. Only very specific machines can use this option.
+- 'Up' for the upward flank, i.e. the GPIO is triggered when the magnet enters the sensors' range (i.e. first there was no magnet detected, followed by a detected magnet);
+- 'Down' for the downward flank, i.e. the GPIO is triggered when the magnet leaves the sensors' range (i.e. first there was magnet detected, followed by no detected magnet);
+- 'Both' for both flanks. This option is quite unique, as this requires a strong symmetry in the signal. Normally the magnets provide short pulses, followed by long periods of no magnet being detected. Only very specific machines can use this option.
 
-In practice, it shouldn't matter much which flank you detect, although in the presence of [debounce](https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/rower_settings.md#fixing-switch-bounce), a specific flank might provide better filtering capabilities or is more reliable to detect.
+In practice, it shouldn't matter much which of the two flanks you detect, although in the presence of [debounce](https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/rower_settings.md#fixing-switch-bounce), a specific flank might provide better filtering capabilities or is more reliable to detect.
 
 The setting `gpioMinimumPulseLength` is related: it determines the minumum pulse length (i.e. a magnet should be present) in nanoseconds before OpenRowingMonitor considers it a valid signal. Shorter pulses typically are caused by ghost readings of the same magnet twice or more. Normal value is 50 us, but for some rowers, values up to 500 us are known to work. Increasing this value reduces ghost readings due to bouncing reed switches etc., which typically are detected as very short measurements in the raw logs.
 
@@ -283,9 +283,57 @@ rowerSettings: rowerProfiles.Concept2_RowErg
 
 If your machine isn't listed, you are adviced to follow the [setup guide for unknown rowing machines (and adjust settings)](rower_settings.md) as it goes into much more depth about installing OpenRowingMonitor on an unknown machine.
 
-### Setting up reporting parameters
+### Setting up data aquisition and reporting parameters
+
+#### General data reporting settings
+
+OpenRowingMonitor calculates metrics once, and then distributes the same metrics to all consumers (i.e. BLE, ANT+ devices, but also the weinterface and recorders). This impleas that data are always consistent across all recordings and visualisations.
+
+A key element is the number of stroke phases (i.e. Drives and Recoveries) that used to smoothen the data displayed on your screens (i.e. the monitor, but also bluetooth devices, etc.) and recorded data, which is set via the `numOfPhasesForAveragingScreenData` parameter. This is a matter of personal preference: some people prefer a very responsive screen, others like a more stable data presentation. A nice smooth experience is found at 6 stroke phases (i.e. 3 complete strokes). A much more volatile (but more accurate and responsive) is found around 3. The minimum is 2, but for recreational rowers that might feel much too restless to be useful.
+
+#### Setting up your heart rate sensor
+
+The parameter `heartRateMode` determines the heart rate monitor mode at startup. From the monitor or webinterface, you can change this on the spot as well. This setting has the following modes:
+
+- BLE: Use Bluetooth Low Energy to connect Heart Rate Monitor. It will connect to the first device found;
+- ANT: Use Ant+ to connect Heart Rate Monitor. This requires an optional ANT+ stick. This will also connect to the first ANT+ HRM monitor found.
+- OFF: turns of Heart Rate Monitor discovery
+
+#### Configuration of the main screen/webinterface
+
+OpenRowingMonitor will always refresh the monitor and webinterface when it detects a drive, recovery or new interval. The parameter `webUpdateInterval` determines the interval for updating all web clients (i.e. the monitor and other users) in miliseconds in between these events. It is advised is to update at least once per second (1000 ms), to make sure the timer moves nice and smoothly. Around 100 ms results in a very smooth update experience for distance as well, and values below 80 ms will be ignored. Please note that a smaller value will use more network and cpu ressources.
+
+#### Setting up Bluetooth reporting
+
+Bloothooth Low Energy has several parameters. Most important one is `bluetoothMode` which will determine the Bluetooth Low Energy Profile that is broadcasted to external peripherals and apps at startup. From the monitor or webinterface, you can change this on the spot as well. This setting has the following modes:
+
+- OFF: Turns Bluetooth advertisement off
+- PM5: in this mode OpenRowingMonitor emulates a this emulates a part of the Concept2 PM Bluetooth Smart Communication Interface Definition. This is still work in progress and only implements the most common parts of the spec, so it is not guaranteed to work with all applications that support C2 rowing machines. Our interface currently can only report metrics, but can't recieve commands and session parameters from the app yet. It is known to work with [EXR](https://www.exrgame.com) and all the samples from [The Erg Arcade](https://ergarcade.com), for example you can [row in the clouds](https://ergarcade.github.io/mrdoob-clouds/).
+- FTMS: This is the FTMS profile for rowing machines and supports all rowing specific metrics (such as stroke rate). We've successfully tested it with [EXR](https://www.exrgame.com) (preferred method), [MyHomeFit](https://myhomefit.de) and [Kinomap](https://www.kinomap.com).
+- FTMSBIKE: This FTMS profile is used by Smart Bike Trainers and widely adopted by training applications for bike training. It does not support rowing specific metrics. But it can present metrics such as power and distance to the biking application and use cadence for stroke rate.(please note: the speed and power are still aimed for rowing, NOT for a bike!) This is known to work with [Zwift](https://www.zwift.com), [Bkool](https://www.bkool.com), [The Sufferfest](https://thesufferfest.com) or similar.
+- CPS: The BLE Cycling Power Profile simulates a bike which allows you to connect the rower to a bike activity on your (mostly newer Garmin) sportwatch. It will translate the rowing metrics to the appropriate fields. This profile is only supported by specific watches, so it might provide a solution.
+- CSC: The BLE Cycling Speed and Cadence Profile simulates a bike for older Garmin (Forerunner and Venu) watches and similar types, again simulating a bike activity.
+
+> [!NOTE]
+> For the CSC profile, you need to set the wheel circumference on your watch to 10mm to make this work well.
+
+There are some additional parameters for tuning your settings for speific BLE profiles:
+
+- `ftmsRowerPeripheralName` sets the name that is used to announce the FTMS Rower via Bluetooth Low Energy (BLE). Some rowing training applications expect that the rowing device is announced with a certain name, so changing this sometimes helps.
+- `ftmsBikePeripheralName` defines the name that is used to announce the FTMS Bike via Bluetooth Low Energy (BLE). Most bike training applications are fine with any device name.
+- `ftmsUpdateInterval` determines the interval between updates of the `FTMS` and `FTMS` protocol BLE devices, in miliseconds. Advised is to update at least once per second (default value), as consumers expect this interval. Some apps, like EXR like a more frequent interval of 200 ms to better sync the stroke.
+- `pm5UpdateInterval` determines the interval between updates of the `PM5` protocol BLE device, in miliseconds. Advised is to update at least once per second (default value), as consumers expect this interval. Some apps, like EXR like a more frequent interval of 200 ms to better sync the stroke.
+
+#### Setting up ANT+
+
+The parameter `antPlusMode` determines if ANT+ is activated at startup. From the monitor or webinterface, you can change this on the spot as well.
+
+- FE: OpenRowingMonitor will broadcast rowing metrics via ANT+ Fitness Equipment (ANT+ FE-C), which can be recieved by the more expensive series of Garmin smartwatches like the Epix/Fenix series, which then can calculate metrics like training load etc..
+- OFF: Turns ANT+ advertisement off.
 
 ### Setting up recording parameters
+
+These are turned off by default. To see how you turn them on and how to configure them, see our [integrations page](Integrations.md).
 
 ### Setting up a user profile
 
