@@ -31,7 +31,21 @@ OpenRowingMonitor supports the following exports, which can be obtained via the 
 
 * **RowingData** files, which are comma-seperated files with all metrics Open Rowing Monitor can produce. These can be  uploaded to [RowsAndAll](https://rowsandall.com/) for a webbased analysis (including dynamic in-stroke metrics). The csv-files can also be processed manually in Excel, allowing your own custom analysis. Please note that for visualising in-stroke metrics in [RowsAndAll](https://rowsandall.com/) (i.e. force, power and handle speed curves), you need their yearly subscription.
 
- The Open rowing Monitor installer can set up a network share that contains all training data so it is easy to grab the files from there and manually upload them to the training platform of your choice.
+* **Raw** flywheel measurements of the flywheel, also in CSV files. These files are great to analyse and replay the specifics of your rowing machine (some Excel visualistion can help with this).
+
+The creation of each of these files is independently controlled via their own parameters in the `config.js`. You can turn on each filetype independently without issue, as OpenRowingMonitor will make sure the names will not be identical, even when the file extension is the same. OpenRowingMonitor can create regular files and gzipped files (which are accepted by several websites) and will write them in the directory specified in the `dataDirectory` parameter of `config.js`. In `config.js`, you can set a parameter to create a file and another parameter to gzip it. The following parameters are available:
+
+| File type | parameter to create file | parameter to zip file |
+|---|---|---|
+| Garmin FIT files | createFitFiles | gzipFitFiles |
+| Garmin TCX files | createTcxFiles | gzipTcxFiles |
+| Rowingdata csv | createRowingDataFiles | - |
+| Raw flywheel data | createRawDataFiles | gzipRawDataFiles |
+
+> [!NOTE]
+> To create a gzipped file, you both need to set the both parameters to true. So to create gzipped FIT-files, both the `createFitFiles` and `gzipFitFiles` parameters must be set to true.
+
+The OpenRowingMonitor installer can set up a network share that contains all training data so it is easy to grab the files from there and manually upload them to the training platform of your choice.
 
 ## Strava
 
@@ -57,7 +71,7 @@ stravaClientSecret: "client_secret_string_from_the_Strava_API",
 ```
 
 > [!NOTE]
-> Please note that for visualising in-stroke metrics in [RowsAndAll](https://rowsandall.com/) (i.e. force, power and handle speed curves), you need their yearly subscription;
+> Please note that for visualising in-stroke metrics in [RowsAndAll](https://rowsandall.com/) (i.e. force, power and handle speed curves), you need their yearly subscription
 
 ## Rowingdata
 
