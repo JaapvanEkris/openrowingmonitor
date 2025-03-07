@@ -46,13 +46,18 @@ stravaClientSecret: "client_secret_string_from_the_Strava_API",
 
 ## RowsAndAll.com
 
-[RowsAndAll](https://rowsandall.com/) provides the most extensive on-line data analysis environment for rowing. Our RowingData export is made in collaboration with them, and provides the most extensve dataset OpenRowingMonitor can provide. Uploading can be automated through their e-mail interface, see [this description](https://rowsandall.com/rowers/developers/). Once you setup of your mail sending client has been done on the Raspberry Pi, you can do the following
+[RowsAndAll](https://rowsandall.com/) provides the most extensive on-line data analysis environment for rowing. Our RowingData export is made in collaboration with them, and provides the most extensve dataset OpenRowingMonitor can provide. Uploading is activated by adding the API-key (which can be found in your [import settings of you user profile](https://rowsandall.com/rowers/me/exportsettings/)) and setting `upload` to true in the user profile of `config.js`:
 
-```sh
-echo -e "workouttype rower (Indoor rower)\nnote ${note}" | mail -r YOUR@EMAIL.com -s "${descriptor}" --content-type=text/csv --content-filename "Workout.csv" -A ${fileName} workouts@rowsandall.com --content-type=text/plain
+```js
+    // Configuration for the RowsAndAll.com upload
+    rowsAndAll: {
+      upload: false,
+      apiKey: ''
+    },
 ```
 
-Please note your batch script has to identify the file name, add a note and description. Your originating email adress should match the email used for RowsAndAll.
+> [!NOTE]
+> Please note that for visualising in-stroke metrics in [RowsAndAll](https://rowsandall.com/) (i.e. force, power and handle speed curves), you need their yearly subscription;
 
 ## Rowingdata
 
@@ -60,14 +65,16 @@ Please note your batch script has to identify the file name, add a note and desc
 
 ## Intervals.icu
 
-Uploading of tcx- and fit-files to [Intervals.icu](https://intervals.icu/) can be done by the following commands
+Uploading of fit-files to [Intervals.icu](https://intervals.icu/) is an integrated service. It is activated by adding the athlete-Id and API-key (which can be found in your [settings of you user profile](https://intervals.icu/settings)) and setting `upload` to true in the user profile of `config.js`:
 
-```sh
-activityNumber=`curl -u API_KEY:yOURaPIkEY -X POST https://intervals.icu/api/v1/athlete/yOURaTHELEnUMBER/activities -H 'content-type: multipart/form-data' -F name="${descriptor}" -F file=@${fileName} | cut -d "," -f 2 | cut -d '"' -f 4`
-curl -u API_KEY:yOURaPIkEY -X PUT https://intervals.icu/api/v1/activity/${activityNumber} -H "Content-Type: application/json" -d '{"type":"Rowing", "total_elevation_gain":"0", "trainer": true}'
+```js
+    // Configuration for the intervals.icu upload
+    intervals: {
+      upload: false,
+      athleteId: '',
+      apiKey: ''
+    }
 ```
-
-Here, you need to replace yOURaPIkEY and yOURaTHELEnUMBER with the data from intervals.icu. The first line actually uploads the tcx- or fit-file, the second modifies the standard parameters from the activity to make it a rowing activity and removes any elevation gain.
 
 ## Garmin Connect
 
