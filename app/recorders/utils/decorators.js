@@ -44,7 +44,7 @@ export function createVO2MaxLine (VO2MaxResult) {
   if (VO2MaxResult !== undefined) {
     VO2MaxLine = `, estimated VO2Max: ${VO2MaxResult.toFixed(1)} mL/(kg*min)`
   } else {
-    VO2MaxLine = ', estimated VO2Max: UNDEFINED'
+    VO2MaxLine = ', no credible VO2Max estimate'
   }
   return VO2MaxLine
 }
