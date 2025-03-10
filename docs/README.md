@@ -1,7 +1,7 @@
 # Open Rowing Monitor
 
 > [!CAUTION]
-> This branch is no longer actively maintained and is provided for legacy purposses only. Installation of OpenRowingMontor on a Raspberry Pi Zero on the latest version of Raspberry Pi OS (Bookworm and later) is impossible due to package conflicts beyond our control. Please move to a Raspberry Zero 2W.
+> This branch is no longer actively maintained and is provided for legacy purposses only. Installation of OpenRowingMonitor on a Raspberry Pi Zero on the latest version of Raspberry Pi OS (Bookworm and later) is impossible due to package conflicts beyond our control. Please move to a Raspberry Zero 2W.
 
 [![Node.js CI](https://github.com/JaapvanEkris/openrowingmonitor/actions/workflows/node.js.yml/badge.svg)](https://github.com/JaapvanEkris/openrowingmonitor/actions/workflows/node.js.yml)
 [![CodeQL](https://github.com/JaapvanEkris/openrowingmonitor/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/JaapvanEkris/openrowingmonitor/actions/workflows/codeql-analysis.yml)
@@ -91,7 +91,7 @@ Uploading your sessions to Strava is an integrated feature, for all other platfo
 ## Installation
 
 > [!CAUTION]
-> This branch is no longer actively maintained and is provided for legacy purposses only. Installation of OpenRowingMontor on a Raspberry Pi Zero on the latest version of Raspberry Pi OS (Bookworm and later) is impossible due to package conflicts beyond our control.
+> This branch is no longer actively maintained and is provided for legacy purposses only. Installation of OpenRowingMonitor on a Raspberry Pi Zero on the latest version of Raspberry Pi OS (Bookworm and later) is impossible due to package conflicts beyond our control.
 
 This branch is specifically maintained for the Raspberry Pi Zero. Active support for the Raspberry Pi Zero W has been dropped as of february 2024 (see [this discussion for more information](https://github.com/JaapvanEkris/openrowingmonitor/discussions/33)), and that installation on the latest version of Raspberry Pi OS Bookworm is impossible due to package conflicts beyond our control. Please move to a Raspberry Zero 2W.
 
