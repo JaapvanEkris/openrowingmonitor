@@ -44,7 +44,7 @@ The cheapest solution is a headless Raspberry Pi Zero 2W (roughly $15), the most
 Connect to the device with SSH and initiate the following command to set up all required dependencies and to install OpenRowingMonitor as an automatically starting system service:
 
 ```zsh
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/jaapvanekris/openrowingmonitor/HEAD/install/install.sh)"
+sudo /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/jaapvanekris/openrowingmonitor/HEAD/install/install.sh)"
 ```
 
 Just answer the questions from the script and OpenRowingMonitor will be installed for you completely.
