@@ -1,5 +1,8 @@
 # Open Rowing Monitor
 
+> [!CAUTION]
+> This branch is no longer actively maintained and is provided for legacy purposses only. Installation on the latest version of Raspberry Pi OS (Bookworm and later) is impossible due to package conflicts beyond our control.
+
 [![Node.js CI](https://github.com/JaapvanEkris/openrowingmonitor/actions/workflows/node.js.yml/badge.svg)](https://github.com/JaapvanEkris/openrowingmonitor/actions/workflows/node.js.yml)
 [![CodeQL](https://github.com/JaapvanEkris/openrowingmonitor/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/JaapvanEkris/openrowingmonitor/actions/workflows/codeql-analysis.yml)
 
@@ -87,9 +90,15 @@ Uploading your sessions to Strava is an integrated feature, for all other platfo
 
 ## Installation
 
-This branch is specifically maintained for the Raspberry Pi Zero. Please observe that active support for the Raspberry Pi Zero W has been dropped as of february 2024 (see [this discussion for more information](https://github.com/JaapvanEkris/openrowingmonitor/discussions/33)), and that installation on the latest version of Raspberry Pi OS Bookworm is impossible due to package conflicts beyond our control. We do maintain branch where we will backport functional improvements until April 2025. Connect to the device with SSH have a look at the [Detailed Installation Instructions](installation.md) for more information on the software installation and for instructions on how to connect the rowing machine.
+> [!CAUTION]
+> This branch is no longer actively maintained and is provided for legacy purposses only. Installation on the latest version of Raspberry Pi OS (Bookworm and later) is impossible due to package conflicts beyond our control.
 
-If you have a Raspberry Pi Zero 2 W, Raspberry Pi 3, Raspberry Pi 4 or Raspberry Pi 5 with a fresh installation of Raspberry Pi OS Lite for this (the 64Bit kernel is preferred), please switch to [the current branch](https://github.com/JaapvanEkris/openrowingmonitor/tree/v1beta_updates) as it is actively maintained. Don't have a Raspberry Pi, but do have an ESP32 lying about? No problem, our sister project ported [Open Rowing Monitor for the ESP32](https://github.com/Abasz/ESPRowingMonitor), which works well (although uses a bit less accurate math due to platform limitations).
+This branch is specifically maintained for the Raspberry Pi Zero. Active support for the Raspberry Pi Zero W has been dropped as of february 2024 (see [this discussion for more information](https://github.com/JaapvanEkris/openrowingmonitor/discussions/33)), and that installation on the latest version of Raspberry Pi OS Bookworm is impossible due to package conflicts beyond our control. 
+
+Connect to the device with SSH have a look at the [Detailed Installation Instructions](installation.md) for more information on the software installation and for instructions on how to connect the rowing machine.
+
+> [!TIP]
+If you have a Raspberry Pi Zero 2 W, Raspberry Pi 3, or Raspberry Pi 4 with a fresh installation of Raspberry Pi OS Lite for this (the 64Bit kernel is preferred), please switch to [the current branch](https://github.com/JaapvanEkris/openrowingmonitor/tree/main) as it is actively maintained. Don't have a Raspberry Pi, but do have an ESP32 lying about? No problem, our sister project ported [Open Rowing Monitor for the ESP32](https://github.com/Abasz/ESPRowingMonitor), which works well (although uses a bit less accurate math due to platform limitations).
 
 ## How it all started
 
