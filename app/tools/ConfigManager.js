@@ -14,7 +14,12 @@ async function getConfig () {
   let customConfig
   try {
     customConfig = await import('../../config/config.js')
-  } catch (exception) {}
+  } catch (exception) {
+    log.error('Configuration Error: config.js could not be imported')
+  }
+
+  // ToDo: check if config.js is a valdif JSON object
+
   return customConfig !== undefined ? deepMerge(defaultConfig, customConfig.default) : defaultConfig
 }
 
