@@ -1,12 +1,15 @@
-# Set up of Open Rowing Monitor
+# Set up of OpenRowingMonitor
 
 <!-- markdownlint-disable no-inline-html -->
-This guide roughly explains how to set up the rowing software and hardware. In this manual, we cover the follwong topics:
+This guide explains how to set up the rowing software and hardware. In this manual, we cover the following topics:
 
 - [Requirements](#requirements)
 - [Installing OpenRowingMonitor on your Raspberry Pi](#software-installation)
 - [Physically connecting your rower to your Raspberry Pi](#hardware-installation)
 - [Configuration of OpenRowingMonitor](#rower-settings)
+- [Updating OpenRowingMonitor](#Updating-OpenRowingMonitor-to-a-new-version)
+
+If you can follow this guide, you will get OpenRowingMonitor to work. If you run into issues, you can always [drop a question in the GitHub Discussions](https://github.com/JaapvanEkris/openrowingmonitor/discussions), and there always is someone to help you.
 
 ## Requirements
 
@@ -31,13 +34,13 @@ The cheapest solution is a headless Raspberry Pi Zero 2W (roughly $15), the most
 ### Initialization of the Raspberry Pi
 
 - Install **Raspberry Pi OS Lite** on the SD Card i.e. with the [Raspberry Pi Imager](https://www.raspberrypi.org/software). Here, Raspberry Pi OS Lite 64 Bit is recommended as it is better suited for real-time environments. This can be done by selecting "other" Raspberry Pi OS in the imager and select OS Lite 64 Bit. We typically support the current and previous (Legacy) version of Raspberry Pi OS.
-- Configure the network connection and enable SSH, if you use the Raspberry Pi Imager, you can automatically do this while writing the SD Card, just press `Ctrl-Shift-X`(see [here](https://www.raspberrypi.org/blog/raspberry-pi-imager-update-to-v1-6/) for a description), otherwise follow the instructions below
+- In the Raspbverry Pi Imager, configure the network connection and enable SSH. In the Raspberry Pi Imager, you can automatically do this while writing the SD Card, just press `Ctrl-Shift-X`(see [here](https://www.raspberrypi.org/blog/raspberry-pi-imager-update-to-v1-6/) for a description), otherwise follow the instructions below
 - Connect the device to your network ([headless](https://www.raspberrypi.org/documentation/configuration/wireless/headless.md) or via [command line](https://www.raspberrypi.org/documentation/configuration/wireless/wireless-cli.md))
 - Enable [SSH](https://www.raspberrypi.org/documentation/remote-access/ssh/README.md)
 - Tune the OS if needed [by following our performance improvement guide](Improving_Raspberry_Performance.md)
 
 > [!NOTE]
-> On a Raspberry Pi Zero or Zero 2, you need to increase the swap-size to 1024 otherwise the installation of OpenRowingMonitor (i.e. the next step) will fail (see [this manual how to do this](https://pimylifeup.com/raspberry-pi-swap-file/));
+> On a Raspberry Pi Zero 2W, you need to increase the swap-size to 1024 otherwise the installation of OpenRowingMonitor (i.e. the next step) will fail (see [this manual how to do this](https://pimylifeup.com/raspberry-pi-swap-file/));
 
 ### Installation of the OpenRowingMonitor software
 
@@ -50,7 +53,7 @@ sudo /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/jaapvanekris/o
 Just answer the questions from the script and OpenRowingMonitor will be installed for you completely.
 
 > [!TIP]
-> Might this install process fail for some reason, you can start it again withoug issue and it will continue. Especially during installation of npm packages, this is known to happen.
+> Might this install process fail for some reason, you can start it again withoug issue and it will continue where it left off. Especially during installation of npm packages, this is known to happen due to network issues.
 
 <!-- markdownlint-disable-next-line no-inline-html -->
 <details>
@@ -89,7 +92,7 @@ Just answer the questions from the script and OpenRowingMonitor will be installe
 
 ### Check if OpenRowingMonitor runs without issue
 
-Next, check you need to do is to check the status of the Open Rowing Monitor service, which you can do with the command:
+Next, check you need to do is to check the status of the OpenRowingMonitor service, which you can do with the command:
 
 ```zsh
 sudo systemctl status openrowingmonitor
@@ -141,7 +144,7 @@ Please check if there are no errors reported. The above snippet shows that OpenR
 
 ### Check if OpenRowingMonitor screen runs without issue (if installed)
 
-Next, check you need to do is to check the status of the Open Rowing Monitor service, which you can do with the command:
+Next, check you need to do is to check the status of the OpenRowingMonitor service, which you can do with the command:
 
 ```zsh
 sudo systemctl status webbrowserkiosk
@@ -180,9 +183,9 @@ Please note that the process identification numbers will differ.
 
 ### To use BLE and open the Web-Server on port 80
 
-#### Running Open Rowing Monitor without root permissions (optional)
+#### Running OpenRowingMonitor without root permissions (optional)
 
-The default installation will run Open Rowing Monitor with root permissions. You can also run it as normal user by issueing the following command:
+The default installation will run OpenRowingMonitor with root permissions. You can also run it as normal user by issueing the following command:
 
 ```zsh
 sudo setcap cap_net_bind_service,cap_net_raw=+eip $(eval readlink -f `which node`)
@@ -199,9 +202,9 @@ ATTRS{idVendor}=="0fcf", ATTRS{idProduct}=="1009", MODE="0666"
 
 ## Hardware Installation
 
-Next step is is to hook up your sensor to the GPIO pins of the Raspberry Pi. Please check the [supported rower list](Supported_Rowers.md) if your machine requires additional electrical modification.
+Next step is is to hook up your sensor to the GPIO pins of the Raspberry Pi. Please check the [supported rower list](Supported_Rowers.md) if your machine requires additional electrical or mechanical modification. Some machines' sensors are placed wrong, so this might be corrected. Ideally, it reads the velocity of the flywheel (or anything directly connected to it).
 
-Open Rowing Monitor reads the sensor signal from GPIO port 17 and expects it to pull on GND if the sensor is closed. So your wiring probably looks like this:
+OpenRowingMonitor reads the sensor signal from GPIO port 17 (as set by the `gpioPin` setting in `config.js`) and expects it to pull on GND if the sensor is closed. So your wiring probably looks like this:
 
 <img src="img/raspberrypi_internal_wiring.jpg" alt="Image showing the internal wiring of Raspberry Pi" title="Internal wiring of the Raspberry Pi" width="700"><br clear="left">
 
@@ -369,7 +372,7 @@ Please check if there are no errors reported, especially for configuration param
 
 ## Updating OpenRowingMonitor to a new version
 
-Open Rowing Monitor does not provide proper releases (yet), but you can update to the latest development version with this command:
+OpenRowingMonitor does not provide proper releases (yet), but you can update to the latest development version with this command:
 
 ```zsh
 updateopenrowingmonitor.sh
