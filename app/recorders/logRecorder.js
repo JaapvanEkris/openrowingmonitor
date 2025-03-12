@@ -7,13 +7,14 @@
 import log from 'loglevel'
 import { secondsToTimeString } from '../tools/Helper.js'
 
-export function createLogRecorder (config) {
+export function createLogRecorder () {
   let heartRate = 0
   let lastMetrics
 
   // This function handles all incomming commands. Here, the recordingmanager will have filtered
   // all unneccessary commands for us, so we only need to react to 'updateIntervalSettings', 'reset' and 'shutdown'
-  async function handleCommand (commandName, data, client) {
+  // eslint-disable-next-line no-unused-vars
+  async function handleCommand (commandName, data) {
     const currentdate = new Date()
     switch (commandName) {
       case ('updateIntervalSettings'):
