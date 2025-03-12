@@ -10,7 +10,7 @@ import fs from 'fs/promises'
 import { promisify } from 'util'
 const gzip = promisify(zlib.gzip)
 
-export function createFileWriter (config) {
+export function createFileWriter () {
   let basefilename
 
   function setBaseFileName (baseFileName) {
