@@ -211,7 +211,7 @@ export function createRower (rowerSettings) {
     if (baseAngularDisplacement >= 0) {
       return Math.pow((flywheel.dragFactor() / rowerSettings.magicConstant), 1.0 / 3.0) * baseAngularDisplacement
     } else {
-      log.error(`Time: ${flywheel.spinningTime().toFixed(4)} sec: calculateLinearDistance error: baseAngularDisplacement was not credible, baseTime: ${baseAngularDisplacement}`)
+      log.error(`Time: ${flywheel.spinningTime().toFixed(4)} sec: calculateLinearDistance error: Angular Displacement of ${baseAngularDisplacement} was not credible, baseTime = ${baseTime}`)
       return 0
     }
   }
