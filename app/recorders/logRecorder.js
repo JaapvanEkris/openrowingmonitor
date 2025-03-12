@@ -31,9 +31,6 @@ export function createLogRecorder () {
     }
   }
 
-  function setBaseFileName (baseFileName) {
-  }
-
   // initiated when a new heart rate value is received from heart rate sensor
   async function recordHeartRate (value) {
     heartRate = value.heartrate
@@ -83,7 +80,6 @@ export function createLogRecorder () {
 
   return {
     handleCommand,
-    setBaseFileName,
     recordRowingMetrics,
     recordHeartRate
   }
