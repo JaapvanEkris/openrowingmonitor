@@ -6,7 +6,7 @@
 */
 import log from 'loglevel'
 
-export function createRawRecorder (config) {
+export function createRawRecorder () {
   const type = 'csv'
   const postfix = '_raw'
   const presentationName = 'Raw data'
@@ -15,7 +15,8 @@ export function createRawRecorder (config) {
 
   // This function handles all incomming commands. Here, the recordingmanager will have filtered
   // all unneccessary commands for us, so we only need to react to 'updateIntervalSettings', 'reset' and 'shutdown'
-  async function handleCommand (commandName, data, client) {
+  // eslint-disable-next-line no-unused-vars
+  async function handleCommand (commandName, data) {
     switch (commandName) {
       case ('updateIntervalSettings'):
         break
