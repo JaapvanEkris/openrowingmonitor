@@ -110,13 +110,13 @@ export function createRecordingManager (config) {
     if (recordRowingData) { rowingDataRecorder.recordHeartRate(hrmData) }
   }
 
-  async function executeCommandsInParralel (commandName, data, client) {
+  async function executeCommandsInParralel (commandName, data) {
     const parallelCalls = []
-    parallelCalls.push(logRecorder.handleCommand(commandName, data, client))
-    if (recordRawData) { parallelCalls.push(rawRecorder.handleCommand(commandName, data, client)) }
-    if (recordTcxData) { parallelCalls.push(tcxRecorder.handleCommand(commandName, data, client)) }
-    if (recordFitData) { parallelCalls.push(fitRecorder.handleCommand(commandName, data, client)) }
-    if (recordRowingData) { parallelCalls.push(rowingDataRecorder.handleCommand(commandName, data, client)) }
+    parallelCalls.push(logRecorder.handleCommand(commandName, data))
+    if (recordRawData) { parallelCalls.push(rawRecorder.handleCommand(commandName, data)) }
+    if (recordTcxData) { parallelCalls.push(tcxRecorder.handleCommand(commandName, data)) }
+    if (recordFitData) { parallelCalls.push(fitRecorder.handleCommand(commandName, data)) }
+    if (recordRowingData) { parallelCalls.push(rowingDataRecorder.handleCommand(commandName, data)) }
     await Promise.all(parallelCalls)
   }
 
