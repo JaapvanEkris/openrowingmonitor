@@ -17,10 +17,10 @@ import { createIntervalsInterface } from './intervalsInterface.js'
 
 export function createRecordingManager (config) {
   let startTime
-  let allRecordingsHaveBeenUploaded = true // Neerleggen bij uploader!
-  const fileWriter = createFileWriter(config)
-  const logRecorder = createLogRecorder(config)
-  const rawRecorder = createRawRecorder(config)
+  let allRecordingsHaveBeenUploaded = true // ToDo: Make this an uploader responsibility!
+  const fileWriter = createFileWriter()
+  const logRecorder = createLogRecorder()
+  const rawRecorder = createRawRecorder()
   const tcxRecorder = createTCXRecorder(config)
   const fitRecorder = createFITRecorder(config)
   const rowingDataRecorder = createRowingDataRecorder(config)
@@ -34,10 +34,11 @@ export function createRecordingManager (config) {
   // This function handles all incomming commands. As all commands are broadasted to all application parts,
   // we need to filter here what the WorkoutRecorder will react to and what it will ignore
   // For the 'start', 'startOrResume', 'pause' and 'stop' commands, we await the official rowingengine reaction
+  // eslint-disable-next-line no-unused-vars
   async function handleCommand (commandName, data, client) {
     switch (commandName) {
       case ('updateIntervalSettings'):
-        executeCommandsInParralel(commandName, data, client)
+        executeCommandsInParralel(commandName, data)
         break
       case ('start'):
         break
@@ -48,7 +49,7 @@ export function createRecordingManager (config) {
       case ('stop'):
         break
       case ('reset'):
-        await executeCommandsInParralel(commandName, data, client)
+        await executeCommandsInParralel(commandName, data)
         await writeRecordings()
         await uploadRecordings()
         startTime = undefined
@@ -68,7 +69,7 @@ export function createRecordingManager (config) {
       case 'stravaAuthorizationCode':
         break
       case 'shutdown':
-        await executeCommandsInParralel(commandName, data, client)
+        await executeCommandsInParralel(commandName, data)
         await writeRecordings()
         await uploadRecordings()
         break
