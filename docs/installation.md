@@ -7,7 +7,7 @@ This guide explains how to set up the rowing software and hardware. In this manu
 - [Installing OpenRowingMonitor on your Raspberry Pi](#software-installation)
 - [Physically connecting your rower to your Raspberry Pi](#hardware-installation)
 - [Configuration of OpenRowingMonitor](#rower-settings)
-- [Updating OpenRowingMonitor](#Updating-OpenRowingMonitor-to-a-new-version)
+- [Updating OpenRowingMonitor](#updating-openrowingmonitor-to-a-new-version)
 
 If you can follow this guide, you will get OpenRowingMonitor to work. If you run into issues, you can always [drop a question in the GitHub Discussions](https://github.com/JaapvanEkris/openrowingmonitor/discussions), and there always is someone to help you.
 
