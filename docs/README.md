@@ -102,7 +102,7 @@ You will need a Raspberry Pi Zero 2 W, Raspberry Pi 3, Raspberry Pi 4 with a fre
 
 This project is already in a very stable stage, as it is used daily by many rowers, and the engine is structurally validated against the Concept2 PM5. However, being open source, it might contain some things that are still a bit rough on the edges. But generally, OpenRowingMonitor is tested extensively for weeks before being released to mainstream users.
 
-This is a larger team effort and OpenRowingMonitor had much direct and indirect support by many people during the years, see the [Attribution to these peoe here](attribution.md). You can see its development throughout the years [here in the Release notes](Release_Notes.md). We are never done, so more functionality will be added in the future, so check the [Development Roadmap](backlog.md) if you are curious. 
+This is a larger team effort and OpenRowingMonitor had much direct and indirect support by many people during the years, see the [Attribution to these peoe here](attribution.md). You can see its development throughout the years [here in the Release notes](Release_Notes.md). We are never done, so more functionality will be added in the future, so check the [Development Roadmap](backlog.md) if you are curious.
 
 Contributions to improve OpenRowingMonitor further are always welcome! To get an idea how this all works, you can read the [Archtecture description](Architecture.md), the [Physics of OpenRowingMonitor (for advanced readers)](physics_openrowingmonitor.md) and [Contributing Guidelines](CONTRIBUTING.md) how you can help us improve this project.
 
