@@ -27,7 +27,8 @@ export function createRowingDataRecorder (config) {
 
   // This function handles all incomming commands. As all commands are broadasted to all application parts,
   // we need to filter here what the WorkoutRecorder will react to and what it will ignore
-  async function handleCommand (commandName, data, client) {
+  // eslint-disable-next-line no-unused-vars
+  async function handleCommand (commandName, data) {
     switch (commandName) {
       case ('updateIntervalSettings'):
         break
