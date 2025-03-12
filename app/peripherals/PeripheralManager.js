@@ -61,6 +61,7 @@ export function createPeripheralManager (config) {
 
   // This function handles all incomming commands. As all commands are broadasted to all application parts,
   // we need to filter here what the PeripheralManager will react to and what it will ignore
+  // eslint-disable-next-line no-unused-vars
   async function handleCommand (commandName, data, client) {
     switch (commandName) {
       case ('updateIntervalSettings'):
