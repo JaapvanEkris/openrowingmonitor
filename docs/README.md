@@ -55,9 +55,9 @@ Via the Action tile, it can also be used to reset the training metrics and to se
 
 If you connect a (optional) physical screen directly to the Raspberry Pi, then this interface can also be directly shown on the device. The installation script can set up a web browser in kiosk mode that runs on the Raspberry Pi.
 
-### Device connections via BLE, ANT+ and MQTT
+### Device connections via Bluetooth, ANT+ and MQTT
 
-OpenRowingMonitor can recieve heartrate data via BLE and ANT+. But it also implements different protocols to share your rowing metrics with different applications and devices. We support most common industry standards to help you connect to your app and game of choice, OpenRowingMonitor currently supports the following protocols:
+OpenRowingMonitor can recieve heartrate data via Bluetooth Low Energy (BLE) and ANT+. But it also implements different protocols to share your rowing metrics with different applications and devices. We support most common industry standards to help you connect to your app and game of choice, OpenRowingMonitor currently supports the following protocols:
 
 * **Concept2 PM**: OpenRowingMonitor can simulate a Concept2 PM5, providing compatibility with most rowing apps. This implements the most common parts of the spec, so it might not work with all applications. It is known to work with [EXR](https://www.exrgame.com) and all the samples from [The Erg Arcade](https://ergarcade.com), for example you can [row in the clouds](https://ergarcade.github.io/mrdoob-clouds/).
 
@@ -78,32 +78,32 @@ OpenRowingMonitor can recieve heartrate data via BLE and ANT+. But it also imple
 
 ### Export of Training Sessions
 
-OpenRowingMonitor is based on the idea that metrics should be easily accessible for further analysis. Therefore, OpenRowingMonitor can create the following files:
-
-* **Garmin FIT files**: These are binairy files that contain the most interesting metrics of a rowing session. Most modern training analysis tools will accept a FIT-file. You can upload these files to training platforms like [Strava](https://www.strava.com), [Garmin Connect](https://connect.garmin.com), [Intervals.icu](https://intervals.icu/), [RowsAndAll](https://rowsandall.com/) or [Trainingpeaks](https://trainingpeaks.com) to track your training sessions;
+OpenRowingMonitor is based on the idea that metrics should be easily accessible for further analysis on data platforms. Therefore, OpenRowingMonitor can create the following files:
 
 * **RowingData** files, which are comma-seperated files with all metrics OpenRowingMonitor can produce. These can be used with [RowingData](https://pypi.org/project/rowingdata/) to display your results locally, or uploaded to [RowsAndAll](https://rowsandall.com/) for a webbased analysis (including dynamic in-stroke metrics). The csv-files can also be processed manually in Excel, allowing your own custom analysis;
 
-* **Training Center XML files (TCX)**: These are XML-files that contain the most essential metrics of a rowing session. Most training analysis tools will accept a tcx-file. You can upload these files to training platforms like [Strava](https://www.strava.com), [Garmin Connect](https://connect.garmin.com), [Intervals.icu](https://intervals.icu/), [RowsAndAll](https://rowsandall.com/) or [Trainingpeaks](https://trainingpeaks.com) to track your training sessions;
+* **Garmin FIT files**: These are binairy files that contain the most interesting metrics of a rowing session. Most modern training analysis tools will accept a FIT-file. You can upload these files to training platforms like [Strava](https://www.strava.com), [Garmin Connect](https://connect.garmin.com), [Intervals.icu](https://intervals.icu/), [RowsAndAll](https://rowsandall.com/) or [Trainingpeaks](https://trainingpeaks.com) to track your training sessions;
 
-* **Raw flywheel measurements of the flywheel**, also in CSV files. These files are great to analyse and replay the specifics of your rowing machine (some Excel visualistion can help with this).
+* **Training Center XML files (TCX)**: These are legacy XML-files that contain the most essential metrics of a rowing session. Most training analysis tools will still accept a tcx-file (although FIT usually is recomended). You can upload these files to training platforms like [Strava](https://www.strava.com), [Garmin Connect](https://connect.garmin.com), [Intervals.icu](https://intervals.icu/), [RowsAndAll](https://rowsandall.com/) or [Trainingpeaks](https://trainingpeaks.com) to track your training sessions;
 
-Automatic uploading your sessions to RowsAndAll.com, Intervals.icu and Strava is an integrated feature, for all other platforms this is currently a manual step, see [the integration manual](Integrations.md). The OpenRowingMonitor installer can also set up a network share that contains all training data so it is easy to grab the files from there and manually upload them to the training platform of your choice.
+Automatic uploading your sessions to [RowsAndAll](https://rowsandall.com/), [Intervals.icu](https://intervals.icu/) and [Strava](https://www.strava.com) is an integrated feature, for all other platforms this is currently a manual step, see [the integration manual](Integrations.md). The OpenRowingMonitor installer can also set up a network share that contains all training data so it is easy to grab the files from there and manually upload them to the training platform of your choice.
 
 ## Installation
 
-You will need a Raspberry Pi Zero 2 W, Raspberry Pi 3, Raspberry Pi 4 with a fresh installation of Raspberry Pi OS Lite for this (the 64Bit kernel is preferred). Connect to the device with SSH and folow the [Detailed Installation Instructions](installation.md). This guide will help you install the software and explain how to connect the rowing machine. If you can follow the guide, it will work.
+You will need a Raspberry Pi Zero 2 W, Raspberry Pi 3, Raspberry Pi 4 with a fresh installation of Raspberry Pi OS Lite for this (the 64Bit kernel is recomended). Connect to the device with SSH and just follow the [Detailed Installation Instructions](installation.md) and you'll get a working monitor. This guide will help you install the software and explain how to connect the rowing machine. If you can follow the guide, it will work. If you run into issues, you can always [drop a question in the GitHub Discussions](https://github.com/JaapvanEkris/openrowingmonitor/discussions), and there always is someone to help you.
 
 > [!IMPORTANT]
-> Due to architecture changes, both a Raspberry Pi Zero W (see [this discussion for more information](https://github.com/JaapvanEkris/openrowingmonitor/discussions/33)) and Raspberry Pi 5 (see [this discussion for more information](https://github.com/JaapvanEkris/openrowingmonitor/issues/52)) will not work.
+> Due to architecture differences, both the Raspberry Pi Zero W (see [this discussion for more information](https://github.com/JaapvanEkris/openrowingmonitor/discussions/33)) and Raspberry Pi 5 (see [this discussion for more information](https://github.com/JaapvanEkris/openrowingmonitor/issues/52)) will **not** work.
 <!-- MD028/no-blanks-blockquote -->
 > [!TIP]
 > Don't have a Raspberry Pi, but do have an ESP32 lying about? No problem, our sister project ported [OpenRowingMonitor for the ESP32](https://github.com/Abasz/ESPRowingMonitor), which works well (although it is a bit less accurate due to platform limitations).
 
 ## Further information
 
-This project is already in a very stable stage, as it is used daily by many rowers. You can see its development [here in the Release notes](Release_Notes.md). We are never done, so more functionality will be added in the future, so check the [Development Roadmap](backlog.md) if you are curious. However, being open source, it might contain some things that are still a bit rough on the edges.
+This project is already in a very stable stage, as it is used daily by many rowers, and the engine is structurally validated against the Concept2 PM5. However, being open source, it might contain some things that are still a bit rough on the edges. But generally, OpenRowingMonitor is tested extensively for weeks before being released to mainstream users.
 
-This is a larger team effort and OpenRowingMonitor had much direct and indirect support by many peoe during the years, see the [Attribution to these peoe here](attribution.md). Contributions to improve this are always welcome! To get an idea how this all works, you can read the [Archtecture description](Architecture.md), the [Physics of OpenRowingMonitor (for advanced readers)](physics_openrowingmonitor.md) and [Contributing Guidelines](CONTRIBUTING.md) how you can help us improve this project.
+This is a larger team effort and OpenRowingMonitor had much direct and indirect support by many people during the years, see the [Attribution to these peoe here](attribution.md). You can see its development throughout the years [here in the Release notes](Release_Notes.md). We are never done, so more functionality will be added in the future, so check the [Development Roadmap](backlog.md) if you are curious. 
+
+Contributions to improve OpenRowingMonitor further are always welcome! To get an idea how this all works, you can read the [Archtecture description](Architecture.md), the [Physics of OpenRowingMonitor (for advanced readers)](physics_openrowingmonitor.md) and [Contributing Guidelines](CONTRIBUTING.md) how you can help us improve this project.
 
 Feel free to leave a message in the [GitHub Discussions](https://github.com/JaapvanEkris/openrowingmonitor/discussions) if you have any questions or ideas related to this project.
