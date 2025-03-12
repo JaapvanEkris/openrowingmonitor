@@ -233,7 +233,7 @@ export function createTCXRecorder (config) {
       }
       i++
     }
-    tcxData += await createNotes(workout)
+    tcxData += await createNotes()
     tcxData += await createAuthor()
     tcxData += '    </Activity>\n'
     tcxData += '  </Activities>\n'
@@ -314,7 +314,7 @@ export function createTCXRecorder (config) {
     return tcxData
   }
 
-  async function createNotes (workout) {
+  async function createNotes () {
     const dragLine = createDragLine(drag.average())
     const VO2MaxLine = createVO2MaxLine(VO2max.result())
     const HRRLine = createHRRLine(postExerciseHR)
