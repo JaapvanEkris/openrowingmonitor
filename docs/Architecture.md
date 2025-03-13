@@ -96,7 +96,9 @@ B(server.js) -->|Rowing metrics, every 2ms| M(WebServer.js)
 
 ### Command flow
 
-All functional blocks have a 'manager', which expose a `handleCommand()` function, which respond to a defined set of commands. These commands are explicitly restricted to user actions (i.e. inputs via the web-interface or a peripheral). In essence, this is a user of external session control (via Bluetooth or ANT+) dictating behaviour of OpenRowingMonitor as an external trigger. Effects of metrics upon a session-state (i.e. session start or end based on a predefined session end) should be handled via the metrics updates. Adittionally, effects upon a session state as a result of a command (i.e. session ends because of a command) should also be handled via the metrics updates whenever possible. These manual commands are connected as follows:
+All functional blocks have a 'manager', which expose a `handleCommand()` function, which respond to a defined set of commands. The function call parameters and the commands that can be recieved are identical to all managers, and they are expected to handle/ignore all commands.
+
+These commands are explicitly restricted to external user actions (i.e. inputs via the web-interface or a peripheral). In essence, this is a user of external session control (via direct input, Bluetooth, ANT+ or MQTT) dictating behaviour of OpenRowingMonitor as an external trigger. Effects of metrics upon a session-state (i.e. session start or end based on a predefined session end) should be handled via the metrics updates. Adittionally, effects upon a session state as a result of a command (i.e. session ends because of a command) should also be handled via the metrics updates whenever possible. These manual commands are connected as follows:
 
 ```mermaid
 sequenceDiagram
@@ -117,12 +119,12 @@ sequenceDiagram
   server.js-)webServer.js: Metrics Update<br>(interrupt based)
 ```
 
-Both the `webServer.js` and `PeripheralManager.js` can trigger a command. Server.js will communicate this command to all managers, where they will handle this as they see fit. Several commands are defined:
+Both the `webServer.js` and `PeripheralManager.js` can trigger a command. Server.js will communicate this command to all managers, where they will handle this as they see fit. The following commands are defined:
 
 | command | description |
 |---|---|
 | requestControl | A peripheral has requested control of the connection (currently nothing happens internally in ORM with this). This command is routinely sent at the start of a ANT+ FE-C communication. |
-| updateIntervalSettings | An update in the interval settings has to be processed |
+| updateIntervalSettings | An update in the interval settings has to be processed. Here the `data` parameter has to be filled with a valid workout object in JSON format |
 | start | start of a session initiated by the user. As the true start of a session is actually triggered by the flywheel, which will always be communicated via the metrics, its only purpose is to make sure that the flywheel is allowed to move. This command is routinely sent at the start of a ANT+ FE-C communication. |
 | startOrResume | User forced (re)start of a session. As the true start of a session is actually triggered by the flywheel, which will always be communicated via the metrics, its only purpose is to clear the flywheel for further movement. This is not used in normal operation, but can functionally change a 'stopped' session into a 'paused' one. Intended use is to allow a user to continue beyond pre-programmed interval parameters as reaching them results in a session being 'stopped'. |
 | pause | User/device forced pause of a session (pause of a session triggered from the flywheel will always be triggered via the metrics) |
@@ -207,7 +209,7 @@ sequenceDiagram
 > [!NOTE]
 > The `PeripheralManager.js` will internally also distribute heartrate updats to data consuming ANT+ and BLE peripherals.
 
-### Key components
+### Key components in data generation
 
 #### pigpio
 
@@ -317,6 +319,18 @@ It provides the following types of information:
 * temporal metrics (i.e. Angular Velocity, Angular Acceleration, Torque, etc.)
 * several absolute metrics (i.e. total elapsed time and total angular distance traveled)
 * physical properties of the flywheel, (i.e. the flywheel drag and flywheel inertia)
+
+### Key components in data dissamination
+
+#### PeripheralManager
+
+The Peripheralmanager manages all BLE, ANT+ and MQTT perpherals. It is the source for heartrate data and can also send user commands.
+
+#### RecordingManager
+
+RecordingManager is the base for all recording, recording uploading as well as all normal logging. It acts as a multiplexer over the various recorders, letting the datarecorders decide for themselves how to react to specific metrics and a limited set of relevant commands. The recorders record and will create a valid file content with accompanying meta-data.
+
+The RecordingManager also directly manages the uploaders and the filewriter: they take a file content and its meta-data amd upload it or write it to disk.
 
 ## Major design decissions
 
