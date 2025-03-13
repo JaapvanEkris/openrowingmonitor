@@ -9,8 +9,11 @@
   If the Server supports the Fitness Machine Control Point, the Fitness Machine Status characteristic
   shall be exposed by the Server. Otherwise, supporting the Fitness Machine Status characteristic is optional.
 */
-import bleno from '@stoprocent/bleno'
-import log from 'loglevel'
+import loglevel from 'loglevel'
+
+import { GattNotifyCharacteristic } from '../BleManager.js'
+
+const log = loglevel.getLogger('Peripherals')
 
 // see page 67 https://www.bluetooth.com/specifications/specs/fitness-machine-service-1-0
 const StatusOpCode = {
@@ -38,51 +41,34 @@ const StatusOpCode = {
   targetedCadenceChanged: 0x15
 }
 
-export default class FitnessMachineStatusCharacteristic extends bleno.Characteristic {
+export class FitnessMachineStatusCharacteristic extends GattNotifyCharacteristic {
   constructor () {
     super({
-      // Fitness Machine Status
-      uuid: '2ADA',
-      value: null,
+      name: 'Fitness Machine Status',
+      uuid: 0x2ADA,
       properties: ['notify']
     })
-    this._updateValueCallback = null
-  }
-
-  onSubscribe (maxValueSize, updateValueCallback) {
-    log.debug(`FitnessMachineStatusCharacteristic - central subscribed with maxSize: ${maxValueSize}`)
-    this._updateValueCallback = updateValueCallback
-    return this.RESULT_SUCCESS
-  }
-
-  onUnsubscribe () {
-    log.debug('FitnessMachineStatusCharacteristic - central unsubscribed')
-    this._updateValueCallback = null
-    return this.RESULT_UNLIKELY_ERROR
   }
 
   notify (status) {
     if (!(status && status.name)) {
-      log.error('can not deliver status without name')
-      return this.RESULT_SUCCESS
+      return
     }
-    if (this._updateValueCallback) {
-      const buffer = Buffer.alloc(2)
-      switch (status.name) {
-        case 'reset':
-          buffer.writeUInt8(StatusOpCode.reset, 0)
-          break
-        case 'stoppedOrPausedByUser':
-          buffer.writeUInt8(StatusOpCode.stoppedOrPausedByUser, 0)
-          break
-        case 'startedOrResumedByUser':
-          buffer.writeUInt8(StatusOpCode.startedOrResumedByUser, 0)
-          break
-        default:
-          log.error(`status ${status.name} is not supported`)
-      }
-      this._updateValueCallback(buffer)
+
+    const buffer = Buffer.alloc(2)
+    switch (status.name) {
+      case 'reset':
+        buffer.writeUInt8(StatusOpCode.reset, 0)
+        break
+      case 'stoppedOrPausedByUser':
+        buffer.writeUInt8(StatusOpCode.stoppedOrPausedByUser, 0)
+        break
+      case 'startedOrResumedByUser':
+        buffer.writeUInt8(StatusOpCode.startedOrResumedByUser, 0)
+        break
+      default:
+        log.error(`status ${status.name} is not supported`)
     }
-    return this.RESULT_SUCCESS
+    super.notify(buffer)
   }
 }

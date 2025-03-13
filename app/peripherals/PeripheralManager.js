@@ -21,7 +21,7 @@ import { createFtmsPeripheral } from './ble/FtmsPeripheral.js'
 import { createMQTTPeripheral } from './mqtt/mqtt.js'
 import { createPm5Peripheral } from './ble/Pm5Peripheral.js'
 
-const bleModes = ['FTMS', 'FTMSBIKE', 'PM5','CSC', 'CPS', 'OFF']
+const bleModes = ['FTMS', 'FTMSBIKE', 'PM5', 'CSC', 'CPS', 'OFF']
 const antModes = ['FE', 'OFF']
 const hrmModes = ['ANT', 'BLE', 'OFF']
 
@@ -62,7 +62,6 @@ export function createPeripheralManager (config) {
     // The order is important, starting with the BLEs causes EBUSY error on the HCI socket on switching. I was not able to find the cause - its probably the order within the async initialization of the BleManager, but cannot find a proper fix
     await createAntPeripheral(config.antPlusMode)
     await createHrmPeripheral(config.heartRateMode)
-    if (config.heartRateMode === 'BLE') { await delay(10000) } // WORKAROUND for BLE-Fix. ToDo: remove the need for this delay in the bluetooth startup completely
     await createBlePeripheral(config.bluetoothMode)
   }
 
@@ -161,7 +160,7 @@ export function createPeripheralManager (config) {
         break
       case 'FTMSBIKE':
         log.info('bluetooth profile: FTMS Indoor Bike')
-        blePeripheral = createFtmsPeripheral(controlCallback, config, true)
+        blePeripheral = createFtmsPeripheral(_bleManager, controlCallback, config, true)
         bleMode = 'FTMSBIKE'
         break
       case 'CSC':
@@ -176,7 +175,7 @@ export function createPeripheralManager (config) {
         break
       case 'FTMS':
         log.info('bluetooth profile: FTMS Rower')
-        blePeripheral = createFtmsPeripheral(controlCallback, config, false)
+        blePeripheral = createFtmsPeripheral(_bleManager, controlCallback, config, false)
         bleMode = 'FTMS'
         break
       default:
@@ -366,6 +365,8 @@ export function createPeripheralManager (config) {
 
   function controlCallback (event) {
     emitter.emit('control', event)
+
+    return true
   }
 
   async function shutdownAllPeripherals () {
@@ -387,11 +388,5 @@ export function createPeripheralManager (config) {
     handleCommand,
     notifyMetrics,
     notifyStatus
-  })
-}
-
-function delay (ms) {
-  return new Promise(resolve => {
-    setTimeout(() => resolve(), ms)
   })
 }

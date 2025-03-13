@@ -18,83 +18,57 @@
   The Server should notify this characteristic at a regular interval, typically once per second
   while in a connection and the interval is not configurable by the Client
 */
-import bleno from '@stoprocent/bleno'
-import log from 'loglevel'
 import BufferBuilder from '../BufferBuilder.js'
+import { GattNotifyCharacteristic } from '../BleManager.js'
 
-export default class IndoorBikeDataCharacteristic extends bleno.Characteristic {
+export class IndoorBikeDataCharacteristic extends GattNotifyCharacteristic {
   constructor () {
     super({
-      // Indoor Bike Data
-      uuid: '2AD2',
-      value: null,
+      name: 'Indoor Bike Data',
+      uuid: 0x2AD2,
       properties: ['notify']
     })
-    this._updateValueCallback = null
-    this._subscriberMaxValueSize = null
-  }
-
-  onSubscribe (maxValueSize, updateValueCallback) {
-    log.debug(`IndoorBikeDataCharacteristic - central subscribed with maxSize: ${maxValueSize}`)
-    this._updateValueCallback = updateValueCallback
-    this._subscriberMaxValueSize = maxValueSize
-    return this.RESULT_SUCCESS
-  }
-
-  onUnsubscribe () {
-    log.debug('IndoorBikeDataCharacteristic - central unsubscribed')
-    this._updateValueCallback = null
-    this._subscriberMaxValueSize = null
-    return this.RESULT_UNLIKELY_ERROR
   }
 
   notify (data) {
     // ignore events without the mandatory fields
     if (!('cycleLinearVelocity' in data)) {
-      log.error('can not deliver bike data without mandatory fields')
-      return this.RESULT_SUCCESS
+      return
     }
 
-    if (this._updateValueCallback) {
-      const bufferBuilder = new BufferBuilder()
-      // Field flags as defined in the Bluetooth Documentation
-      // Instantaneous speed (default), Instantaneous Cadence (2), Total Distance (4),
-      // Instantaneous Power (6), Total / Expended Energy (8), Heart Rate (9), Elapsed Time (11)
-      // 00001011
-      // 01010100
-      bufferBuilder.writeUInt16LE(measurementFlag)
+    const bufferBuilder = new BufferBuilder()
+    // Field flags as defined in the Bluetooth Documentation
+    // Instantaneous speed (default), Instantaneous Cadence (2), Total Distance (4),
+    // Instantaneous Power (6), Total / Expended Energy (8), Heart Rate (9), Elapsed Time (11)
+    // 00001011
+    // 01010100
+    bufferBuilder.writeUInt16LE(measurementFlag)
 
-      // see https://www.bluetooth.com/specifications/specs/gatt-specification-supplement-3/
-      // for some of the data types
-      // Instantaneous Speed in km/h
-      bufferBuilder.writeUInt16LE(data.cycleLinearVelocity > 0 ? data.cycleLinearVelocity * 3.6 * 100 : 0)
-      // Instantaneous Cadence in rotations per minute (we use this to communicate the strokes per minute)
-      bufferBuilder.writeUInt16LE(data.cycleStrokeRate > 0 ? Math.round(data.cycleStrokeRate * 2) : 0)
-      // Total Distance in meters
-      bufferBuilder.writeUInt24LE(data.totalLinearDistance > 0 ? Math.round(data.totalLinearDistance) : 0)
-      // Instantaneous Power in watts
-      bufferBuilder.writeUInt16LE(data.cyclePower > 0 ? Math.round(data.cyclePower) : 0)
-      // Energy
-      // Total energy in kcal
-      bufferBuilder.writeUInt16LE(data.totalCalories > 0 ? Math.round(data.totalCalories) : 0)
-      // Energy per hour
-      // The Energy per Hour field represents the average expended energy of a user during a
-      // period of one hour.
-      bufferBuilder.writeUInt16LE(data.totalCaloriesPerHour > 0 ? Math.round(data.totalCaloriesPerHour) : 0)
-      // Energy per minute
-      bufferBuilder.writeUInt8(data.totalCaloriesPerMinute > 0 ? Math.round(data.totalCaloriesPerMinute) : 0)
-      // Heart Rate: Beats per minute with a resolution of 1
-      bufferBuilder.writeUInt8(data.heartrate > 0 ? Math.round(data.heartrate) : 0)
-      // Elapsed Time: Seconds with a resolution of 1
-      bufferBuilder.writeUInt16LE(Math.round(data.totalMovingTime))
+    // see https://www.bluetooth.com/specifications/specs/gatt-specification-supplement-3/
+    // for some of the data types
+    // Instantaneous Speed in km/h
+    bufferBuilder.writeUInt16LE(data.cycleLinearVelocity > 0 ? data.cycleLinearVelocity * 3.6 * 100 : 0)
+    // Instantaneous Cadence in rotations per minute (we use this to communicate the strokes per minute)
+    bufferBuilder.writeUInt16LE(data.cycleStrokeRate > 0 ? Math.round(data.cycleStrokeRate * 2) : 0)
+    // Total Distance in meters
+    bufferBuilder.writeUInt24LE(data.totalLinearDistance > 0 ? Math.round(data.totalLinearDistance) : 0)
+    // Instantaneous Power in watts
+    bufferBuilder.writeUInt16LE(data.cyclePower > 0 ? Math.round(data.cyclePower) : 0)
+    // Energy
+    // Total energy in kcal
+    bufferBuilder.writeUInt16LE(data.totalCalories > 0 ? Math.round(data.totalCalories) : 0)
+    // Energy per hour
+    // The Energy per Hour field represents the average expended energy of a user during a
+    // period of one hour.
+    bufferBuilder.writeUInt16LE(data.totalCaloriesPerHour > 0 ? Math.round(data.totalCaloriesPerHour) : 0)
+    // Energy per minute
+    bufferBuilder.writeUInt8(data.totalCaloriesPerMinute > 0 ? Math.round(data.totalCaloriesPerMinute) : 0)
+    // Heart Rate: Beats per minute with a resolution of 1
+    bufferBuilder.writeUInt8(data.heartrate > 0 ? Math.round(data.heartrate) : 0)
+    // Elapsed Time: Seconds with a resolution of 1
+    bufferBuilder.writeUInt16LE(Math.round(data.totalMovingTime))
 
-      const buffer = bufferBuilder.getBuffer()
-      if (buffer.length > this._subscriberMaxValueSize) {
-        log.warn(`IndoorBikeDataCharacteristic - notification of ${buffer.length} bytes is too large for the subscriber`)
-      }
-      this._updateValueCallback(bufferBuilder.getBuffer())
-    }
-    return this.RESULT_SUCCESS
+    super.notify(bufferBuilder.getBuffer())
   }
 }
 

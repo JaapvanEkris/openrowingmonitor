@@ -11,90 +11,66 @@
   The Server should notify this characteristic at a regular interval, typically once per second
   while in a connection and the interval is not configurable by the Client
 */
-import bleno from '@stoprocent/bleno'
-import log from 'loglevel'
 import BufferBuilder from '../BufferBuilder.js'
+import { GattNotifyCharacteristic } from '../BleManager.js'
 
-export default class RowerDataCharacteristic extends bleno.Characteristic {
+export class RowerDataCharacteristic extends GattNotifyCharacteristic {
   constructor () {
-    super({
-      // Rower Data
-      uuid: '2AD1',
-      value: null,
-      properties: ['notify']
-    })
-    this._updateValueCallback = null
-    this._subscriberMaxValueSize = null
-  }
-
-  onSubscribe (maxValueSize, updateValueCallback) {
-    log.debug(`RowerDataCharacteristic - central subscribed with maxSize: ${maxValueSize}`)
-    this._updateValueCallback = updateValueCallback
-    this._subscriberMaxValueSize = maxValueSize
-    return this.RESULT_SUCCESS
-  }
-
-  onUnsubscribe () {
-    log.debug('RowerDataCharacteristic - central unsubscribed')
-    this._updateValueCallback = null
-    this._subscriberMaxValueSize = null
-    return this.RESULT_UNLIKELY_ERROR
+    super(
+      {
+        name: 'Rower Data',
+        uuid: 0x2AD1,
+        properties: ['notify']
+      })
   }
 
   notify (data) {
     // ignore events without the mandatory fields
     if (!('cycleStrokeRate' in data && 'totalNumberOfStrokes' in data)) {
-      return this.RESULT_SUCCESS
+      return
     }
 
-    if (this._updateValueCallback) {
-      const bufferBuilder = new BufferBuilder()
-      // Field flags as defined in the Bluetooth Documentation
-      // Stroke Rate (default), Stroke Count (default), Total Distance (2), Instantaneous Pace (3),
-      // Instantaneous Power (5), Total / Expended Energy (8), Heart Rate (9), Elapsed Time (11)
-      // todo: might add: Average Stroke Rate (1), Average Pace (4), Average Power (6)
-      // Remaining Time (12)
-      // 00101100
-      bufferBuilder.writeUInt16LE(measurementFlag)
-      // 00001011
+    const bufferBuilder = new BufferBuilder()
+    // Field flags as defined in the Bluetooth Documentation
+    // Stroke Rate (default), Stroke Count (default), Total Distance (2), Instantaneous Pace (3),
+    // Instantaneous Power (5), Total / Expended Energy (8), Heart Rate (9), Elapsed Time (11)
+    // todo: might add: Average Stroke Rate (1), Average Pace (4), Average Power (6)
+    // Remaining Time (12)
+    // 00101100
+    bufferBuilder.writeUInt16LE(measurementFlag)
+    // 00001011
 
-      // see https://www.bluetooth.com/specifications/specs/gatt-specification-supplement-3/
-      // for some of the data types
-      // Stroke Rate in stroke/minute, value is multiplied by 2 to have a .5 precision
-      bufferBuilder.writeUInt8(data.cycleStrokeRate > 0 ? Math.round(data.cycleStrokeRate * 2) : 0)
-      // Stroke Count
-      bufferBuilder.writeUInt16LE(data.totalNumberOfStrokes > 0 ? Math.round(data.totalNumberOfStrokes) : 0)
-      // Total Distance in meters
-      bufferBuilder.writeUInt24LE(data.totalLinearDistance > 0 ? Math.round(data.totalLinearDistance) : 0)
-      // Instantaneous Pace in seconds/500m
-      // if split is infinite (i.e. while pausing), should use the highest possible number (0xFFFF)
-      // todo: eventhough mathematically correct, setting 0xFFFF (65535s) causes some ugly spikes
-      // in some applications which could shift the axis (i.e. workout diagrams in MyHomeFit)
-      // so instead for now we use 0 here
-      bufferBuilder.writeUInt16LE(data.cyclePace !== Infinity && data.cyclePace < 65535 ? Math.round(data.cyclePace) : 0xFFFF)
-      // Instantaneous Power in watts
-      bufferBuilder.writeUInt16LE(data.cyclePower > 0 ? Math.round(data.cyclePower) : 0)
-      // Energy in kcal
-      // Total energy in kcal
-      bufferBuilder.writeUInt16LE(data.totalCalories > 0 ? Math.round(data.totalCalories) : 0)
-      // Energy per hour
-      // The Energy per Hour field represents the average expended energy of a user during a
-      // period of one hour.
-      bufferBuilder.writeUInt16LE(data.totalCaloriesPerHour > 0 ? Math.round(data.totalCaloriesPerHour) : 0)
-      // Energy per minute
-      bufferBuilder.writeUInt8(data.totalCaloriesPerMinute > 0 ? Math.round(data.totalCaloriesPerMinute) : 0)
-      // Heart Rate: Beats per minute with a resolution of 1
-      bufferBuilder.writeUInt8(data.heartrate > 0 ? Math.round(data.heartrate) : 0)
-      // Elapsed Time: Seconds with a resolution of 1
-      bufferBuilder.writeUInt16LE(data.totalMovingTime > 0 ? Math.round(data.totalMovingTime) : 0)
+    // see https://www.bluetooth.com/specifications/specs/gatt-specification-supplement-3/
+    // for some of the data types
+    // Stroke Rate in stroke/minute, value is multiplied by 2 to have a .5 precision
+    bufferBuilder.writeUInt8(data.cycleStrokeRate > 0 ? Math.round(data.cycleStrokeRate * 2) : 0)
+    // Stroke Count
+    bufferBuilder.writeUInt16LE(data.totalNumberOfStrokes > 0 ? Math.round(data.totalNumberOfStrokes) : 0)
+    // Total Distance in meters
+    bufferBuilder.writeUInt24LE(data.totalLinearDistance > 0 ? Math.round(data.totalLinearDistance) : 0)
+    // Instantaneous Pace in seconds/500m
+    // if split is infinite (i.e. while pausing), should use the highest possible number (0xFFFF)
+    // todo: eventhough mathematically correct, setting 0xFFFF (65535s) causes some ugly spikes
+    // in some applications which could shift the axis (i.e. workout diagrams in MyHomeFit)
+    // so instead for now we use 0 here
+    bufferBuilder.writeUInt16LE(data.cyclePace !== Infinity && data.cyclePace < 65535 ? Math.round(data.cyclePace) : 0xFFFF)
+    // Instantaneous Power in watts
+    bufferBuilder.writeUInt16LE(data.cyclePower > 0 ? Math.round(data.cyclePower) : 0)
+    // Energy in kcal
+    // Total energy in kcal
+    bufferBuilder.writeUInt16LE(data.totalCalories > 0 ? Math.round(data.totalCalories) : 0)
+    // Energy per hour
+    // The Energy per Hour field represents the average expended energy of a user during a
+    // period of one hour.
+    bufferBuilder.writeUInt16LE(data.totalCaloriesPerHour > 0 ? Math.round(data.totalCaloriesPerHour) : 0)
+    // Energy per minute
+    bufferBuilder.writeUInt8(data.totalCaloriesPerMinute > 0 ? Math.round(data.totalCaloriesPerMinute) : 0)
+    // Heart Rate: Beats per minute with a resolution of 1
+    bufferBuilder.writeUInt8(data.heartrate > 0 ? Math.round(data.heartrate) : 0)
+    // Elapsed Time: Seconds with a resolution of 1
+    bufferBuilder.writeUInt16LE(data.totalMovingTime > 0 ? Math.round(data.totalMovingTime) : 0)
 
-      const buffer = bufferBuilder.getBuffer()
-      if (buffer.length > this._subscriberMaxValueSize) {
-        log.warn(`RowerDataCharacteristic - notification of ${buffer.length} bytes is too large for the subscriber`)
-      }
-      this._updateValueCallback(bufferBuilder.getBuffer())
-    }
-    return this.RESULT_SUCCESS
+    super.notify(bufferBuilder.getBuffer())
   }
 }
 

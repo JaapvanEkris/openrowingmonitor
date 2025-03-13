@@ -2,15 +2,18 @@
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
-  The connected Central can remotly control some parameters or our rowing monitor via this Control Point
+  The connected Central can remotely control some parameters or our rowing monitor via this Control Point
 
   So far tested on:
     - Fulgaz: uses setIndoorBikeSimulationParameters
     - Zwift: uses startOrResume and setIndoorBikeSimulationParameters
 */
-import bleno from '@stoprocent/bleno'
-import log from 'loglevel'
+import NodeBleHost from 'ble-host'
+import logevel from 'loglevel'
+
 import { ResultOpCode } from '../common/CommonOpCodes.js'
+
+const log = logevel.getLogger('Peripherals')
 
 // see https://www.bluetooth.com/specifications/specs/fitness-machine-service-1-0 for details
 const ControlPointOpCode = {
@@ -38,58 +41,79 @@ const ControlPointOpCode = {
   responseCode: 0x80
 }
 
-export default class FitnessMachineControlPointCharacteristic extends bleno.Characteristic {
-  constructor (controlPointCallback) {
-    super({
-      // Fitness Machine Control Point
-      uuid: '2AD9',
-      value: null,
-      properties: ['write']
-    })
-
-    this.controlled = false
-    if (!controlPointCallback) { throw new Error('controlPointCallback required') }
-    this.controlPointCallback = controlPointCallback
+export class FitnessMachineControlPointCharacteristic {
+  get characteristic () {
+    return this.#characteristic
   }
 
-  // Central sends a command to the Control Point
-  // todo: handle offset and withoutResponse properly
-  onWriteRequest (data, offset, withoutResponse, callback) {
+  #controlled = false
+  #characteristic
+  #controlPointCallback
+
+  constructor (controlPointCallback) {
+    if (!controlPointCallback) { throw new Error('controlPointCallback required') }
+    this.#controlPointCallback = controlPointCallback
+
+    this.#characteristic = {
+      name: 'Fitness Machine Control Point',
+      uuid: 0x2AD9,
+      properties: ['write', 'indicate'],
+      onWrite: (connection, _needsResponse, opCode, callback) => {
+        log.debug(`FTMS control is called: ${opCode}`)
+        const response = this.#onWriteRequest(opCode)
+
+        if (this.#characteristic.indicate === undefined) {
+          throw new Error(`Characteristics ${this.#characteristic.name} has not been initialized`)
+        }
+
+        this.#characteristic.indicate(connection, response)
+        callback(NodeBleHost.AttErrors.SUCCESS) // actually only needs to be called when needsResponse is true
+      }
+    }
+  }
+
+  #onWriteRequest (data) {
     const opCode = data.readUInt8(0)
     switch (opCode) {
       case ControlPointOpCode.requestControl:
-        if (!this.controlled) {
-          if (this.controlPointCallback({ name: 'requestControl' })) {
+        if (!this.#controlled) {
+          // TODO: This does not work, becurse the controlPointCallback injected in PeripheralManager does not have a return value, it simply emits the control event
+          if (this.#controlPointCallback({
+            req: {
+              name: 'requestControl',
+              data: {},
+              client: null
+            }
+          })) {
             log.debug('FitnessMachineControlPointCharacteristic: requestControl successful')
-            this.controlled = true
-            callback(this.buildResponse(opCode, ResultOpCode.success))
-          } else {
-            callback(this.buildResponse(opCode, ResultOpCode.operationFailed))
+            this.#controlled = true
+
+            // TODO: This is never called in the current implementation
+            return this.#buildResponse(opCode, ResultOpCode.success)
           }
-        } else {
-          callback(this.buildResponse(opCode, ResultOpCode.controlNotPermitted))
+
+          return this.#buildResponse(opCode, ResultOpCode.operationFailed)
         }
-        break
+
+        return this.#buildResponse(opCode, ResultOpCode.controlNotPermitted)
 
       case ControlPointOpCode.reset:
-        this.handleSimpleCommand(ControlPointOpCode.reset, 'reset', callback)
         // as per spec the reset command shall also reset the control
-        this.controlled = false
-        break
+        this.#controlled = false
+        return this.#handleSimpleCommand(ControlPointOpCode.reset, 'reset')
 
       case ControlPointOpCode.startOrResume:
-        this.handleSimpleCommand(ControlPointOpCode.startOrResume, 'startOrResume', callback)
-        break
+        return this.#handleSimpleCommand(ControlPointOpCode.startOrResume, 'startOrResume')
 
       case ControlPointOpCode.stopOrPause: {
         const controlParameter = data.readUInt8(1)
         if (controlParameter === 1) {
-          this.handleSimpleCommand(ControlPointOpCode.stopOrPause, 'stop', callback)
+          return this.#handleSimpleCommand(ControlPointOpCode.stopOrPause, 'stop')
         } else if (controlParameter === 2) {
-          this.handleSimpleCommand(ControlPointOpCode.stopOrPause, 'pause', callback)
-        } else {
-          log.error(`FitnessMachineControlPointCharacteristic: stopOrPause with invalid controlParameter: ${controlParameter}`)
+          return this.#handleSimpleCommand(ControlPointOpCode.stopOrPause, 'pause')
         }
+
+        log.error(`FitnessMachineControlPointCharacteristic: stopOrPause with invalid controlParameter: ${controlParameter}`)
         break
       }
 
@@ -100,36 +124,43 @@ export default class FitnessMachineControlPointCharacteristic extends bleno.Char
         const grade = data.readInt16LE(3) * 0.01
         const crr = data.readUInt8(5) * 0.0001
         const cw = data.readUInt8(6) * 0.01
-        if (this.controlPointCallback({ name: 'setIndoorBikeSimulationParameters', value: { windspeed, grade, crr, cw } })) {
-          callback(this.buildResponse(opCode, ResultOpCode.success))
-        } else {
-          callback(this.buildResponse(opCode, ResultOpCode.operationFailed))
+        if (this.#controlPointCallback({ req: { name: 'setIndoorBikeSimulationParameters', data: { windspeed, grade, crr, cw }, client: null } })) {
+          return this.#buildResponse(opCode, ResultOpCode.success)
         }
-        break
+
+        return this.#buildResponse(opCode, ResultOpCode.operationFailed)
       }
 
-      default:
-        log.info(`FitnessMachineControlPointCharacteristic: opCode ${opCode} is not supported`)
-        callback(this.buildResponse(opCode, ResultOpCode.opCodeNotSupported))
+      // no default
     }
+
+    log.info(`FitnessMachineControlPointCharacteristic: opCode ${opCode} is not supported`)
+    return this.#buildResponse(opCode, ResultOpCode.opCodeNotSupported)
   }
 
-  handleSimpleCommand (opCode, opName, callback) {
-    if (this.controlled) {
-      if (this.controlPointCallback({ name: opName })) {
-        const response = this.buildResponse(opCode, ResultOpCode.success)
-        callback(response)
-      } else {
-        callback(this.buildResponse(opCode, ResultOpCode.operationFailed))
+  #handleSimpleCommand (opCode, opName) {
+    if (this.#controlled) {
+      if (this.#controlPointCallback({
+        req: {
+          name: opName,
+          data: {},
+          client: null
+        }
+      })) {
+        const response = this.#buildResponse(opCode, ResultOpCode.success)
+
+        return response
       }
-    } else {
-      log.info(`FitnessMachineControlPointCharacteristic: initating command '${opName}' requires 'requestControl'`)
-      callback(this.buildResponse(opCode, ResultOpCode.controlNotPermitted))
+
+      return this.#buildResponse(opCode, ResultOpCode.operationFailed)
     }
+
+    log.info(`FitnessMachineControlPointCharacteristic: initiating command '${opName}' requires 'requestControl'`)
+
+    return this.#buildResponse(opCode, ResultOpCode.controlNotPermitted)
   }
 
-  // build the response message as defined by the spec
-  buildResponse (opCode, resultCode) {
+  #buildResponse (opCode, resultCode) {
     const buffer = Buffer.alloc(3)
     buffer.writeUInt8(0x80, 0)
     buffer.writeUInt8(opCode, 1)
