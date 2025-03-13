@@ -1,33 +1,33 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  Starts the central manager in a forked thread since noble does not like
-  to run in the same thread as bleno
 */
 import EventEmitter from 'node:events'
-import child_process from 'child_process'
 
-function createBleHrmPeripheral () {
+import { HrmService } from './hrm/HrmService.js'
+
+export function createBleHrmPeripheral (bleManager) {
   const emitter = new EventEmitter()
+  let _hrmService
 
-  const bleHrmProcess = child_process.fork('./app/peripherals/ble/hrm/HrmService.js')
+  setup()
 
-  bleHrmProcess.on('message', (heartRateMeasurement) => {
-    emitter.emit('heartRateMeasurement', heartRateMeasurement)
-  })
+  async function setup () {
+    _hrmService = new HrmService(await bleManager.getManager())
 
-  function destroy () {
-    return new Promise(resolve => {
-      bleHrmProcess.kill()
-      bleHrmProcess.removeAllListeners()
-      resolve()
+    _hrmService.on('heartRateMeasurement', (data) => {
+      emitter.emit('heartRateMeasurement', data)
     })
+
+    await _hrmService.start()
+  }
+
+  async function destroy () {
+    _hrmService?.removeAllListeners()
+    await _hrmService?.stop()
   }
 
   return Object.assign(emitter, {
     destroy
   })
 }
-
-export { createBleHrmPeripheral }

@@ -5,19 +5,23 @@
   This manager creates the different Bluetooth Low Energy (BLE) Peripherals and allows
   switching between them
 */
-import { createFtmsPeripheral } from './ble/FtmsPeripheral.js'
-import { createPm5Peripheral } from './ble/Pm5Peripheral.js'
-import log from 'loglevel'
 import EventEmitter from 'node:events'
-import { createCpsPeripheral } from './ble/CpsPeripheral.js'
-import { createCscPeripheral } from './ble/CscPeripheral.js'
+
+import log from 'loglevel'
+
 import AntManager from './ant/AntManager.js'
+import { BleManager } from './ble/BleManager.js'
+
 import { createAntHrmPeripheral } from './ant/HrmPeripheral.js'
 import { createBleHrmPeripheral } from './ble/HrmPeripheral.js'
+import { createCpsPeripheral } from './ble/CpsPeripheral.js'
+import { createCscPeripheral } from './ble/CscPeripheral.js'
 import { createFEPeripheral } from './ant/FEPeripheral.js'
+import { createFtmsPeripheral } from './ble/FtmsPeripheral.js'
 import { createMQTTPeripheral } from './mqtt/mqtt.js'
+import { createPm5Peripheral } from './ble/Pm5Peripheral.js'
 
-const bleModes = ['FTMS', 'FTMSBIKE', 'PM5', 'CSC', 'CPS', 'OFF']
+const bleModes = ['FTMS', 'FTMSBIKE', 'PM5','CSC', 'CPS', 'OFF']
 const antModes = ['FE', 'OFF']
 const hrmModes = ['ANT', 'BLE', 'OFF']
 
@@ -25,6 +29,8 @@ export function createPeripheralManager (config) {
   const emitter = new EventEmitter()
   const mqttEnabled = (config.mqtt.mqttBroker !== '') && (config.mqtt.username !== '') && (config.mqtt.password !== '') && (config.mqtt.machineName !== '')
   let _antManager
+  let _bleManager
+
   let blePeripheral
   let bleMode
 
@@ -53,10 +59,11 @@ export function createPeripheralManager (config) {
   setupPeripherals()
 
   async function setupPeripherals () {
+    // The order is important, starting with the BLEs causes EBUSY error on the HCI socket on switching. I was not able to find the cause - its probably the order within the async initialization of the BleManager, but cannot find a proper fix
+    await createAntPeripheral(config.antPlusMode)
     await createHrmPeripheral(config.heartRateMode)
     if (config.heartRateMode === 'BLE') { await delay(10000) } // WORKAROUND for BLE-Fix. ToDo: remove the need for this delay in the bluetooth startup completely
     await createBlePeripheral(config.bluetoothMode)
-    await createAntPeripheral(config.antPlusMode)
   }
 
   // This function handles all incomming commands. As all commands are broadasted to all application parts,
@@ -103,11 +110,11 @@ export function createPeripheralManager (config) {
         await shutdownAllPeripherals()
         break
       default:
-        log.error(`PeripheralManager: Recieved unknown command: ${commandName}`)
+        log.error(`PeripheralManager: Received unknown command: ${commandName}`)
     }
   }
 
-  function switchBlePeripheralMode (newMode) {
+  async function switchBlePeripheralMode (newMode) {
     if (isPeripheralChangeInProgress) return
     isPeripheralChangeInProgress = true
     // if no mode was passed, select the next one from the list
@@ -115,7 +122,7 @@ export function createPeripheralManager (config) {
       newMode = bleModes[(bleModes.indexOf(bleMode) + 1) % bleModes.length]
     }
     config.bluetoothMode = newMode
-    createBlePeripheral(newMode)
+    await createBlePeripheral(newMode)
     isPeripheralChangeInProgress = false
   }
 
@@ -132,10 +139,20 @@ export function createPeripheralManager (config) {
   }
 
   async function createBlePeripheral (newMode) {
+    try {
+      if (_bleManager === undefined && newMode !== 'OFF') {
+        _bleManager = new BleManager()
+      }
+    } catch (error) {
+      log.error('BleManager creation error: ', error)
+      return
+    }
+
     if (blePeripheral) {
       await blePeripheral?.destroy()
       blePeripheral = undefined
     }
+
     switch (newMode) {
       case 'PM5':
         log.info('bluetooth profile: Concept2 PM5')
@@ -165,8 +182,15 @@ export function createPeripheralManager (config) {
       default:
         log.info('bluetooth profile: Off')
         bleMode = 'OFF'
+        try {
+          if (_bleManager && hrmMode !== 'BLE') {
+            _bleManager.close()
+          }
+        } catch (error) {
+          log.error(error)
+          return
+        }
     }
-    if (bleMode.toLocaleLowerCase() !== 'OFF'.toLocaleLowerCase()) { blePeripheral.triggerAdvertising() }
 
     emitter.emit('control', {
       req: {
@@ -177,14 +201,14 @@ export function createPeripheralManager (config) {
     })
   }
 
-  function switchAntPeripheralMode (newMode) {
+  async function switchAntPeripheralMode (newMode) {
     if (isPeripheralChangeInProgress) return
     isPeripheralChangeInProgress = true
     if (newMode === undefined) {
       newMode = antModes[(antModes.indexOf(antMode) + 1) % antModes.length]
     }
     config.antPlusMode = newMode
-    createAntPeripheral(newMode)
+    await createAntPeripheral(newMode)
     isPeripheralChangeInProgress = false
   }
 
@@ -192,19 +216,12 @@ export function createPeripheralManager (config) {
     if (antPeripheral) {
       await antPeripheral?.destroy()
       antPeripheral = undefined
-
-      try {
-        if (_antManager && hrmMode !== 'ANT' && newMode === 'OFF') { await _antManager.closeAntStick() }
-      } catch (error) {
-        log.error(error)
-        return
-      }
     }
 
     switch (newMode) {
       case 'FE':
         log.info('ant plus profile: FE')
-        if (!_antManager) {
+        if (_antManager === undefined) {
           _antManager = new AntManager()
         }
 
@@ -221,6 +238,12 @@ export function createPeripheralManager (config) {
       default:
         log.info('ant plus profile: Off')
         antMode = 'OFF'
+        try {
+          if (_antManager && hrmMode !== 'ANT') { await _antManager.closeAntStick() }
+        } catch (error) {
+          log.error(error)
+          return
+        }
     }
 
     emitter.emit('control', {
@@ -232,14 +255,14 @@ export function createPeripheralManager (config) {
     })
   }
 
-  function switchHrmMode (newMode) {
+  async function switchHrmMode (newMode) {
     if (isPeripheralChangeInProgress) return
     isPeripheralChangeInProgress = true
     if (newMode === undefined) {
       newMode = hrmModes[(hrmModes.indexOf(hrmMode) + 1) % hrmModes.length]
     }
     config.heartRateMode = newMode
-    createHrmPeripheral(newMode)
+    await createHrmPeripheral(newMode)
     isPeripheralChangeInProgress = false
   }
 
@@ -250,6 +273,7 @@ export function createPeripheralManager (config) {
       hrmPeripheral = undefined
       try {
         if (_antManager && newMode !== 'ANT' && antMode === 'OFF') { await _antManager.closeAntStick() }
+        if (_bleManager && newMode !== 'BLE' && bleMode === 'OFF') { _bleManager.close() }
       } catch (error) {
         log.error(error)
         return
@@ -259,7 +283,7 @@ export function createPeripheralManager (config) {
     switch (newMode) {
       case 'ANT':
         log.info('heart rate profile: ANT')
-        if (!_antManager) {
+        if (_antManager === undefined) {
           _antManager = new AntManager()
         }
 
@@ -275,7 +299,15 @@ export function createPeripheralManager (config) {
 
       case 'BLE':
         log.info('heart rate profile: BLE')
-        hrmPeripheral = createBleHrmPeripheral()
+        try {
+          if (_bleManager === undefined) {
+            _bleManager = new BleManager()
+          }
+        } catch (error) {
+          log.error('BleManager creation error: ', error)
+          return
+        }
+        hrmPeripheral = createBleHrmPeripheral(_bleManager)
         hrmMode = 'BLE'
         break
 
@@ -286,7 +318,7 @@ export function createPeripheralManager (config) {
 
     if (hrmMode.toLocaleLowerCase() !== 'OFF'.toLocaleLowerCase()) {
       hrmPeripheral.on('heartRateMeasurement', (heartRateMeasurement) => {
-        // Clear the HRM watchdog as new HRM data has been recieved
+        // Clear the HRM watchdog as new HRM data has been received
         clearTimeout(hrmWatchdogTimer)
         // Make sure we check the HRM validity here, so the rest of the app doesn't have to
         if (heartRateMeasurement.heartrate !== undefined && config.userSettings.restingHR <= heartRateMeasurement.heartrate && heartRateMeasurement.heartrate <= config.userSettings.maxHR) {
@@ -344,6 +376,7 @@ export function createPeripheralManager (config) {
       await antPeripheral?.destroy()
       await hrmPeripheral?.destroy()
       await _antManager?.closeAntStick()
+      _bleManager?.close()
       if (mqttEnabled) { await mqttPeripheral?.destroy() }
     } catch (error) {
       log.error('peripheral shutdown was unsuccessful, restart of Pi may required', error)

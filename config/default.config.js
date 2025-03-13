@@ -19,7 +19,8 @@ export default {
     // The default log level
     default: 'info',
     // The log level of of the rowing engine (stroke detection and physics model)
-    RowingEngine: 'warn'
+    RowingEngine: 'warn',
+    Peripherals: 'warn'
   },
 
   // Defines the GPIO Pin that is used to read the sensor data from the rowing machine
