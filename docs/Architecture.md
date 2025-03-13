@@ -324,13 +324,13 @@ It provides the following types of information:
 
 #### PeripheralManager
 
-The Peripheralmanager manages all BLE, ANT+ and MQTT perpherals. It is the source for heartrate data and can also send user commands.
+The Peripheralmanager manages all BLE, ANT+ and MQTT perpherals. It is the source for heartrate data and can also send user commands based on ANT+, BLE or MQTT input.
 
 #### RecordingManager
 
-RecordingManager is the base for all recording, recording uploading as well as all normal logging. It acts as a multiplexer over the various recorders, letting the datarecorders decide for themselves how to react to specific metrics and a limited set of relevant commands. The recorders record and will create a valid file content with accompanying meta-data.
+RecordingManager is the base for all recording, recording uploading as well as all normal logging. It acts as a multiplexer over the various recorders, letting the datarecorders decide for themselves how to react to specific metrics and a limited set of relevant commands. The recorders record data according their own rules (fitting with the content they need to generate) and will create a valid file content with accompanying meta-data.
 
-The RecordingManager also directly manages the uploaders and the filewriter: they take a file content and its meta-data amd upload it or write it to disk.
+The RecordingManager also directly manages the uploaders and the filewriter: they take thefile content and its meta-data from a recorder and upload it to a webservice or write it to disk.
 
 ## Major design decissions
 
