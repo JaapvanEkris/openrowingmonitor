@@ -6,6 +6,8 @@
   It provides a fit-file content, and some metadata for the filewriter and the file-uploaders
 
 */
+
+/* eslint-disable camelcase -- Imported parameters are not camelCase */
 import log from 'loglevel'
 import { createName } from './utils/decorators.js'
 import { createSeries } from '../engine/utils/Series.js'
