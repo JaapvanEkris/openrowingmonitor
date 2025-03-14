@@ -55,7 +55,7 @@ export function createIntervalsInterface (config) {
       })
       log.info('Intervals.icu interface: uploaded session data')
     } catch (error) {
-      console.log(error)
+      log.error(`Intervals.icu interface error: ${error}`)
     }
   }
 
