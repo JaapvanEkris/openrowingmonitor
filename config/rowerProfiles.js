@@ -9,6 +9,8 @@
   After you found good settings for your rowing device please send them to us (together with a raw recording
   of at least 10 strokes) so we can add the device here and start to maintain it.
 */
+
+/* eslint-disable camelcase */
 export default {
 
   // The default rower profile
