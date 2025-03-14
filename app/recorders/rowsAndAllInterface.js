@@ -52,7 +52,7 @@ export function createRowsAndAllInterface (config) {
       })
       log.info('RowsAndAll interface: uploaded session data')
     } catch (error) {
-      console.log(error)
+      log.error(`RowsAndAll interface error: ${error}`)
     }
   }
 
