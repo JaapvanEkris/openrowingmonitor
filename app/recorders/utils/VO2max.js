@@ -156,7 +156,7 @@ export function createVO2max (config) {
         Y = 10.26 - (0.93 * projectedTwoKTimeInMinutes)
         break
       default:
-        log.error('--- Intrapolated VO2Max calculation failed due to unknown gender being configured')  
+        log.error('--- Intrapolated VO2Max calculation failed due to unknown gender being configured')
     }
     return (Y * 1000) / config.userSettings.weight
   }
