@@ -2,6 +2,7 @@
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 */
+/* eslint-disable max-lines -- more tests is always better */
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 import { deepMerge } from '../tools/Helper.js'
