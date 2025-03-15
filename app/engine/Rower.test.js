@@ -7,6 +7,8 @@
   to Linear physics. The combination with all possible known rowers is tested when testing the above function RowingStatistics, as
   these statistics are dependent on these settings as well.
 */
+/* eslint-disable max-lines -- more tests is always better */
+/* eslint-disable max-statements -- more tests is always better */
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 import rowerProfiles from '../../config/rowerProfiles.js'
