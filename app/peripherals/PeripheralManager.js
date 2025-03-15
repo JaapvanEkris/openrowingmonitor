@@ -155,7 +155,7 @@ export function createPeripheralManager (config) {
     switch (newMode) {
       case 'PM5':
         log.info('bluetooth profile: Concept2 PM5')
-        blePeripheral = createPm5Peripheral(config)
+        blePeripheral = createPm5Peripheral(_bleManager, config)
         bleMode = 'PM5'
         break
       case 'FTMSBIKE':

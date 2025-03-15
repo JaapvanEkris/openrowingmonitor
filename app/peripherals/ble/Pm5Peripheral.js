@@ -7,93 +7,90 @@
 
   see: https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
 */
-import bleno from '@stoprocent/bleno'
-import { pm5Constants } from './pm5/Pm5Constants.js'
-import DeviceInformationService from './pm5/DeviceInformationService.js'
-import GapService from './pm5/GapService.js'
+import NodeBleHost from 'ble-host'
 import log from 'loglevel'
-import Pm5ControlService from './pm5/Pm5ControlService.js'
-import Pm5RowingService from './pm5/Pm5RowingService.js'
 
-export function createPm5Peripheral (config) {
-  const peripheralName = pm5Constants.name
-  const deviceInformationService = new DeviceInformationService()
-  const gapService = new GapService()
+import { pm5Constants, toC2128BitUUID } from './pm5/Pm5Constants.js'
+import { Pm5AppearanceService } from './pm5/Pm5AppearanceService.js'
+import { Pm5ControlService } from './pm5/control-service/Pm5ControlService.js'
+import { Pm5DeviceInformationService } from './pm5/Pm5DeviceInformationService.js'
+import { Pm5RowingService } from './pm5/rowing-service/Pm5RowingService.js'
+
+export function createPm5Peripheral (bleManager, config) {
+  const deviceInformationService = new Pm5DeviceInformationService()
+  const appearanceService = new Pm5AppearanceService()
   const controlService = new Pm5ControlService()
   const rowingService = new Pm5RowingService(config)
+  const gattServices = [appearanceService.gattService, controlService.gattService, deviceInformationService.gattService, rowingService.gattService]
 
-  bleno.on('stateChange', (state) => {
-    triggerAdvertising(state)
-  })
+  const advDataBuffer = new NodeBleHost.AdvertisingDataBuilder()
+    .addFlags(['leGeneralDiscoverableMode', 'brEdrNotSupported'])
+    .addLocalName(/* isComplete */ true, pm5Constants.name)
+    .build()
+  const scanResponseBuffer = new NodeBleHost.AdvertisingDataBuilder()
+    .add128BitServiceUUIDs(/* isComplete */ true, [toC2128BitUUID('0000')])
+    .build()
 
-  bleno.on('advertisingStart', (error) => {
-    if (!error) {
-      bleno.setServices(
-        [gapService, deviceInformationService, controlService, rowingService],
-        (error) => {
-          if (error) log.error(error)
-        })
-    }
-  })
+  let _manager
+  let _connection
 
-  bleno.on('accept', (clientAddress) => {
-    log.debug(`ble central connected: ${clientAddress}`)
-    bleno.updateRssi()
-  })
+  setup()
 
-  bleno.on('disconnect', (clientAddress) => {
-    log.debug(`ble central disconnected: ${clientAddress}`)
-  })
+  async function setup () {
+    _manager = await bleManager.getManager()
+    _manager.gattDb.setDeviceName(pm5Constants.name)
+    _manager.gattDb.addServices(gattServices)
+    _manager.setAdvertisingData(advDataBuffer)
+    _manager.setScanResponseData(scanResponseBuffer)
 
-  bleno.on('platform', (event) => {
-    log.debug('platform', event)
-  })
-  bleno.on('addressChange', (event) => {
-    log.debug('addressChange', event)
-  })
-  bleno.on('mtuChange', (event) => {
-    log.debug('mtuChange', event)
-  })
-  bleno.on('advertisingStartError', (event) => {
-    log.debug('advertisingStartError', event)
-  })
-  bleno.on('servicesSetError', (event) => {
-    log.debug('servicesSetError', event)
-  })
-  bleno.on('rssiUpdate', (event) => {
-    log.debug('rssiUpdate', event)
-  })
+    await triggerAdvertising()
+  }
 
-  function destroy () {
-    return new Promise((resolve) => {
-      bleno.disconnect()
-      bleno.removeAllListeners()
-      bleno.stopAdvertising(() => resolve())
+  async function triggerAdvertising () {
+    _connection = await new Promise((resolve) => {
+      _manager.startAdvertising({/* options */}, (_status, connection) => {
+        resolve(connection)
+      })
     })
+    log.debug(`PM5 Connection established, address: ${_connection.peerAddress}`)
+
+    await new Promise((resolve) => { _connection.gatt.exchangeMtu(resolve) })
+
+    _connection.once('disconnect', async () => {
+      log.debug(`PM5 client disconnected (address: ${_connection?.peerAddress}), restarting advertising`)
+      _connection = undefined
+      await triggerAdvertising()
+    }) // restart advertising after disconnect
   }
 
-  function triggerAdvertising (eventState) {
-    const activeState = eventState || bleno.state
-    if (activeState === 'poweredOn') {
-      bleno.startAdvertising(
-        peripheralName,
-        [gapService.uuid],
-        (error) => {
-          if (error) log.error(error)
-        }
-      )
-    } else {
-      bleno.stopAdvertising()
-    }
-  }
-
-  // present current rowing metrics to C2-PM5 central
+  // Records the last known rowing metrics to FTMS central
   function notifyData (data) {
     rowingService.notifyData(data)
   }
 
   // present current rowing status to C2-PM5 central
   function notifyStatus (status) {
+  }
+
+  function destroy () {
+    log.debug('Shutting down PM5 peripheral')
+
+    if (_manager !== undefined) {
+      gattServices.forEach((service) => {
+        _manager.gattDb.removeService(service)
+      })
+    }
+    return new Promise((resolve) => {
+      if (_connection !== undefined) {
+        log.debug('Terminating current PM5 connection')
+        _connection.removeAllListeners()
+        _connection.once('disconnect', resolve)
+        _connection.disconnect()
+
+        return
+      }
+      _manager?.stopAdvertising(resolve)
+    })
   }
 
   return {

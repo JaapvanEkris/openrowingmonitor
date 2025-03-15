@@ -1,0 +1,59 @@
+'use strict'
+/*
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
+
+  Implementation of the GeneralStatus as defined in:
+  https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
+*/
+import { BufferBuilder } from '../../BufferBuilder.js'
+import { GattNotifyCharacteristic } from '../../BleManager.js'
+
+import { toC2128BitUUID } from '../Pm5Constants.js'
+
+export class GeneralStatusCharacteristic extends GattNotifyCharacteristic {
+  #multiplexedCharacteristic
+
+  constructor (multiplexedCharacteristic) {
+    super({
+      name: 'General Status',
+      uuid: toC2128BitUUID('0031'),
+      properties: ['notify']
+    })
+    this.#multiplexedCharacteristic = multiplexedCharacteristic
+  }
+
+  notify (data) {
+    const bufferBuilder = new BufferBuilder()
+    // elapsedTime: UInt24LE in 0.01 sec
+    bufferBuilder.writeUInt24LE(Math.round(data.totalMovingTime * 100))
+    // distance: UInt24LE in 0.1 m
+    bufferBuilder.writeUInt24LE(data.totalLinearDistance > 0 ? Math.round(data.totalLinearDistance * 10) : 0)
+    // workoutType: UInt8: 0 WORKOUTTYPE_JUSTROW_NOSPLITS, 2 WORKOUTTYPE_FIXEDDIST_NOSPLITS, 4 WORKOUTTYPE_FIXEDTIME_NOSPLITS
+    bufferBuilder.writeUInt8(data.sessiontype === 'Distance' ? 2 : (data.sessiontype === 'Time' ? 4 : 0))
+    // intervalType: UInt8: 1 INTERVALTYPE_TIME, 2 INTERVALTYPE_DIST, 255 NONE
+    // ToDo: split down further to allow rest intervals when the PM5 schedule dictates it
+    bufferBuilder.writeUInt8(data.sessiontype === 'Distance' ? 2 : (data.sessiontype === 'Time' ? 1 : 255))
+    // workoutState: UInt8 0 WAITTOBEGIN, 1 WORKOUTROW, 10 WORKOUTEND
+    bufferBuilder.writeUInt8(data.sessionStatus === 'Rowing' ? 1 : (data.sessionStatus === 'WaitingForStart' ? 0 : 10))
+    // rowingState: UInt8 0 INACTIVE, 1 ACTIVE
+    bufferBuilder.writeUInt8(data.sessionStatus === 'Rowing' ? 1 : 0)
+    // strokeState: UInt8 2 DRIVING, 4 RECOVERY
+    bufferBuilder.writeUInt8(data.strokeState === 'WaitingForDrive' ? 0 : (data.strokeState === 'Drive' ? 2 : 4))
+    // totalWorkDistance: UInt24LE in 1 m
+    bufferBuilder.writeUInt24LE(data.totalLinearDistance > 0 ? Math.round(data.totalLinearDistance) : 0)
+    // workoutDuration: UInt24LE in 0.01 sec (if type TIME)
+    bufferBuilder.writeUInt24LE(Math.round(data.totalMovingTime * 100))
+    // workoutDurationType: UInt8 0 TIME, 0x40 CALORIES, 0x80 DISTANCE, 0xC0 WATTS
+    bufferBuilder.writeUInt8(data.sessiontype === 'Distance' ? 0x80 : 0)
+    // dragFactor: UInt8
+    bufferBuilder.writeUInt8(data.dragFactor > 0 ? Math.round(Math.min(data.dragFactor, 255)) : 0)
+
+    if (this.isSubscribed) {
+      super.notify(bufferBuilder.getBuffer())
+
+      return
+    }
+
+    this.#multiplexedCharacteristic.notify(0x31, bufferBuilder.getBuffer())
+  }
+}
