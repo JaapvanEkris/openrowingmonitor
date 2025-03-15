@@ -20,7 +20,7 @@ export function createVO2max (config) {
 
   function push (metrics) {
     VO2MaxResultIsCurrent = false
-    if (metrics.totalMovingTime > offset && !metrics.heartrate !== undefined && !isNaN(metrics.heartrate) && metrics.heartrate >= config.userSettings.restingHR && metrics.heartrate < config.userSettings.maxHR && !isNaN(metrics.cyclePower) && metrics.cyclePower > 0 && metrics.cyclePower <= config.userSettings.maxPower) {
+    if (metrics.totalMovingTime > offset && !!metrics.heartrate && !isNaN(metrics.heartrate) && metrics.heartrate >= config.userSettings.restingHR && metrics.heartrate < config.userSettings.maxHR && !isNaN(metrics.cyclePower) && metrics.cyclePower > 0 && metrics.cyclePower <= config.userSettings.maxPower) {
       // We are outside the startup noise and have numeric fields
       metricsArray.push({
         totalMovingTime: metrics.totalMovingTime,
@@ -155,6 +155,8 @@ export function createVO2max (config) {
         // Not highly trained female
         Y = 10.26 - (0.93 * projectedTwoKTimeInMinutes)
         break
+      default:
+        log.error('--- Intrapolated VO2Max calculation failed due to unknown gender being configured')  
     }
     return (Y * 1000) / config.userSettings.weight
   }
