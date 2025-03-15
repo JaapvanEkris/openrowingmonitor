@@ -5,6 +5,8 @@
   This tests the Quadratic Theil-Senn Regression algorithm. As regression is an estimation and methods have biasses,
   we need to accept some slack with respect to real-life examples
 */
+/* eslint-disable max-lines -- more tests is always better */
+/* eslint-disable max-statements -- more tests is always better */
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 
