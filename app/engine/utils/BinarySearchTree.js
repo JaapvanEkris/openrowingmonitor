@@ -145,6 +145,7 @@ export function createLabelledBinarySearchTree () {
             currentTree.rightNode = destroyClostestSuccessor(currentTree.rightNode)
           }
           break
+        // no default
       }
     }
 
@@ -166,6 +167,7 @@ export function createLabelledBinarySearchTree () {
       case (currentTree.leftNode !== null && currentTree.rightNode !== null):
         currentTree.numberOfLeafsAndNodes = currentTree.leftNode.numberOfLeafsAndNodes + currentTree.rightNode.numberOfLeafsAndNodes + 1
         break
+      // no default
     }
     return currentTree
   }
