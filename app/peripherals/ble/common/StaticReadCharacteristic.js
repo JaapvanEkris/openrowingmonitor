@@ -3,7 +3,7 @@
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 */
 
-export default function createStaticReadCharacteristic (uuid, value, description, addNotify = false) {
+export function createStaticReadCharacteristic (uuid, value, description, addNotify = false) {
   const descriptors = description !== undefined
     ? [
         {

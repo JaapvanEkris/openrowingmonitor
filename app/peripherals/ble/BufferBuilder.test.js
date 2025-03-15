@@ -2,10 +2,12 @@
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 */
-import { test } from 'uvu'
 import * as assert from 'uvu/assert'
-import BufferBuilder from './BufferBuilder.js'
 import log from 'loglevel'
+import { test } from 'uvu'
+
+import { BufferBuilder } from './BufferBuilder.js'
+
 log.setLevel(log.levels.SILENT)
 
 test('valid max UInts should produce correct buffer', () => {

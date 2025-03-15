@@ -11,7 +11,7 @@
   The Server should notify this characteristic at a regular interval, typically once per second
   while in a connection and the interval is not configurable by the Client
 */
-import BufferBuilder from '../BufferBuilder.js'
+import { BufferBuilder } from '../BufferBuilder.js'
 import { GattNotifyCharacteristic } from '../BleManager.js'
 
 export class RowerDataCharacteristic extends GattNotifyCharacteristic {

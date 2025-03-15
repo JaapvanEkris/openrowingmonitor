@@ -7,7 +7,7 @@
 import { PeripheralConstants } from '../../PeripheralConstants.js'
 
 import { GattService } from '../BleManager.js'
-import createStaticReadCharacteristic from './StaticReadCharacteristic.js'
+import { createStaticReadCharacteristic } from './StaticReadCharacteristic.js'
 
 export class DeviceInformationService extends GattService {
   constructor () {

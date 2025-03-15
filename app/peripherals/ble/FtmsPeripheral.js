@@ -14,7 +14,7 @@
 import NodeBleHost from 'ble-host'
 import loglevel from 'loglevel'
 
-import DeviceInformationService from './common/DeviceInformationService.js'
+import { DeviceInformationService } from './common/DeviceInformationService.js'
 import { FitnessMachineService } from './ftms/FitnessMachineService.js'
 
 const log = loglevel.getLogger('Peripherals')

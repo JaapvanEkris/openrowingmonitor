@@ -15,9 +15,9 @@
   - Fitness Machine Status Characteristic
   - Fitness Machine Control Point Characteristic
 */
-import BufferBuilder from '../BufferBuilder.js'
+import { BufferBuilder } from '../BufferBuilder.js'
 import { GattService } from '../BleManager.js'
-import createStaticReadCharacteristic from '../common/StaticReadCharacteristic.js'
+import { createStaticReadCharacteristic } from '../common/StaticReadCharacteristic.js'
 
 import { FitnessMachineControlPointCharacteristic } from './FitnessMachineControlPointCharacteristic.js'
 import { FitnessMachineStatusCharacteristic } from './FitnessMachineStatusCharacteristic.js'

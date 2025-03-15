@@ -6,7 +6,7 @@
 */
 import log from 'loglevel'
 
-export default class BufferBuilder {
+export class BufferBuilder {
   constructor () {
     this._dataArray = []
   }
