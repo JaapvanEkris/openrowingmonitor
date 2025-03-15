@@ -9,6 +9,8 @@
 
   ToDo: test the effects of smoothing parameters
 */
+/* eslint-disable max-lines -- more tests is always better */
+/* eslint-disable max-statements -- more tests is always better */
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 import rowerProfiles from '../../config/rowerProfiles.js'
