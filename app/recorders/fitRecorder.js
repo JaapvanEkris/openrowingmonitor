@@ -463,88 +463,93 @@ export function createFITRecorder (config) {
   }
 
   async function createActiveLap (writer, lapdata) {
-    // It is an active lap, so write all underlying records
-    let i = 0
-    while (i < lapdata.strokes.length) {
-      await createTrackPoint(writer, lapdata.strokes[i])
-      i++
-    }
+    // It is an active lap, after we make sure it is a completed lap, we can write all underlying records
+    if (!!lapdata.totalMovingTime && lapdata.totalMovingTime > 0 && !!lapdata.totalLinearDistance && lapdata.totalLinearDistance > 0) {
+      let i = 0
+      while (i < lapdata.strokes.length) {
+        await createTrackPoint(writer, lapdata.strokes[i])
+        i++
+      }
 
-    // Conclude the lap with a summary
-    // See https://developer.garmin.com/fit/cookbook/durations/ for how the different times are defined
-    writer.writeMessage(
-      'lap',
-      {
-        timestamp: writer.time(lapdata.endTime),
-        message_index: lapdata.lapNumber - 1,
-        sport: 'rowing',
-        sub_sport: 'indoorRowing',
-        event: 'lap',
-        wkt_step_index: lapdata.workoutStepNumber,
-        event_type: 'stop',
-        intensity: lapdata.intensity,
-        ...(sessionData.totalNoLaps === lapdata.lapNumber ? { lap_trigger: 'sessionEnd' } : { lap_trigger: 'fitnessEquipment' }),
-        start_time: writer.time(lapdata.startTime),
-        total_elapsed_time: Math.abs(lapdata.endTime - lapdata.startTime) / 1000,
-        total_timer_time: Math.abs(lapdata.endTime - lapdata.startTime) / 1000,
-        total_moving_time: lapdata.totalMovingTime,
-        total_distance: lapdata.totalLinearDistance,
-        total_cycles: lapdata.numberOfStrokes,
-        avg_cadence: lapdata.averageStrokeRate,
-        max_cadence: lapdata.maximumStrokeRate,
-        avg_stroke_distance: lapdata.averageStrokeDistance,
-        total_calories: lapdata.totalCalories,
-        avg_speed: lapdata.averageSpeed,
-        max_speed: lapdata.maximumSpeed,
-        avg_power: lapdata.averagePower,
-        max_power: lapdata.maximumPower,
-        ...(lapdata.averageHeartrate > 0 ? { avg_heart_rate: lapdata.averageHeartrate } : {}),
-        ...(lapdata.maximumHeartrate > 0 ? { max_heart_rate: lapdata.maximumHeartrate } : {})
-      },
-      null,
-      sessionData.totalNoLaps === lapdata.lapNumber
-    )
+      // Conclude the lap with a summary
+      // See https://developer.garmin.com/fit/cookbook/durations/ for how the different times are defined
+      writer.writeMessage(
+        'lap',
+        {
+          timestamp: writer.time(lapdata.endTime),
+          message_index: lapdata.lapNumber - 1,
+          sport: 'rowing',
+          sub_sport: 'indoorRowing',
+          event: 'lap',
+          wkt_step_index: lapdata.workoutStepNumber,
+          event_type: 'stop',
+          intensity: lapdata.intensity,
+          ...(sessionData.totalNoLaps === lapdata.lapNumber ? { lap_trigger: 'sessionEnd' } : { lap_trigger: 'fitnessEquipment' }),
+          start_time: writer.time(lapdata.startTime),
+          total_elapsed_time: Math.abs(lapdata.endTime - lapdata.startTime) / 1000,
+          total_timer_time: Math.abs(lapdata.endTime - lapdata.startTime) / 1000,
+          total_moving_time: lapdata.totalMovingTime,
+          total_distance: lapdata.totalLinearDistance,
+          total_cycles: lapdata.numberOfStrokes,
+          avg_cadence: lapdata.averageStrokeRate,
+          max_cadence: lapdata.maximumStrokeRate,
+          avg_stroke_distance: lapdata.averageStrokeDistance,
+          total_calories: lapdata.totalCalories,
+          avg_speed: lapdata.averageSpeed,
+          max_speed: lapdata.maximumSpeed,
+          avg_power: lapdata.averagePower,
+          max_power: lapdata.maximumPower,
+          ...(lapdata.averageHeartrate > 0 ? { avg_heart_rate: lapdata.averageHeartrate } : {}),
+          ...(lapdata.maximumHeartrate > 0 ? { max_heart_rate: lapdata.maximumHeartrate } : {})
+        },
+        null,
+        sessionData.totalNoLaps === lapdata.lapNumber
+      )
+    }
   }
 
   async function createRestLap (writer, lapdata) {
-    // Pause the session with a stop event at the begin of the rest interval
-    await addTimerEvent(writer, lapdata.startTime, 'stopAll')
+    // First, make sure the rest lap is complete
+    if (!!lapdata.endTime && lapdata.endTime > 0 && !!lapdata.startTime && lapdata.startTime > 0) {
+      // Pause the session with a stop event at the begin of the rest interval
+      await addTimerEvent(writer, lapdata.startTime, 'stopAll')
 
-    // Add a rest lap summary
-    // See https://developer.garmin.com/fit/cookbook/durations/ for how the different times are defined
-    writer.writeMessage(
-      'lap',
-      {
-        timestamp: writer.time(lapdata.endTime),
-        message_index: lapdata.lapNumber - 1,
-        sport: 'rowing',
-        sub_sport: 'indoorRowing',
-        event: 'lap',
-        wkt_step_index: lapdata.workoutStepNumber,
-        event_type: 'stop',
-        intensity: lapdata.intensity,
-        lap_trigger: 'fitnessEquipment',
-        start_time: writer.time(lapdata.startTime),
-        total_elapsed_time: Math.abs(lapdata.endTime - lapdata.startTime) / 1000,
-        total_timer_time: Math.abs(lapdata.endTime - lapdata.startTime) / 1000,
-        total_moving_time: 0,
-        total_distance: 0,
-        total_cycles: 0,
-        avg_cadence: 0,
-        max_cadence: 0,
-        avg_stroke_distance: 0,
-        total_calories: 0,
-        avg_speed: 0,
-        max_speed: 0,
-        avg_power: 0,
-        max_power: 0
-      },
-      null,
-      sessionData.totalNoLaps === lapdata.lapNumber
-    )
+      // Add a rest lap summary
+      // See https://developer.garmin.com/fit/cookbook/durations/ for how the different times are defined
+      writer.writeMessage(
+        'lap',
+        {
+          timestamp: writer.time(lapdata.endTime),
+          message_index: lapdata.lapNumber - 1,
+          sport: 'rowing',
+          sub_sport: 'indoorRowing',
+          event: 'lap',
+          wkt_step_index: lapdata.workoutStepNumber,
+          event_type: 'stop',
+          intensity: lapdata.intensity,
+          lap_trigger: 'fitnessEquipment',
+          start_time: writer.time(lapdata.startTime),
+          total_elapsed_time: Math.abs(lapdata.endTime - lapdata.startTime) / 1000,
+          total_timer_time: Math.abs(lapdata.endTime - lapdata.startTime) / 1000,
+          total_moving_time: 0,
+          total_distance: 0,
+          total_cycles: 0,
+          avg_cadence: 0,
+          max_cadence: 0,
+          avg_stroke_distance: 0,
+          total_calories: 0,
+          avg_speed: 0,
+          max_speed: 0,
+          avg_power: 0,
+          max_power: 0
+        },
+        null,
+        sessionData.totalNoLaps === lapdata.lapNumber
+      )
 
-    // Restart of the session
-    await addTimerEvent(writer, lapdata.endTime, 'start')
+      // Restart of the session
+      await addTimerEvent(writer, lapdata.endTime, 'start')
+    }
   }
 
   async function createTrackPoint (writer, trackpoint) {
