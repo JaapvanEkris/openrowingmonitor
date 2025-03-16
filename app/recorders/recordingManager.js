@@ -30,6 +30,8 @@ export function createRecordingManager (config) {
   const recordTcxData = config.createTcxFiles || config.stravaClientId !== ''
   const recordFitData = config.createFitFiles || config.userSettings.intervals.upload
   const recordRowingData = config.createRowingDataFiles || config.userSettings.rowsAndAll.upload
+  let writeTimer
+  let uploadTimer
 
   // This function handles all incomming commands. As all commands are broadasted to all application parts,
   // we need to filter here what the WorkoutRecorder will react to and what it will ignore
@@ -96,10 +98,15 @@ export function createRecordingManager (config) {
     if (recordRowingData) { rowingDataRecorder.recordRowingMetrics(metrics) }
     allRecordingsHaveBeenUploaded = false
 
+    if (metrics.metricsContext.isPauseEnd) {
+      clearTimeout(writeTimer)
+      clearTimeout(uploadTimer)
+    }
+
     if (metrics.metricsContext.isSessionStop || metrics.metricsContext.isPauseStart) {
       writeRecordings()
-      setTimeout(writeRecordings, 195000)
-      setTimeout(uploadRecordings, 200000)
+      writeTimer = setTimeout(writeRecordings, 189000)
+      uploadTimer = setTimeout(uploadRecordings, 190000)
     }
   }
 
