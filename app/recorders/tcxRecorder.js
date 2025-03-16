@@ -242,6 +242,7 @@ export function createTCXRecorder (config) {
 
   async function createActiveLap (lapdata) {
     let tcxData = ''
+    // Make sure the lap is complete
     if (!!lapdata.totalMovingTime && lapdata.totalMovingTime > 0 && !!lapdata.totalLinearDistance && lapdata.totalLinearDistance > 0) {
       tcxData += `      <Lap StartTime="${lapdata.startTime.toISOString()}">\n`
       tcxData += `        <TotalTimeSeconds>${lapdata.totalMovingTime.toFixed(1)}</TotalTimeSeconds>\n`
@@ -278,6 +279,7 @@ export function createTCXRecorder (config) {
 
   async function createRestLap (lapdata) {
     let tcxData = ''
+    // Make sure the lap is complete
     if (!!lapdata.endTime && lapdata.endTime > 0) {
       tcxData += `      <Lap StartTime="${lapdata.startTime.toISOString()}">\n`
       tcxData += `        <TotalTimeSeconds>${(lapdata.endTime - lapdata.startTime).toFixed(1)}</TotalTimeSeconds>\n`
