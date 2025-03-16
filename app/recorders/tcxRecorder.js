@@ -242,48 +242,52 @@ export function createTCXRecorder (config) {
 
   async function createActiveLap (lapdata) {
     let tcxData = ''
-    tcxData += `      <Lap StartTime="${lapdata.startTime.toISOString()}">\n`
-    tcxData += `        <TotalTimeSeconds>${lapdata.totalMovingTime.toFixed(1)}</TotalTimeSeconds>\n`
-    tcxData += `        <DistanceMeters>${lapdata.totalLinearDistance.toFixed(1)}</DistanceMeters>\n`
-    tcxData += `        <MaximumSpeed>${lapdata.maximumSpeed.toFixed(2)}</MaximumSpeed>\n`
-    tcxData += `        <Calories>${Math.round(lapdata.totalCalories)}</Calories>\n`
-    if (!isNaN(lapdata.averageHeartrate) && lapdata.averageHeartrate > 0 && !isNaN(lapdata.maximumHeartrate) && lapdata.maximumHeartrate > 0) {
-      tcxData += `        <AverageHeartRateBpm>${Math.round(lapdata.averageHeartrate.toFixed(0))}</AverageHeartRateBpm>\n`
-      tcxData += `        <MaximumHeartRateBpm>${Math.round(lapdata.maximumHeartrate.toFixed(0))}</MaximumHeartRateBpm>\n`
+    if (!!lapdata.totalMovingTime && lapdata.totalMovingTime > 0 && !!lapdata.totalLinearDistance && lapdata.totalLinearDistance > 0) {
+      tcxData += `      <Lap StartTime="${lapdata.startTime.toISOString()}">\n`
+      tcxData += `        <TotalTimeSeconds>${lapdata.totalMovingTime.toFixed(1)}</TotalTimeSeconds>\n`
+      tcxData += `        <DistanceMeters>${lapdata.totalLinearDistance.toFixed(1)}</DistanceMeters>\n`
+      tcxData += `        <MaximumSpeed>${lapdata.maximumSpeed.toFixed(2)}</MaximumSpeed>\n`
+      tcxData += `        <Calories>${Math.round(lapdata.totalCalories)}</Calories>\n`
+      if (!!lapdata.averageHeartrate && !isNaN(lapdata.averageHeartrate) && lapdata.averageHeartrate > 0 && !isNaN(lapdata.maximumHeartrate) && lapdata.maximumHeartrate > 0) {
+        tcxData += `        <AverageHeartRateBpm>${Math.round(lapdata.averageHeartrate.toFixed(0))}</AverageHeartRateBpm>\n`
+        tcxData += `        <MaximumHeartRateBpm>${Math.round(lapdata.maximumHeartrate.toFixed(0))}</MaximumHeartRateBpm>\n`
+      }
+      tcxData += `        <Intensity>${lapdata.intensity}</Intensity>\n`
+      tcxData += `        <Cadence>${lapdata.averageStrokeRate.toFixed(0)}</Cadence>\n`
+      tcxData += '        <TriggerMethod>Manual</TriggerMethod>\n'
+      tcxData += '        <Track>\n'
+      // Add the strokes
+      let i = 0
+      while (i < lapdata.strokes.length) {
+        tcxData += await createTrackPoint(lapdata.strokes[i])
+        i++
+      }
+      tcxData += '        </Track>\n'
+      tcxData += '        <Extensions>\n'
+      tcxData += '          <ns2:LX>\n'
+      tcxData += `            <ns2:Steps>${lapdata.numberOfStrokes.toFixed(0)}</ns2:Steps>\n`
+      tcxData += `            <ns2:AvgSpeed>${lapdata.averageSpeed.toFixed(2)}</ns2:AvgSpeed>\n`
+      tcxData += `            <ns2:AvgWatts>${lapdata.averagePower.toFixed(0)}</ns2:AvgWatts>\n`
+      tcxData += `            <ns2:MaxWatts>${lapdata.maximumPower.toFixed(0)}</ns2:MaxWatts>\n`
+      tcxData += '          </ns2:LX>\n'
+      tcxData += '        </Extensions>\n'
+      tcxData += '      </Lap>\n'
     }
-    tcxData += `        <Intensity>${lapdata.intensity}</Intensity>\n`
-    tcxData += `        <Cadence>${lapdata.averageStrokeRate.toFixed(0)}</Cadence>\n`
-    tcxData += '        <TriggerMethod>Manual</TriggerMethod>\n'
-    tcxData += '        <Track>\n'
-    // Add the strokes
-    let i = 0
-    while (i < lapdata.strokes.length) {
-      tcxData += await createTrackPoint(lapdata.strokes[i])
-      i++
-    }
-    tcxData += '        </Track>\n'
-    tcxData += '        <Extensions>\n'
-    tcxData += '          <ns2:LX>\n'
-    tcxData += `            <ns2:Steps>${lapdata.numberOfStrokes.toFixed(0)}</ns2:Steps>\n`
-    tcxData += `            <ns2:AvgSpeed>${lapdata.averageSpeed.toFixed(2)}</ns2:AvgSpeed>\n`
-    tcxData += `            <ns2:AvgWatts>${lapdata.averagePower.toFixed(0)}</ns2:AvgWatts>\n`
-    tcxData += `            <ns2:MaxWatts>${lapdata.maximumPower.toFixed(0)}</ns2:MaxWatts>\n`
-    tcxData += '          </ns2:LX>\n'
-    tcxData += '        </Extensions>\n'
-    tcxData += '      </Lap>\n'
     return tcxData
   }
 
   async function createRestLap (lapdata) {
     let tcxData = ''
-    tcxData += `      <Lap StartTime="${lapdata.startTime.toISOString()}">\n`
-    tcxData += `        <TotalTimeSeconds>${(lapdata.endTime - lapdata.startTime).toFixed(1)}</TotalTimeSeconds>\n`
-    tcxData += '        <DistanceMeters>0</DistanceMeters>\n'
-    tcxData += '        <MaximumSpeed>0</MaximumSpeed>\n'
-    tcxData += '        <Calories>0</Calories>\n'
-    tcxData += `        <Intensity>${lapdata.intensity}</Intensity>\n`
-    tcxData += '        <TriggerMethod>Manual</TriggerMethod>\n'
-    tcxData += '      </Lap>\n'
+    if (!!lapdata.endTime && lapdata.endTime > 0) {
+      tcxData += `      <Lap StartTime="${lapdata.startTime.toISOString()}">\n`
+      tcxData += `        <TotalTimeSeconds>${(lapdata.endTime - lapdata.startTime).toFixed(1)}</TotalTimeSeconds>\n`
+      tcxData += '        <DistanceMeters>0</DistanceMeters>\n'
+      tcxData += '        <MaximumSpeed>0</MaximumSpeed>\n'
+      tcxData += '        <Calories>0</Calories>\n'
+      tcxData += `        <Intensity>${lapdata.intensity}</Intensity>\n`
+      tcxData += '        <TriggerMethod>Manual</TriggerMethod>\n'
+      tcxData += '      </Lap>\n'
+    }
     return tcxData
   }
 
