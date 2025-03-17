@@ -57,6 +57,8 @@ export function createFITRecorder (config) {
           updateLapMetrics(lastMetrics)
           updateSessionMetrics(lastMetrics)
           addMetricsToStrokesArray(lastMetrics)
+          calculateLapMetrics(lastMetrics)
+          calculateSessionMetrics(lastMetrics)
         }
         heartRate = 0
         lapnumber = 0
@@ -79,6 +81,8 @@ export function createFITRecorder (config) {
           updateLapMetrics(lastMetrics)
           updateSessionMetrics(lastMetrics)
           addMetricsToStrokesArray(lastMetrics)
+          calculateLapMetrics(lastMetrics)
+          calculateSessionMetrics(lastMetrics)
         }
         break
       default:
