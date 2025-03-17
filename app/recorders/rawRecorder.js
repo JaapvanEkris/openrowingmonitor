@@ -21,9 +21,6 @@ export function createRawRecorder () {
       case ('updateIntervalSettings'):
         break
       case ('reset'):
-        rotationImpulses = null
-        rotationImpulses = []
-        allDataHasBeenWritten = true
         break
       case 'shutdown':
         break
@@ -90,6 +87,12 @@ export function createRawRecorder () {
     return []
   }
 
+  function reset () {
+    rotationImpulses = null
+    rotationImpulses = []
+    allDataHasBeenWritten = true
+  }
+
   return {
     recordRotationImpulse,
     recordRowingMetrics,
@@ -104,6 +107,7 @@ export function createRawRecorder () {
     sessionDrag,
     sessionVO2Max,
     sessionHRR,
-    allDataHasBeenWritten
+    allDataHasBeenWritten,
+    reset
   }
 }
