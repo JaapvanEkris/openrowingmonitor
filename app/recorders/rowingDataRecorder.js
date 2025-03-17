@@ -36,19 +36,6 @@ export function createRowingDataRecorder (config) {
         if (lastMetrics !== undefined && !!lastMetrics.metricsContext && lastMetrics.metricsContext.isMoving && lastMetrics.length > 0 && lastMetrics.totalMovingTime > strokes[strokes.length - 1].totalMovingTime) {
           addMetricsToStrokesArray(lastMetrics)
         }
-        startTime = undefined
-        heartRate = 0
-        strokes = null
-        strokes = []
-        rowingDataFileContent = null
-        rowingDataFileContent = {}
-        postExerciseHR = null
-        postExerciseHR = []
-        VO2max.reset()
-        drag.reset()
-        lastMetrics = null
-        lastMetrics = {}
-        allDataHasBeenWritten = true
         break
       case 'shutdown':
         if (lastMetrics !== undefined && !!lastMetrics.metricsContext && lastMetrics.metricsContext.isMoving && lastMetrics.length > 0 && lastMetrics.totalMovingTime > strokes[strokes.length - 1].totalMovingTime) {
@@ -228,6 +215,22 @@ export function createRowingDataRecorder (config) {
     }
   }
 
+  function reset () {
+    startTime = undefined
+    heartRate = 0
+    strokes = null
+    strokes = []
+    rowingDataFileContent = null
+    rowingDataFileContent = {}
+    postExerciseHR = null
+    postExerciseHR = []
+    VO2max.reset()
+    drag.reset()
+    lastMetrics = null
+    lastMetrics = {}
+    allDataHasBeenWritten = true
+  }
+
   return {
     handleCommand,
     recordRowingMetrics,
@@ -242,6 +245,7 @@ export function createRowingDataRecorder (config) {
     sessionDrag,
     sessionVO2Max,
     sessionHRR,
-    allDataHasBeenWritten
+    allDataHasBeenWritten,
+    reset
   }
 }
