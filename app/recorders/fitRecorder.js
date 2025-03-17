@@ -60,20 +60,6 @@ export function createFITRecorder (config) {
           calculateLapMetrics(lastMetrics)
           calculateSessionMetrics(lastMetrics)
         }
-        heartRate = 0
-        lapnumber = 0
-        resetSessionMetrics()
-        resetLapMetrics()
-        sessionData = null
-        sessionData = {}
-        sessionData.workoutplan = []
-        sessionData.workoutplan[0] = { type: 'justrow' }
-        sessionData.lap = []
-        postExerciseHR = null
-        postExerciseHR = []
-        VO2max.reset()
-        drag.reset()
-        lastMetrics = {}
         break
       case 'shutdown':
         if (lastMetrics !== undefined && !!lastMetrics.metricsContext && lastMetrics.metricsContext.isMoving && lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
@@ -740,6 +726,26 @@ export function createFITRecorder (config) {
     }
   }
 
+  function reset () {
+    heartRate = 0
+    lapnumber = 0
+    resetSessionMetrics()
+    resetLapMetrics()
+    sessionData = null
+    sessionData = {}
+    sessionData.workoutplan = []
+    sessionData.workoutplan[0] = { type: 'justrow' }
+    sessionData.lap = []
+    postExerciseHR = null
+    postExerciseHR = []
+    VO2max.reset()
+    drag.reset()
+    lastMetrics = {}
+    fitfileContent = null
+    fitfileContentIsCurrent = true
+    allDataHasBeenWritten = true
+  }
+
   return {
     handleCommand,
     setIntervalParameters,
@@ -755,6 +761,7 @@ export function createFITRecorder (config) {
     sessionDrag,
     sessionVO2Max,
     sessionHRR,
-    allDataHasBeenWritten
+    allDataHasBeenWritten,
+    reset
   }
 }
