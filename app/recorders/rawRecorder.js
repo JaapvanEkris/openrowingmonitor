@@ -21,8 +21,7 @@ export function createRawRecorder () {
       case ('updateIntervalSettings'):
         break
       case ('reset'):
-        break
-      case 'shutdown':
+      case ('shutdown'):
         break
       default:
         log.error(`rawRecorder: Recieved unknown command: ${commandName}`)
