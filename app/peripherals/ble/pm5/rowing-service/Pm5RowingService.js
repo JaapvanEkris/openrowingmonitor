@@ -26,6 +26,7 @@ import { AdditionalStatusCharacteristic } from './AdditionalStatusCharacteristic
 import { AdditionalStrokeDataCharacteristic } from './AdditionalStrokeDataCharacteristic.js'
 import { GeneralStatusCharacteristic } from './GeneralStatusCharacteristic.js'
 import { MultiplexedCharacteristic } from './MultiplexedCharacteristic.js'
+import { SampleRateCharacteristic } from './SampleRateCharacteristic.js'
 import { StrokeDataCharacteristic } from './StrokeDataCharacteristic.js'
 
 export class Pm5RowingService extends GattService {
@@ -37,8 +38,8 @@ export class Pm5RowingService extends GattService {
   #additionalStrokeData
 
   #lastKnownMetrics
-  #broadcastInterval = 1_000
   #timer
+  #config
 
   constructor (config) {
     const multiplexedCharacteristic = new MultiplexedCharacteristic()
@@ -61,6 +62,8 @@ export class Pm5RowingService extends GattService {
         additionalStatus2.characteristic,
         // C2 rowing additional status 3
         additionalStatus3.characteristic,
+        // C2 rowing general status and additional status sample rate (0 - for 1000 ms)
+        new SampleRateCharacteristic(config).characteristic,
         // C2 rowing stroke data
         strokeData.characteristic,
         // C2 rowing additional stroke data
@@ -88,7 +91,6 @@ export class Pm5RowingService extends GattService {
     this.#additionalStatus3 = additionalStatus3
     this.#strokeData = strokeData
     this.#additionalStrokeData = additionalStrokeData
-    this.#broadcastInterval = config.pm5UpdateInterval
     this.#lastKnownMetrics = {
       sessiontype: 'JustRow',
       sessionStatus: 'WaitingForStart',
@@ -97,7 +99,8 @@ export class Pm5RowingService extends GattService {
       totalLinearDistance: 0,
       dragFactor: config.rowerSettings.dragFactor
     }
-    this.#timer = setTimeout(() => { this.#onBroadcastInterval() }, this.#broadcastInterval)
+    this.#config = config
+    this.#timer = setTimeout(() => { this.#onBroadcastInterval() }, this.#config.pm5UpdateInterval)
   }
 
   notifyData (metrics) {
@@ -137,7 +140,7 @@ export class Pm5RowingService extends GattService {
   #shortNotifyData (metrics) {
     clearTimeout(this.#timer)
     this.#generalStatus.notify(metrics)
-    this.#timer = setTimeout(() => { this.#onBroadcastInterval() }, this.#broadcastInterval)
+    this.#timer = setTimeout(() => { this.#onBroadcastInterval() }, this.#config.pm5UpdateInterval)
   }
 
   #longNotifyData (metrics) {
@@ -148,6 +151,6 @@ export class Pm5RowingService extends GattService {
     this.#additionalStatus3.notify(metrics)
     this.#strokeData.notify(metrics)
     this.#additionalStrokeData.notify(metrics)
-    this.#timer = setTimeout(() => { this.#onBroadcastInterval() }, this.#broadcastInterval)
+    this.#timer = setTimeout(() => { this.#onBroadcastInterval() }, this.#config.pm5UpdateInterval)
   }
 }
