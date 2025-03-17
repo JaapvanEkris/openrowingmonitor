@@ -105,8 +105,9 @@ export function createRecordingManager (config) {
 
     if (metrics.metricsContext.isSessionStop || metrics.metricsContext.isPauseStart) {
       writeRecordings()
-      writeTimer = setTimeout(writeRecordings, 189000)
-      uploadTimer = setTimeout(uploadRecordings, 190000)
+      const delayTime = 1000 * Math.max(metrics.pauseCountdownTime, 180)
+      writeTimer = setTimeout(writeRecordings, (delayTime + 10000))
+      uploadTimer = setTimeout(uploadRecordings, (delayTime + 15000))
     }
   }
 
