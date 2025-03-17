@@ -55,6 +55,7 @@ export function createRecordingManager (config) {
         await writeRecordings()
         await uploadRecordings()
         startTime = undefined
+        resetRecordings()
         break
       case 'switchBlePeripheralMode':
         break
@@ -159,6 +160,13 @@ export function createRecordingManager (config) {
     if (config.userSettings.rowsAndAll.upload) { await rowsAndAllInterface.uploadSessionResults(rowingDataRecorder) }
     if (config.userSettings.intervals.upload) { await intervalsInterface.uploadSessionResults(fitRecorder) }
     allRecordingsHaveBeenUploaded = true
+  }
+
+  async function resetRecordings () {
+    if (recordRawData) { rawRecorder.reset() }
+    if (recordTcxData) { tcxRecorder.reset() }
+    if (recordFitData) { fitRecorder.reset() }
+    if (recordRowingData) { rowingDataRecorder.reset() }
   }
 
   async function activeWorkoutToTcx () {
