@@ -25,7 +25,7 @@ export function createPm5Peripheral (bleManager, config) {
 
   const advDataBuffer = new NodeBleHost.AdvertisingDataBuilder()
     .addFlags(['leGeneralDiscoverableMode', 'brEdrNotSupported'])
-    .addLocalName(/* isComplete */ true, pm5Constants.name)
+    .addLocalName(/* isComplete */ true, `${pm5Constants.name} Row`)
     .build()
   const scanResponseBuffer = new NodeBleHost.AdvertisingDataBuilder()
     .add128BitServiceUUIDs(/* isComplete */ true, [toC2128BitUUID('0000')])

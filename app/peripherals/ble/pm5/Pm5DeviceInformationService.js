@@ -17,22 +17,26 @@ const log = loglevel.getLogger('Peripherals')
 
 export class Pm5DeviceInformationService extends GattService {
   constructor () {
+    const firmwareRevision = pm5Constants.firmwareRevision.padEnd(20, '\0')
+    const manufacturer = pm5Constants.manufacturer.padEnd(16, '\0')
+    const moduleNumber = 'PM5'.padEnd(16, '\0')
+
     super({
       name: 'Information Service',
       uuid: toC2128BitUUID('0010'),
       characteristics: [
         // C2 module number string
-        createStaticReadCharacteristic(toC2128BitUUID('0011'), 'PM5', 'Model'),
+        createStaticReadCharacteristic(toC2128BitUUID('0011'), moduleNumber, 'Model'),
         // C2 serial number string
         createStaticReadCharacteristic(toC2128BitUUID('0012'), pm5Constants.serial, 'Serial'),
         // C2 hardware revision string
         createStaticReadCharacteristic(toC2128BitUUID('0013'), pm5Constants.hardwareRevision, 'Hardware Revision'),
-        // C2 firmware revision string
-        createStaticReadCharacteristic(toC2128BitUUID('0014'), pm5Constants.firmwareRevision, 'Firmware Revision'),
-        // C2 manufacturer name string
-        createStaticReadCharacteristic(toC2128BitUUID('0015'), pm5Constants.manufacturer, 'Manufacturer'),
-        // Erg Machine Type
-        createStaticReadCharacteristic(toC2128BitUUID('0016'), pm5Constants.ergMachineType, 'ErgMachineType'),
+        // C2 firmware revision string - this needs to be exactly 20bytes (anything that is not used a null should be added)
+        createStaticReadCharacteristic(toC2128BitUUID('0014'), firmwareRevision, 'Firmware Revision'),
+        // C2 manufacturer name string - this needs to be exactly 16bytes (anything that is not used a null should be added)
+        createStaticReadCharacteristic(toC2128BitUUID('0015'), manufacturer, 'Manufacturer'),
+        // Erg Machine Type - - this needs to be exactly 16bytes (anything that is not used a null should be added)
+        createStaticReadCharacteristic(toC2128BitUUID('0016'), [pm5Constants.ergMachineType], 'ErgMachineType'),
         // ATT MTU characteristic
         {
           ...createStaticReadCharacteristic(toC2128BitUUID('0017'), [23], 'MTU'),

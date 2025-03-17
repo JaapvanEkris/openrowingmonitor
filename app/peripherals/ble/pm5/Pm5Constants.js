@@ -11,7 +11,8 @@ export const pm5Constants = {
   ...PeripheralConstants,
   // See https://www.concept2.com/service/monitors/pm5/firmware for available versions
   // please note: hardware versions exclude a software version, and thus might confuse the client
-  ergMachineType: [0x05]
+  // ergMachineType: 0 TYPE_STATIC_D
+  ergMachineType: 0
 }
 
 // PM5 uses 128bit UUIDs that are always prefixed and suffixed the same way

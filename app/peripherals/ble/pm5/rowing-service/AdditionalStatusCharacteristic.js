@@ -8,7 +8,7 @@
 import { BufferBuilder } from '../../BufferBuilder.js'
 import { GattNotifyCharacteristic } from '../../BleManager.js'
 
-import { toC2128BitUUID } from '../Pm5Constants.js'
+import { pm5Constants, toC2128BitUUID } from '../Pm5Constants.js'
 
 export class AdditionalStatusCharacteristic extends GattNotifyCharacteristic {
   #multiplexedCharacteristic
@@ -55,7 +55,7 @@ export class AdditionalStatusCharacteristic extends GattNotifyCharacteristic {
       bufferBuilder.writeUInt16LE(data.cyclePower > 0 ? Math.round(data.cyclePower) : 0)
     }
     // ergMachineType: 0 TYPE_STATIC_D
-    bufferBuilder.writeUInt8(0)
+    bufferBuilder.writeUInt8(pm5Constants.ergMachineType)
 
     if (this.isSubscribed) {
       super.notify(bufferBuilder.getBuffer())
