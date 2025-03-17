@@ -42,20 +42,6 @@ export function createTCXRecorder (config) {
           addMetricsToStrokesArray(lastMetrics)
           calculateLapMetrics(lastMetrics)
         }
-        heartRate = 0
-        sessionData = null
-        sessionData = {}
-        sessionData.lap = []
-        lapnumber = 0
-        lastMetrics = {}
-        postExerciseHR = null
-        postExerciseHR = []
-        powerSeries.reset()
-        speedSeries.reset()
-        heartrateSeries.reset()
-        drag.reset()
-        VO2max.reset()
-        allDataHasBeenWritten = true
         break
       case 'shutdown':
         if (lastMetrics !== undefined && !!lastMetrics.metricsContext && lastMetrics.metricsContext.isMoving && lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
@@ -429,6 +415,23 @@ export function createTCXRecorder (config) {
     }
   }
 
+  function reset () {
+    heartRate = 0
+    sessionData = null
+    sessionData = {}
+    sessionData.lap = []
+    lapnumber = 0
+    lastMetrics = {}
+    postExerciseHR = null
+    postExerciseHR = []
+    powerSeries.reset()
+    speedSeries.reset()
+    heartrateSeries.reset()
+    drag.reset()
+    VO2max.reset()
+    allDataHasBeenWritten = true
+  }
+
   return {
     handleCommand,
     recordRowingMetrics,
@@ -443,6 +446,7 @@ export function createTCXRecorder (config) {
     sessionDrag,
     sessionVO2Max,
     sessionHRR,
-    allDataHasBeenWritten
+    allDataHasBeenWritten,
+    reset
   }
 }
