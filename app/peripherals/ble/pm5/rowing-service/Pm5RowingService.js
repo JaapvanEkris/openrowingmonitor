@@ -21,6 +21,7 @@ import { createStaticReadCharacteristic } from '../../common/StaticReadCharacter
 import { toC2128BitUUID } from '../Pm5Constants.js'
 
 import { AdditionalStatus2Characteristic } from './AdditionalStatus2Characteristic.js'
+import { AdditionalStatus3Characteristic } from './AdditionalStatus3Characteristic.js'
 import { AdditionalStatusCharacteristic } from './AdditionalStatusCharacteristic.js'
 import { AdditionalStrokeDataCharacteristic } from './AdditionalStrokeDataCharacteristic.js'
 import { GeneralStatusCharacteristic } from './GeneralStatusCharacteristic.js'
@@ -31,6 +32,7 @@ export class Pm5RowingService extends GattService {
   #generalStatus
   #additionalStatus
   #additionalStatus2
+  #additionalStatus3
   #strokeData
   #additionalStrokeData
 
@@ -43,6 +45,7 @@ export class Pm5RowingService extends GattService {
     const generalStatus = new GeneralStatusCharacteristic(multiplexedCharacteristic)
     const additionalStatus = new AdditionalStatusCharacteristic(multiplexedCharacteristic)
     const additionalStatus2 = new AdditionalStatus2Characteristic(multiplexedCharacteristic)
+    const additionalStatus3 = new AdditionalStatus3Characteristic(multiplexedCharacteristic)
     const strokeData = new StrokeDataCharacteristic(multiplexedCharacteristic)
     const additionalStrokeData = new AdditionalStrokeDataCharacteristic(multiplexedCharacteristic)
 
@@ -56,8 +59,8 @@ export class Pm5RowingService extends GattService {
         additionalStatus.characteristic,
         // C2 rowing additional status 2
         additionalStatus2.characteristic,
-        // C2 rowing general status and additional status sample rate (0 - for 1000 ms) - TODO: Specs states Write is necessary we omit that as this is not changeable for now (https://www.c2forum.com/viewtopic.php?t=152485)
-        createStaticReadCharacteristic(toC2128BitUUID('0034'), [0], 'Sample Rate'),
+        // C2 rowing additional status 3
+        additionalStatus3.characteristic,
         // C2 rowing stroke data
         strokeData.characteristic,
         // C2 rowing additional stroke data
@@ -82,6 +85,7 @@ export class Pm5RowingService extends GattService {
     this.#generalStatus = generalStatus
     this.#additionalStatus = additionalStatus
     this.#additionalStatus2 = additionalStatus2
+    this.#additionalStatus3 = additionalStatus3
     this.#strokeData = strokeData
     this.#additionalStrokeData = additionalStrokeData
     this.#broadcastInterval = config.pm5UpdateInterval
@@ -141,6 +145,7 @@ export class Pm5RowingService extends GattService {
     this.#generalStatus.notify(metrics)
     this.#additionalStatus.notify(metrics)
     this.#additionalStatus2.notify(metrics)
+    this.#additionalStatus3.notify(metrics)
     this.#strokeData.notify(metrics)
     this.#additionalStrokeData.notify(metrics)
     this.#timer = setTimeout(() => { this.#onBroadcastInterval() }, this.#broadcastInterval)
