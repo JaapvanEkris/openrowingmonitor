@@ -14,10 +14,10 @@
 import rowerProfiles from './rowerProfiles.js'
 
 export default {
-    // example: change the default log level:
-    loglevel: {
-      default: 'debug'
-    },
+  // example: change the default log level:
+  loglevel: {
+    default: 'debug'
+  },
 
   // The rower specific settings. Either choose a profile from config/rowerProfiles.js (see
   // https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Supported_Rowers.md) or define
