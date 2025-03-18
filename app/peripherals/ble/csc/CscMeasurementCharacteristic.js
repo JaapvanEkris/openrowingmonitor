@@ -2,74 +2,43 @@
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 */
-import bleno from '@stoprocent/bleno'
-import log from 'loglevel'
-import BufferBuilder from '../BufferBuilder.js'
+import { BufferBuilder } from '../BufferBuilder.js'
+import { GattNotifyCharacteristic } from '../BleManager.js'
 
-export default class CyclingSpeedCadenceMeasurementCharacteristic extends bleno.Characteristic {
+export class CyclingSpeedCadenceMeasurementCharacteristic extends GattNotifyCharacteristic {
   constructor () {
     super({
-      // Cycling Speed and Cadence Measurement
-      uuid: '2A5B',
-      value: null,
+      name: 'Cycling Speed and Cadence Measurement',
+      uuid: 0x2A5B,
       properties: ['notify'],
       descriptors: [
-        new bleno.Descriptor({
-          uuid: '2901',
+        {
+          uuid: 0x2901,
           value: 'Cycling Speed and Cadence Measurement'
-        })
+        }
       ]
     })
-    this._updateValueCallback = null
-    this._subscriberMaxValueSize = null
-  }
-
-  onSubscribe (maxValueSize, updateValueCallback) {
-    log.debug(`CyclingSpeedCadenceMeasurementCharacteristic - central subscribed with maxSize: ${maxValueSize}`)
-    this._updateValueCallback = updateValueCallback
-    this._subscriberMaxValueSize = maxValueSize
-    return this.RESULT_SUCCESS
-  }
-
-  onUnsubscribe () {
-    log.debug('CyclingSpeedCadenceMeasurementCharacteristic - central unsubscribed')
-    this._updateValueCallback = null
-    this._subscriberMaxValueSize = null
-    return this.RESULT_UNLIKELY_ERROR
   }
 
   notify (data) {
-    // ignore events without the mandatory fields
-    if (!('cyclePower' in data)) {
-      log.error('can not deliver bike data without mandatory fields')
-      return this.RESULT_SUCCESS
-    }
+    const bufferBuilder = new BufferBuilder()
 
-    if (this._updateValueCallback) {
-      const bufferBuilder = new BufferBuilder()
+    // Features flag
+    bufferBuilder.writeUInt8(cscFeaturesFlags.crankRevolutionDataSupported | cscFeaturesFlags.wheelRevolutionDataSupported)
 
-      // Features flag
-      bufferBuilder.writeUInt8(cscFeaturesFlags.crankRevolutionDataSupported | cscFeaturesFlags.wheelRevolutionDataSupported)
+    // Wheel revolution count (basically the distance in cm)
+    bufferBuilder.writeUInt32LE(data.totalLinearDistance > 0 ? Math.round(Math.round(data.totalLinearDistance * 100)) : 0)
 
-      // Wheel revolution count (basically the distance in cm)
-      bufferBuilder.writeUInt32LE(data.totalLinearDistance > 0 ? Math.round(Math.round(data.totalLinearDistance * 100)) : 0)
+    // Wheel revolution time (ushort with 1024 resolution, resetting in every 64sec)
+    bufferBuilder.writeUInt16LE(data.totalMovingTime > 0 ? Math.round(data.totalMovingTime * 1024) % Math.pow(2, 16) : 0)
 
-      // Wheel revolution time (ushort with 1024 resolution, resetting in every 64sec)
-      bufferBuilder.writeUInt16LE(data.totalMovingTime > 0 ? Math.round(data.totalMovingTime * 1024) % Math.pow(2, 16) : 0)
+    // Total stroke count
+    bufferBuilder.writeUInt16LE(data.totalNumberOfStrokes > 0 ? Math.round(data.totalNumberOfStrokes) : 0)
 
-      // Total stroke count
-      bufferBuilder.writeUInt16LE(data.totalNumberOfStrokes > 0 ? Math.round(data.totalNumberOfStrokes) : 0)
+    // last stroke time time (ushort with 1024 resolution, resetting in every 64sec)
+    bufferBuilder.writeUInt16LE(data.driveLastStartTime > 0 ? Math.round(data.driveLastStartTime * 1024) % Math.pow(2, 16) : 0)
 
-      // last stroke time time (ushort with 1024 resolution, resetting in every 64sec)
-      bufferBuilder.writeUInt16LE(data.driveLastStartTime > 0 ? Math.round(data.driveLastStartTime * 1024) % Math.pow(2, 16) : 0)
-
-      const buffer = bufferBuilder.getBuffer()
-      if (buffer.length > this._subscriberMaxValueSize) {
-        log.warn(`CyclingSpeedCadenceMeasurementCharacteristic - notification of ${buffer.length} bytes is too large for the subscriber`)
-      }
-      this._updateValueCallback(bufferBuilder.getBuffer())
-    }
-    return this.RESULT_SUCCESS
+    super.notify(bufferBuilder.getBuffer())
   }
 }
 

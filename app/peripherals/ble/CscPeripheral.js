@@ -5,16 +5,22 @@
   Creates a Bluetooth Low Energy (BLE) Peripheral with all the Services that are required for
   a Cycling Speed and Cadence Profile
 */
-import bleno from '@stoprocent/bleno'
-import log from 'loglevel'
-import DeviceInformationService from './common/DeviceInformationService.js'
-import CyclingSpeedCadenceService from './csc/CyclingSpeedCadenceService.js'
-import AdvertisingDataBuilder from './common/AdvertisingDataBuilder.js'
+
+import NodeBleHost from 'ble-host'
+import loglevel from 'loglevel'
+
 import { bleBroadcastInterval, bleMinimumKnowDataUpdateInterval } from '../PeripheralConstants.js'
 
-export function createCscPeripheral (config) {
-  const peripheralName = `${config.ftmsRowerPeripheralName} (CSC)`
-  const cyclingSpeedCadenceService = new CyclingSpeedCadenceService((event) => log.debug('CSC Control Point', event))
+import { CyclingSpeedCadenceService } from './csc/CyclingSpeedCadenceService.js'
+import { DeviceInformationService } from './common/DeviceInformationService.js'
+
+const log = loglevel.getLogger('Peripherals')
+
+export function createCscPeripheral (bleManager, config) {
+  const cyclingSpeedCadenceService = new CyclingSpeedCadenceService((event) => {
+    log.debug('CSC Control Point', event)
+    return false
+  })
 
   let lastKnownMetrics = {
     sessiontype: 'JustRow',
@@ -27,79 +33,49 @@ export function createCscPeripheral (config) {
   }
   let timer = setTimeout(onBroadcastInterval, bleBroadcastInterval)
 
-  bleno.on('stateChange', (state) => {
-    triggerAdvertising(state)
-  })
+  const deviceInformationService = new DeviceInformationService()
+  const cscAppearance = 1157 // Cycling Speed and Cadence Sensor
+  const advDataBuffer = new NodeBleHost.AdvertisingDataBuilder()
+    .addFlags(['leGeneralDiscoverableMode', 'brEdrNotSupported'])
+    .addLocalName(/* isComplete */ false, `${config.ftmsRowerPeripheralName}`)
+    .addAppearance(cscAppearance)
+    .add16BitServiceUUIDs(/* isComplete */ false, [cyclingSpeedCadenceService.gattService.uuid])
+    .build()
+  const scanResponseBuffer = new NodeBleHost.AdvertisingDataBuilder()
+    .addLocalName(/* isComplete */ true, `${config.ftmsRowerPeripheralName} (CSC)`)
+    .build()
 
-  bleno.on('advertisingStart', (error) => {
-    if (!error) {
-      bleno.setServices(
-        [
-          cyclingSpeedCadenceService,
-          new DeviceInformationService()
-        ],
-        (error) => {
-          if (error) log.error(error)
-        })
-    }
-  })
+  let _manager
+  let _connection
 
-  bleno.on('accept', (clientAddress) => {
-    log.debug(`ble central connected: ${clientAddress}`)
-    bleno.updateRssi()
-  })
+  setup()
 
-  bleno.on('disconnect', (clientAddress) => {
-    log.debug(`ble central disconnected: ${clientAddress}`)
-  })
+  async function setup () {
+    _manager = await bleManager.getManager()
+    _manager.gattDb.setDeviceName(`${config.ftmsRowerPeripheralName} (CSC)`)
+    _manager.gattDb.addServices([cyclingSpeedCadenceService.gattService, deviceInformationService.gattService])
+    _manager.setAdvertisingData(advDataBuffer)
+    _manager.setScanResponseData(scanResponseBuffer)
 
-  bleno.on('platform', (event) => {
-    log.debug('platform', event)
-  })
-  bleno.on('addressChange', (event) => {
-    log.debug('addressChange', event)
-  })
-  bleno.on('mtuChange', (event) => {
-    log.debug('mtuChange', event)
-  })
-  bleno.on('advertisingStartError', (event) => {
-    log.debug('advertisingStartError', event)
-  })
-  bleno.on('servicesSetError', (event) => {
-    log.debug('servicesSetError', event)
-  })
-  bleno.on('rssiUpdate', (event) => {
-    log.debug('rssiUpdate', event)
-  })
+    await triggerAdvertising()
+  }
 
-  function destroy () {
-    clearTimeout(timer)
-    return new Promise((resolve) => {
-      bleno.disconnect()
-      bleno.removeAllListeners()
-      bleno.stopAdvertising(() => resolve())
+  async function triggerAdvertising () {
+    _connection = await new Promise((resolve) => {
+      _manager.startAdvertising({/* options */}, (_status, connection) => {
+        resolve(connection)
+      })
     })
+    log.debug(`CSC Connection established, address: ${_connection.peerAddress}`)
+
+    _connection.once('disconnect', async () => {
+      log.debug(`CSC client disconnected (address: ${_connection?.peerAddress}), restarting advertising`)
+      _connection = undefined
+      await triggerAdvertising()
+    }) // restart advertising after disconnect
   }
 
-  function triggerAdvertising (eventState) {
-    const activeState = eventState || bleno.state
-    if (activeState === 'poweredOn') {
-      const cscAppearance = 1157
-      const advertisingData = new AdvertisingDataBuilder([cyclingSpeedCadenceService.uuid], cscAppearance, peripheralName)
-
-      bleno.startAdvertisingWithEIRData(
-        advertisingData.buildAppearanceData(),
-        advertisingData.buildScanData(),
-        (error) => {
-          if (error) log.error(error)
-        }
-      )
-    } else {
-      bleno.stopAdvertising()
-    }
-  }
-
-  // present current rowing metrics to FTMS central
+  // present current rowing metrics to CSC central
   function onBroadcastInterval () {
     cyclingSpeedCadenceService.notifyData(lastKnownMetrics)
     timer = setTimeout(onBroadcastInterval, bleBroadcastInterval)
@@ -138,6 +114,24 @@ export function createCscPeripheral (config) {
 
   // CSC does not have status characteristic
   function notifyStatus (status) {
+  }
+
+  function destroy () {
+    log.debug('Shutting down CSC peripheral')
+    clearTimeout(timer)
+    _manager?.gattDb.removeService(cyclingSpeedCadenceService.gattService)
+    _manager?.gattDb.removeService(deviceInformationService.gattService)
+    return new Promise((resolve) => {
+      if (_connection !== undefined) {
+        log.debug('Terminating current CSC connection')
+        _connection.removeAllListeners()
+        _connection.once('disconnect', resolve)
+        _connection.disconnect()
+
+        return
+      }
+      _manager?.stopAdvertising(resolve)
+    })
   }
 
   return {

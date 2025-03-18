@@ -6,24 +6,40 @@
 
   But for our use case proper implementation is not necessary (its mere existence with an empty handler suffice)
 */
-import bleno from '@stoprocent/bleno'
+import NodeBleHost from 'ble-host'
+import loglevel from 'loglevel'
 
-export default class CyclingSpeedCadenceControlPointCharacteristic extends bleno.Characteristic {
+const log = loglevel.getLogger('Peripherals')
+
+export class CyclingSpeedCadenceControlPointCharacteristic {
+  get characteristic () {
+    return this.#characteristic
+  }
+
+  #characteristic
+
   constructor (controlPointCallback) {
-    super({
-      // Cycling Speed and Cadence Control Point
-      uuid: '2A55',
-      value: null,
-      properties: ['indicate', 'write']
-    })
+    this.#characteristic = {
+      name: 'Cycling Speed and Cadence Control Point',
+      uuid: 0x2A55,
+      properties: ['write', 'indicate'],
+      onWrite: (connection, _needsResponse, opCode, callback) => {
+        log.debug(`CSC control is called: ${opCode}`)
+        const response = this.#onWriteRequest(opCode)
 
-    this.controlled = false
-    if (!controlPointCallback) { throw new Error('controlPointCallback required') }
-    this.controlPointCallback = controlPointCallback
+        if (this.#characteristic.indicate === undefined) {
+          throw new Error(`Characteristics ${this.#characteristic.name} has not been initialized`)
+        }
+
+        this.#characteristic.indicate(connection, response)
+        callback(NodeBleHost.AttErrors.SUCCESS) // actually only needs to be called when needsResponse is true
+      }
+    }
   }
 
   // Central sends a command to the Control Point
   // No need to handle any request to have this working
-  onWriteRequest (data, offset, withoutResponse, callback) {
+  #onWriteRequest (data, offset, withoutResponse, callback) {
+    return Buffer.from([0])
   }
 }

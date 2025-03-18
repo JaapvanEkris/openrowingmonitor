@@ -165,7 +165,7 @@ export function createPeripheralManager (config) {
         break
       case 'CSC':
         log.info('bluetooth profile: Cycling Speed and Cadence')
-        blePeripheral = createCscPeripheral(config)
+        blePeripheral = createCscPeripheral(_bleManager, config)
         bleMode = 'CSC'
         break
       case 'CPS':
