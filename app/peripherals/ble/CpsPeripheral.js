@@ -5,16 +5,22 @@
   Creates a Bluetooth Low Energy (BLE) Peripheral with all the Services that are required for
   a Cycling Power Profile
 */
-import bleno from '@stoprocent/bleno'
-import log from 'loglevel'
-import CyclingPowerService from './cps/CyclingPowerMeterService.js'
-import DeviceInformationService from './common/DeviceInformationService.js'
-import AdvertisingDataBuilder from './common/AdvertisingDataBuilder.js'
+
+import NodeBleHost from 'ble-host'
+import loglevel from 'loglevel'
+
 import { bleBroadcastInterval, bleMinimumKnowDataUpdateInterval } from '../PeripheralConstants.js'
 
-export function createCpsPeripheral (config) {
-  const peripheralName = `${config.ftmsRowerPeripheralName} (CPS)`
-  const cyclingPowerService = new CyclingPowerService((event) => log.debug('CPS Control Point', event))
+import { CyclingPowerService } from './cps/CyclingPowerMeterService.js'
+import { DeviceInformationService } from './common/DeviceInformationService.js'
+
+const log = loglevel.getLogger('Peripherals')
+
+export function createCpsPeripheral (bleManager, config) {
+  const cyclingPowerService = new CyclingPowerService((event) => {
+    log.debug('CPS Control Point', event)
+    return false
+  })
   let lastKnownMetrics = {
     sessiontype: 'JustRow',
     sessionStatus: 'WaitingForStart',
@@ -26,76 +32,46 @@ export function createCpsPeripheral (config) {
   }
   let timer = setTimeout(onBroadcastInterval, bleBroadcastInterval)
 
-  bleno.on('stateChange', (state) => {
-    triggerAdvertising(state)
-  })
+  const deviceInformationService = new DeviceInformationService()
+  const cpsAppearance = 1156
+  const advDataBuffer = new NodeBleHost.AdvertisingDataBuilder()
+    .addFlags(['leGeneralDiscoverableMode', 'brEdrNotSupported'])
+    .addLocalName(/* isComplete */ false, `${config.ftmsRowerPeripheralName}`)
+    .addAppearance(cpsAppearance)
+    .add16BitServiceUUIDs(/* isComplete */ false, [cyclingPowerService.gattService.uuid])
+    .build()
+  const scanResponseBuffer = new NodeBleHost.AdvertisingDataBuilder()
+    .addLocalName(/* isComplete */ true, `${config.ftmsRowerPeripheralName} (CPS)`)
+    .build()
 
-  bleno.on('advertisingStart', (error) => {
-    if (!error) {
-      bleno.setServices(
-        [
-          cyclingPowerService,
-          new DeviceInformationService()
-        ],
-        (error) => {
-          if (error) log.error(error)
-        })
-    }
-  })
+  let _manager
+  let _connection
 
-  bleno.on('accept', (clientAddress) => {
-    log.debug(`ble central connected: ${clientAddress}`)
-    bleno.updateRssi()
-  })
+  setup()
 
-  bleno.on('disconnect', (clientAddress) => {
-    log.debug(`ble central disconnected: ${clientAddress}`)
-  })
+  async function setup () {
+    _manager = await bleManager.getManager()
+    _manager.gattDb.setDeviceName(`${config.ftmsRowerPeripheralName} (CPS)`)
+    _manager.gattDb.addServices([cyclingPowerService.gattService, deviceInformationService.gattService])
+    _manager.setAdvertisingData(advDataBuffer)
+    _manager.setScanResponseData(scanResponseBuffer)
 
-  bleno.on('platform', (event) => {
-    log.debug('platform', event)
-  })
-  bleno.on('addressChange', (event) => {
-    log.debug('addressChange', event)
-  })
-  bleno.on('mtuChange', (event) => {
-    log.debug('mtuChange', event)
-  })
-  bleno.on('advertisingStartError', (event) => {
-    log.debug('advertisingStartError', event)
-  })
-  bleno.on('servicesSetError', (event) => {
-    log.debug('servicesSetError', event)
-  })
-  bleno.on('rssiUpdate', (event) => {
-    log.debug('rssiUpdate', event)
-  })
-
-  function destroy () {
-    clearTimeout(timer)
-    return new Promise((resolve) => {
-      bleno.disconnect()
-      bleno.removeAllListeners()
-      bleno.stopAdvertising(() => resolve())
-    })
+    await triggerAdvertising()
   }
 
-  function triggerAdvertising (eventState) {
-    const activeState = eventState || bleno.state
-    if (activeState === 'poweredOn') {
-      const cpsAppearance = 1156
-      const advertisingData = new AdvertisingDataBuilder([cyclingPowerService.uuid], cpsAppearance, peripheralName)
+  async function triggerAdvertising () {
+    _connection = await new Promise((resolve) => {
+      _manager.startAdvertising({/* options */}, (_status, connection) => {
+        resolve(connection)
+      })
+    })
+    log.debug(`CPS Connection established, address: ${_connection.peerAddress}`)
 
-      bleno.startAdvertisingWithEIRData(
-        advertisingData.buildAppearanceData(),
-        advertisingData.buildScanData(),
-        (error) => {
-          if (error) log.error(error)
-        }
-      )
-    } else {
-      bleno.stopAdvertising()
-    }
+    _connection.once('disconnect', async () => {
+      log.debug(`CPS client disconnected (address: ${_connection?.peerAddress}), restarting advertising`)
+      _connection = undefined
+      await triggerAdvertising()
+    }) // restart advertising after disconnect
   }
 
   // Broadcast the last known metrics
@@ -137,6 +113,24 @@ export function createCpsPeripheral (config) {
 
   // CPS does not have status characteristic
   function notifyStatus (status) {
+  }
+
+  function destroy () {
+    log.debug('Shutting down CPS peripheral')
+    clearTimeout(timer)
+    _manager?.gattDb.removeService(cyclingPowerService.gattService)
+    _manager?.gattDb.removeService(deviceInformationService.gattService)
+    return new Promise((resolve) => {
+      if (_connection !== undefined) {
+        log.debug('Terminating current CPS connection')
+        _connection.removeAllListeners()
+        _connection.once('disconnect', resolve)
+        _connection.disconnect()
+
+        return
+      }
+      _manager?.stopAdvertising(resolve)
+    })
   }
 
   return {

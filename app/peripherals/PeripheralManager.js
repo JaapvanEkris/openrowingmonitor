@@ -170,7 +170,7 @@ export function createPeripheralManager (config) {
         break
       case 'CPS':
         log.info('bluetooth profile: Cycling Power Meter')
-        blePeripheral = createCpsPeripheral(config)
+        blePeripheral = createCpsPeripheral(_bleManager, config)
         bleMode = 'CPS'
         break
       case 'FTMS':

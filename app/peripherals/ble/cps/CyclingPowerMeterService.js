@@ -2,34 +2,41 @@
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 */
-import bleno from '@stoprocent/bleno'
-import BufferBuilder from '../BufferBuilder.js'
 import { SensorLocationAsBuffer } from '../common/SensorLocation.js'
-import StaticReadCharacteristic from '../common/StaticReadCharacteristic.js'
-import CyclingPowerControlPointCharacteristic from './CpsControlPointCharacteristic.js'
-import CyclingPowerMeasurementCharacteristic from './CpsMeasurementCharacteristic.js'
+import { createStaticReadCharacteristic } from '../common/StaticReadCharacteristic.js'
 
-export default class CyclingPowerService extends bleno.PrimaryService {
+import { BufferBuilder } from '../BufferBuilder.js'
+import { GattService } from '../BleManager.js'
+
+import { CyclingPowerControlPointCharacteristic } from './CpsControlPointCharacteristic.js'
+import { CyclingPowerMeasurementCharacteristic } from './CpsMeasurementCharacteristic.js'
+
+export class CyclingPowerService extends GattService {
+  #measurementCharacteristic
+
+  /**
+   * @param {ControlPointCallback} controlPointCallback
+   */
   constructor (controlPointCallback) {
     const cpsFeatureBuffer = new BufferBuilder()
     cpsFeatureBuffer.writeUInt32LE(featuresFlag)
 
     const measurementCharacteristic = new CyclingPowerMeasurementCharacteristic()
     super({
-      // Cycling Power
-      uuid: '1818',
+      name: 'Cycling Power',
+      uuid: 0x1818,
       characteristics: [
-        new StaticReadCharacteristic('2A65', 'Cycling Power Feature', cpsFeatureBuffer.getBuffer()),
-        measurementCharacteristic,
-        new StaticReadCharacteristic('2A5D', 'Sensor Location', SensorLocationAsBuffer()),
-        new CyclingPowerControlPointCharacteristic(controlPointCallback)
+        createStaticReadCharacteristic(0x2A65, cpsFeatureBuffer.getBuffer(), 'Cycling Power Feature'),
+        measurementCharacteristic.characteristic,
+        createStaticReadCharacteristic(0x2A5D, SensorLocationAsBuffer(), 'Sensor Location'),
+        new CyclingPowerControlPointCharacteristic(controlPointCallback).characteristic
       ]
     })
-    this.measurementCharacteristic = measurementCharacteristic
+    this.#measurementCharacteristic = measurementCharacteristic
   }
 
   notifyData (event) {
-    this.measurementCharacteristic.notify(event)
+    this.#measurementCharacteristic.notify(event)
   }
 }
 
