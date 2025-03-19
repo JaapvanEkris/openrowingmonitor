@@ -9,9 +9,9 @@
   info) exists to allow multiple characteristics to be multiplexed onto a single characteristic. The last byte in the
   characteristic will indicate which data characteristic is multiplexed."
 */
-import { GattNotifyCharacteristic } from '../../BleManager.js'
+import { GattNotifyCharacteristic } from '../../../BleManager.js'
 
-import { toC2128BitUUID } from '../Pm5Constants.js'
+import { toC2128BitUUID } from '../../Pm5Constants.js'
 
 export class MultiplexedCharacteristic extends GattNotifyCharacteristic {
   constructor () {

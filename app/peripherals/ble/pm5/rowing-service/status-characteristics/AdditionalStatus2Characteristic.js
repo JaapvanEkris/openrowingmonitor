@@ -5,10 +5,10 @@
   Implementation of the AdditionalStatus2 as defined in:
   https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
 */
-import { BufferBuilder } from '../../BufferBuilder.js'
-import { GattNotifyCharacteristic } from '../../BleManager.js'
+import { BufferBuilder } from '../../../BufferBuilder.js'
+import { GattNotifyCharacteristic } from '../../../BleManager.js'
 
-import { toC2128BitUUID } from '../Pm5Constants.js'
+import { toC2128BitUUID } from '../../Pm5Constants.js'
 
 export class AdditionalStatus2Characteristic extends GattNotifyCharacteristic {
   #multiplexedCharacteristic

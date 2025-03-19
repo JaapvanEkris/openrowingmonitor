@@ -8,7 +8,7 @@
 import NodeBleHost from 'ble-host'
 import loglevel from 'loglevel'
 
-import { toC2128BitUUID } from '../Pm5Constants.js'
+import { toC2128BitUUID } from '../../Pm5Constants.js'
 
 const log = loglevel.getLogger('Peripherals')
 

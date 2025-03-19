@@ -6,10 +6,10 @@
   https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
   todo: we could calculate all the missing stroke metrics in the RowerEngine
 */
-import { BufferBuilder } from '../../BufferBuilder.js'
-import { GattNotifyCharacteristic } from '../../BleManager.js'
+import { BufferBuilder } from '../../../BufferBuilder.js'
+import { GattNotifyCharacteristic } from '../../../BleManager.js'
 
-import { toC2128BitUUID } from '../Pm5Constants.js'
+import { toC2128BitUUID } from '../../Pm5Constants.js'
 
 export class StrokeDataCharacteristic extends GattNotifyCharacteristic {
   #multiplexedCharacteristic

@@ -6,9 +6,9 @@
   https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
   todo: we could calculate all the missing stroke metrics in the RowerEngine
 */
-import { BufferBuilder } from '../../BufferBuilder.js'
+import { BufferBuilder } from '../../../BufferBuilder.js'
 
-import { Concept2Date, pm5Constants } from '../Pm5Constants.js'
+import { Concept2Date, pm5Constants } from '../../Pm5Constants.js'
 
 export class AdditionalWorkoutSummary2Characteristic {
   #multiplexedCharacteristic
