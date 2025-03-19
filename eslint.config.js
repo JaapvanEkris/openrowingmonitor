@@ -1,6 +1,3 @@
-/*
-  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-*/
 import globals from "globals"
 import pluginJs from "@eslint/js"
 import js from "@eslint/js"
@@ -8,6 +5,7 @@ import stylistic from '@stylistic/eslint-plugin'
 import { defineConfig } from "eslint/config"
 import babelParser from "@babel/eslint-parser"
 
+/** @type {import('eslint').Linter.Config[]} */
 export default defineConfig([
   stylistic.configs.recommended,
   {
@@ -29,6 +27,7 @@ export default defineConfig([
       ...js.configs.recommended.rules,
       // Coding issues that have a high chance of leading to errors
       'no-new': ['error'],
+      'no-var': ['error'],
       'no-implicit-coercion': ['error', {'allow': ['!!']}],
       'curly': ['error', 'all'],
       'block-scoped-var': ['error'],
