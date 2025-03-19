@@ -25,7 +25,7 @@ export class AdditionalStatus3Characteristic extends GattNotifyCharacteristic {
 
   notify (data) {
     const bufferBuilder = new BufferBuilder()
-    // Operational State: 0 RESET, 1 READY, 2 WORKOUT, 3 WARMUP, 6 PAUSE, 10 IDLE,
+    // Operational State: 0 RESET, 1 READY, 2 WORKOUT, 3 WARMUP, 6 PAUSE, 10 IDLE, TODO: to be mapped to semthing ORM uses
     bufferBuilder.writeUInt8(1)
     // Workout Verification State: unknown, but based on real PM5 1 is acceptable
     bufferBuilder.writeUInt8(1)

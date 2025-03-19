@@ -1,0 +1,43 @@
+'use strict'
+/*
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
+
+  Implementation of the StrokeData as defined in:
+  https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
+  todo: we could calculate all the missing stroke metrics in the RowerEngine
+*/
+import { BufferBuilder } from '../../BufferBuilder.js'
+
+import { Concept2Date, pm5Constants } from '../Pm5Constants.js'
+
+export class AdditionalWorkoutSummary2Characteristic {
+  #multiplexedCharacteristic
+
+  constructor (multiplexedCharacteristic) {
+    this.#multiplexedCharacteristic = multiplexedCharacteristic
+  }
+
+  notify (data) {
+    const bufferBuilder = new BufferBuilder()
+    // Data bytes packed as follows: (10Bytes) example: (0x3C) 0333 1212 4808 10 0000 00
+
+    // Log Entry Date Lo, (https://www.c2forum.com/viewtopic.php?t=200769)
+    // Log Entry Date Hi,
+    bufferBuilder.writeUInt16LE(new Concept2Date().toC2DateInt())
+    // Log Entry Time Lo, (https://www.c2forum.com/viewtopic.php?t=200769)
+    // Log Entry Time Hi,
+    bufferBuilder.writeUInt16LE(new Concept2Date().toC2TimeInt())
+    // Avg Pace Lo (0.1 sec lsb)
+    // Avg Pace Hi,
+    bufferBuilder.writeUInt16LE(0)
+    // Game Identifier/ Workout Verified (see Appendix),
+    bufferBuilder.writeUInt8((0 & 0x0F) | ((0 & 0xF0) >> 4))
+    // Game Score (Lo), (Fish/Darts 1 point LSB, Target 0.1% LSB)
+    // Game Score Hi
+    bufferBuilder.writeUInt16LE(0)
+    // Erg Machine Type
+    bufferBuilder.writeUInt8(pm5Constants.ergMachineType)
+
+    this.#multiplexedCharacteristic.notify(0x3C, bufferBuilder.getBuffer())
+  }
+}

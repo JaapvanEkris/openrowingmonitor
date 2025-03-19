@@ -20,25 +20,40 @@ import { createStaticReadCharacteristic } from '../../common/StaticReadCharacter
 
 import { toC2128BitUUID } from '../Pm5Constants.js'
 
+import { AdditionalSplitDataCharacteristic } from './AdditionalSplitDataCharacteristic.js'
 import { AdditionalStatus2Characteristic } from './AdditionalStatus2Characteristic.js'
 import { AdditionalStatus3Characteristic } from './AdditionalStatus3Characteristic.js'
 import { AdditionalStatusCharacteristic } from './AdditionalStatusCharacteristic.js'
 import { AdditionalStrokeDataCharacteristic } from './AdditionalStrokeDataCharacteristic.js'
+import { AdditionalWorkoutSummary2Characteristic } from './AdditionalWorkoutSummary2Characteristic.js'
+import { AdditionalWorkoutSummaryCharacteristic } from './AdditionalWorkoutSummaryCharacteristic.js'
 import { GeneralStatusCharacteristic } from './GeneralStatusCharacteristic.js'
+import { LoggedWorkoutCharacteristic } from './LoggedWorkoutCharacteristic.js'
 import { MultiplexedCharacteristic } from './MultiplexedCharacteristic.js'
 import { SampleRateCharacteristic } from './SampleRateCharacteristic.js'
+import { SplitDataCharacteristic } from './SplitDataCharacteristic.js'
 import { StrokeDataCharacteristic } from './StrokeDataCharacteristic.js'
+import { WorkoutSummaryCharacteristic } from './WorkoutSummaryCharacteristic.js'
 
 export class Pm5RowingService extends GattService {
   #generalStatus
   #additionalStatus
   #additionalStatus2
   #additionalStatus3
+
   #strokeData
   #additionalStrokeData
 
+  #splitData
+  #additionalSplitData
+
+  #workoutSummary
+  #additionalWorkoutSummary
+  #additionalWorkoutSummary2
+
+  #loggedWorkout
+
   #lastKnownMetrics
-  #timer
   #config
 
   constructor (config) {
@@ -49,6 +64,11 @@ export class Pm5RowingService extends GattService {
     const additionalStatus3 = new AdditionalStatus3Characteristic(multiplexedCharacteristic)
     const strokeData = new StrokeDataCharacteristic(multiplexedCharacteristic)
     const additionalStrokeData = new AdditionalStrokeDataCharacteristic(multiplexedCharacteristic)
+    const splitData = new SplitDataCharacteristic(multiplexedCharacteristic)
+    const additionalSplitData = new AdditionalSplitDataCharacteristic(multiplexedCharacteristic)
+    const workoutSummary = new WorkoutSummaryCharacteristic(multiplexedCharacteristic)
+    const additionalWorkoutSummary = new AdditionalWorkoutSummaryCharacteristic(multiplexedCharacteristic)
+    const loggedWorkout = new LoggedWorkoutCharacteristic(multiplexedCharacteristic)
 
     super({
       name: 'Rowing Service',
@@ -69,18 +89,19 @@ export class Pm5RowingService extends GattService {
         // C2 rowing additional stroke data
         additionalStrokeData.characteristic,
         // C2 rowing split/interval data (18 bytes)
-        // TODO: add these new characteristics as we support these now
-        createStaticReadCharacteristic(toC2128BitUUID('0037'), new Array(18).fill(0), 'Split Data', true),
+        splitData.characteristic,
         // C2 rowing additional split/interval data (19 bytes)
-        createStaticReadCharacteristic(toC2128BitUUID('0038'), new Array(19).fill(0), 'Additional Split Data', true),
+        additionalSplitData.characteristic,
         // C2 rowing end of workout summary data (20 bytes)
-        createStaticReadCharacteristic(toC2128BitUUID('0039'), new Array(20).fill(0), 'Workout Summary', true),
+        workoutSummary.characteristic,
         // C2 rowing end of workout additional summary data (19 bytes)
-        createStaticReadCharacteristic(toC2128BitUUID('003A'), new Array(18).fill(0), 'Additional Workout Summary', true),
+        additionalWorkoutSummary.characteristic,
         // C2 rowing heart rate belt information (6 bytes) - Specs states Write is necessary we omit that
         createStaticReadCharacteristic(toC2128BitUUID('003B'), new Array(6).fill(0), 'Heart Rate Belt Information', true),
         // C2 force curve data - Same concept as ESP Rowing Monitor force curve (first two bytes: 1. 2x4bit value where first is total number of notifications - 'characteristics' in the Specs term - second the number of values in the current notification 2. current notification number - e.g. [0x29 /*i.e. 41 */, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0] total of 2 consecutive notification will be emitted, current is the 1 and it has 9 data points, all zeros), variable size based on negotiated MTU, only C2 uses 16bits values) - https://github.com/ergarcade/pm5-base/blob/3d16d5d4840af14104fca928acdd3af2ec19cb29/js/pm5.js#L449
         createStaticReadCharacteristic(toC2128BitUUID('003D'), [0x19, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0], 'Force Curve Data', true),
+        // Logged Workout
+        loggedWorkout.characteristic,
         // C2 multiplexed information
         multiplexedCharacteristic.characteristic
       ]
@@ -91,6 +112,12 @@ export class Pm5RowingService extends GattService {
     this.#additionalStatus3 = additionalStatus3
     this.#strokeData = strokeData
     this.#additionalStrokeData = additionalStrokeData
+    this.#splitData = splitData
+    this.#additionalSplitData = additionalSplitData
+    this.#workoutSummary = workoutSummary
+    this.#additionalWorkoutSummary = additionalWorkoutSummary
+    this.#additionalWorkoutSummary2 = new AdditionalWorkoutSummary2Characteristic(multiplexedCharacteristic)
+    this.#loggedWorkout = loggedWorkout
     this.#lastKnownMetrics = {
       sessiontype: 'justrow',
       sessionStatus: 'WaitingForStart',
@@ -100,33 +127,27 @@ export class Pm5RowingService extends GattService {
       dragFactor: config.rowerSettings.dragFactor
     }
     this.#config = config
-    this.#timer = setTimeout(() => { this.#onBroadcastInterval() }, this.#config.pm5UpdateInterval)
+    setTimeout(() => { this.#onBroadcastInterval() }, this.#config.pm5UpdateInterval)
   }
 
   notifyData (metrics) {
     if (metrics.metricsContext === undefined) return
     this.#lastKnownMetrics = metrics
     switch (true) {
-      case (metrics.metricsContext.isSessionStart):
-        this.#longNotifyData(metrics)
-        break
       case (metrics.metricsContext.isSessionStop):
-        this.#longNotifyData(metrics)
+        this.#workoutEndDataNotifies(this.#lastKnownMetrics)
         break
-      case (metrics.metricsContext.isIntervalStart):
-        this.#longNotifyData(metrics)
+      case (metrics.metricsContext.isSplitEnd):
+        this.#splitDataNotifies(this.#lastKnownMetrics)
         break
       case (metrics.metricsContext.isPauseStart):
-        this.#longNotifyData(metrics)
-        break
-      case (metrics.metricsContext.isPauseEnd):
-        this.#longNotifyData(metrics)
+        this.#splitDataNotifies(this.#lastKnownMetrics)
         break
       case (metrics.metricsContext.isDriveStart):
-        this.#longNotifyData(metrics)
+        this.#strokeData.notify(this.#lastKnownMetrics)
         break
       case (metrics.metricsContext.isRecoveryStart):
-        this.#shortNotifyData(metrics)
+        this.#strokeEndDataNotifies(this.#lastKnownMetrics)
         break
       default:
         // Do nothing
@@ -134,23 +155,32 @@ export class Pm5RowingService extends GattService {
   }
 
   #onBroadcastInterval () {
-    this.#longNotifyData(this.#lastKnownMetrics)
+    this.#genericStatusDataNotifies(this.#lastKnownMetrics)
   }
 
-  #shortNotifyData (metrics) {
-    clearTimeout(this.#timer)
-    this.#generalStatus.notify(metrics)
-    this.#timer = setTimeout(() => { this.#onBroadcastInterval() }, this.#config.pm5UpdateInterval)
-  }
-
-  #longNotifyData (metrics) {
-    clearTimeout(this.#timer)
+  #genericStatusDataNotifies (metrics) {
     this.#generalStatus.notify(metrics)
     this.#additionalStatus.notify(metrics)
     this.#additionalStatus2.notify(metrics)
     this.#additionalStatus3.notify(metrics)
+    setTimeout(() => this.#onBroadcastInterval(), this.#config.pm5UpdateInterval)
+  }
+
+  #splitDataNotifies (metrics) {
+    this.#splitData.notify(metrics)
+    this.#additionalSplitData.notify(metrics)
+  }
+
+  #strokeEndDataNotifies (metrics) {
     this.#strokeData.notify(metrics)
     this.#additionalStrokeData.notify(metrics)
-    this.#timer = setTimeout(() => { this.#onBroadcastInterval() }, this.#config.pm5UpdateInterval)
+    // ForceCurve
+  }
+
+  #workoutEndDataNotifies (metrics) {
+    this.#workoutSummary.notify(metrics)
+    this.#additionalWorkoutSummary.notify(metrics)
+    this.#additionalWorkoutSummary2.notify(metrics)
+    this.#loggedWorkout.notify(metrics)
   }
 }

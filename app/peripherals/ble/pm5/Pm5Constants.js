@@ -19,3 +19,22 @@ export const pm5Constants = {
 export function toC2128BitUUID (uuid) {
   return `CE06${uuid}-43E5-11E4-916C-0800200C9A66`
 }
+
+export const SessionTypes = {
+  justrow: 0,
+  time: 6,
+  distance: 7,
+  calories: 12
+}
+
+export class Concept2Date extends Date {
+  toC2DateInt () {
+    const yearEpoch = 2000
+
+    return (this.getMonth() + 1) | (this.getDate()) << 4 | (this.getFullYear() - yearEpoch) << 9
+  }
+
+  toC2TimeInt () {
+    return this.getMinutes() | this.getHours() << 8
+  }
+}
