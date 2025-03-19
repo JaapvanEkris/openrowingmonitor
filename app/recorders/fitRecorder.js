@@ -11,6 +11,7 @@
 import log from 'loglevel'
 import { createName } from './utils/decorators.js'
 import { createSeries } from '../engine/utils/Series.js'
+import { createSegmentMetrics } from './utils/segmentMetrics.js'
 import { createVO2max } from './utils/VO2max.js'
 import { FitWriter } from '@markw65/fit-file-writer'
 
@@ -18,16 +19,8 @@ export function createFITRecorder (config) {
   const type = 'fit'
   const postfix = '_rowing'
   const presentationName = 'Garmin fit'
-  const lapPowerSeries = createSeries()
-  const lapSpeedSeries = createSeries()
-  const lapStrokerateSeries = createSeries()
-  const lapStrokedistanceSeries = createSeries()
-  const lapHeartrateSeries = createSeries()
-  const sessionPowerSeries = createSeries()
-  const sessionSpeedSeries = createSeries()
-  const sessionStrokerateSeries = createSeries()
-  const sessionStrokedistanceSeries = createSeries()
-  const sessionHeartrateSeries = createSeries()
+  const lapMetrics = createSegmentMetrics()
+  const sessionMetrics = createSegmentMetrics()
   const VO2max = createVO2max(config)
   const drag = createSeries()
   let heartRate = 0
@@ -55,9 +48,9 @@ export function createFITRecorder (config) {
       case ('shutdown'):
         if (lastMetrics !== undefined && !!lastMetrics.metricsContext && lastMetrics.metricsContext.isMoving && lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
           // We apperantly get a shutdown/crash during session
+          addMetricsToStrokesArray(lastMetrics)
           updateLapMetrics(lastMetrics)
           updateSessionMetrics(lastMetrics)
-          addMetricsToStrokesArray(lastMetrics)
           calculateLapMetrics(lastMetrics)
           calculateSessionMetrics(lastMetrics)
         }
@@ -83,9 +76,9 @@ export function createFITRecorder (config) {
         addMetricsToStrokesArray(metrics)
         break
       case (metrics.metricsContext.isSessionStop):
+        addMetricsToStrokesArray(metrics)
         updateLapMetrics(metrics)
         updateSessionMetrics(metrics)
-        addMetricsToStrokesArray(metrics)
         calculateLapMetrics(metrics)
         calculateSessionMetrics(metrics)
         postExerciseHR = null
@@ -93,9 +86,9 @@ export function createFITRecorder (config) {
         measureRecoveryHR()
         break
       case (metrics.metricsContext.isPauseStart):
+        addMetricsToStrokesArray(metrics)
         updateLapMetrics(metrics)
         updateSessionMetrics(metrics)
-        addMetricsToStrokesArray(metrics)
         calculateLapMetrics(metrics)
         calculateSessionMetrics(metrics)
         resetLapMetrics()
@@ -112,6 +105,7 @@ export function createFITRecorder (config) {
         addMetricsToStrokesArray(metrics)
         break
       case (metrics.metricsContext.isIntervalStart):
+        addHeartRateToMetrics(metrics)
         if (metrics.metricsContext.isDriveStart) { addMetricsToStrokesArray(metrics) }
         updateLapMetrics(metrics)
         updateSessionMetrics(metrics)
@@ -123,6 +117,7 @@ export function createFITRecorder (config) {
         updateLapMetrics(metrics)
         break
       case (metrics.metricsContext.isSplitEnd):
+        addHeartRateToMetrics(metrics)
         if (metrics.metricsContext.isDriveStart) { addMetricsToStrokesArray(metrics) }
         updateLapMetrics(metrics)
         updateSessionMetrics(metrics)
@@ -134,9 +129,9 @@ export function createFITRecorder (config) {
         updateLapMetrics(metrics)
         break
       case (metrics.metricsContext.isDriveStart):
+        addMetricsToStrokesArray(metrics)
         updateLapMetrics(metrics)
         updateSessionMetrics(metrics)
-        addMetricsToStrokesArray(metrics)
         break
     }
     lastMetrics = metrics
@@ -164,11 +159,7 @@ export function createFITRecorder (config) {
   }
 
   function updateLapMetrics (metrics) {
-    if (metrics.cyclePower !== undefined && metrics.cyclePower > 0) { lapPowerSeries.push(metrics.cyclePower) }
-    if (metrics.cycleLinearVelocity !== undefined && metrics.cycleLinearVelocity > 0) { lapSpeedSeries.push(metrics.cycleLinearVelocity) }
-    if (metrics.cycleStrokeRate !== undefined && metrics.cycleStrokeRate > 0) { lapStrokerateSeries.push(metrics.cycleStrokeRate) }
-    if (metrics.cycleDistance !== undefined && metrics.cycleDistance > 0) { lapStrokedistanceSeries.push(metrics.cycleDistance) }
-    if (heartRate !== undefined && heartRate > 0) { lapHeartrateSeries.push(heartRate) }
+    lapMetrics.push(metrics)
   }
 
   function calculateLapMetrics (metrics) {
@@ -178,23 +169,19 @@ export function createFITRecorder (config) {
     sessionData.lap[lapnumber].totalLinearDistance = metrics.totalLinearDistance - sessionData.lap[lapnumber].totalLinearDistanceAtStart
     sessionData.lap[lapnumber].totalCalories = metrics.totalCalories - sessionData.lap[lapnumber].totalCaloriesAtStart
     sessionData.lap[lapnumber].numberOfStrokes = metrics.totalNumberOfStrokes - sessionData.lap[lapnumber].totalNumberOfStrokesAtStart
-    sessionData.lap[lapnumber].averageStrokeRate = lapStrokerateSeries.average()
-    sessionData.lap[lapnumber].maximumStrokeRate = lapStrokerateSeries.maximum()
-    sessionData.lap[lapnumber].averageStrokeDistance = lapStrokedistanceSeries.average()
-    sessionData.lap[lapnumber].averagePower = lapPowerSeries.average()
-    sessionData.lap[lapnumber].maximumPower = lapPowerSeries.maximum()
-    sessionData.lap[lapnumber].averageSpeed = lapSpeedSeries.average()
-    sessionData.lap[lapnumber].maximumSpeed = lapSpeedSeries.maximum()
-    sessionData.lap[lapnumber].averageHeartrate = lapHeartrateSeries.average()
-    sessionData.lap[lapnumber].maximumHeartrate = lapHeartrateSeries.maximum()
+    sessionData.lap[lapnumber].averageStrokeRate = lapMetrics.strokerate.average()
+    sessionData.lap[lapnumber].maximumStrokeRate = lapMetrics.strokerate.maximum()
+    sessionData.lap[lapnumber].averageStrokeDistance = lapMetrics.strokedistance.average()
+    sessionData.lap[lapnumber].averagePower = lapMetrics.power.average()
+    sessionData.lap[lapnumber].maximumPower = lapMetrics.power.maximum()
+    sessionData.lap[lapnumber].averageSpeed = lapMetrics.linearVelocity.average()
+    sessionData.lap[lapnumber].maximumSpeed = lapMetrics.linearVelocity.maximum()
+    sessionData.lap[lapnumber].averageHeartrate = lapMetrics.heartrate.average()
+    sessionData.lap[lapnumber].maximumHeartrate = lapMetrics.heartrate.maximum()
   }
 
   function resetLapMetrics () {
-    lapPowerSeries.reset()
-    lapSpeedSeries.reset()
-    lapStrokerateSeries.reset()
-    lapStrokedistanceSeries.reset()
-    lapHeartrateSeries.reset()
+    lapMetrics.reset()
   }
 
   function addRestLap (lapnumber, metrics, startTime, workoutStepNo) {
@@ -207,11 +194,7 @@ export function createFITRecorder (config) {
   }
 
   function updateSessionMetrics (metrics) {
-    if (metrics.cyclePower !== undefined && metrics.cyclePower > 0) { sessionPowerSeries.push(metrics.cyclePower) }
-    if (metrics.cycleLinearVelocity !== undefined && metrics.cycleLinearVelocity > 0) { sessionSpeedSeries.push(metrics.cycleLinearVelocity) }
-    if (metrics.cycleStrokeRate !== undefined && metrics.cycleStrokeRate > 0) { sessionStrokerateSeries.push(metrics.cycleStrokeRate) }
-    if (metrics.cycleDistance !== undefined && metrics.cycleDistance > 0) { sessionStrokedistanceSeries.push(metrics.cycleDistance) }
-    if (heartRate !== undefined && heartRate > 0) { sessionHeartrateSeries.push(heartRate) }
+    sessionMetrics.push(metrics)
   }
 
   function calculateSessionMetrics (metrics) {
@@ -223,11 +206,7 @@ export function createFITRecorder (config) {
   }
 
   function resetSessionMetrics () {
-    sessionPowerSeries.reset()
-    sessionSpeedSeries.reset()
-    sessionStrokerateSeries.reset()
-    sessionStrokedistanceSeries.reset()
-    sessionHeartrateSeries.reset()
+    sessionMetrics.reset()
     VO2max.reset()
   }
 
@@ -365,8 +344,8 @@ export function createFITRecorder (config) {
         total_timer_time: Math.abs(workout.endTime - workout.startTime) / 1000,
         total_moving_time: workout.totalMovingTime,
         total_distance: workout.totalLinearDistance,
-        avg_speed: sessionSpeedSeries.average(),
-        max_speed: sessionSpeedSeries.maximum(),
+        avg_speed: sessionMetrics.linearVelocity.average(),
+        max_speed: sessionMetrics.linearVelocity.maximum(),
         end_time: writer.time(workout.endTime)
       },
       null,
@@ -393,16 +372,16 @@ export function createFITRecorder (config) {
         total_moving_time: workout.totalMovingTime,
         total_distance: workout.totalLinearDistance,
         total_cycles: workout.totalNumberOfStrokes,
-        avg_speed: sessionSpeedSeries.average(),
-        max_speed: sessionSpeedSeries.maximum(),
-        avg_power: sessionPowerSeries.average(),
-        max_power: sessionPowerSeries.maximum(),
-        avg_cadence: sessionStrokerateSeries.average(),
-        max_cadence: sessionStrokerateSeries.maximum(),
-        ...(sessionHeartrateSeries.minimum() > 0 ? { min_heart_rate: sessionHeartrateSeries.minimum() } : {}),
-        ...(sessionHeartrateSeries.average() > 0 ? { avg_heart_rate: sessionHeartrateSeries.average() } : {}),
-        ...(sessionHeartrateSeries.maximum() > 0 ? { max_heart_rate: sessionHeartrateSeries.maximum() } : {}),
-        avg_stroke_distance: sessionStrokedistanceSeries.average(),
+        avg_speed: sessionMetrics.linearVelocity.average(),
+        max_speed: sessionMetrics.linearVelocity.maximum(),
+        avg_power: sessionMetrics.power.average(),
+        max_power: sessionMetrics.power.maximum(),
+        avg_cadence: sessionMetrics.strokerate.average(),
+        max_cadence: sessionMetrics.strokerate.maximum(),
+        ...(sessionMetrics.heartrate.minimum() > 0 ? { min_heart_rate: sessionMetrics.heartrate.minimum() } : {}),
+        ...(sessionMetrics.heartrate.average() > 0 ? { avg_heart_rate: sessionMetrics.heartrate.average() } : {}),
+        ...(sessionMetrics.heartrate.maximum() > 0 ? { max_heart_rate: sessionMetrics.heartrate.maximum() } : {}),
+        avg_stroke_distance: sessionMetrics.strokedistance.average(),
         num_laps: sessionData.totalNoLaps,
         first_lap_index: 0
       },
