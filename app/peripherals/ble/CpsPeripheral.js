@@ -22,7 +22,7 @@ export function createCpsPeripheral (bleManager, config) {
     return false
   })
   let lastKnownMetrics = {
-    sessiontype: 'JustRow',
+    sessiontype: 'justrow',
     sessionStatus: 'WaitingForStart',
     strokeState: 'WaitingForDrive',
     totalMovingTime: 0,

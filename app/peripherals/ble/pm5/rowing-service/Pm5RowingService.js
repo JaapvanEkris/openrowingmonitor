@@ -92,7 +92,7 @@ export class Pm5RowingService extends GattService {
     this.#strokeData = strokeData
     this.#additionalStrokeData = additionalStrokeData
     this.#lastKnownMetrics = {
-      sessiontype: 'JustRow',
+      sessiontype: 'justrow',
       sessionStatus: 'WaitingForStart',
       strokeState: 'WaitingForDrive',
       totalMovingTime: 0,

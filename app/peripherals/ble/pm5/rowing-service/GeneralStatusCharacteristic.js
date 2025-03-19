@@ -29,10 +29,10 @@ export class GeneralStatusCharacteristic extends GattNotifyCharacteristic {
     // distance: UInt24LE in 0.1 m
     bufferBuilder.writeUInt24LE(data.totalLinearDistance > 0 ? Math.round(data.totalLinearDistance * 10) : 0)
     // workoutType: UInt8: 0 WORKOUTTYPE_JUSTROW_NOSPLITS, 2 WORKOUTTYPE_FIXEDDIST_NOSPLITS, 4 WORKOUTTYPE_FIXEDTIME_NOSPLITS
-    bufferBuilder.writeUInt8(data.sessiontype === 'Distance' ? 2 : (data.sessiontype === 'Time' ? 4 : 0))
+    bufferBuilder.writeUInt8(data.sessiontype === 'distance' ? 2 : (data.sessiontype === 'time' ? 4 : 0))
     // intervalType: UInt8: 1 INTERVALTYPE_TIME, 2 INTERVALTYPE_DIST, 255 NONE
     // ToDo: split down further to allow rest intervals when the PM5 schedule dictates it
-    bufferBuilder.writeUInt8(data.sessiontype === 'Distance' ? 2 : (data.sessiontype === 'Time' ? 1 : 255))
+    bufferBuilder.writeUInt8(data.sessiontype === 'distance' ? 2 : (data.sessiontype === 'time' ? 1 : 255))
     // workoutState: UInt8 0 WAITTOBEGIN, 1 WORKOUTROW, 10 WORKOUTEND
     bufferBuilder.writeUInt8(data.sessionStatus === 'Rowing' ? 1 : (data.sessionStatus === 'WaitingForStart' ? 0 : 10))
     // rowingState: UInt8 0 INACTIVE, 1 ACTIVE
@@ -44,7 +44,7 @@ export class GeneralStatusCharacteristic extends GattNotifyCharacteristic {
     // workoutDuration: UInt24LE in 0.01 sec (if type TIME)
     bufferBuilder.writeUInt24LE(Math.round(data.totalMovingTime * 100))
     // workoutDurationType: UInt8 0 TIME, 0x40 CALORIES, 0x80 DISTANCE, 0xC0 WATTS
-    bufferBuilder.writeUInt8(data.sessiontype === 'Distance' ? 0x80 : 0)
+    bufferBuilder.writeUInt8(data.sessiontype === 'distance' ? 0x80 : 0)
     // dragFactor: UInt8
     bufferBuilder.writeUInt8(data.dragFactor > 0 ? Math.round(Math.min(data.dragFactor, 255)) : 0)
 

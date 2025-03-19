@@ -23,7 +23,7 @@ export function createCscPeripheral (bleManager, config) {
   })
 
   let lastKnownMetrics = {
-    sessiontype: 'JustRow',
+    sessiontype: 'justrow',
     sessionStatus: 'WaitingForStart',
     strokeState: 'WaitingForDrive',
     totalMovingTime: 0,
