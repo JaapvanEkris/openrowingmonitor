@@ -8,15 +8,14 @@
 import log from 'loglevel'
 import { createDragLine, createVO2MaxLine, createHRRLine } from './utils/decorators.js'
 import { createSeries } from '../engine/utils/Series.js'
+import { createSegmentMetrics } from './utils/segmentMetrics.js'
 import { createVO2max } from './utils/VO2max.js'
 
 export function createTCXRecorder (config) {
   const type = 'tcx'
   const postfix = '_rowing'
   const presentationName = 'Garmin tcx'
-  const powerSeries = createSeries()
-  const speedSeries = createSeries()
-  const heartrateSeries = createSeries()
+  const lapMetrics = createSegmentMetrics()
   const VO2max = createVO2max(config)
   const drag = createSeries()
   let heartRate = 0
@@ -59,16 +58,16 @@ export function createTCXRecorder (config) {
         addMetricsToStrokesArray(metrics)
         break
       case (metrics.metricsContext.isSessionStop):
-        updateLapMetrics(metrics)
         addMetricsToStrokesArray(metrics)
+        updateLapMetrics(metrics)
         calculateLapMetrics(metrics)
         postExerciseHR = null
         postExerciseHR = []
         measureRecoveryHR()
         break
       case (metrics.metricsContext.isPauseStart):
-        updateLapMetrics(metrics)
         addMetricsToStrokesArray(metrics)
+        updateLapMetrics(metrics)
         calculateLapMetrics(metrics)
         resetLapMetrics()
         postExerciseHR = null
@@ -85,8 +84,8 @@ export function createTCXRecorder (config) {
         break
       case (metrics.metricsContext.isIntervalStart):
         // Please note: we deliberatly add the metrics twice as it marks both the end of the old interval and the start of a new one
-        updateLapMetrics(metrics)
         addMetricsToStrokesArray(metrics)
+        updateLapMetrics(metrics)
         calculateLapMetrics(metrics)
         resetLapMetrics()
         lapnumber++
@@ -95,8 +94,8 @@ export function createTCXRecorder (config) {
         break
       case (metrics.metricsContext.isSplitEnd):
         // Please note: we deliberatly add the metrics twice as it marks both the end of the old split and the start of a new one
-        updateLapMetrics(metrics)
         addMetricsToStrokesArray(metrics)
+        updateLapMetrics(metrics)
         calculateLapMetrics(metrics)
         resetLapMetrics()
         lapnumber++
@@ -104,8 +103,8 @@ export function createTCXRecorder (config) {
         addMetricsToStrokesArray(metrics)
         break
       case (metrics.metricsContext.isDriveStart):
-        updateLapMetrics(metrics)
         addMetricsToStrokesArray(metrics)
+        updateLapMetrics(metrics)
         break
     }
     lastMetrics = metrics
@@ -127,9 +126,7 @@ export function createTCXRecorder (config) {
   }
 
   function updateLapMetrics (metrics) {
-    if (metrics.cyclePower !== undefined && metrics.cyclePower > 0) { powerSeries.push(metrics.cyclePower) }
-    if (metrics.cycleLinearVelocity !== undefined && metrics.cycleLinearVelocity > 0) { speedSeries.push(metrics.cycleLinearVelocity) }
-    if (!isNaN(heartRate) && heartRate > 0) { heartrateSeries.push(heartRate) }
+    lapMetrics.push(metrics)
   }
 
   function calculateLapMetrics (metrics) {
@@ -140,18 +137,16 @@ export function createTCXRecorder (config) {
     sessionData.lap[lapnumber].numberOfStrokes = sessionData.lap[lapnumber].strokes.length
     sessionData.lap[lapnumber].averageStrokeRate = 60 * (sessionData.lap[lapnumber].numberOfStrokes / sessionData.lap[lapnumber].totalMovingTime)
     sessionData.lap[lapnumber].averageVelocity = sessionData.lap[lapnumber].totalLinearDistance / sessionData.lap[lapnumber].totalMovingTime
-    sessionData.lap[lapnumber].averagePower = powerSeries.average()
-    sessionData.lap[lapnumber].maximumPower = powerSeries.maximum()
-    sessionData.lap[lapnumber].averageSpeed = speedSeries.average()
-    sessionData.lap[lapnumber].maximumSpeed = speedSeries.maximum()
-    sessionData.lap[lapnumber].averageHeartrate = heartrateSeries.average()
-    sessionData.lap[lapnumber].maximumHeartrate = heartrateSeries.maximum()
+    sessionData.lap[lapnumber].averagePower = lapMetrics.power.average()
+    sessionData.lap[lapnumber].maximumPower = lapMetrics.power.maximum()
+    sessionData.lap[lapnumber].averageSpeed = lapMetrics.linearVelocity.average()
+    sessionData.lap[lapnumber].maximumSpeed = lapMetrics.linearVelocity.maximum()
+    sessionData.lap[lapnumber].averageHeartrate = lapMetrics.heartrate.average()
+    sessionData.lap[lapnumber].maximumHeartrate = lapMetrics.heartrate.maximum()
   }
 
   function resetLapMetrics () {
-    powerSeries.reset()
-    speedSeries.reset()
-    heartrateSeries.reset()
+    lapMetrics.reset()
   }
 
   function addRestLap (lapnumber, metrics, startTime) {
@@ -417,9 +412,7 @@ export function createTCXRecorder (config) {
     lastMetrics = {}
     postExerciseHR = null
     postExerciseHR = []
-    powerSeries.reset()
-    speedSeries.reset()
-    heartrateSeries.reset()
+    lapMetrics.reset()
     drag.reset()
     VO2max.reset()
     allDataHasBeenWritten = true
