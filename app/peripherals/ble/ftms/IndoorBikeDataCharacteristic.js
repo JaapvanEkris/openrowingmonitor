@@ -30,6 +30,10 @@ export class IndoorBikeDataCharacteristic extends GattNotifyCharacteristic {
     })
   }
 
+  /**
+   * @param {Metrics} data
+   */
+  // @ts-ignore: Type is not assignable to type
   notify (data) {
     // ignore events without the mandatory fields
     if (!('cycleLinearVelocity' in data)) {

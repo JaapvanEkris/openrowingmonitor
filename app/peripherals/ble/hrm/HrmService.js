@@ -5,13 +5,17 @@
   Starts the central this.#manager in a forked thread since noble does not like
   to run in the same thread as bleno
 */
-
 import EventEmitter from 'node:events'
 
 import { BleManager } from 'ble-host'
 import logger from 'loglevel'
 
 import { toBLEStandard128BitUUID } from '../BleManager.js'
+
+/**
+ * @typedef {import('../ble-host.interface.js').Connection} Connection
+ * @typedef {import('../ble-host.interface.js').Scanner} Scanner
+ */
 
 const log = logger.getLogger('Peripherals')
 
@@ -23,12 +27,30 @@ const batteryLevelMeasurementUUID = toBLEStandard128BitUUID('2A19')
 
 export class HrmService extends EventEmitter {
   #manager
+  /**
+   * @type {Scanner | undefined}
+   */
   #scanner
+  /**
+   * @type {Connection | undefined}
+   */
   #connection
+  /**
+   * @type {import('../ble-host.interface.js').GattClientCharacteristic | undefined}
+   */
   #heartRateMeasurementCharacteristic
+  /**
+   * @type {import('../ble-host.interface.js').GattClientCharacteristic | undefined}
+   */
   #batteryLevelCharacteristic
+  /**
+   * @type {number | undefined}
+   */
   #batteryLevel
 
+  /**
+   * @param {import('../ble-host.interface.js').BleManager} manager
+   */
   constructor (manager) {
     super()
     this.#manager = manager
@@ -43,7 +65,7 @@ export class HrmService extends EventEmitter {
     this.#batteryLevelCharacteristic?.removeAllListeners()
 
     const device = await new Promise((resolve) => {
-      this.#scanner.on('report', (eventData) => {
+      /** @type {Scanner} */(this.#scanner).on('report', (eventData) => {
         if (eventData.connectable) {
           resolve(eventData)
         }
@@ -55,7 +77,7 @@ export class HrmService extends EventEmitter {
     this.#scanner.removeAllListeners()
     this.#scanner.stopScan()
 
-    this.#connection = await new Promise((resolve) => {
+    this.#connection = await new Promise((/** @type {(value: Connection) => void} */resolve) => {
       this.#manager.connect(device.addressType, device.address, {}, (connection) => {
         resolve(connection)
       })
@@ -68,7 +90,7 @@ export class HrmService extends EventEmitter {
     })
 
     log.debug('Connected to ' + this.#connection.peerAddress)
-    const primaryServices = await new Promise((resolve, reject) => {
+    const primaryServices = await new Promise((/** @type {(value: Array<import('../ble-host.interface.js').GattClientService>) => void} */resolve, reject) => {
       if (this.#connection === undefined) {
         reject(new Error('Connection has been disposed'))
 
@@ -151,7 +173,7 @@ export class HrmService extends EventEmitter {
     this.#batteryLevelCharacteristic?.removeAllListeners()
     this.#heartRateMeasurementCharacteristic?.removeAllListeners()
     this.#scanner?.stopScan()
-    return new Promise((resolve) => {
+    return new Promise((/** @type {(value: void) => void} */resolve) => {
       log.debug('Shutting down HRM peripheral')
       if (this.#connection !== undefined) {
         log.debug('Terminating current HRM connection')
@@ -165,6 +187,9 @@ export class HrmService extends EventEmitter {
     })
   }
 
+  /**
+   * @param {Buffer} data
+   */
   #onHeartRateNotify (data) {
     const flags = data.readUInt8(0)
     // bits of the feature flag:
@@ -184,6 +209,9 @@ export class HrmService extends EventEmitter {
     this.emit('heartRateMeasurement', { heartrate, batteryLevel: this.#batteryLevel })
   }
 
+  /**
+   * @param {Buffer} data
+   */
   #onBatteryNotify (data) {
     this.#batteryLevel = data.readUInt8(0)
   }

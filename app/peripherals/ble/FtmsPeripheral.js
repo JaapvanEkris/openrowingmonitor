@@ -17,8 +17,19 @@ import loglevel from 'loglevel'
 import { DeviceInformationService } from './common/DeviceInformationService.js'
 import { FitnessMachineService } from './ftms/FitnessMachineService.js'
 
+/**
+ * @typedef {import('./ble-host.interface.js').BleManager} BleManager
+ * @typedef {import('./ble-host.interface.js').Connection} Connection
+ */
+
 const log = loglevel.getLogger('Peripherals')
 
+/**
+ * @param {import('./BleManager.js').BleManager} bleManager
+ * @param {ControlPointCallback} controlCallback
+ * @param {Config} config
+ * @param {boolean} simulateIndoorBike
+ */
 export function createFtmsPeripheral (bleManager, controlCallback, config, simulateIndoorBike) {
   const peripheralName = simulateIndoorBike ? config.ftmsBikePeripheralName : config.ftmsRowerPeripheralName
   const fitnessMachineService = new FitnessMachineService(controlCallback, simulateIndoorBike)
@@ -30,7 +41,12 @@ export function createFtmsPeripheral (bleManager, controlCallback, config, simul
     .build()
 
   const broadcastInterval = config.ftmsUpdateInterval
+  /**
+   * @type {Metrics}
+   */
   let lastKnownMetrics = {
+    // This reference is to satisfy type checking while simplifying the initialization of lastKnownMetrics (i.e. allow partial initialization but have the type system consider it as a full Metrics type)
+    .../** @type {Metrics} */({}),
     sessiontype: 'justrow',
     sessionStatus: 'WaitingForStart',
     strokeState: 'WaitingForDrive',
@@ -41,7 +57,13 @@ export function createFtmsPeripheral (bleManager, controlCallback, config, simul
 
   let timer = setTimeout(onBroadcastInterval, broadcastInterval)
 
+  /**
+  * @type {BleManager | undefined}
+  */
   let _manager
+  /**
+  * @type {Connection | undefined}
+  */
   let _connection
 
   setup()
@@ -57,14 +79,14 @@ export function createFtmsPeripheral (bleManager, controlCallback, config, simul
   }
 
   async function triggerAdvertising () {
-    _connection = await new Promise((resolve) => {
-      _manager.startAdvertising({/* options */}, (_status, connection) => {
+    _connection = await new Promise((/** @type {(value: Connection) => void} */resolve) => {
+      /** @type {BleManager} */(_manager).startAdvertising({/* options */}, (_status, connection) => {
         resolve(connection)
       })
     })
     log.debug(`FTMS Connection established, address: ${_connection.peerAddress}`)
 
-    await new Promise((resolve) => { _connection.gatt.exchangeMtu(resolve) })
+    await new Promise((resolve) => { /** @type {Connection} */(_connection).gatt.exchangeMtu(resolve) })
 
     _connection.once('disconnect', async () => {
       log.debug(`FTMS client disconnected (address: ${_connection?.peerAddress}), restarting advertising`)
@@ -73,12 +95,17 @@ export function createFtmsPeripheral (bleManager, controlCallback, config, simul
     }) // restart advertising after disconnect
   }
 
-  // Records the last known rowing metrics to FTMS central
+  /** Records the last known rowing metrics to FTMS central
+   * @param {Metrics} data
+   */
   function notifyData (data) {
     lastKnownMetrics = data
   }
 
-  // present current rowing status to FTMS central
+  /**
+   * Present current rowing status to FTMS central
+   * @param {{name: string}} status
+   */
   function notifyStatus (status) {
     fitnessMachineService.notifyStatus(status)
   }

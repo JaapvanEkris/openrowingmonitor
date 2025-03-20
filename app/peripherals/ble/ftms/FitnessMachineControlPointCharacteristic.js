@@ -47,9 +47,15 @@ export class FitnessMachineControlPointCharacteristic {
   }
 
   #controlled = false
+  /**
+   * @type {GattServerCharacteristicFactory}
+   */
   #characteristic
   #controlPointCallback
 
+  /**
+   * @param {ControlPointCallback} controlPointCallback
+   */
   constructor (controlPointCallback) {
     if (!controlPointCallback) { throw new Error('controlPointCallback required') }
     this.#controlPointCallback = controlPointCallback
@@ -72,6 +78,10 @@ export class FitnessMachineControlPointCharacteristic {
     }
   }
 
+  /**
+   * @param {Buffer} data
+   * @returns {Buffer}
+   */
   #onWriteRequest (data) {
     const opCode = data.readUInt8(0)
     switch (opCode) {
@@ -138,6 +148,10 @@ export class FitnessMachineControlPointCharacteristic {
     return this.#buildResponse(opCode, ResultOpCode.opCodeNotSupported)
   }
 
+  /**
+   * @param {number} opCode
+   * @param {Command} opName
+   */
   #handleSimpleCommand (opCode, opName) {
     if (this.#controlled) {
       if (this.#controlPointCallback({
@@ -160,6 +174,10 @@ export class FitnessMachineControlPointCharacteristic {
     return this.#buildResponse(opCode, ResultOpCode.controlNotPermitted)
   }
 
+  /**
+   * @param {number} opCode
+   * @param {number} resultCode
+   */
   #buildResponse (opCode, resultCode) {
     const buffer = Buffer.alloc(3)
     buffer.writeUInt8(0x80, 0)

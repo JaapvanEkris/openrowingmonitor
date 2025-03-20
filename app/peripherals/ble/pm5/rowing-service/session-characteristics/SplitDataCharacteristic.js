@@ -14,6 +14,9 @@ import { SessionTypes, toC2128BitUUID } from '../../Pm5Constants.js'
 export class SplitDataCharacteristic extends GattNotifyCharacteristic {
   #multiplexedCharacteristic
 
+  /**
+   * @param {import('../other-characteristics/MultiplexedCharacteristic.js').MultiplexedCharacteristic} multiplexedCharacteristic
+   */
   constructor (multiplexedCharacteristic) {
     super({
       name: 'Split Data',
@@ -23,6 +26,10 @@ export class SplitDataCharacteristic extends GattNotifyCharacteristic {
     this.#multiplexedCharacteristic = multiplexedCharacteristic
   }
 
+  /**
+   * @param {Metrics} data
+   */
+  // @ts-ignore: Type is not assignable to type
   notify (data) {
     const bufferBuilder = new BufferBuilder()
     // Data bytes packed as follows: (18bytes)

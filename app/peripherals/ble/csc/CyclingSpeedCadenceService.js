@@ -14,6 +14,9 @@ import { createStaticReadCharacteristic } from '../common/StaticReadCharacterist
 export class CyclingSpeedCadenceService extends GattService {
   #measurementCharacteristic
 
+  /**
+   * @param {ControlPointCallback} controlPointCallback
+   */
   constructor (controlPointCallback) {
     const cscFeatureBuffer = new BufferBuilder()
     cscFeatureBuffer.writeUInt16LE(featuresFlag)
@@ -32,8 +35,11 @@ export class CyclingSpeedCadenceService extends GattService {
     this.#measurementCharacteristic = measurementCharacteristic
   }
 
-  notifyData (event) {
-    this.#measurementCharacteristic.notify(event)
+  /**
+   * @param {Metrics} data
+   */
+  notifyData (data) {
+    this.#measurementCharacteristic.notify(data)
   }
 }
 

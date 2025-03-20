@@ -17,9 +17,15 @@ export class SampleRateCharacteristic {
     return this.#characteristic
   }
 
+  /**
+   * @type {GattServerCharacteristicFactory}
+   */
   #characteristic
   #sampleRate
 
+  /**
+   * @param {Config} config
+   */
   constructor (config) {
     this.#sampleRate = config.pm5UpdateInterval === 1000 ? 0 : 2
     this.#characteristic = {

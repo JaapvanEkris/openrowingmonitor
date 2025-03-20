@@ -6,6 +6,14 @@ import NodeBleHost from 'ble-host'
 import loglevel from 'loglevel'
 
 const log = loglevel.getLogger('Peripherals')
+
+/**
+ * @param {string | number} uuid
+ * @param {Buffer | string | Array<number>} value
+ * @param {Buffer | string} [description]
+ * @param {boolean} [addNotify = false]
+ * @returns {Partial<import('../ble-host.interface.js').GattServerCharacteristic>}
+ */
 export function createStaticReadCharacteristic (uuid, value, description, addNotify = false) {
   const descriptors = description !== undefined
     ? [

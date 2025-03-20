@@ -13,6 +13,9 @@ import { pm5Constants, toC2128BitUUID } from '../../Pm5Constants.js'
 export class AdditionalStatusCharacteristic extends GattNotifyCharacteristic {
   #multiplexedCharacteristic
 
+  /**
+   * @param {import('../other-characteristics/MultiplexedCharacteristic.js').MultiplexedCharacteristic} multiplexedCharacteristic
+   */
   constructor (multiplexedCharacteristic) {
     super({
       name: 'Additional Status',
@@ -23,6 +26,10 @@ export class AdditionalStatusCharacteristic extends GattNotifyCharacteristic {
     this.#multiplexedCharacteristic = multiplexedCharacteristic
   }
 
+  /**
+   * @param {Metrics} data
+   */
+  // @ts-ignore: Type is not assignable to type
   notify (data) {
     const bufferBuilder = new BufferBuilder()
     // elapsedTime: UInt24LE in 0.01 sec

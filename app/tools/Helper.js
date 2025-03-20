@@ -28,6 +28,10 @@ export function deepMerge (...objects) {
 }
 
 // converts a timeStamp in seconds to a human readable hh:mm:ss format
+/**
+ * @param {number} secondsTimeStamp
+ * @returns
+ */
 export function secondsToTimeString (secondsTimeStamp) {
   if (secondsTimeStamp === Infinity) return '∞'
   const hours = Math.floor(secondsTimeStamp / 60 / 60)
@@ -42,7 +46,6 @@ export function secondsToTimeString (secondsTimeStamp) {
 
 /**
   * Pipe for formatting numbers to specific decimal
-  *
   * @param {number} value The number.
   * @param {number} decimalPlaces The number of decimal places to round to (default: 0).
 */

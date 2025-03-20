@@ -50,6 +50,11 @@ export class FitnessMachineStatusCharacteristic extends GattNotifyCharacteristic
     })
   }
 
+  /**
+   * Present current rowing status to FTMS central
+   * @param {{name: string}} status
+   */
+  // @ts-ignore: Type is not assignable to type
   notify (status) {
     if (!(status && status.name)) {
       return

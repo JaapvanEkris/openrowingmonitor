@@ -6,8 +6,17 @@ import EventEmitter from 'node:events'
 
 import { HrmService } from './hrm/HrmService.js'
 
+/**
+ * @param {import ('./BleManager.js').BleManager} bleManager
+ */
 export function createBleHrmPeripheral (bleManager) {
+  /**
+   * @type {EventEmitter<{heartRateMeasurement: Array<HeartRateMeasurementEvent>}>}
+   */
   const emitter = new EventEmitter()
+  /**
+   * @type {HrmService | undefined}
+   */
   let _hrmService
 
   setup()

@@ -53,9 +53,15 @@ export class Pm5RowingService extends GattService {
 
   #loggedWorkout
 
+  /**
+   * @type {Metrics}
+   */
   #lastKnownMetrics
   #config
 
+  /**
+   * @param {Config} config
+   */
   constructor (config) {
     const multiplexedCharacteristic = new MultiplexedCharacteristic()
     const generalStatus = new GeneralStatusCharacteristic(multiplexedCharacteristic)
@@ -119,6 +125,7 @@ export class Pm5RowingService extends GattService {
     this.#additionalWorkoutSummary2 = new AdditionalWorkoutSummary2Characteristic(multiplexedCharacteristic)
     this.#loggedWorkout = loggedWorkout
     this.#lastKnownMetrics = {
+      .../** @type {Metrics} */({}),
       sessiontype: 'justrow',
       sessionStatus: 'WaitingForStart',
       strokeState: 'WaitingForDrive',
@@ -130,6 +137,9 @@ export class Pm5RowingService extends GattService {
     setTimeout(() => { this.#onBroadcastInterval() }, this.#config.pm5UpdateInterval)
   }
 
+  /**
+  * @param {Metrics} metrics
+  */
   notifyData (metrics) {
     if (metrics.metricsContext === undefined) return
     this.#lastKnownMetrics = metrics
@@ -158,6 +168,9 @@ export class Pm5RowingService extends GattService {
     this.#genericStatusDataNotifies(this.#lastKnownMetrics)
   }
 
+  /**
+   * @param {Metrics} metrics
+   */
   #genericStatusDataNotifies (metrics) {
     this.#generalStatus.notify(metrics)
     this.#additionalStatus.notify(metrics)
@@ -166,17 +179,26 @@ export class Pm5RowingService extends GattService {
     setTimeout(() => this.#onBroadcastInterval(), this.#config.pm5UpdateInterval)
   }
 
+  /**
+   * @param {Metrics} metrics
+   */
   #splitDataNotifies (metrics) {
     this.#splitData.notify(metrics)
     this.#additionalSplitData.notify(metrics)
   }
 
+  /**
+   * @param {Metrics} metrics
+   */
   #strokeEndDataNotifies (metrics) {
     this.#strokeData.notify(metrics)
     this.#additionalStrokeData.notify(metrics)
     // ForceCurve
   }
 
+  /**
+   * @param {Metrics} metrics
+   */
   #workoutEndDataNotifies (metrics) {
     this.#workoutSummary.notify(metrics)
     this.#additionalWorkoutSummary.notify(metrics)

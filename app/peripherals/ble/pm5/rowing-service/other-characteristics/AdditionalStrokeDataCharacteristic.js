@@ -13,6 +13,9 @@ import { toC2128BitUUID } from '../../Pm5Constants.js'
 export class AdditionalStrokeDataCharacteristic extends GattNotifyCharacteristic {
   #multiplexedCharacteristic
 
+  /**
+   * @param {import('./MultiplexedCharacteristic.js').MultiplexedCharacteristic} multiplexedCharacteristic
+   */
   constructor (multiplexedCharacteristic) {
     super({
       name: 'Additional Stroke Data',
@@ -22,6 +25,10 @@ export class AdditionalStrokeDataCharacteristic extends GattNotifyCharacteristic
     this.#multiplexedCharacteristic = multiplexedCharacteristic
   }
 
+  /**
+   * @param {Metrics} data
+   */
+  // @ts-ignore: Type is not assignable to type
   notify (data) {
     const bufferBuilder = new BufferBuilder()
     // elapsedTime: UInt24LE in 0.01 sec

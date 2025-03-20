@@ -5,11 +5,15 @@
   Creates a ANT+ Peripheral with all the datapages that are required for
   an indoor rower
 */
-
 import log from 'loglevel'
-import { Messages } from 'incyclist-ant-plus'
+
 import { PeripheralConstants } from '../PeripheralConstants.js'
 
+import { Messages } from 'incyclist-ant-plus'
+
+/**
+ * @param {import('./AntManager').default} antManager
+ */
 function createFEPeripheral (antManager) {
   const antStick = antManager.getAntStick()
   const deviceType = 0x11 // Ant FE-C device
@@ -21,6 +25,9 @@ function createFEPeripheral (antManager) {
   const rfChannel = 57 // 2457 MHz
   let dataPageCount = 0
   let commonPageCount = 0
+  /**
+   * @type {NodeJS.Timeout}
+   */
   let timer
 
   let sessionData = {
@@ -56,7 +63,7 @@ function createFEPeripheral (antManager) {
   }
 
   function destroy () {
-    return new Promise((resolve) => {
+    return new Promise((/** @type {(value: void) => void} */resolve) => {
       clearInterval(timer)
       log.info(`ANT+ FE server stopped [deviceId=${deviceId} channel=${channel}]`)
 
@@ -73,7 +80,7 @@ function createFEPeripheral (antManager) {
 
   function onBroadcastInterval () {
     dataPageCount++
-    let data
+    let /** @type {Array<number>} */data = []
 
     switch (true) {
       case dataPageCount === 65 || dataPageCount === 66:
@@ -162,6 +169,9 @@ function createFEPeripheral (antManager) {
     timer = setTimeout(onBroadcastInterval, broadcastInterval)
   }
 
+  /**
+   * @param {Metrics} data
+   */
   function notifyData (data) {
     sessionData = {
       ...sessionData,
@@ -203,7 +213,10 @@ function createFEPeripheral (antManager) {
     }
   }
 
-  // FE does not have status characteristic
+  /**
+   * FE does not have status characteristic
+   * @param {{name: string}} status
+   */
   function notifyStatus (status) {
   }
 

@@ -35,8 +35,11 @@ export class CyclingPowerService extends GattService {
     this.#measurementCharacteristic = measurementCharacteristic
   }
 
-  notifyData (event) {
-    this.#measurementCharacteristic.notify(event)
+  /**
+   * @param {Metrics} data
+   */
+  notifyData (data) {
+    this.#measurementCharacteristic.notify(data)
   }
 }
 

@@ -5,7 +5,6 @@
   Creates a Bluetooth Low Energy (BLE) Peripheral with all the Services that are required for
   a Cycling Power Profile
 */
-
 import NodeBleHost from 'ble-host'
 import loglevel from 'loglevel'
 
@@ -14,21 +13,36 @@ import { bleBroadcastInterval, bleMinimumKnowDataUpdateInterval } from '../Perip
 import { CyclingPowerService } from './cps/CyclingPowerMeterService.js'
 import { DeviceInformationService } from './common/DeviceInformationService.js'
 
+/**
+ * @typedef {import('./ble-host.interface.js').Connection} Connection
+ * @typedef {import('./ble-host.interface.js').BleManager} BleManager
+ */
+
 const log = loglevel.getLogger('Peripherals')
 
+/**
+ *
+ * @param {import('./BleManager.js').BleManager} bleManager
+ * @param {Config} config
+ * @returns
+ */
 export function createCpsPeripheral (bleManager, config) {
   const cyclingPowerService = new CyclingPowerService((event) => {
     log.debug('CPS Control Point', event)
     return false
   })
+  /**
+   * @type {Metrics}
+   */
   let lastKnownMetrics = {
+    // This reference is to satisfy type checking while simplifying the initialization of lastKnownMetrics (i.e. allow partial initialization but have the type system consider it as a full Metrics type)
+    .../** @type {Metrics} */({}),
     sessiontype: 'justrow',
     sessionStatus: 'WaitingForStart',
     strokeState: 'WaitingForDrive',
     totalMovingTime: 0,
     totalLinearDistance: 0,
-    dragFactor: config.rowerSettings.dragFactor,
-    lastDataUpdateTime: Date.now()
+    dragFactor: config.rowerSettings.dragFactor
   }
   let timer = setTimeout(onBroadcastInterval, bleBroadcastInterval)
 
@@ -44,7 +58,13 @@ export function createCpsPeripheral (bleManager, config) {
     .addLocalName(/* isComplete */ true, `${config.ftmsRowerPeripheralName} (CPS)`)
     .build()
 
+  /**
+  * @type {BleManager | undefined}
+  */
   let _manager
+  /**
+  * @type {Connection | undefined}
+  */
   let _connection
 
   setup()
@@ -60,8 +80,8 @@ export function createCpsPeripheral (bleManager, config) {
   }
 
   async function triggerAdvertising () {
-    _connection = await new Promise((resolve) => {
-      _manager.startAdvertising({/* options */}, (_status, connection) => {
+    _connection = await new Promise((/** @type {(value: Connection) => void} */resolve) => {
+      /** @type {BleManager} */(_manager).startAdvertising({/* options */}, (_status, connection) => {
         resolve(connection)
       })
     })
@@ -80,9 +100,11 @@ export function createCpsPeripheral (bleManager, config) {
     timer = setTimeout(onBroadcastInterval, bleBroadcastInterval)
   }
 
-  // Records the last known rowing metrics to CPS central
-  // As the client calculates its own speed based on time and distance,
-  // we an only update the last known metrics upon a stroke state change to prevent spiky behaviour
+  /** Records the last known rowing metrics to CPS central
+   * As the client calculates its own speed based on time and distance,
+   * we an only update the last known metrics upon a stroke state change to prevent spiky behaviour
+   * @param {Metrics} metrics
+   */
   function notifyData (metrics) {
     if (metrics.metricsContext === undefined) return
     switch (true) {
@@ -111,7 +133,10 @@ export function createCpsPeripheral (bleManager, config) {
     }
   }
 
-  // CPS does not have status characteristic
+  /**
+   * CPS does not have status characteristic
+   * @param {{name: string}} status
+   */
   function notifyStatus (status) {
   }
 

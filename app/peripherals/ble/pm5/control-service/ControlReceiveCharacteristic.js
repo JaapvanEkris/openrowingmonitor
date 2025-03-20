@@ -18,6 +18,9 @@ export class ControlReceiveCharacteristic {
     return this.#characteristic
   }
 
+  /**
+   * @type {GattServerCharacteristicFactory}
+   */
   #characteristic
 
   constructor () {

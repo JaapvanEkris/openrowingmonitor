@@ -13,10 +13,17 @@ import { Concept2Date, pm5Constants } from '../../Pm5Constants.js'
 export class AdditionalWorkoutSummary2Characteristic {
   #multiplexedCharacteristic
 
+  /**
+   * @param {import('../other-characteristics/MultiplexedCharacteristic.js').MultiplexedCharacteristic} multiplexedCharacteristic
+   */
   constructor (multiplexedCharacteristic) {
     this.#multiplexedCharacteristic = multiplexedCharacteristic
   }
 
+  /**
+   * @param {Metrics} data
+   */
+  // @ts-ignore: Type is not assignable to type
   notify (data) {
     const bufferBuilder = new BufferBuilder()
     // Data bytes packed as follows: (10Bytes) example: (0x3C) 0333 1212 4808 10 0000 00

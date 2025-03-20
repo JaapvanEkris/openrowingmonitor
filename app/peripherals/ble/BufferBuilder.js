@@ -8,9 +8,15 @@ import log from 'loglevel'
 
 export class BufferBuilder {
   constructor () {
+    /**
+     * @type {Array<Buffer>}
+     */
     this._dataArray = []
   }
 
+  /**
+   * @param {number} value
+   */
   writeUInt8 (value) {
     const buffer = Buffer.alloc(1)
     try {
@@ -21,6 +27,9 @@ export class BufferBuilder {
     this._dataArray.push(buffer)
   }
 
+  /**
+   * @param {number} value
+   */
   writeUInt16LE (value) {
     const buffer = Buffer.alloc(2)
     try {
@@ -31,6 +40,9 @@ export class BufferBuilder {
     this._dataArray.push(buffer)
   }
 
+  /**
+   * @param {number} value
+   */
   writeUInt24LE (value) {
     const _value = value || 0
     const buffer = Buffer.alloc(3)
@@ -47,6 +59,9 @@ export class BufferBuilder {
     this._dataArray.push(buffer)
   }
 
+  /**
+   * @param {number} value
+   */
   writeUInt32LE (value) {
     const _value = value || 0
     const buffer = Buffer.alloc(4)

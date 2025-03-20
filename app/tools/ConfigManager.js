@@ -23,6 +23,11 @@ async function getConfig () {
   return customConfig !== undefined ? deepMerge(defaultConfig, customConfig.default) : defaultConfig
 }
 
+/**
+ * @typedef {{ peripheralUpdateInterval:number, antplusMode:AntPlusModes, rowerSettings:OldRowerProfile  }} OldConfig
+ * @typedef  {{ minumumForceBeforeStroke: number, minumumRecoverySlope: number}} OldRowerProfile
+ * @param {Config & OldConfig} configToCheck
+ */
 function runConfigMigration (configToCheck) {
   if (Object.keys(configToCheck).includes('peripheralUpdateInterval')) {
     log.error('WARNING: An old version of the config file was detected, peripheralUpdateInterval is now deprecated please use ftmsUpdateInterval and pm5UpdateInterval')

@@ -16,6 +16,15 @@ import { Pm5ControlService } from './pm5/control-service/Pm5ControlService.js'
 import { Pm5DeviceInformationService } from './pm5/Pm5DeviceInformationService.js'
 import { Pm5RowingService } from './pm5/rowing-service/Pm5RowingService.js'
 
+/**
+ * @typedef {import('./ble-host.interface.js').BleManager} BleManager
+ * @typedef {import('./ble-host.interface.js').Connection} Connection
+ */
+
+/**
+ * @param {import ('./BleManager.js').BleManager} bleManager
+ * @param {Config} config
+ */
 export function createPm5Peripheral (bleManager, config) {
   const deviceInformationService = new Pm5DeviceInformationService()
   const appearanceService = new Pm5AppearanceService()
@@ -31,7 +40,13 @@ export function createPm5Peripheral (bleManager, config) {
     .add128BitServiceUUIDs(/* isComplete */ true, [toC2128BitUUID('0000')])
     .build()
 
+  /**
+  * @type {BleManager | undefined}
+  */
   let _manager
+  /**
+  * @type {Connection | undefined}
+  */
   let _connection
 
   setup()
@@ -47,14 +62,14 @@ export function createPm5Peripheral (bleManager, config) {
   }
 
   async function triggerAdvertising () {
-    _connection = await new Promise((resolve) => {
-      _manager.startAdvertising({/* options */}, (_status, connection) => {
+    _connection = await new Promise((/** @type {(value: Connection) => void} */resolve) => {
+      /** @type {BleManager} */(_manager).startAdvertising({/* options */}, (_status, connection) => {
         resolve(connection)
       })
     })
     log.debug(`PM5 Connection established, address: ${_connection.peerAddress}`)
 
-    await new Promise((resolve) => { _connection.gatt.exchangeMtu(resolve) })
+    await new Promise((resolve) => { /** @type {Connection} */(_connection).gatt.exchangeMtu(resolve) })
 
     _connection.once('disconnect', async () => {
       log.debug(`PM5 client disconnected (address: ${_connection?.peerAddress}), restarting advertising`)
@@ -63,12 +78,18 @@ export function createPm5Peripheral (bleManager, config) {
     }) // restart advertising after disconnect
   }
 
-  // Records the last known rowing metrics to FTMS central
+  /**
+   * Records the last known rowing metrics to FTMS central
+   * @param {Metrics} data
+   */
   function notifyData (data) {
     rowingService.notifyData(data)
   }
 
-  // present current rowing status to C2-PM5 central
+  /**
+   * Present current rowing status to C2-PM5 central
+   * @param {{name: string}} status
+   */
   function notifyStatus (status) {
   }
 
@@ -77,7 +98,7 @@ export function createPm5Peripheral (bleManager, config) {
 
     if (_manager !== undefined) {
       gattServices.forEach((service) => {
-        _manager.gattDb.removeService(service)
+        /** @type {BleManager} */(_manager).gattDb.removeService(service)
       })
     }
     return new Promise((resolve) => {

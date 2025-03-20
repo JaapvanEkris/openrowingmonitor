@@ -16,7 +16,14 @@ export class CyclingPowerControlPointCharacteristic {
     return this.#characteristic
   }
 
+  /**
+   * @type {GattServerCharacteristicFactory}
+   */
   #characteristic
+
+  /**
+   * @param {ControlPointCallback} controlPointCallback
+   */
   constructor (controlPointCallback) {
     this.#characteristic = {
       name: 'Cycling Power Meter Control Point',

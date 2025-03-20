@@ -14,6 +14,9 @@ import { pm5Constants, toC2128BitUUID } from '../../Pm5Constants.js'
 export class AdditionalSplitDataCharacteristic extends GattNotifyCharacteristic {
   #multiplexedCharacteristic
 
+  /**
+   * @param {import('../other-characteristics/MultiplexedCharacteristic.js').MultiplexedCharacteristic} multiplexedCharacteristic
+   */
   constructor (multiplexedCharacteristic) {
     super({
       name: 'Additional Split Data',
@@ -23,6 +26,10 @@ export class AdditionalSplitDataCharacteristic extends GattNotifyCharacteristic 
     this.#multiplexedCharacteristic = multiplexedCharacteristic
   }
 
+  /**
+   * @param {Metrics} data
+   */
+  // @ts-ignore: Type is not assignable to type
   notify (data) {
     const bufferBuilder = new BufferBuilder()
     // Data bytes packed as follows: (19bytes) - Multiplex as per spec 18bytes, but actually the list show 19. need to verify from the PM5

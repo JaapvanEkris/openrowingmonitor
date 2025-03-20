@@ -101,7 +101,6 @@ export const DASHBOARD_METRICS = {
 
 /**
   * Helper function to create a simple metric tile
-  *
   * @param {string | number} value The metric to show
   * @param {string} unit The unit of the metric.
   * @param {string | import('lit').TemplateResult<2>} icon The number of decimal places to round to (default: 0).

@@ -22,6 +22,11 @@ export class MultiplexedCharacteristic extends GattNotifyCharacteristic {
     })
   }
 
+  /**
+   * @param {number} id
+   * @param {Buffer} characteristicBuffer
+   */
+  // @ts-ignore: Type is not assignable to type
   notify (id, characteristicBuffer) {
     const characteristicId = Buffer.alloc(1)
     characteristicId.writeUInt8(id, 0)

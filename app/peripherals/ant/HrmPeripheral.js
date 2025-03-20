@@ -6,6 +6,7 @@
 */
 import EventEmitter from 'node:events'
 import log from 'loglevel'
+
 import { HeartRateSensor } from 'incyclist-ant-plus'
 
 function createAntHrmPeripheral (antManager) {

@@ -21,10 +21,22 @@ import { createFtmsPeripheral } from './ble/FtmsPeripheral.js'
 import { createMQTTPeripheral } from './mqtt/mqtt.js'
 import { createPm5Peripheral } from './ble/Pm5Peripheral.js'
 
+/**
+ * @type {Array<BluetoothModes>}
+ */
 const bleModes = ['FTMS', 'FTMSBIKE', 'PM5', 'CSC', 'CPS', 'OFF']
+/**
+ * @type {Array<AntPlusModes>}
+ */
 const antModes = ['FE', 'OFF']
+/**
+ * @type {Array<HeartRateModes>}
+ */
 const hrmModes = ['ANT', 'BLE', 'OFF']
 
+/**
+ * @param {Config} config
+ */
 export function createPeripheralManager (config) {
   const emitter = new EventEmitter()
   const mqttEnabled = (config.mqtt.mqttBroker !== '') && (config.mqtt.username !== '') && (config.mqtt.password !== '') && (config.mqtt.machineName !== '')
@@ -363,6 +375,9 @@ export function createPeripheralManager (config) {
     }
   }
 
+  /**
+   * @param {ControlPointEvent} event
+   */
   function controlCallback (event) {
     emitter.emit('control', event)
 

@@ -54,6 +54,7 @@ test('negative writeUInt32LE should produce 4 bit buffer of 0x0', () => {
 
 test('invalid datatype value UInt16LE should produce 2 bit buffer of 0x0', () => {
   const buffer = new BufferBuilder()
+  // @ts-ignore
   buffer.writeUInt16LE(new Map())
   assert.equal(buffer.getBuffer(), Buffer.from([0x0, 0x0]))
 })

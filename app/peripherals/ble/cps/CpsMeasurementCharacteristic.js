@@ -38,6 +38,10 @@ export class CyclingPowerMeasurementCharacteristic extends GattNotifyCharacteris
     })
   }
 
+  /**
+   * @param {Metrics} data
+   */
+  // @ts-ignore: Type is not assignable to type
   notify (data) {
     const bufferBuilder = new BufferBuilder()
 

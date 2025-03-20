@@ -16,8 +16,14 @@ export class CyclingSpeedCadenceControlPointCharacteristic {
     return this.#characteristic
   }
 
+  /**
+   * @type {GattServerCharacteristicFactory}
+   */
   #characteristic
 
+  /**
+   * @param {ControlPointCallback} controlPointCallback
+   */
   constructor (controlPointCallback) {
     this.#characteristic = {
       name: 'Cycling Speed and Cadence Control Point',

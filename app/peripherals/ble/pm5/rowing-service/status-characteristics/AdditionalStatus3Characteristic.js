@@ -13,6 +13,9 @@ import { toC2128BitUUID } from '../../Pm5Constants.js'
 export class AdditionalStatus3Characteristic extends GattNotifyCharacteristic {
   #multiplexedCharacteristic
 
+  /**
+   * @param {import('../other-characteristics/MultiplexedCharacteristic.js').MultiplexedCharacteristic} multiplexedCharacteristic
+   */
   constructor (multiplexedCharacteristic) {
     super({
       name: 'Additional Status 3',
@@ -23,6 +26,10 @@ export class AdditionalStatus3Characteristic extends GattNotifyCharacteristic {
     this.#multiplexedCharacteristic = multiplexedCharacteristic
   }
 
+  /**
+   * @param {Metrics} data
+   */
+  // @ts-ignore: Type is not assignable to type
   notify (data) {
     const bufferBuilder = new BufferBuilder()
     // Operational State: 0 RESET, 1 READY, 2 WORKOUT, 3 WARMUP, 6 PAUSE, 10 IDLE, TODO: to be mapped to semthing ORM uses

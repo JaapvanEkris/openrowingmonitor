@@ -24,6 +24,10 @@ export class RowerDataCharacteristic extends GattNotifyCharacteristic {
       })
   }
 
+  /**
+   * @param {Metrics} data
+   */
+  // @ts-ignore: Type is not assignable to type
   notify (data) {
     // ignore events without the mandatory fields
     if (!('cycleStrokeRate' in data && 'totalNumberOfStrokes' in data)) {

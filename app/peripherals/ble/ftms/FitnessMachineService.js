@@ -28,6 +28,10 @@ export class FitnessMachineService extends GattService {
   #dataCharacteristic
   #statusCharacteristic
 
+  /**
+   * @param {ControlPointCallback} controlPointCallback
+   * @param {boolean} [simulateIndoorBike = false]
+   */
   constructor (controlPointCallback, simulateIndoorBike = false) {
     const ftmsFeaturesBuffer = new BufferBuilder()
     ftmsFeaturesBuffer.writeUInt16LE(featuresFlag)
@@ -50,12 +54,19 @@ export class FitnessMachineService extends GattService {
     this.#statusCharacteristic = statusCharacteristic
   }
 
+  /**
+   * @param {Metrics} data
+   */
   notifyData (data) {
     this.#dataCharacteristic.notify(data)
   }
 
-  notifyStatus (event) {
-    this.#statusCharacteristic.notify(event)
+  /**
+   * Present current rowing status to FTMS central
+   * @param {{name: string}} status
+   */
+  notifyStatus (status) {
+    this.#statusCharacteristic.notify(status)
   }
 }
 

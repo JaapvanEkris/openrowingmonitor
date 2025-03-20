@@ -14,6 +14,9 @@ import { pm5Constants, toC2128BitUUID } from '../../Pm5Constants.js'
 export class LoggedWorkoutCharacteristic extends GattNotifyCharacteristic {
   #multiplexedCharacteristic
 
+  /**
+   * @param {import('../other-characteristics/MultiplexedCharacteristic.js').MultiplexedCharacteristic} multiplexedCharacteristic
+   */
   constructor (multiplexedCharacteristic) {
     super({
       name: 'Additional Workout Summary',
@@ -23,6 +26,10 @@ export class LoggedWorkoutCharacteristic extends GattNotifyCharacteristic {
     this.#multiplexedCharacteristic = multiplexedCharacteristic
   }
 
+  /**
+   * @param {Metrics} data
+   */
+  // @ts-ignore: Type is not assignable to type
   notify (data) {
     const bufferBuilder = new BufferBuilder()
     // Data bytes packed as follows: (15bytes) example: 0x 41A09A0C97A37088 CAE10801 D400 00 (00000000)

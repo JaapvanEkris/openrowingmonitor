@@ -18,8 +18,7 @@ export function filterObjectByKeys (object, keys) {
 
 /**
   * Pipe for converting seconds to a human readable time format 00:00
-  *
-  * @param {number} seconds The actual time in seconds.
+  * @param {number} timeInSeconds The actual time in seconds.
 */
 export function secondsToTimeString (timeInSeconds) {
   if (timeInSeconds === undefined || timeInSeconds === null || isNaN(timeInSeconds)) return '--'
@@ -37,7 +36,6 @@ export function secondsToTimeString (timeInSeconds) {
 
 /**
   * Pipe for formatting distance in meters with units
-  *
   * @param {number} value The distance in meters.
 */
 export function formatDistance (value) {
@@ -48,7 +46,6 @@ export function formatDistance (value) {
 
 /**
   * Pipe for formatting numbers to specific decimal
-  *
   * @param {number} value The number.
   * @param {number} decimalPlaces The number of decimal places to round to (default: 0).
 */

@@ -19,6 +19,10 @@ export class ControlTransmitCharacteristic extends GattNotifyCharacteristic {
     })
   }
 
+  /**
+   * @param {Buffer} buffer
+   * @override
+   */
   notify (buffer) {
     super.notify(buffer)
   }
