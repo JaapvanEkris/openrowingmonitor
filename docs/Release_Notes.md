@@ -1,11 +1,12 @@
 # OpenRowingMonitor Release Notes
 
-## From 0.9.5 to 0.9.6 (March 2025)
+## From 0.9.5 to 0.9.6 (April 2025)
 
-Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz](https://github.com/Abasz)
+Main contributors: [Abasz](https://github.com/Abasz) and [Jaap van Ekris](https://github.com/JaapvanEkris)
 
 ### New functionality in 0.9.6
 
+- Rewrite of the entire b;uetooth stack, improving stability, removing limitations and bringing the PM5 interface much closer to the official PM5 interface specification
 - Added [RowsAndAll.com](https://rowsandall.com) integration for workout reporting (i.e. automatic uploading of a result)
 - Added [intervals.icu](https://intervals.icu) integration for workout reporting (i.e. automatic uploading a result)
 - Added a MQTT peripheral to report metrics live to MQTT brokers and control home automation, etc. (see [this discussion](https://github.com/laberning/openrowingmonitor/discussions/43) and [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/80))
