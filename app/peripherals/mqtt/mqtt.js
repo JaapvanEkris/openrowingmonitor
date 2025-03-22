@@ -150,15 +150,12 @@ export function createMQTTPeripheral (config) {
       distancePerStroke: (metrics.cycleDistance > 0 ? metrics.cycleDistance.toFixed(2) : NaN),
       peakHandleForce: (metrics.totalNumberOfStrokes > 0 && metrics.drivePeakHandleForce > 0 ? metrics.drivePeakHandleForce.toFixed(1) : NaN),
       averageHandleForce: (metrics.totalNumberOfStrokes > 0 && metrics.driveAverageHandleForce > 0 ? metrics.driveAverageHandleForce.toFixed(1) : NaN),
-      forceCurve: (metrics.driveAverageHandleForce > 0 ? metrics.driveHandleForceCurve.map(value => value.toFixed(2)) : NaN),
-      velocityCurve: (metrics.driveAverageHandleForce > 0 ? metrics.driveHandleVelocityCurve.map(value => value.toFixed(3)) : NaN),
-      powerCurve: (metrics.driveAverageHandleForce > 0 ? metrics.driveHandlePowerCurve.map(value => value.toFixed(1)) : NaN),
       dragfactor: (metrics.dragFactor > 0 ? metrics.dragFactor.toFixed(1) : NaN)
     }
 
     client.publish(metricsTopic, JSON.stringify(jsonMetrics), { qos: 0, retain: false }, (error) => {
       if (error) {
-        console.error(error)
+        log.debug(`MQTT publisher, Error: ${error}`)
       }
     })
   }
