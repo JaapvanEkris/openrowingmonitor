@@ -1,3 +1,7 @@
+/*
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
+*/
+/* eslint-disable no-unused-vars */
 import { EventEmitter } from 'node:stream'
 
 /**

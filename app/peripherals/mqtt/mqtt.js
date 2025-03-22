@@ -115,6 +115,7 @@ export function createMQTTPeripheral (config) {
       case (metrics.metricsContext.isDriveStart):
         publishMetrics(metrics)
         break
+      // no default
     }
     lastMetrics = metrics
   }

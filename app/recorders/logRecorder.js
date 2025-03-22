@@ -62,6 +62,7 @@ export function createLogRecorder () {
       case (metrics.metricsContext.isDriveStart):
         logMetrics(metrics)
         break
+      // no default
     }
     lastMetrics = metrics
   }
