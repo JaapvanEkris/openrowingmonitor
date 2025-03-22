@@ -11,6 +11,7 @@ export function createSegmentMetrics () {
   const linearVelocity = createSeries()
   const strokerate = createSeries()
   const strokedistance = createSeries()
+  const dragFactor = createSeries()
   const heartrate = createSeries()
 
   function push (metrics) {
@@ -18,6 +19,7 @@ export function createSegmentMetrics () {
     if (!!metrics.cycleLinearVelocity && !isNaN(metrics.cycleLinearVelocity) && metrics.cycleLinearVelocity > 0) { linearVelocity.push(metrics.cycleLinearVelocity) }
     if (!!metrics.cycleStrokeRate && !isNaN(metrics.cycleStrokeRate) && metrics.cycleStrokeRate > 0) { strokerate.push(metrics.cycleStrokeRate) }
     if (!!metrics.cycleDistance && !isNaN(metrics.cycleDistance) && metrics.cycleDistance > 0) { strokedistance.push(metrics.cycleDistance) }
+    if (!!metrics.dragFactor && !isNaN(metrics.dragFactor) && metrics.dragFactor > 0) { dragFactor.push(metrics.dragFactor) }
     if (!!metrics.heartRate && !isNaN(metrics.heartRate) && metrics.heartRate > 0) { heartrate.push(metrics.heartRate) }
   }
 
@@ -35,6 +37,7 @@ export function createSegmentMetrics () {
     linearVelocity,
     strokerate,
     strokedistance,
+    dragFactor,
     heartrate,
     reset
   }
