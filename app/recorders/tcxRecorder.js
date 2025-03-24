@@ -5,6 +5,7 @@
   This Module captures the metrics of a rowing session and persists them into the tcx format
   It provides a tcx-file content, and some metadata for the filewriter and the file-uploaders
 */
+/* eslint-disable max-lines -- The length is governed by the creation of all the tcx-parameters, which we can't control */
 import log from 'loglevel'
 import { createDragLine, createVO2MaxLine, createHRRLine } from './utils/decorators.js'
 import { createSeries } from '../engine/utils/Series.js'
@@ -106,6 +107,7 @@ export function createTCXRecorder (config) {
         addMetricsToStrokesArray(metrics)
         updateLapMetrics(metrics)
         break
+      // no default
     }
     lastMetrics = metrics
   }
@@ -120,6 +122,7 @@ export function createTCXRecorder (config) {
   }
 
   function startLap (lapnumber, metrics) {
+    lapMetrics.setStart(metrics)
     sessionData.lap[lapnumber] = { startTime: metrics.timestamp }
     sessionData.lap[lapnumber].intensity = 'Active'
     sessionData.lap[lapnumber].strokes = []
@@ -131,12 +134,11 @@ export function createTCXRecorder (config) {
 
   function calculateLapMetrics (metrics) {
     sessionData.lap[lapnumber].endTime = metrics.timestamp
-    sessionData.lap[lapnumber].totalMovingTime = metrics.totalMovingTime - sessionData.lap[lapnumber].strokes[0].totalMovingTime
-    sessionData.lap[lapnumber].totalLinearDistance = metrics.totalLinearDistance - sessionData.lap[lapnumber].strokes[0].totalLinearDistance
-    sessionData.lap[lapnumber].totalCalories = metrics.totalCalories - sessionData.lap[lapnumber].strokes[0].totalCalories
-    sessionData.lap[lapnumber].numberOfStrokes = sessionData.lap[lapnumber].strokes.length
-    sessionData.lap[lapnumber].averageStrokeRate = 60 * (sessionData.lap[lapnumber].numberOfStrokes / sessionData.lap[lapnumber].totalMovingTime)
-    sessionData.lap[lapnumber].averageVelocity = sessionData.lap[lapnumber].totalLinearDistance / sessionData.lap[lapnumber].totalMovingTime
+    sessionData.lap[lapnumber].totalMovingTime = lapMetrics.movingTime()
+    sessionData.lap[lapnumber].totalLinearDistance = lapMetrics.travelledLinearDistance()
+    sessionData.lap[lapnumber].totalCalories = lapMetrics.spentCalories()
+    sessionData.lap[lapnumber].numberOfStrokes = lapMetrics.numberOfStrokes()
+    sessionData.lap[lapnumber].averageStrokeRate = lapMetrics.strokerate.average()
     sessionData.lap[lapnumber].averagePower = lapMetrics.power.average()
     sessionData.lap[lapnumber].maximumPower = lapMetrics.power.maximum()
     sessionData.lap[lapnumber].averageSpeed = lapMetrics.linearVelocity.average()
@@ -201,8 +203,10 @@ export function createTCXRecorder (config) {
     let i = 0
     while (i < workout.lap.length) {
       if (workout.lap[i].intensity !== 'Resting') {
+        // eslint-disable-next-line no-await-in-loop -- This is inevitable if you want to have some decent order in the file
         tcxData += await createActiveLap(workout.lap[i])
       } else {
+        // eslint-disable-next-line no-await-in-loop -- This is inevitable if you want to have some decent order in the file
         tcxData += await createRestLap(workout.lap[i])
       }
       i++
@@ -234,6 +238,7 @@ export function createTCXRecorder (config) {
       // Add the strokes
       let i = 0
       while (i < lapdata.strokes.length) {
+        // eslint-disable-next-line no-await-in-loop -- This is inevitable if you want to have some decent order in the file
         tcxData += await createTrackPoint(lapdata.strokes[i])
         i++
       }
@@ -304,7 +309,7 @@ export function createTCXRecorder (config) {
 
   async function createAuthor () {
     let versionArray = process.env.npm_package_version.split('.')
-    if (versionArray.length < 3) versionArray = ['0', '0', '0']
+    if (versionArray.length < 3) { versionArray = ['0', '0', '0'] }
     let tcxData = ''
     tcxData += '  <Author xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="Application_t">\n'
     tcxData += '    <Name>Open Rowing Monitor</Name>\n'
