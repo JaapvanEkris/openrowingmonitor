@@ -4,10 +4,10 @@
 
   This Module captures the metrics of a rowing session and persists them into the fit format
   It provides a fit-file content, and some metadata for the filewriter and the file-uploaders
-
 */
 
 /* eslint-disable camelcase -- Imported parameters are not camelCase */
+/* eslint-disable max-lines -- The length is governed by the fit-parameterisation, which we can't control */
 import log from 'loglevel'
 import { createName } from './utils/decorators.js'
 import { createSeries } from '../engine/utils/Series.js'
@@ -133,6 +133,7 @@ export function createFITRecorder (config) {
         updateLapMetrics(metrics)
         updateSessionMetrics(metrics)
         break
+      // no default
     }
     lastMetrics = metrics
   }
@@ -147,12 +148,10 @@ export function createFITRecorder (config) {
   }
 
   function startLap (lapnumber, metrics) {
+    lapMetrics.setStart(metrics)
     sessionData.lap[lapnumber] = { totalMovingTimeAtStart: metrics.totalMovingTime }
     sessionData.lap[lapnumber].intensity = 'active'
     sessionData.lap[lapnumber].strokes = []
-    sessionData.lap[lapnumber].totalLinearDistanceAtStart = metrics.totalLinearDistance
-    sessionData.lap[lapnumber].totalCaloriesAtStart = metrics.totalCalories
-    sessionData.lap[lapnumber].totalNumberOfStrokesAtStart = metrics.totalNumberOfStrokes
     sessionData.lap[lapnumber].startTime = metrics.timestamp
     sessionData.lap[lapnumber].workoutStepNumber = metrics.workoutStepNumber
     sessionData.lap[lapnumber].lapNumber = lapnumber + 1
@@ -164,11 +163,12 @@ export function createFITRecorder (config) {
 
   function calculateLapMetrics (metrics) {
     // We need to calculate the end time of the interval based on the time passed in the interval, as delay in message handling can cause weird effects here
-    sessionData.lap[lapnumber].totalMovingTime = metrics.totalMovingTime - sessionData.lap[lapnumber].totalMovingTimeAtStart
+    lapMetrics.push(metrics)
+    sessionData.lap[lapnumber].totalMovingTime = lapMetrics.movingTime()
     sessionData.lap[lapnumber].endTime = metrics.timestamp
-    sessionData.lap[lapnumber].totalLinearDistance = metrics.totalLinearDistance - sessionData.lap[lapnumber].totalLinearDistanceAtStart
-    sessionData.lap[lapnumber].totalCalories = metrics.totalCalories - sessionData.lap[lapnumber].totalCaloriesAtStart
-    sessionData.lap[lapnumber].numberOfStrokes = metrics.totalNumberOfStrokes - sessionData.lap[lapnumber].totalNumberOfStrokesAtStart
+    sessionData.lap[lapnumber].totalLinearDistance = lapMetrics.travelledLinearDistance()
+    sessionData.lap[lapnumber].totalCalories = lapMetrics.spentCalories()
+    sessionData.lap[lapnumber].numberOfStrokes = lapMetrics.numberOfStrokes()
     sessionData.lap[lapnumber].averageStrokeRate = lapMetrics.strokerate.average()
     sessionData.lap[lapnumber].maximumStrokeRate = lapMetrics.strokerate.maximum()
     sessionData.lap[lapnumber].averageStrokeDistance = lapMetrics.strokedistance.average()
@@ -322,9 +322,11 @@ export function createFITRecorder (config) {
     let i = 0
     while (i < workout.lap.length) {
       if (workout.lap[i].intensity === 'active') {
+        // eslint-disable-next-line no-await-in-loop -- This is inevitable if you want to have some decent order in the file
         await createActiveLap(writer, workout.lap[i])
       } else {
         // This is a rest interval
+        // eslint-disable-next-line no-await-in-loop -- This is inevitable if you want to have some decent order in the file
         await createRestLap(writer, workout.lap[i])
       }
       i++
@@ -427,6 +429,7 @@ export function createFITRecorder (config) {
     if (!!lapdata.totalMovingTime && lapdata.totalMovingTime > 0 && !!lapdata.totalLinearDistance && lapdata.totalLinearDistance > 0) {
       let i = 0
       while (i < lapdata.strokes.length) {
+        // eslint-disable-next-line no-await-in-loop -- This is inevitable if you want to have some decent order in the file
         await createTrackPoint(writer, lapdata.strokes[i])
         i++
       }
