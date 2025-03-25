@@ -5,6 +5,8 @@
   This Module supports the creation and use of workoutSegment
 */
 import { createOLSLinearSeries } from './OLSLinearSeries.js'
+import loglevel from 'loglevel'
+const log = loglevel.getLogger('RowingEngine')
 
 export function createWorkoutSegment (config) {
   const numOfDataPointsForAveraging = config.numOfPhasesForAveragingScreenData
@@ -64,7 +66,14 @@ export function createWorkoutSegment (config) {
         _endTime = _startTime + Number(intervalSettings.targetTime)
         _endDistance = 0
         break
+      case (intervalSettings.type === 'justrow'):
+        _type = 'justrow'
+        _targetTime = 0
+        _targetDistance = 0
+        _endTime = 0
+        _endDistance = 0  
       default:
+        log.error(`Workout parser, unknown interval type '${intervalSettings.type}', defaulting to a 'justrow' interval`)
         _type = 'justrow'
         _targetTime = 0
         _targetDistance = 0
@@ -98,7 +107,14 @@ export function createWorkoutSegment (config) {
           targetTime: Number(intervalSettings.split.targetTime)
         }
         break
+      case (!intervalSettings.split || (!!intervalSettings.split && intervalSettings.split !== undefined && intervalSettings.split.type === 'justrow')):
+        _split = {
+          type: 'justrow',
+          targetDistance: 0,
+          targetTime: 0
+        }
       default:
+        log.error(`Workout parser, unknown split type '${intervalSettings.split.type}', defaulting to a 'justrow' split`)
         _split = {
           type: 'justrow',
           targetDistance: 0,
