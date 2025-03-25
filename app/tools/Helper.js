@@ -65,3 +65,10 @@ export function formatNumber (value, decimalPlaces = 0) {
 export function swapObjectPropertyValues (object) {
   return Object.fromEntries(Object.entries(object).map(a => a.reverse()))
 }
+
+/**
+ * @param {Array<number>} array
+ */
+export function toHexString (array) {
+  return array.map((item) => `0x${item.toString(16).padStart(2, '0')}`)
+}
