@@ -9,17 +9,26 @@ import log from 'loglevel'
 
 import { HeartRateSensor } from 'incyclist-ant-plus'
 
+/**
+ * @typedef {import('incyclist-ant-plus').IChannel} IChannel
+ */
+
+/**
+ * @param {import('./AntManager').default} antManager
+ */
 function createAntHrmPeripheral (antManager) {
   const emitter = new EventEmitter()
   const antStick = antManager.getAntStick()
   const heartRateSensor = new HeartRateSensor(0)
   let batteryLevel = 0
+  /** @type {IChannel & EventEmitter | undefined} */
+  let channel
 
   async function attach () {
     if (!antManager.isStickOpen()) { await antManager.openAntStick() }
-    this.channel = await antStick.getChannel()
+    channel = /** @type {IChannel & EventEmitter} */(antStick.getChannel())
 
-    this.channel.on('data', (profile, deviceID, data) => {
+    channel.on('data', (profile, deviceID, data) => {
       switch (data.BatteryStatus) {
         case 'New':
           batteryLevel = 100
@@ -47,17 +56,17 @@ function createAntHrmPeripheral (antManager) {
       emitter.emit('heartRateMeasurement', { heartrate: data.ComputedHeartRate, batteryLevel })
     })
 
-    if (!(await this.channel.startSensor(heartRateSensor))) {
+    if (!(await channel.startSensor(heartRateSensor))) {
       log.error('Could not start ANT+ heart rate sensor')
     }
   }
 
   async function destroy () {
-    if (!this.channel) {
+    if (!channel) {
       log.debug('Ant Sensor does not seem to be running')
       return
     }
-    await this.channel.stopSensor(heartRateSensor)
+    await channel.stopSensor(heartRateSensor)
   }
 
   return Object.assign(emitter, {
