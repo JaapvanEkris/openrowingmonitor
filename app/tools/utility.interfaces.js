@@ -8,3 +8,8 @@
  * @template T
  * @typedef {Object.<T, number>} UnionToObject
  */
+/**
+ * Reverses the keys and values of an object type.
+ * @template {Record<string, number>} T - The object type to reverse.
+ * @typedef { { [K in keyof T as T[K]]: keyof T } } ReverseKeyValue - A mapped type that swaps keys and values.
+ */

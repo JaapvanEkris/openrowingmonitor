@@ -55,3 +55,13 @@ export function formatNumber (value, decimalPlaces = 0) {
 
   return Math.round(value * decimal) / decimal
 }
+
+/**
+ * Reverses the property and values of the object making the values properties that allow to access the property name by passing in the value (assuming values are unique)
+ * @template {Record<string,number>} T
+ * @param {T} object
+ * @returns {ReverseKeyValue<Record<T, number>>}
+ */
+export function swapObjectPropertyValues (object) {
+  return Object.fromEntries(Object.entries(object).map(a => a.reverse()))
+}
