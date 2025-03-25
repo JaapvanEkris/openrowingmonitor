@@ -7,12 +7,14 @@
 
 import { PeripheralConstants } from '../../PeripheralConstants.js'
 
+import { ErgModelType, IntervalTypes } from './csafe-service/CsafeCommandsMapping.js'
+
 export const pm5Constants = {
   ...PeripheralConstants,
   // See https://www.concept2.com/service/monitors/pm5/firmware for available versions
   // please note: hardware versions exclude a software version, and thus might confuse the client
   // ergMachineType: 0 TYPE_STATIC_D
-  ergMachineType: 0
+  ergMachineType: ErgModelType.ERGMODEL_TYPE_D
 }
 
 /**
@@ -28,10 +30,11 @@ export function toC2128BitUUID (uuid) {
  * @enum {UnionToObject<SessionType>}
  */
 export const SessionTypes = {
-  justrow: 0,
-  time: 6,
-  distance: 7,
-  calories: 12
+  justrow: IntervalTypes.INTERVALTYPE_NONE,
+  time: IntervalTypes.INTERVALTYPE_TIME,
+  distance: IntervalTypes.INTERVALTYPE_DIST,
+  calories: IntervalTypes.INTERVALTYPE_CALORIE,
+  rest: IntervalTypes.INTERVALTYPE_REST
 }
 
 export class Concept2Date extends Date {
