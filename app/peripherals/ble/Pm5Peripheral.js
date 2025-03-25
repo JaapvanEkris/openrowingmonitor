@@ -24,11 +24,12 @@ import { Pm5RowingService } from './pm5/rowing-service/Pm5RowingService.js'
 /**
  * @param {import ('./BleManager.js').BleManager} bleManager
  * @param {Config} config
+ * @param {ControlPointCallback} controlCallback
  */
-export function createPm5Peripheral (bleManager, config) {
+export function createPm5Peripheral (bleManager, config, controlCallback) {
   const deviceInformationService = new Pm5DeviceInformationService()
   const appearanceService = new Pm5AppearanceService()
-  const controlService = new Pm5ControlService()
+  const controlService = new Pm5ControlService(controlCallback)
   const rowingService = new Pm5RowingService(config)
   const gattServices = [appearanceService.gattService, controlService.gattService, deviceInformationService.gattService, rowingService.gattService]
 

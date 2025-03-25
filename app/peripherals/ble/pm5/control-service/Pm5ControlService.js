@@ -7,19 +7,27 @@
 */
 import { GattService } from '../../BleManager.js'
 
+import { CsafeManagerService } from '../csafe-service/CsafeManagerService.js'
+
 import { toC2128BitUUID } from '../Pm5Constants.js'
 
 import { ControlReceiveCharacteristic } from './ControlReceiveCharacteristic.js'
 import { ControlTransmitCharacteristic } from './ControlTransmitCharacteristic.js'
 
 export class Pm5ControlService extends GattService {
-  constructor () {
+  /**
+   * @param {ControlPointCallback} controlCallback
+   */
+  constructor (controlCallback) {
+    const transmitCharacteristic = new ControlTransmitCharacteristic()
+    const csafeManagerService = new CsafeManagerService(transmitCharacteristic, controlCallback)
+
     super({
       name: 'Control Service',
       uuid: toC2128BitUUID('0020'),
       characteristics: [
-        new ControlReceiveCharacteristic().characteristic,
-        new ControlTransmitCharacteristic().characteristic
+        new ControlReceiveCharacteristic(csafeManagerService).characteristic,
+        transmitCharacteristic.characteristic
       ]
     })
   }

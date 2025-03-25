@@ -6,9 +6,13 @@
   https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
   Used to transmit controls to the central
 */
+import loglevel from 'loglevel'
+
 import { GattNotifyCharacteristic } from '../../BleManager.js'
 
 import { toC2128BitUUID } from '../Pm5Constants.js'
+
+const log = loglevel.getLogger('Peripherals')
 
 export class ControlTransmitCharacteristic extends GattNotifyCharacteristic {
   constructor () {
@@ -24,6 +28,7 @@ export class ControlTransmitCharacteristic extends GattNotifyCharacteristic {
    * @override
    */
   notify (buffer) {
+    log.debug('PM5 response notify:', buffer)
     super.notify(buffer)
   }
 }
