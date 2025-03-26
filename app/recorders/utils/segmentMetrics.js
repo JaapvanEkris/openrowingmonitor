@@ -11,6 +11,7 @@ export function createSegmentMetrics () {
   const _linearVelocity = createSeries()
   const strokerate = createSeries()
   const strokedistance = createSeries()
+  const caloriesPerHour = createSeries()
   const dragFactor = createSeries()
   const heartrate = createSeries()
   const linearVelocity = {
@@ -18,6 +19,12 @@ export function createSegmentMetrics () {
     minimum () { return _linearVelocity.minimum() },
     maximum () { return _linearVelocity.maximum() },
     median () { return _linearVelocity.median() }
+  }
+  const pace = {
+    average () { return linearVelocityToPace(averageLinearVelocity()) },
+    minimum () { return linearVelocityToPace(_linearVelocity.minimum()) },
+    maximum () { return linearVelocityToPace(_linearVelocity.maximum()) },
+    median () { return linearVelocityToPace(_linearVelocity.median()) }
   }
   let startTimestamp
   let startMovingTime
@@ -46,6 +53,7 @@ export function createSegmentMetrics () {
     if (!!metrics.cycleLinearVelocity && !isNaN(metrics.cycleLinearVelocity) && metrics.cycleLinearVelocity > 0) { _linearVelocity.push(metrics.cycleLinearVelocity) }
     if (!!metrics.cycleStrokeRate && !isNaN(metrics.cycleStrokeRate) && metrics.cycleStrokeRate > 0) { strokerate.push(metrics.cycleStrokeRate) }
     if (!!metrics.cycleDistance && !isNaN(metrics.cycleDistance) && metrics.cycleDistance > 0) { strokedistance.push(metrics.cycleDistance) }
+    if (!!metrics.totalCaloriesPerHour && !isNaN(metrics.totalCaloriesPerHour) && metrics.totalCaloriesPerHour > 0) { caloriesPerHour.push(metrics.totalCaloriesPerHour) }
     if (!!metrics.dragFactor && !isNaN(metrics.dragFactor) && metrics.dragFactor > 0) { dragFactor.push(metrics.dragFactor) }
     if (!!metrics.heartRate && !isNaN(metrics.heartRate) && metrics.heartRate > 0) { heartrate.push(metrics.heartRate) }
     endTimestamp = metrics.timestamp
@@ -64,9 +72,25 @@ export function createSegmentMetrics () {
     }
   }
 
+  function totalTime () {
+    if (!isNaN(startTimestamp) && startTimestamp >= 0 && !isNaN(endTimestamp) && endTimestamp > startTimestamp) {
+      return Math.max(endTimestamp - startTimestamp, 0)
+    } else {
+      return 0
+    }
+  }
+
   function movingTime () {
     if (!isNaN(startMovingTime) && startMovingTime >= 0 && !isNaN(endMovingTime) && endMovingTime > startMovingTime) {
       return endMovingTime - startMovingTime
+    } else {
+      return 0
+    }
+  }
+
+  function restTime () {
+    if (!isNaN(startMovingTime) && !isNaN(startTimestamp) && startTimestamp >= 0 && !isNaN(endMovingTime) && !isNaN(endTimestamp) && endTimestamp > startTimestamp) {
+      return Math.max(endTimestamp - startTimestamp, 0) - Math.max(endMovingTime - startMovingTime, 0)
     } else {
       return 0
     }
@@ -77,14 +101,6 @@ export function createSegmentMetrics () {
       return (endLinearDistance - startLinearDistance) / (endMovingTime - startMovingTime)
     } else {
       return _linearVelocity.average()
-    }
-  }
-
-  function restTime () {
-    if (!isNaN(startMovingTime) && !isNaN(startTimestamp) && startTimestamp >= 0 && !isNaN(endMovingTime) && !isNaN(endTimestamp) && endTimestamp > startTimestamp) {
-      return Math.max(endTimestamp - startTimestamp, 0) - Math.max(endMovingTime - startMovingTime, 0)
-    } else {
-      return 0
     }
   }
 
@@ -104,11 +120,20 @@ export function createSegmentMetrics () {
     }
   }
 
+  function linearVelocityToPace (linearVel) {
+    if (!isNaN(linearVel) && linearVel > 0) {
+      return (500.0 / linearVel)
+    } else {
+      return Infinity
+    }
+  }
+
   function reset () {
     power.reset()
     _linearVelocity.reset()
     strokerate.reset()
     strokedistance.reset()
+    caloriesPerHour.reset()
     heartrate.reset()
   }
 
@@ -118,12 +143,15 @@ export function createSegmentMetrics () {
     travelledLinearDistance,
     numberOfStrokes,
     spentCalories,
+    totalTime,
     movingTime,
     restTime,
     power,
     linearVelocity,
+    pace,
     strokerate,
     strokedistance,
+    caloriesPerHour,
     dragFactor,
     heartrate,
     reset
