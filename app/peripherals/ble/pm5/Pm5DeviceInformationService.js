@@ -38,16 +38,17 @@ export class Pm5DeviceInformationService extends GattService {
         // Erg Machine Type - - this needs to be exactly 16bytes (anything that is not used a null should be added)
         createStaticReadCharacteristic(toC2128BitUUID('0016'), [pm5Constants.ergMachineType], 'ErgMachineType'),
         // ATT MTU characteristic
-        {
-          ...createStaticReadCharacteristic(toC2128BitUUID('0017'), [23], 'MTU'),
-          onRead: (connection, callback) => {
-            const maxMtu = Math.min(connection.gatt.currentMtu, 512)
-            log.debug(`PM5 MTU characteristic called, current MTU: ${maxMtu}`)
-            const bufferBuilder = new BufferBuilder()
-            bufferBuilder.writeUInt16LE(maxMtu)
-            callback(NodeBleHost.AttErrors.SUCCESS, bufferBuilder.getBuffer())
-          }
-        },
+        // TODO: find out why does this prevent ErgData connecting in some cases (its a hit or miss, sometimes it works sometimes it does not. Unclear what the issue could be).
+        // {
+        //   ...createStaticReadCharacteristic(toC2128BitUUID('0017'), [0x23, 0x00], 'MTU'),
+        //   onRead: (connection, callback) => {
+        //     const maxMtu = Math.min(connection.gatt.currentMtu, 512)
+        //     log.debug(`PM5 MTU characteristic called, current ATT Rx MTU: ${maxMtu} (max: ${connection.gatt.currentMtu})`)
+        //     const bufferBuilder = new BufferBuilder()
+        //     bufferBuilder.writeUInt16LE(maxMtu)
+        //     callback(NodeBleHost.AttErrors.SUCCESS, bufferBuilder.getBuffer())
+        //   }
+        // },
         // LL DLE characteristic
         {
           ...createStaticReadCharacteristic(toC2128BitUUID('0018'), [27], 'LL DLE'),

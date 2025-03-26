@@ -87,7 +87,7 @@ export class Pm5RowingService extends GattService {
         // C2 rowing additional status 2
         additionalStatus2.characteristic,
         // C2 rowing additional status 3
-        additionalStatus3.characteristic,
+        // additionalStatus3.characteristic, // TODO: disabled for now as otherwise ErgData connection does not seem to be stable
         // C2 rowing general status and additional status sample rate (0 - for 1000 ms)
         new SampleRateCharacteristic(config).characteristic,
         // C2 rowing stroke data
