@@ -34,6 +34,7 @@ import { SampleRateCharacteristic } from './other-characteristics/SampleRateChar
 import { SplitDataCharacteristic } from './session-characteristics/SplitDataCharacteristic.js'
 import { StrokeDataCharacteristic } from './other-characteristics/StrokeDataCharacteristic.js'
 import { WorkoutSummaryCharacteristic } from './session-characteristics/WorkoutSummaryCharacteristic.js'
+import { createSegmentMetrics } from '../../../../recorders/utils/segmentMetrics.js'
 
 export class Pm5RowingService extends GattService {
   #generalStatus
@@ -58,6 +59,10 @@ export class Pm5RowingService extends GattService {
    */
   #lastKnownMetrics
   #config
+
+  #splitMetrics
+  #previousSplitMetrics
+  #workoutMetrics
 
   /**
    * @param {Config} config
@@ -134,7 +139,13 @@ export class Pm5RowingService extends GattService {
       totalLinearDistance: 0,
       dragFactor: config.rowerSettings.dragFactor
     }
+    this.#splitMetrics = createSegmentMetrics()
+    this.#workoutMetrics = createSegmentMetrics()
     this.#config = config
+    this.#previousSplitMetrics = {
+      totalMovingTime: 0,
+      totalLinearDistance: 0
+    }
     setTimeout(() => { this.#onBroadcastInterval() }, this.#config.pm5UpdateInterval)
   }
   /* eslint-enable max-statements */
@@ -143,22 +154,41 @@ export class Pm5RowingService extends GattService {
   * @param {Metrics} metrics
   */
   notifyData (metrics) {
-    if (metrics.metricsContext === undefined) return
+    if (metrics.metricsContext === undefined) { return }
     this.#lastKnownMetrics = metrics
     switch (true) {
       case (metrics.metricsContext.isSessionStop):
-        this.#workoutEndDataNotifies(this.#lastKnownMetrics)
+        this.#workoutMetrics.push(this.#lastKnownMetrics)
+        this.#workoutEndDataNotifies(this.#lastKnownMetrics, this.#workoutMetrics)
         break
       case (metrics.metricsContext.isSplitEnd):
-        this.#splitDataNotifies(this.#lastKnownMetrics)
+        this.#splitMetrics.push(this.#lastKnownMetrics)
+        this.#splitDataNotifies(this.#lastKnownMetrics, this.#splitMetrics)
+        this.#previousSplitMetrics = {
+          totalMovingTime: this.#splitMetrics.totalTime(),
+          totalLinearDistance: this.#splitMetrics.traveledLinearDistance()
+        }
+        this.#splitMetrics.reset()
+        this.#splitMetrics.push(this.#lastKnownMetrics)
         break
       case (metrics.metricsContext.isPauseStart):
-        this.#splitDataNotifies(this.#lastKnownMetrics)
+        this.#splitMetrics.push(this.#lastKnownMetrics)
+        this.#workoutMetrics.push(this.#lastKnownMetrics)
+        this.#splitDataNotifies(this.#lastKnownMetrics, this.#splitMetrics)
+        this.#previousSplitMetrics = {
+          totalMovingTime: this.#splitMetrics.totalTime(),
+          totalLinearDistance: this.#splitMetrics.traveledLinearDistance()
+        }
+        this.#splitMetrics.reset()
         break
       case (metrics.metricsContext.isDriveStart):
+        this.#splitMetrics.push(this.#lastKnownMetrics)
+        this.#workoutMetrics.push(this.#lastKnownMetrics)
         this.#strokeData.notify(this.#lastKnownMetrics)
         break
       case (metrics.metricsContext.isRecoveryStart):
+        this.#splitMetrics.push(this.#lastKnownMetrics)
+        this.#workoutMetrics.push(this.#lastKnownMetrics)
         this.#strokeEndDataNotifies(this.#lastKnownMetrics)
         break
       default:
@@ -167,26 +197,28 @@ export class Pm5RowingService extends GattService {
   }
 
   #onBroadcastInterval () {
-    this.#genericStatusDataNotifies(this.#lastKnownMetrics)
+    this.#genericStatusDataNotifies(this.#lastKnownMetrics, this.#previousSplitMetrics, this.#splitMetrics)
   }
 
   /**
    * @param {Metrics} metrics
+   * @param {segmentMetrics} splitMetrics
    */
-  #genericStatusDataNotifies (metrics) {
+  #genericStatusDataNotifies (metrics, previousSplitMetrics, splitMetrics) {
     this.#generalStatus.notify(metrics)
     this.#additionalStatus.notify(metrics)
-    this.#additionalStatus2.notify(metrics)
+    this.#additionalStatus2.notify(metrics, previousSplitMetrics, splitMetrics)
     this.#additionalStatus3.notify(metrics)
     setTimeout(() => this.#onBroadcastInterval(), this.#config.pm5UpdateInterval)
   }
 
   /**
    * @param {Metrics} metrics
+   * @param {segmentMetrics} splitMetrics
    */
-  #splitDataNotifies (metrics) {
-    this.#splitData.notify(metrics)
-    this.#additionalSplitData.notify(metrics)
+  #splitDataNotifies (metrics, splitMetrics) {
+    this.#splitData.notify(metrics, splitMetrics)
+    this.#additionalSplitData.notify(metrics, splitMetrics)
   }
 
   /**
@@ -200,11 +232,12 @@ export class Pm5RowingService extends GattService {
 
   /**
    * @param {Metrics} metrics
+   * @param {segmentMetrics} workoutMetrics
    */
-  #workoutEndDataNotifies (metrics) {
-    this.#workoutSummary.notify(metrics)
-    this.#additionalWorkoutSummary.notify(metrics)
-    this.#additionalWorkoutSummary2.notify(metrics)
-    this.#loggedWorkout.notify(metrics)
+  #workoutEndDataNotifies (metrics, workoutMetrics) {
+    this.#workoutSummary.notify(metrics, workoutMetrics)
+    this.#additionalWorkoutSummary.notify(metrics, workoutMetrics)
+    this.#additionalWorkoutSummary2.notify(metrics, workoutMetrics)
+    this.#loggedWorkout.notify(metrics, workoutMetrics)
   }
 }

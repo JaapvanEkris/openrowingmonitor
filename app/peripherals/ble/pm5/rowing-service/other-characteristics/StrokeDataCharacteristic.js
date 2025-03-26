@@ -51,7 +51,7 @@ export class StrokeDataCharacteristic extends GattNotifyCharacteristic {
     if (this.isSubscribed) {
       // workPerStroke is only added if data is not send via multiplexer
       // workPerStroke: UInt16LE in 0.1 Joules
-      bufferBuilder.writeUInt16LE(Math.round(data.strokeWork * 10))
+      bufferBuilder.writeUInt16LE(data.strokeWork > 0 ? Math.round(data.strokeWork * 10) : 0)
     }
     // strokeCount: UInt16LE
     bufferBuilder.writeUInt16LE(data.totalNumberOfStrokes > 0 ? Math.round(data.totalNumberOfStrokes) : 0)

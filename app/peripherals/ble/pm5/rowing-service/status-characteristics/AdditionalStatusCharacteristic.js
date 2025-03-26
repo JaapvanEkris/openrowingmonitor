@@ -42,10 +42,10 @@ export class AdditionalStatusCharacteristic extends GattNotifyCharacteristic {
     bufferBuilder.writeUInt8(data.heartrate > 0 ? Math.round(data.heartrate) : 0)
     // currentPace: UInt16LE in 0.01 sec/500m
     // if split is infinite (i.e. while pausing), use the highest possible number
-    bufferBuilder.writeUInt16LE(data.cyclePace !== Infinity && data.cyclePace > 0 && data.cyclePace < 655.34 ? data.cyclePace * 100 : 0xFFFF)
+    bufferBuilder.writeUInt16LE(data.cyclePace !== Infinity && data.cyclePace > 0 && data.cyclePace < 655.34 ? Math.round(data.cyclePace * 100) : 0xFFFF)
     // averagePace: UInt16LE in 0.01 sec/500m
     let averagePace
-    if (data.totalLinearDistance && data.totalLinearDistance !== 0) {
+    if (data.totalLinearDistance > 0 && data.totalLinearDistance !== 0) {
       averagePace = (data.totalMovingTime / data.totalLinearDistance) * 500
     } else {
       averagePace = 0
@@ -59,7 +59,7 @@ export class AdditionalStatusCharacteristic extends GattNotifyCharacteristic {
       // the multiplexer uses a slightly different format for the AdditionalStatus
       // it adds averagePower before the ergMachineType
       // averagePower: UInt16LE in watts
-      bufferBuilder.writeUInt16LE(data.cyclePower > 0 ? Math.round(data.cyclePower) : 0)
+      bufferBuilder.writeUInt16LE(data.cyclePower > 0 && data.cyclePower < 65534 ? Math.round(data.cyclePower) : 0)
     }
     // ergMachineType: 0 TYPE_STATIC_D
     bufferBuilder.writeUInt8(pm5Constants.ergMachineType)

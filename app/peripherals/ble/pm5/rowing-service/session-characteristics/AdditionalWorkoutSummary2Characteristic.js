@@ -24,23 +24,19 @@ export class AdditionalWorkoutSummary2Characteristic {
    * @param {Metrics} data
    */
   // @ts-ignore: Type is not assignable to type
-  notify (data) {
+  notify (data, workoutData) {
     const bufferBuilder = new BufferBuilder()
     // Data bytes packed as follows: (10Bytes) example: (0x3C) 0333 1212 4808 10 0000 00
 
-    // Log Entry Date Lo, (https://www.c2forum.com/viewtopic.php?t=200769)
-    // Log Entry Date Hi,
+    // Log Entry Date (see https://www.c2forum.com/viewtopic.php?t=200769)
     bufferBuilder.writeUInt16LE(new Concept2Date().toC2DateInt())
-    // Log Entry Time Lo, (https://www.c2forum.com/viewtopic.php?t=200769)
-    // Log Entry Time Hi,
+    // Log Entry Time (see https://www.c2forum.com/viewtopic.php?t=200769)
     bufferBuilder.writeUInt16LE(new Concept2Date().toC2TimeInt())
-    // Avg Pace Lo (0.1 sec lsb)
-    // Avg Pace Hi,
-    bufferBuilder.writeUInt16LE(0)
+    // Avg Pace (0.1 sec)
+    bufferBuilder.writeUInt16LE(workoutData.pace.average() !== Infinity && workoutData.pace.average() > 0 && workoutData.pace.average() < 655.34 ? Math.round(workoutData.pace.average() * 10) : 0xFFFF)
     // Game Identifier/ Workout Verified (see Appendix),
     bufferBuilder.writeUInt8((0 & 0x0F) | ((0 & 0xF0) >> 4))
-    // Game Score (Lo), (Fish/Darts 1 point LSB, Target 0.1% LSB)
-    // Game Score Hi
+    // Game Score (Fish/Darts 1 point LSB, Target 0.1% LSB)
     bufferBuilder.writeUInt16LE(0)
     // Erg Machine Type
     bufferBuilder.writeUInt8(pm5Constants.ergMachineType)
