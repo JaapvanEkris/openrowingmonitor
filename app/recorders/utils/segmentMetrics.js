@@ -40,6 +40,7 @@ export function createSegmentMetrics () {
     startStrokeNumber = metrics.totalNumberOfStrokes
   }
 
+  /* eslint-disable complexity -- defensive programming needed to prevent metrics being poisoned when a stroke is missed */
   function push (metrics) {
     if (!!metrics.cyclePower && !isNaN(metrics.cyclePower) && metrics.cyclePower > 0) { power.push(metrics.cyclePower) }
     if (!!metrics.cycleLinearVelocity && !isNaN(metrics.cycleLinearVelocity) && metrics.cycleLinearVelocity > 0) { _linearVelocity.push(metrics.cycleLinearVelocity) }
@@ -53,6 +54,7 @@ export function createSegmentMetrics () {
     endCalories = metrics.totalCalories
     endStrokeNumber = metrics.totalNumberOfStrokes
   }
+  /* eslint-enable complexity */
 
   function travelledLinearDistance () {
     if (!isNaN(startLinearDistance) && startLinearDistance >= 0 && !isNaN(endLinearDistance) && endLinearDistance > startLinearDistance) {

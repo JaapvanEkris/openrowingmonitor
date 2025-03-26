@@ -62,6 +62,7 @@ export class Pm5RowingService extends GattService {
   /**
    * @param {Config} config
    */
+  /* eslint-disable max-statements -- This is the heart of the PM5 interface with a lot of characteristics, so there is a lot to initialise */
   constructor (config) {
     const multiplexedCharacteristic = new MultiplexedCharacteristic()
     const generalStatus = new GeneralStatusCharacteristic(multiplexedCharacteristic)
@@ -136,6 +137,7 @@ export class Pm5RowingService extends GattService {
     this.#config = config
     setTimeout(() => { this.#onBroadcastInterval() }, this.#config.pm5UpdateInterval)
   }
+  /* eslint-enable max-statements */
 
   /**
   * @param {Metrics} metrics

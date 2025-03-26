@@ -37,7 +37,7 @@ export function createWebServer (config) {
   })
 
   server.listen(port, (err) => {
-    if (err) throw err
+    if (err) { throw err }
     log.info(`webserver running on port ${port}`)
   })
 
@@ -58,7 +58,7 @@ export function createWebServer (config) {
         log.error(err)
       }
     })
-    client.on('close', function () {
+    client.on('close', function close () {
       log.debug('websocket client disconnected')
     })
   })
@@ -106,7 +106,7 @@ export function createWebServer (config) {
   }
 
   function presentRowingMetrics (metrics) {
-    if (metrics.metricsContext === undefined) return
+    if (metrics.metricsContext === undefined) { return }
     switch (true) {
       case (metrics.metricsContext.isSessionStart):
         notifyClients('metrics', metrics)
@@ -129,6 +129,7 @@ export function createWebServer (config) {
       case (metrics.metricsContext.isRecoveryStart):
         notifyClients('metrics', metrics)
         break
+      // no default
     }
     lastKnownMetrics = metrics
   }

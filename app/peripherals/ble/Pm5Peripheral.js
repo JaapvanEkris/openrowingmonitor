@@ -91,6 +91,7 @@ export function createPm5Peripheral (bleManager, config, controlCallback) {
    * Present current rowing status to C2-PM5 central
    * @param {{name: string}} status
    */
+  /* eslint-disable-next-line no-unused-vars -- standardized characteristic interface where the data parameter isn't relevant */
   function notifyStatus (status) {
   }
 

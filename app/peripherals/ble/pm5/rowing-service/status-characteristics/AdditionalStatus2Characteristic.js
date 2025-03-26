@@ -34,7 +34,7 @@ export class AdditionalStatus2Characteristic extends GattNotifyCharacteristic {
     const bufferBuilder = new BufferBuilder()
     // elapsedTime: UInt24LE in 0.01 sec
     bufferBuilder.writeUInt24LE(Math.round(data.totalMovingTime * 100))
-    // intervalCount: UInt8 // TODO: needs to be updated
+    // intervalCount: UInt8
     bufferBuilder.writeUInt8(0)
     if (this.isSubscribed) {
       // the multiplexer uses a slightly different format for the AdditionalStatus2

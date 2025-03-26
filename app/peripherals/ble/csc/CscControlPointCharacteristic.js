@@ -24,6 +24,7 @@ export class CyclingSpeedCadenceControlPointCharacteristic {
   /**
    * @param {ControlPointCallback} controlPointCallback
    */
+  /* eslint-disable-next-line no-unused-vars -- standardized characteristic interface where the callback parameter isn't relevant */
   constructor (controlPointCallback) {
     this.#characteristic = {
       name: 'Cycling Speed and Cadence Control Point',
@@ -45,6 +46,7 @@ export class CyclingSpeedCadenceControlPointCharacteristic {
 
   // Central sends a command to the Control Point
   // No need to handle any request to have this working
+  /* eslint-disable-next-line no-unused-vars -- standardized interface where the parameters aren't relevant */
   #onWriteRequest (data, offset, withoutResponse, callback) {
     return Buffer.from([0])
   }

@@ -217,6 +217,7 @@ function createFEPeripheral (antManager) {
    * FE does not have status characteristic
    * @param {{name: string}} status
    */
+  /* eslint-disable-next-line no-unused-vars -- standardized characteristic interface where the data parameter isn't relevant */
   function notifyStatus (status) {
   }
 

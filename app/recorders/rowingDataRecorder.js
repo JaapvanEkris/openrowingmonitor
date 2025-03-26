@@ -27,7 +27,7 @@ export function createRowingDataRecorder (config) {
 
   // This function handles all incomming commands. As all commands are broadasted to all application parts,
   // we need to filter here what the WorkoutRecorder will react to and what it will ignore
-  // eslint-disable-next-line no-unused-vars
+  /* eslint-disable-next-line no-unused-vars -- standardised recorder interface where the command payload is not relevant for this recorder */
   async function handleCommand (commandName, data) {
     switch (commandName) {
       case ('updateIntervalSettings'):
@@ -83,6 +83,7 @@ export function createRowingDataRecorder (config) {
       case (metrics.metricsContext.isDriveStart):
         addMetricsToStrokesArray(metrics)
         break
+      // no default
     }
     lastMetrics = metrics
   }
@@ -119,6 +120,7 @@ export function createRowingDataRecorder (config) {
     }
   }
 
+  /* eslint-disable complexity -- a lot of complexity is introduced due to defensive programming the output written to file */
   async function workoutToRowingData (strokedata) {
     // The file content is filled and hasn't changed
     let currentstroke
@@ -136,18 +138,19 @@ export function createRowingDataRecorder (config) {
       currentstroke = strokedata[i]
       // Add the strokes
       RowingData += `${(i + 1).toFixed(0)},${(i + 1).toFixed(0)},${currentstroke.totalNumberOfStrokes.toFixed(0)},${currentstroke.rowingDataSplitNumber.toFixed(0)},${(currentstroke.timestamp / 1000).toFixed(3)},` +
-      `${currentstroke.totalMovingTime.toFixed(5)},${(currentstroke.heartrate !== undefined ? currentstroke.heartrate.toFixed(0) : NaN)},${currentstroke.totalLinearDistance.toFixed(1)},` +
-      `${currentstroke.cycleStrokeRate > 0 ? currentstroke.cycleStrokeRate.toFixed(1) : NaN},${(currentstroke.totalNumberOfStrokes > 0 && currentstroke.cyclePace > 0 ? currentstroke.cyclePace.toFixed(2) : NaN)},${(currentstroke.totalNumberOfStrokes > 0 && currentstroke.cyclePower > 0 ? currentstroke.cyclePower.toFixed(0) : NaN)},` +
-      `${currentstroke.cycleDistance > 0 ? currentstroke.cycleDistance.toFixed(2) : NaN},${currentstroke.driveDuration > 0 ? (currentstroke.driveDuration * 1000).toFixed(0) : NaN},${(currentstroke.totalNumberOfStrokes > 0 && currentstroke.driveLength ? currentstroke.driveLength.toFixed(2) : NaN)},${currentstroke.recoveryDuration > 0 ? (currentstroke.recoveryDuration * 1000).toFixed(0) : NaN},` +
-      `${(currentstroke.totalNumberOfStrokes > 0 && currentstroke.cycleLinearVelocity > 0 ? currentstroke.cycleLinearVelocity.toFixed(2) : NaN)},${currentstroke.totalLinearDistance.toFixed(1)},${currentstroke.totalCalories.toFixed(1)},${currentstroke.dragFactor > 0 ? currentstroke.dragFactor.toFixed(1) : NaN},` +
-      `${(currentstroke.totalNumberOfStrokes > 0 && currentstroke.drivePeakHandleForce > 0 ? currentstroke.drivePeakHandleForce.toFixed(1) : NaN)},${(currentstroke.totalNumberOfStrokes > 0 && currentstroke.driveAverageHandleForce > 0 ? currentstroke.driveAverageHandleForce.toFixed(1) : NaN)},"${currentstroke.driveAverageHandleForce > 0 ? currentstroke.driveHandleForceCurve.map(value => value.toFixed(2)) : NaN}",` +
-      `"${currentstroke.driveAverageHandleForce > 0 ? currentstroke.driveHandleVelocityCurve.map(value => value.toFixed(3)) : NaN}","${currentstroke.driveAverageHandleForce > 0 ? currentstroke.driveHandlePowerCurve.map(value => value.toFixed(1)) : NaN}"\n`
+        `${currentstroke.totalMovingTime.toFixed(5)},${(currentstroke.heartrate !== undefined ? currentstroke.heartrate.toFixed(0) : NaN)},${currentstroke.totalLinearDistance.toFixed(1)},` +
+        `${currentstroke.cycleStrokeRate > 0 ? currentstroke.cycleStrokeRate.toFixed(1) : NaN},${(currentstroke.totalNumberOfStrokes > 0 && currentstroke.cyclePace > 0 ? currentstroke.cyclePace.toFixed(2) : NaN)},${(currentstroke.totalNumberOfStrokes > 0 && currentstroke.cyclePower > 0 ? currentstroke.cyclePower.toFixed(0) : NaN)},` +
+        `${currentstroke.cycleDistance > 0 ? currentstroke.cycleDistance.toFixed(2) : NaN},${currentstroke.driveDuration > 0 ? (currentstroke.driveDuration * 1000).toFixed(0) : NaN},${(currentstroke.totalNumberOfStrokes > 0 && currentstroke.driveLength ? currentstroke.driveLength.toFixed(2) : NaN)},${currentstroke.recoveryDuration > 0 ? (currentstroke.recoveryDuration * 1000).toFixed(0) : NaN},` +
+        `${(currentstroke.totalNumberOfStrokes > 0 && currentstroke.cycleLinearVelocity > 0 ? currentstroke.cycleLinearVelocity.toFixed(2) : NaN)},${currentstroke.totalLinearDistance.toFixed(1)},${currentstroke.totalCalories.toFixed(1)},${currentstroke.dragFactor > 0 ? currentstroke.dragFactor.toFixed(1) : NaN},` +
+        `${(currentstroke.totalNumberOfStrokes > 0 && currentstroke.drivePeakHandleForce > 0 ? currentstroke.drivePeakHandleForce.toFixed(1) : NaN)},${(currentstroke.totalNumberOfStrokes > 0 && currentstroke.driveAverageHandleForce > 0 ? currentstroke.driveAverageHandleForce.toFixed(1) : NaN)},"${currentstroke.driveAverageHandleForce > 0 ? currentstroke.driveHandleForceCurve.map((value) => value.toFixed(2)) : NaN}",` +
+        `"${currentstroke.driveAverageHandleForce > 0 ? currentstroke.driveHandleVelocityCurve.map((value) => value.toFixed(3)) : NaN}","${currentstroke.driveAverageHandleForce > 0 ? currentstroke.driveHandlePowerCurve.map((value) => value.toFixed(1)) : NaN}"\n`
       i++
     }
     rowingDataFileContent = RowingData
     rowingDataFileContentIsCurrent = true
     return rowingDataFileContent
   }
+  /* eslint-enable complexity */
 
   function measureRecoveryHR () {
     // This function is called when the rowing session is stopped. postExerciseHR[0] is the last measured excercise HR

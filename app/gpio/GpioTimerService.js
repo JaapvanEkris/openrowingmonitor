@@ -27,7 +27,7 @@ export function createGpioTimerService () {
       // setting priority of current process
       os.setPriority(config.gpioPriority)
     } catch (err) {
-      log.debug('Gpio-service: FAILED to set priority of Gpio-Thread, are root permissions granted?')
+      log.debug(`Gpio-service: FAILED to set priority of Gpio-Thread, error ${err}, are root permissions granted?`)
     }
   }
 

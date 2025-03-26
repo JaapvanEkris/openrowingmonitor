@@ -16,8 +16,9 @@ async function replayRowingSession (rotationImpulseHandler, options) {
   }
 
   do {
+    /* eslint-disable-next-line no-await-in-loop -- delay is by design, to simulate true real-time behaviour */
     await replayRowingFile(rotationImpulseHandler, options)
-  // infinite looping only available when using realtime
+    // infinite looping only available when using realtime
   } while (options.loop && options.realtime)
 }
 
@@ -31,13 +32,13 @@ async function replayRowingFile (rotationImpulseHandler, options) {
   for await (const line of readLine) {
     const dt = parseFloat(line)
     // if we want to replay in the original time, wait dt seconds
-    if (options.realtime) await wait(dt * 1000)
+    if (options.realtime) { await wait(dt * 1000) }
     rotationImpulseHandler(dt)
   }
 }
 
 async function wait (ms) {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     setTimeout(resolve, ms)
   })
 }

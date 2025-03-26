@@ -221,6 +221,7 @@ export function createRowingStatistics (config) {
     }
   }
 
+  /* eslint-disable complexity -- As this is the central metric being delivered to all consumers, who need to accept this at face value, we need a lot of defensive coding */
   function allMetrics () {
     const cyclePace = cycleLinearVelocity.clean() !== 0 && cycleLinearVelocity.raw() > 0 && metricsContext.isMoving === true ? (500.0 / cycleLinearVelocity.clean()) : Infinity
     return {
@@ -254,6 +255,7 @@ export function createRowingStatistics (config) {
       instantPower: instantPower > 0 && rower.strokeState() === 'Drive' ? instantPower : 0
     }
   }
+  /* eslint-enable complexity */
 
   function caloriesPerPeriod (periodBegin, periodEnd) {
     const beginCalories = calories.projectX(periodBegin)

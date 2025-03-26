@@ -13,19 +13,10 @@ export function createRawRecorder () {
   let rotationImpulses = []
   let allDataHasBeenWritten
 
-  // This function handles all incomming commands. Here, the recordingmanager will have filtered
-  // all unneccessary commands for us, so we only need to react to 'updateIntervalSettings', 'reset' and 'shutdown'
-  // eslint-disable-next-line no-unused-vars
+  // This function handles all incomming commands. As this recorder is strokestate/sessionstate insensitive, it can be empty
+  /* eslint-disable-next-line no-unused-vars -- standardised recorder interface where the commands are not relevant for this recorder */
   async function handleCommand (commandName, data) {
-    switch (commandName) {
-      case ('updateIntervalSettings'):
-        break
-      case ('reset'):
-      case ('shutdown'):
-        break
-      default:
-        log.error(`rawRecorder: Recieved unknown command: ${commandName}`)
-    }
+    // As this recorder isn't rowing/session state dependent at all, we can skip this
   }
 
   async function recordRotationImpulse (impulse) {
@@ -35,13 +26,9 @@ export function createRawRecorder () {
     allDataHasBeenWritten = false
   }
 
+  /* eslint-disable-next-line no-unused-vars -- standardised recorder interface where the metrics are not relevant for this recorder */
   function recordRowingMetrics (metrics) {
-    switch (true) {
-      case (metrics.metricsContext.isSessionStop):
-        break
-      case (metrics.metricsContext.isPauseStart):
-        break
-    }
+    // As this recorder isn't rowing/session state dependent at all, we can skip this
   }
 
   async function fileContent () {

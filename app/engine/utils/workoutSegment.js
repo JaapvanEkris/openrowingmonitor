@@ -71,7 +71,8 @@ export function createWorkoutSegment (config) {
         _targetTime = 0
         _targetDistance = 0
         _endTime = 0
-        _endDistance = 0  
+        _endDistance = 0
+        break
       default:
         log.error(`Workout parser, unknown interval type '${intervalSettings.type}', defaulting to a 'justrow' interval`)
         _type = 'justrow'
@@ -113,6 +114,7 @@ export function createWorkoutSegment (config) {
           targetDistance: 0,
           targetTime: 0
         }
+        break
       default:
         log.error(`Workout parser, unknown split type '${intervalSettings.split.type}', defaulting to a 'justrow' split`)
         _split = {

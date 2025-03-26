@@ -29,10 +29,12 @@ export class AdditionalStatus3Characteristic extends GattNotifyCharacteristic {
   /**
    * @param {Metrics} data
    */
-  // @ts-ignore: Type is not assignable to type
+  //
+  /* eslint-disable-next-line no-unused-vars -- standardized characteristic interface where the data parameter isn't relevant
+  @ts-ignore: Type is not assignable to type */
   notify (data) {
     const bufferBuilder = new BufferBuilder()
-    // Operational State: 0 RESET, 1 READY, 2 WORKOUT, 3 WARMUP, 6 PAUSE, 10 IDLE, TODO: to be mapped to semthing ORM uses
+    // Operational State: 0 RESET, 1 READY, 2 WORKOUT, 3 WARMUP, 6 PAUSE, 10 IDLE, TODO: to be mapped to something ORM uses
     bufferBuilder.writeUInt8(1)
     // Workout Verification State: unknown, but based on real PM5 1 is acceptable
     bufferBuilder.writeUInt8(1)

@@ -4,6 +4,7 @@
 
   This Module calculates the training specific metrics.
 */
+/* eslint-disable max-lines -- This handles quite a complex state machine with three levels of workout segments, not much we can do about it */
 import { EventEmitter } from 'events'
 import { createRowingStatistics } from './RowingStatistics.js'
 import { createWorkoutSegment } from './utils/workoutSegment.js'
@@ -155,6 +156,7 @@ export function createSessionManager (config) {
     emitMetrics(metrics)
   }
 
+  /* eslint-disable max-statements, complexity -- This handles quite a complex state machine with three levels of workout segments, not much we can do about it */
   function handleRotationImpulse (currentDt) {
     let temporaryDatapoint
 
@@ -292,6 +294,7 @@ export function createSessionManager (config) {
     lastSessionState = sessionState
     lastBroadcastedMetrics = { ...metrics }
   }
+  /* eslint-enable max-statements, complexity */
 
   // Basic metricContext structure
   function resetMetricsSessionContext (metricsToReset) {
@@ -400,7 +403,7 @@ export function createSessionManager (config) {
   }
 
   function onWatchdogTimeout () {
-    log.error(`Time: ${metrics.totalMovingTime}, Forced a session stop due to unexpeted flywheel stop, exceeding the maximumStrokeTimeBeforePause (i.e. ${watchdogTimout} seconds) without new datapoints`)
+    log.error(`Time: ${metrics.totalMovingTime}, Forced a session stop due to unexpeted flywheel stop, exceeding the maximumStrokeTimeBeforePause (i.e. ${watchdogTimout / 1000} seconds) without new datapoints`)
     metrics = rowingStatistics.getMetrics()
     stopTraining(metrics)
     resetMetricsSessionContext(metrics)
