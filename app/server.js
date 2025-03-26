@@ -53,11 +53,11 @@ const intervalSettings = []
 intervalSettings[0] = {
   type: 'time',
   targetDistance: 0,
-  targetTime: 60,
+  targetTime: 120,
   split: {
-    type: 'distance',
+    type: 'time',
     targetDistance: 0,
-    targetTime: 30
+    targetTime: 60
   }
 }
 
@@ -87,7 +87,7 @@ intervalSettings[3] = {
 intervalSettings[4] = {
   type: 'time',
   targetDistance: 0,
-  targetTime: 60,
+  targetTime: 240,
   split: {
     type: 'distance',
     targetDistance: 500,
