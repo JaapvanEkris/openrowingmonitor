@@ -55,7 +55,7 @@ export function createSegmentMetrics () {
     if (!!metrics.cycleDistance && !isNaN(metrics.cycleDistance) && metrics.cycleDistance > 0) { strokedistance.push(metrics.cycleDistance) }
     if (!!metrics.totalCaloriesPerHour && !isNaN(metrics.totalCaloriesPerHour) && metrics.totalCaloriesPerHour > 0) { caloriesPerHour.push(metrics.totalCaloriesPerHour) }
     if (!!metrics.dragFactor && !isNaN(metrics.dragFactor) && metrics.dragFactor > 0) { dragFactor.push(metrics.dragFactor) }
-    if (!!metrics.heartRate && !isNaN(metrics.heartRate) && metrics.heartRate > 0) { heartrate.push(metrics.heartRate) }
+    if (!!metrics.heartrate && !isNaN(metrics.heartrate) && metrics.heartrate > 0) { heartrate.push(metrics.heartrate) }
     endTimestamp = metrics.timestamp
     endMovingTime = metrics.totalMovingTime
     endLinearDistance = metrics.totalLinearDistance
