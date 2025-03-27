@@ -34,10 +34,19 @@ export function createFtmsPeripheral (bleManager, controlCallback, config, simul
   const peripheralName = simulateIndoorBike ? config.ftmsBikePeripheralName : config.ftmsRowerPeripheralName
   const fitnessMachineService = new FitnessMachineService(controlCallback, simulateIndoorBike)
   const deviceInformationService = new DeviceInformationService()
+
+  const rowerSupportedDataFlag = simulateIndoorBike ? 0x01 << 5 : 0x01 << 4
+  const fitnessMachineAvailable = 0x01
+
   const advDataBuffer = new NodeBleHost.AdvertisingDataBuilder()
     .addFlags(['leGeneralDiscoverableMode', 'brEdrNotSupported'])
-    .addLocalName(/* isComplete */ true, peripheralName)
+    .addLocalName(/* isComplete */ false, peripheralName.slice(0, 15))
     .add16BitServiceUUIDs(/* isComplete */ true, [fitnessMachineService.gattService.uuid])
+    .add16BitServiceData(fitnessMachineService.gattService.uuid, Buffer.from([fitnessMachineAvailable, rowerSupportedDataFlag, rowerSupportedDataFlag >> 8]))
+    .build()
+
+  const scanResponseBuffer = new NodeBleHost.AdvertisingDataBuilder()
+    .addLocalName(/* isComplete */ true, peripheralName)
     .build()
 
   const broadcastInterval = config.ftmsUpdateInterval
@@ -73,7 +82,7 @@ export function createFtmsPeripheral (bleManager, controlCallback, config, simul
     _manager.gattDb.setDeviceName(peripheralName)
     _manager.gattDb.addServices([fitnessMachineService.gattService, deviceInformationService.gattService])
     _manager.setAdvertisingData(advDataBuffer)
-    _manager.setScanResponseData(Buffer.alloc(0))
+    _manager.setScanResponseData(scanResponseBuffer)
 
     await triggerAdvertising()
   }
