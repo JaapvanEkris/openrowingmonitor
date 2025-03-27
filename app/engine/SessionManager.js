@@ -284,7 +284,7 @@ export function createSessionManager (config) {
         sessionState = 'Rowing'
         break
       default:
-        log.error(`Time: ${metrics.totalMovingTime}, combination of ${sessionState} and state ${metrics.strokeState()} found in the Rowing Statistics, which is not captured by Finite State Machine`)
+        log.error(`Time: ${metrics.totalMovingTime}, combination of ${sessionState} and state ${metrics.strokeState} found in the Rowing Statistics, which is not captured by Finite State Machine`)
     }
     emitMetrics(metrics)
 
