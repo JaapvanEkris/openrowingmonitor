@@ -28,6 +28,7 @@ export class WorkoutSummaryCharacteristic extends GattNotifyCharacteristic {
 
   /**
    * @param {Metrics} data
+   * @param {SegmentMetrics} workoutData
    */
   // @ts-ignore: Type is not assignable to type
   notify (data, workoutData) {
@@ -41,7 +42,7 @@ export class WorkoutSummaryCharacteristic extends GattNotifyCharacteristic {
     // Elapsed Time Lo (0.01 sec lsb),
     bufferBuilder.writeUInt24LE(Math.round(workoutData.totalTime() * 100))
     // Distance Lo (0.1 m)
-    bufferBuilder.writeUInt24LE(workoutData.travelledLinearDistance() > 0 ? Math.round(workoutData.travelledLinearDistance() * 10) : 0)
+    bufferBuilder.writeUInt24LE(workoutData.traveledLinearDistance() > 0 ? Math.round(workoutData.traveledLinearDistance() * 10) : 0)
     // Average Stroke Rate,
     bufferBuilder.writeUInt8(workoutData.strokerate.average() > 0 && workoutData.strokerate.average() < 255 ? Math.round(workoutData.strokerate.average()) : 0)
     // Ending Heartrate,

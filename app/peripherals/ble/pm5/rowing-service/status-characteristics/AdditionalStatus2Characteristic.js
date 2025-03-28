@@ -28,6 +28,8 @@ export class AdditionalStatus2Characteristic extends GattNotifyCharacteristic {
 
   /**
    * @param {Metrics} data
+   * @param {SplitTimeDistanceData} previousSplitData
+   * @param {SegmentMetrics} splitData
    */
   // @ts-ignore: Type is not assignable to type
   notify (data, previousSplitData, splitData) {

@@ -15,6 +15,8 @@
   - EXR: subscribes to: 'general status', 'additional status', 'additional status 2', 'additional stroke data'
 */
 
+import { createSegmentMetrics } from '../../../../recorders/utils/segmentMetrics.js'
+
 import { GattService } from '../../BleManager.js'
 import { createStaticReadCharacteristic } from '../../common/StaticReadCharacteristic.js'
 
@@ -34,7 +36,6 @@ import { SampleRateCharacteristic } from './other-characteristics/SampleRateChar
 import { SplitDataCharacteristic } from './session-characteristics/SplitDataCharacteristic.js'
 import { StrokeDataCharacteristic } from './other-characteristics/StrokeDataCharacteristic.js'
 import { WorkoutSummaryCharacteristic } from './session-characteristics/WorkoutSummaryCharacteristic.js'
-import { createSegmentMetrics } from '../../../../recorders/utils/segmentMetrics.js'
 
 export class Pm5RowingService extends GattService {
   #generalStatus
@@ -202,7 +203,8 @@ export class Pm5RowingService extends GattService {
 
   /**
    * @param {Metrics} metrics
-   * @param {segmentMetrics} splitMetrics
+   * @param {SplitTimeDistanceData} previousSplitMetrics
+   * @param {SegmentMetrics} splitMetrics
    */
   #genericStatusDataNotifies (metrics, previousSplitMetrics, splitMetrics) {
     this.#generalStatus.notify(metrics)
@@ -214,7 +216,7 @@ export class Pm5RowingService extends GattService {
 
   /**
    * @param {Metrics} metrics
-   * @param {segmentMetrics} splitMetrics
+   * @param {SegmentMetrics} splitMetrics
    */
   #splitDataNotifies (metrics, splitMetrics) {
     this.#splitData.notify(metrics, splitMetrics)
@@ -232,7 +234,7 @@ export class Pm5RowingService extends GattService {
 
   /**
    * @param {Metrics} metrics
-   * @param {segmentMetrics} workoutMetrics
+   * @param {SegmentMetrics} workoutMetrics
    */
   #workoutEndDataNotifies (metrics, workoutMetrics) {
     this.#workoutSummary.notify(metrics, workoutMetrics)

@@ -11,6 +11,9 @@ import log from 'loglevel'
 import EventEmitter from 'node:events'
 import mqtt from 'mqtt'
 
+/**
+ * @param {Config} config
+ */
 export function createMQTTPeripheral (config) {
   const emitter = new EventEmitter()
   const protocol = 'mqtt'
@@ -20,9 +23,13 @@ export function createMQTTPeripheral (config) {
   const metricsTopic = `OpenRowingMonitor/${config.mqtt.machineName}/metrics`
   const workoutsTopic = `OpenRowingMonitor/${config.mqtt.machineName}/workoutplans`
   const connectUrl = `${protocol}://${host}:${port}`
+  /**
+   * @type {Metrics}
+   */
   let lastMetrics = {
-    timestamp: (new Date()),
-    sessiontype: 'JustRow',
+    .../** @type {Metrics} */({}),
+    timestamp: new Date(),
+    sessiontype: 'justrow',
     sessionStatus: 'WaitingForStart',
     strokeState: 'WaitingForDrive',
     metricsContext: {
@@ -32,7 +39,9 @@ export function createMQTTPeripheral (config) {
       isSessionStart: false,
       isPauseStart: false,
       isPauseEnd: false,
-      isSessionStop: false
+      isSessionStop: false,
+      isIntervalStart: false,
+      isSplitEnd: false
     },
     totalNumberOfStrokes: 0,
     totalMovingTime: 0,
@@ -92,6 +101,9 @@ export function createMQTTPeripheral (config) {
     }
   })
 
+  /**
+   * @param {Metrics} metrics
+   */
   async function notifyData (metrics) {
     switch (true) {
       case (metrics.metricsContext.isSessionStart):
@@ -120,6 +132,9 @@ export function createMQTTPeripheral (config) {
     lastMetrics = metrics
   }
 
+  /**
+   * @param {Metrics} metrics
+   */
   async function publishMetrics (metrics) {
     const jsonMetrics = {
       timestamp: (metrics.timestamp / 1000).toFixed(3),

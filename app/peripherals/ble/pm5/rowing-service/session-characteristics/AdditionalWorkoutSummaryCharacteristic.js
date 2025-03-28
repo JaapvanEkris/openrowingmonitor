@@ -28,6 +28,7 @@ export class AdditionalWorkoutSummaryCharacteristic extends GattNotifyCharacteri
 
   /**
    * @param {Metrics} data
+   * @param {SegmentMetrics} workoutData
    */
   // @ts-ignore: Type is not assignable to type
   notify (data, workoutData) {
@@ -44,7 +45,7 @@ export class AdditionalWorkoutSummaryCharacteristic extends GattNotifyCharacteri
     }
     // Split/Interval Size (meters or seconds)
     if (data.sessiontype === 'distance') {
-      bufferBuilder.writeUInt16LE(workoutData.travelledLinearDistance() > 0 ? Math.round(workoutData.travelledLinearDistance()) : 0)
+      bufferBuilder.writeUInt16LE(workoutData.traveledLinearDistance() > 0 ? Math.round(workoutData.traveledLinearDistance()) : 0)
     } else {
       bufferBuilder.writeUInt16LE(workoutData.movingTime() > 0 ? Math.round(workoutData.movingTime()) : 0)
     }

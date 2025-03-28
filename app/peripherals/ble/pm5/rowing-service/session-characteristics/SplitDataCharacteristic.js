@@ -28,6 +28,7 @@ export class SplitDataCharacteristic extends GattNotifyCharacteristic {
 
   /**
    * @param {Metrics} data
+   * @param {SegmentMetrics} splitData
    */
   // @ts-ignore: Type is not assignable to type
   notify (data, splitData) {
@@ -41,7 +42,7 @@ export class SplitDataCharacteristic extends GattNotifyCharacteristic {
     // Split/Interval Time (0.1 sec)
     bufferBuilder.writeUInt24LE(splitData.totalTime() > 0 ? Math.round(splitData.totalTime() * 10) : 0)
     // Split/Interval Distance ( 1m lsb)
-    bufferBuilder.writeUInt24LE(splitData.travelledLinearDistance() > 0 ? Math.round(splitData.travelledLinearDistance()) : 0)
+    bufferBuilder.writeUInt24LE(splitData.traveledLinearDistance() > 0 ? Math.round(splitData.traveledLinearDistance()) : 0)
     // Interval Rest Time (1 sec lsb)
     bufferBuilder.writeUInt16LE(splitData.restTime() > 0 ? Math.round(splitData.restTime()) : 0)
     // Interval Rest Distance Lo (1m lsb)

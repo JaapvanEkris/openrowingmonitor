@@ -10,7 +10,18 @@ import { checkRangeValue, checkIntegerValue, checkBooleanValue, checkFloatValue 
 import { deepMerge } from './Helper.js'
 import log from 'loglevel'
 
+/**
+ * @typedef  {{ minumumForceBeforeStroke: number, minumumRecoverySlope: number}} OldRowerProfile
+ * @typedef { Config & { peripheralUpdateInterval:number, antplusMode:AntPlusModes, rowerSettings:OldRowerProfile }} OldConfig
+ */
+
+/**
+ * @returns {Promise<Config | OldConfig>}
+ */
 async function getConfig () {
+  /**
+   * @type {import('../../config/config.js') | undefined}
+   */
   let customConfig
   try {
     customConfig = await import('../../config/config.js')
@@ -20,37 +31,38 @@ async function getConfig () {
 
   // ToDo: check if config.js is a valdif JSON object
 
-  return customConfig !== undefined ? deepMerge(defaultConfig, customConfig.default) : defaultConfig
+  return customConfig !== undefined ? deepMerge(defaultConfig, /** @type {Config} */(customConfig.default)) : defaultConfig
 }
 
 /**
- * @typedef {{ peripheralUpdateInterval:number, antplusMode:AntPlusModes, rowerSettings:OldRowerProfile  }} OldConfig
- * @typedef  {{ minumumForceBeforeStroke: number, minumumRecoverySlope: number}} OldRowerProfile
- * @param {Config & OldConfig} configToCheck
+ * @param {Config | OldConfig} configToCheck
  */
 function runConfigMigration (configToCheck) {
-  if (Object.keys(configToCheck).includes('peripheralUpdateInterval')) {
+  if ('peripheralUpdateInterval' in configToCheck) {
     log.error('WARNING: An old version of the config file was detected, peripheralUpdateInterval is now deprecated please use ftmsUpdateInterval and pm5UpdateInterval')
     configToCheck.ftmsUpdateInterval = configToCheck.peripheralUpdateInterval
     configToCheck.pm5UpdateInterval = configToCheck.peripheralUpdateInterval
   }
 
-  if (Object.keys(configToCheck).includes('antplusMode')) {
+  if ('antplusMode' in configToCheck) {
     log.error('WARNING: An old version of the config file was detected, please update the name of the following setting in the config.js file: antplusMode into antPlusMode')
     configToCheck.antPlusMode = configToCheck.antplusMode
   }
 
-  if (Object.keys(configToCheck.rowerSettings).includes('minumumForceBeforeStroke')) {
+  if ('minumumForceBeforeStroke' in configToCheck.rowerSettings) {
     log.error('WARNING: An old version of the config file was detected, please update the name of the following setting in the config.js file: minumumForceBeforeStroke into minimumForceBeforeStroke')
     configToCheck.rowerSettings.minimumForceBeforeStroke = configToCheck.rowerSettings.minumumForceBeforeStroke
   }
 
-  if (Object.keys(configToCheck.rowerSettings).includes('minumumRecoverySlope')) {
+  if ('minumumRecoverySlope' in configToCheck.rowerSettings) {
     log.error('WARNING: An old version of the config file was detected, please update the name of the following setting in the config.js file: minumumRecoverySlope into minimumRecoverySlope')
     configToCheck.rowerSettings.minimumRecoverySlope = configToCheck.rowerSettings.minumumRecoverySlope
   }
 }
 
+/**
+ * @param {Config | OldConfig} configToCheck
+ */
 function checkConfig (configToCheck) {
   checkRangeValue(configToCheck.loglevel, 'default', ['trace', 'debug', 'info', 'warn', 'error', 'silent'], true, 'error')
   checkRangeValue(configToCheck.loglevel, 'RowingEngine', ['trace', 'debug', 'info', 'warn', 'error', 'silent'], true, 'error')

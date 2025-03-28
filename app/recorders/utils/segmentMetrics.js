@@ -26,17 +26,26 @@ export function createSegmentMetrics () {
     maximum () { return linearVelocityToPace(_linearVelocity.maximum()) },
     median () { return linearVelocityToPace(_linearVelocity.median()) }
   }
+  /**
+   * @type {Date | undefined}
+   */
   let startTimestamp
-  let startMovingTime
-  let startLinearDistance
-  let startCalories
-  let startStrokeNumber
+  let startMovingTime = 0
+  let startLinearDistance = 0
+  let startCalories = 0
+  let startStrokeNumber = 0
+  /**
+   * @type {Date | undefined}
+   */
   let endTimestamp
-  let endMovingTime
-  let endLinearDistance
-  let endCalories
-  let endStrokeNumber
+  let endMovingTime = 0
+  let endLinearDistance = 0
+  let endCalories = 0
+  let endStrokeNumber = 0
 
+  /**
+   * @param {Metrics} metrics
+   */
   function setStart (metrics) {
     reset()
     push(metrics)
@@ -47,6 +56,9 @@ export function createSegmentMetrics () {
     startStrokeNumber = metrics.totalNumberOfStrokes
   }
 
+  /**
+   * @param {Metrics} metrics
+   */
   /* eslint-disable complexity -- defensive programming needed to prevent metrics being poisoned when a stroke is missed */
   function push (metrics) {
     if (!!metrics.cyclePower && !isNaN(metrics.cyclePower) && metrics.cyclePower > 0) { power.push(metrics.cyclePower) }
@@ -64,7 +76,7 @@ export function createSegmentMetrics () {
   }
   /* eslint-enable complexity */
 
-  function travelledLinearDistance () {
+  function traveledLinearDistance () {
     if (!isNaN(startLinearDistance) && startLinearDistance >= 0 && !isNaN(endLinearDistance) && endLinearDistance > startLinearDistance) {
       return endLinearDistance - startLinearDistance
     } else {
@@ -120,6 +132,9 @@ export function createSegmentMetrics () {
     }
   }
 
+  /**
+   * @param {number} linearVel
+   */
   function linearVelocityToPace (linearVel) {
     if (!isNaN(linearVel) && linearVel > 0) {
       return (500.0 / linearVel)
@@ -140,7 +155,7 @@ export function createSegmentMetrics () {
   return {
     setStart,
     push,
-    travelledLinearDistance,
+    traveledLinearDistance,
     numberOfStrokes,
     spentCalories,
     totalTime,

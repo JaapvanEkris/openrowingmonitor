@@ -28,6 +28,7 @@ export class AdditionalSplitDataCharacteristic extends GattNotifyCharacteristic 
 
   /**
    * @param {Metrics} data
+   * @param {SegmentMetrics} splitData
    */
   // @ts-ignore: Type is not assignable to type
   notify (data, splitData) {

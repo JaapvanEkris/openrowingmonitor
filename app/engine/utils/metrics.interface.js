@@ -69,3 +69,9 @@
  * splitNumber: number
  * }} Metrics
  */
+/**
+ * @typedef {{
+ * totalMovingTime: number,
+ * totalLinearDistance: number
+ *  }} SplitTimeDistanceData
+ */

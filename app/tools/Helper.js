@@ -5,26 +5,31 @@
   Helper functions
 */
 
-// deeply merges any number of objects into a new object
+/**
+ * Deeply merges any number of objects into a new object
+ * @template {object} T
+ * @param {...T} objects - Objects to merge.
+ * @returns {T} - The merged object
+ */
 export function deepMerge (...objects) {
-  const isObject = obj => obj && typeof obj === 'object'
+  const isObject = /** @type {(obj: T[keyof T]) => obj is object} */ obj => obj && typeof obj === 'object'
 
-  return objects.reduce((prev, obj) => {
-    Object.keys(obj).forEach(key => {
+  return objects.reduce((/** @type {T} */prev, /** @type {T} */obj) => {
+    /** @type {Array<keyof T>} */(Object.keys(obj)).forEach(key => {
       const pVal = prev[key]
       const oVal = obj[key]
 
       if (Array.isArray(pVal) && Array.isArray(oVal)) {
-        prev[key] = pVal.concat(...oVal)
+        /** @type {Array<any>} */(prev[key]) = pVal.concat(...oVal)
       } else if (isObject(pVal) && isObject(oVal)) {
-        prev[key] = deepMerge(pVal, oVal)
+        /** @type {object} */(prev[key]) = deepMerge(pVal, oVal)
       } else {
         prev[key] = oVal
       }
     })
 
     return prev
-  }, {})
+  }, /** @type {T} */ ({}))
 }
 
 // converts a timeStamp in seconds to a human readable hh:mm:ss format

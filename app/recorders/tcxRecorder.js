@@ -135,7 +135,7 @@ export function createTCXRecorder (config) {
   function calculateLapMetrics (metrics) {
     sessionData.lap[lapnumber].endTime = metrics.timestamp
     sessionData.lap[lapnumber].totalMovingTime = lapMetrics.movingTime()
-    sessionData.lap[lapnumber].totalLinearDistance = lapMetrics.travelledLinearDistance()
+    sessionData.lap[lapnumber].totalLinearDistance = lapMetrics.traveledLinearDistance()
     sessionData.lap[lapnumber].totalCalories = lapMetrics.spentCalories()
     sessionData.lap[lapnumber].numberOfStrokes = lapMetrics.numberOfStrokes()
     sessionData.lap[lapnumber].averageStrokeRate = lapMetrics.strokerate.average()

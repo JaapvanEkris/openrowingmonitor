@@ -22,6 +22,7 @@ export class AdditionalWorkoutSummary2Characteristic {
 
   /**
    * @param {Metrics} data
+   * @param {SegmentMetrics} workoutData
    */
   // @ts-ignore: Type is not assignable to type
   notify (data, workoutData) {
