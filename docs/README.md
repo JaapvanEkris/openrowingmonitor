@@ -61,7 +61,7 @@ OpenRowingMonitor can recieve heartrate data via Bluetooth Low Energy (BLE) and 
 
 * **Concept2 PM**: OpenRowingMonitor can simulate a Concept2 PM5, providing compatibility with most rowing apps. This implements the most common parts of the spec, so it might not work with all applications. It is known to work with [EXR](https://www.exrgame.com) and all the samples from [The Erg Arcade](https://ergarcade.com), for example you can [row in the clouds](https://ergarcade.github.io/mrdoob-clouds/).
 
-* **FTMS Rower**: This is the FTMS profile for rowing machines and supports all rowing specific metrics (such as stroke rate). We've successfully tested it with [EXR](https://www.exrgame.com) (preferred method), [MyHomeFit](https://myhomefit.de) and [Kinomap](https://www.kinomap.com).
+* **FTMS Rower**: This is the FTMS profile for rowing machines and supports all rowing specific metrics (such as stroke rate). We've successfully tested it with [EXR](https://www.exrgame.com) (preferred method), [Peleton](https://www.onepeloton.com/app), [MyHomeFit](https://myhomefit.de) and [Kinomap](https://www.kinomap.com).
 
 * **FTMS Indoor Bike**: This FTMS profile is used by Smart Bike Trainers and widely adopted by bike training apps. It does not support rowing specific metrics, but it can present metrics such as power and distance to the biking application and use cadence for stroke rate. So why not use your virtual rowing bike to row up a mountain in [Zwift](https://www.zwift.com), [Bkool](https://www.bkool.com), [The Sufferfest](https://thesufferfest.com) or similar :-)
 
