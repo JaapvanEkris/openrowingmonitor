@@ -86,7 +86,7 @@ export function createSegmentMetrics () {
 
   function totalTime () {
     if (!isNaN(startTimestamp) && startTimestamp >= 0 && !isNaN(endTimestamp) && endTimestamp > startTimestamp) {
-      return Math.max(endTimestamp - startTimestamp, 0)
+      return (Math.max(endTimestamp - startTimestamp, 0) / 1000)
     } else {
       return 0
     }
@@ -102,7 +102,7 @@ export function createSegmentMetrics () {
 
   function restTime () {
     if (!isNaN(startMovingTime) && !isNaN(startTimestamp) && startTimestamp >= 0 && !isNaN(endMovingTime) && !isNaN(endTimestamp) && endTimestamp > startTimestamp) {
-      return Math.max(endTimestamp - startTimestamp, 0) - Math.max(endMovingTime - startMovingTime, 0)
+      return (Math.max(endTimestamp - startTimestamp, 0) / 1000) - Math.max(endMovingTime - startMovingTime, 0)
     } else {
       return 0
     }
