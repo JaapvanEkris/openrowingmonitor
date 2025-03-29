@@ -51,12 +51,8 @@ export class LoggedWorkoutCharacteristic extends GattNotifyCharacteristic {
     // Logged Workout Internal Log Address (Mid Hi),
     // Logged Workout Internal Log Address (Hi),
     bufferBuilder.writeUInt32LE(0)
-    // Logged Workout Size (meters or seconds)
-    if (data.sessiontype === 'distance') {
-      bufferBuilder.writeUInt16LE(Math.round(workoutData.traveledLinearDistance()))
-    } else {
-      bufferBuilder.writeUInt16LE(Math.round(workoutData.movingTime()))
-    }
+    // Logged Workout Size (file size in bytes)
+    bufferBuilder.writeUInt16LE(0)
     // Erg Model Type
     bufferBuilder.writeUInt8(pm5Constants.ergMachineType)
 
