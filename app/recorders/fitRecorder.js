@@ -10,7 +10,6 @@
 /* eslint-disable max-lines -- The length is governed by the fit-parameterisation, which we can't control */
 import log from 'loglevel'
 import { createName } from './utils/decorators.js'
-import { createSeries } from '../engine/utils/Series.js'
 import { createSegmentMetrics } from './utils/segmentMetrics.js'
 import { createVO2max } from './utils/VO2max.js'
 import { FitWriter } from '@markw65/fit-file-writer'
@@ -22,7 +21,6 @@ export function createFITRecorder (config) {
   const lapMetrics = createSegmentMetrics()
   const sessionMetrics = createSegmentMetrics()
   const VO2max = createVO2max(config)
-  const drag = createSeries()
   let heartRate = 0
   let sessionData = {}
   sessionData.workoutplan = []
@@ -142,7 +140,6 @@ export function createFITRecorder (config) {
     addHeartRateToMetrics(metrics)
     sessionData.lap[lapnumber].strokes.push(metrics)
     VO2max.push(metrics)
-    if (!isNaN(metrics.dragFactor) && metrics.dragFactor > 0) { drag.push(metrics.dragFactor) }
     fitfileContentIsCurrent = false
     allDataHasBeenWritten = false
   }
@@ -679,7 +676,7 @@ export function createFITRecorder (config) {
   }
 
   function sessionDrag () {
-    return drag.average()
+    return sessionMetrics.dragFactor.average()
   }
 
   function sessionVO2Max () {
@@ -712,7 +709,6 @@ export function createFITRecorder (config) {
     postExerciseHR = null
     postExerciseHR = []
     VO2max.reset()
-    drag.reset()
     lastMetrics = {}
     fitfileContent = null
     fitfileContentIsCurrent = true
