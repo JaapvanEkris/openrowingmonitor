@@ -14,6 +14,7 @@ import { pm5Constants, toC2128BitUUID } from './pm5/Pm5Constants.js'
 import { Pm5AppearanceService } from './pm5/Pm5AppearanceService.js'
 import { Pm5ControlService } from './pm5/control-service/Pm5ControlService.js'
 import { Pm5DeviceInformationService } from './pm5/Pm5DeviceInformationService.js'
+import { Pm5HeartRateControlService } from './pm5/heart-rate-service/Pm5HeartRateControlService.js'
 import { Pm5RowingService } from './pm5/rowing-service/Pm5RowingService.js'
 
 /**
@@ -31,7 +32,8 @@ export function createPm5Peripheral (bleManager, config, controlCallback) {
   const appearanceService = new Pm5AppearanceService()
   const controlService = new Pm5ControlService(controlCallback)
   const rowingService = new Pm5RowingService(config)
-  const gattServices = [appearanceService.gattService, controlService.gattService, deviceInformationService.gattService, rowingService.gattService]
+  const heartRateControlService = new Pm5HeartRateControlService()
+  const gattServices = [appearanceService.gattService, controlService.gattService, deviceInformationService.gattService, rowingService.gattService, heartRateControlService.gattService]
 
   const advDataBuffer = new NodeBleHost.AdvertisingDataBuilder()
     .addFlags(['leGeneralDiscoverableMode', 'brEdrNotSupported'])
