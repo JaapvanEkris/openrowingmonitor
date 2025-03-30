@@ -29,6 +29,7 @@ import { AdditionalStatusCharacteristic } from './status-characteristics/Additio
 import { AdditionalStrokeDataCharacteristic } from './other-characteristics/AdditionalStrokeDataCharacteristic.js'
 import { AdditionalWorkoutSummary2Characteristic } from './session-characteristics/AdditionalWorkoutSummary2Characteristic.js'
 import { AdditionalWorkoutSummaryCharacteristic } from './session-characteristics/AdditionalWorkoutSummaryCharacteristic.js'
+import { ForceCurveCharacteristic } from './other-characteristics/ForceCurveCharacteristic.js'
 import { GeneralStatusCharacteristic } from './status-characteristics/GeneralStatusCharacteristic.js'
 import { LoggedWorkoutCharacteristic } from './session-characteristics/LoggedWorkoutCharacteristic.js'
 import { MultiplexedCharacteristic } from './other-characteristics/MultiplexedCharacteristic.js'
@@ -45,6 +46,7 @@ export class Pm5RowingService extends GattService {
 
   #strokeData
   #additionalStrokeData
+  #forceCurveData
 
   #splitData
   #additionalSplitData
@@ -76,6 +78,7 @@ export class Pm5RowingService extends GattService {
     const additionalStatus2 = new AdditionalStatus2Characteristic(multiplexedCharacteristic)
     const additionalStatus3 = new AdditionalStatus3Characteristic(multiplexedCharacteristic)
     const strokeData = new StrokeDataCharacteristic(multiplexedCharacteristic)
+    const forceCurveData = new ForceCurveCharacteristic(multiplexedCharacteristic)
     const additionalStrokeData = new AdditionalStrokeDataCharacteristic(multiplexedCharacteristic)
     const splitData = new SplitDataCharacteristic(multiplexedCharacteristic)
     const additionalSplitData = new AdditionalSplitDataCharacteristic(multiplexedCharacteristic)
@@ -111,8 +114,8 @@ export class Pm5RowingService extends GattService {
         additionalWorkoutSummary.characteristic,
         // C2 rowing heart rate belt information (6 bytes) - Specs states Write is necessary we omit that
         createStaticReadCharacteristic(toC2128BitUUID('003B'), new Array(6).fill(0), 'Heart Rate Belt Information', true),
-        // C2 force curve data - Same concept as ESP Rowing Monitor force curve (first two bytes: 1. 2x4bit value where first is total number of notifications - 'characteristics' in the Specs term - second the number of values in the current notification 2. current notification number - e.g. [0x29 /*i.e. 41 */, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0] total of 2 consecutive notification will be emitted, current is the 1 and it has 9 data points, all zeros), variable size based on negotiated MTU, only C2 uses 16bits values) - https://github.com/ergarcade/pm5-base/blob/3d16d5d4840af14104fca928acdd3af2ec19cb29/js/pm5.js#L449
-        createStaticReadCharacteristic(toC2128BitUUID('003D'), [0x19, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0], 'Force Curve Data', true),
+        // C2 force curve data (2-288 bytes)
+        forceCurveData.characteristic,
         // Logged Workout
         loggedWorkout.characteristic,
         // C2 multiplexed information
@@ -126,6 +129,7 @@ export class Pm5RowingService extends GattService {
     this.#strokeData = strokeData
     this.#additionalStrokeData = additionalStrokeData
     this.#splitData = splitData
+    this.#forceCurveData = forceCurveData
     this.#additionalSplitData = additionalSplitData
     this.#workoutSummary = workoutSummary
     this.#additionalWorkoutSummary = additionalWorkoutSummary
@@ -229,7 +233,7 @@ export class Pm5RowingService extends GattService {
   #strokeEndDataNotifies (metrics) {
     this.#strokeData.notify(metrics)
     this.#additionalStrokeData.notify(metrics)
-    // ForceCurve
+    this.#forceCurveData.notify(metrics)
   }
 
   /**
