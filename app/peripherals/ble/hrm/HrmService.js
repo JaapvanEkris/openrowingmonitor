@@ -15,6 +15,7 @@ import { toBLEStandard128BitUUID } from '../BleManager.js'
 /**
  * @typedef {import('../ble-host.interface.js').Connection} Connection
  * @typedef {import('../ble-host.interface.js').Scanner} Scanner
+ * @typedef {import('../ble-host.interface.js').GattClientCharacteristic} GattClientCharacteristic
  */
 
 const log = logger.getLogger('Peripherals')
@@ -25,6 +26,14 @@ const heartRateMeasurementUUID = toBLEStandard128BitUUID('2A37')
 const batteryLevelServiceUUID = toBLEStandard128BitUUID('180F')
 const batteryLevelMeasurementUUID = toBLEStandard128BitUUID('2A19')
 
+const deviceInformationServiceUUID = toBLEStandard128BitUUID('180A')
+const manufacturerIdUUID = toBLEStandard128BitUUID('2A29')
+const serialNumberUUID = toBLEStandard128BitUUID('2A25')
+
+/**
+ * @event HrmService#heartRateMeasurement
+ * @extends {EventEmitter<{heartRateMeasurement: Array<HeartRateMeasurementEvent>}>}
+ */
 export class HrmService extends EventEmitter {
   #manager
   /**
@@ -47,6 +56,22 @@ export class HrmService extends EventEmitter {
    * @type {number | undefined}
    */
   #batteryLevel
+  /**
+   * @type {number | undefined}
+   */
+  #energyExpended
+  /**
+   * @type {Array<number>}
+   */
+  #rrIntervals = []
+  /**
+   * @type {number | string | undefined}
+   */
+  #manufacturerId
+  /**
+   * @type {number | string | undefined}
+   */
+  #serialNumber
 
   /**
    * @param {import('../ble-host.interface.js').BleManager} manager
@@ -104,6 +129,42 @@ export class HrmService extends EventEmitter {
         resolve(services)
       })
     })
+
+    const deviceInformationService = primaryServices.find(service => service.uuid === deviceInformationServiceUUID)
+    if (deviceInformationService !== undefined) {
+      log.debug('HR device information service was discovered')
+      const characteristics = await new Promise((/** @type {(value: { serialNumber?: GattClientCharacteristic, manufacturerId?: GattClientCharacteristic}) => void} */resolve) => {
+        deviceInformationService.discoverCharacteristics((characteristics) => {
+          resolve({
+            serialNumber: characteristics.find(characteristic => characteristic.uuid === serialNumberUUID), manufacturerId: characteristics.find(characteristic => characteristic.uuid === manufacturerIdUUID)
+          })
+        })
+      })
+
+      this.#manufacturerId = await new Promise((resolve) => {
+        if (characteristics.manufacturerId === undefined) {
+          resolve(undefined)
+
+          return
+        }
+
+        characteristics.manufacturerId.read((_errorCode, data) => {
+          resolve(data.toString())
+        })
+      })
+
+      this.#serialNumber = await new Promise((resolve) => {
+        if (characteristics.serialNumber === undefined) {
+          resolve(undefined)
+
+          return
+        }
+
+        characteristics.serialNumber.read((_errorCode, data) => {
+          resolve(data.toString())
+        })
+      })
+    }
 
     const heartRateService = primaryServices.find(service => service.uuid === heartRateServiceUUID)
     if (heartRateService === undefined) {
@@ -197,7 +258,11 @@ export class HrmService extends EventEmitter {
     // 1 + 2: Sensor Contact Status
     // 3: Energy Expended Status
     // 4: RR-Interval
-    const heartRateUint16LE = flags & 0b1
+    const is16BitHeartRate = Boolean(flags >> 0 & 0x01) // Checking the first bit
+    const hasSensorContact = Boolean(flags >> 1 & 0x01) // Checking bits 1 and 2 (sensor contact)
+    const isSensorContactSupported = Boolean(flags >> 2 & 0x01) // Checking bits 1 and 2 (sensor contact)
+    const hasEnergyExpended = Boolean(flags >> 3 & 0x01) // Checking bit 3 (energy expended)
+    const hasRRInterval = Boolean(flags >> 4 & 0x01) // Checking bit 4 (RR interval)
 
     // from the specs:
     // While most human applications require support for only 255 bpm or less, special
@@ -205,8 +270,33 @@ export class HrmService extends EventEmitter {
     // If the Heart Rate Measurement Value is less than or equal to 255 bpm a UINT8 format
     // should be used for power savings.
     // If the Heart Rate Measurement Value exceeds 255 bpm a UINT16 format shall be used.
-    const heartrate = heartRateUint16LE ? data.readUInt16LE(1) : data.readUInt8(1)
-    this.emit('heartRateMeasurement', { heartrate, batteryLevel: this.#batteryLevel })
+    const heartrate = is16BitHeartRate ? data.readUInt16LE(1) : data.readUInt8(1)
+    let offsetStart = is16BitHeartRate ? 1 : 2
+
+    // Energy Expended (if present)
+    if (hasEnergyExpended) {
+      this.#energyExpended = data.readUInt16LE(offsetStart)
+      offsetStart += 2
+    }
+
+    // RR Intervals (if present)
+    this.#rrIntervals = []
+    if (hasRRInterval) {
+      while (offsetStart < data.length) {
+        this.#rrIntervals.push(Math.round(data.readUInt16LE(offsetStart) / 1024 * 1000) / 1000) // Convert to seconds
+        offsetStart += 2
+      }
+    }
+
+    this.emit('heartRateMeasurement', {
+      heartrate,
+      rrIntervals: this.#rrIntervals,
+      energyExpended: this.#energyExpended,
+      batteryLevel: this.#batteryLevel,
+      manufacturerId: this.#manufacturerId,
+      serialNumber: this.#serialNumber,
+      hasContact: isSensorContactSupported ? hasSensorContact : undefined
+    })
   }
 
   /**

@@ -16,3 +16,14 @@
 /**
  * @typedef {Partial<import('../ble-host.interface.js').GattServerService> & { name: string }} GattServerServiceFactory
  */
+/**
+ * @typedef {{
+ * heartrate?: number,
+ * rrIntervals: Array<number>,
+ * energyExpended?: number,
+ * hasContact?: boolean
+ * batteryLevel?: number,
+ * manufacturerId?: number | string,
+ * serialNumber?: number | string
+ * }} HeartRateMeasurementEvent
+ */
