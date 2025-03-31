@@ -34,7 +34,7 @@ export function createRowingDataRecorder (config) {
         break
       case ('reset'):
       case ('shutdown'):
-        if (lastMetrics !== undefined && !!lastMetrics.metricsContext && lastMetrics.metricsContext.isMoving && lastMetrics.length > 0 && lastMetrics.totalMovingTime > strokes[strokes.length - 1].totalMovingTime) {
+        if (lastMetrics !== undefined && !!lastMetrics.metricsContext && lastMetrics.metricsContext.isMoving === true && (strokes.length > 0) && (lastMetrics.totalMovingTime > strokes[strokes.length - 1].totalMovingTime)) {
           addMetricsToStrokesArray(lastMetrics)
         }
         break

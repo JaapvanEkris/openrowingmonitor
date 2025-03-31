@@ -51,6 +51,8 @@ export function createRecordingManager (config) {
       case ('stop'):
         break
       case ('reset'):
+        clearTimeout(writeTimer)
+        clearTimeout(uploadTimer)
         await executeCommandsInParralel(commandName, data)
         await writeRecordings()
         await uploadRecordings()

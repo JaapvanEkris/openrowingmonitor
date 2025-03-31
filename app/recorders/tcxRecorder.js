@@ -37,7 +37,7 @@ export function createTCXRecorder (config) {
         break
       case ('reset'):
       case ('shutdown'):
-        if (lastMetrics !== undefined && !!lastMetrics.metricsContext && lastMetrics.metricsContext.isMoving && lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
+        if (lastMetrics !== undefined && !!lastMetrics.metricsContext && lastMetrics.metricsContext.isMoving === true && (sessionData.lap[lapnumber].strokes.length > 0) && (lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime)) {
           // We apperantly get a reset/shutdown/crash during a session
           updateLapMetrics(lastMetrics)
           addMetricsToStrokesArray(lastMetrics)
