@@ -159,12 +159,20 @@ async function handleCommand (command, data, client) {
       // ToDo: move this into the recordingmanager commandhandler
       workoutUploader.stravaAuthorizationCode(data)
       break
+    case 'reset':
+      // The initial sessionmanager stop and order of commands is important to prevent race conditions between the recordingManager and sessionMananager during resets
+      // If the sessionManager starts a new session too soon, recorders will miss the initial metrics broadcast, and crash as there is data added to a lap that hasn't started
+      await sessionManager.handleCommand('stop', {}, client)
+      await webServer.handleCommand(command, data, client)
+      await peripheralManager.handleCommand(command, data, client)
+      await recordingManager.handleCommand(command, data, client)
+      await sessionManager.handleCommand(command, data, client)
+      break
     default:
       sessionManager.handleCommand(command, data, client)
       recordingManager.handleCommand(command, data, client)
       peripheralManager.handleCommand(command, data, client)
       webServer.handleCommand(command, data, client)
-      break
   }
 }
 
