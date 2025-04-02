@@ -327,6 +327,7 @@ export function createPeripheralManager (config) {
         }
         hrmPeripheral = createBleHrmPeripheral(_bleManager)
         hrmMode = 'BLE'
+        await hrmPeripheral.attach()
         break
 
       default:

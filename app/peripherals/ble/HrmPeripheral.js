@@ -7,6 +7,7 @@ import EventEmitter from 'node:events'
 import { HrmService } from './hrm/HrmService.js'
 
 /**
+ * @event createBleHrmPeripheral#heartRateMeasurement
  * @param {import ('./BleManager.js').BleManager} bleManager
  */
 export function createBleHrmPeripheral (bleManager) {
@@ -31,12 +32,17 @@ export function createBleHrmPeripheral (bleManager) {
     await _hrmService.start()
   }
 
+  function attach () {
+    return setup()
+  }
+
   async function destroy () {
     _hrmService?.removeAllListeners()
     await _hrmService?.stop()
   }
 
   return Object.assign(emitter, {
-    destroy
+    destroy,
+    attach
   })
 }
