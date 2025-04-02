@@ -316,11 +316,30 @@ export function createWorkoutSegment (config) {
     return _type
   }
 
+  function metrics (baseMetrics) {
+    return {
+      type: _type,
+      distance: {
+        fromStart: distanceFromStart(baseMetrics),
+        target: targetDistance(),
+        toEnd: distanceToEnd(baseMetrics),
+        projectedEnd: projectedEndDistance()
+      },
+      time: {
+        sinceStart: timeSinceStart(baseMetrics),
+        target: targetTime(),
+        toEnd: timeToEnd(baseMetrics),
+        projectedEnd: projectedEndTime()
+      }
+    }
+  }
+
   return {
     setStart,
     setEnd,
     isEndReached,
     interpolateEnd,
+    metrics,
     distanceFromStart,
     distanceToEnd,
     timeSinceStart,
