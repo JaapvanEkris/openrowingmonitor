@@ -70,7 +70,7 @@ export class RowerDataCharacteristic extends GattNotifyCharacteristic {
     // Energy per minute
     bufferBuilder.writeUInt8(data.totalCaloriesPerMinute > 0 ? Math.round(data.totalCaloriesPerMinute) : 0)
     // Heart Rate: Beats per minute with a resolution of 1
-    bufferBuilder.writeUInt8(data.heartrate > 0 ? Math.round(data.heartrate) : 0)
+    bufferBuilder.writeUInt8(data?.heartrate ? Math.round(data.heartrate) : 0)
     // Elapsed Time: Seconds with a resolution of 1
     bufferBuilder.writeUInt16LE(data.totalMovingTime > 0 ? Math.round(data.totalMovingTime) : 0)
 

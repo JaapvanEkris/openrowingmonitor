@@ -65,7 +65,8 @@
  * totalCaloriesPerMinute: number,
  * strokeWork: number,
  * dragFactor: number,
- * heartrate: number,
+ * heartrate?: number,
+ * heartRateBatteryLevel?: number
  * splitNumber: number
  * }} Metrics
  */

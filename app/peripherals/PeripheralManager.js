@@ -38,6 +38,9 @@ const hrmModes = ['ANT', 'BLE', 'OFF']
  * @param {Config} config
  */
 export function createPeripheralManager (config) {
+  /**
+   * @type {EventEmitter<{heartRateMeasurement: Array<Partial<HeartRateMeasurementEvent>>, control: Array<ControlPointEvent>}>}
+   */
   const emitter = new EventEmitter()
   const mqttEnabled = (config.mqtt.mqttBroker !== '') && (config.mqtt.username !== '') && (config.mqtt.password !== '') && (config.mqtt.machineName !== '')
   let _antManager
@@ -61,9 +64,13 @@ export function createPeripheralManager (config) {
   let hrmPeripheral
   let hrmMode
   let hrmWatchdogTimer
+  /**
+   * @type {Omit<HeartRateMeasurementEvent,'batteryLevel'> & {heartRateBatteryLevel?: number }}
+   */
   let lastHrmData = {
     heartrate: undefined,
-    heartRateBatteryLevel: undefined
+    heartRateBatteryLevel: undefined,
+    rrIntervals: []
   }
 
   let isPeripheralChangeInProgress = false
@@ -328,17 +335,17 @@ export function createPeripheralManager (config) {
     }
 
     if (hrmMode.toLocaleLowerCase() !== 'OFF'.toLocaleLowerCase()) {
-      hrmPeripheral.on('heartRateMeasurement', (heartRateMeasurement) => {
+      hrmPeripheral.on('heartRateMeasurement', (/** @type {HeartRateMeasurementEvent} */heartRateMeasurement) => {
         // Clear the HRM watchdog as new HRM data has been received
         clearTimeout(hrmWatchdogTimer)
         // Make sure we check the HRM validity here, so the rest of the app doesn't have to
         if (heartRateMeasurement.heartrate !== undefined && config.userSettings.restingHR <= heartRateMeasurement.heartrate && heartRateMeasurement.heartrate <= config.userSettings.maxHR) {
-          lastHrmData = { ...heartRateMeasurement }
+          lastHrmData = { ...heartRateMeasurement, heartRateBatteryLevel: heartRateMeasurement.batteryLevel }
           emitter.emit('heartRateMeasurement', heartRateMeasurement)
         } else {
           log.info(`PeripheralManager: Heartrate value of ${heartRateMeasurement.heartrate} was outside valid range, setting it to undefined`)
           heartRateMeasurement.heartrate = undefined
-          heartRateMeasurement.heartRateBatteryLevel = undefined
+          heartRateMeasurement.batteryLevel = undefined
           emitter.emit('heartRateMeasurement', heartRateMeasurement)
         }
         // Re-arm the HRM watchdog to guarantee failsafe behaviour: after 6 seconds of no new HRM data, it will be invalidated
@@ -362,12 +369,16 @@ export function createPeripheralManager (config) {
     emitter.emit('heartRateMeasurement', lastHrmData)
   }
 
+  /**
+   * @param {Metrics} metrics
+   */
   function addHeartRateToMetrics (metrics) {
     if (lastHrmData.heartrate !== undefined) {
       metrics.heartrate = lastHrmData.heartrate
     } else {
       metrics.heartrate = undefined
     }
+    // So far battery level is not used by any of the peripherals adding it for completeness sake
     if (lastHrmData.heartRateBatteryLevel !== undefined) {
       metrics.heartRateBatteryLevel = lastHrmData.heartRateBatteryLevel
     } else {

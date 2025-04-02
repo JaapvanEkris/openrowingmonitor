@@ -39,7 +39,7 @@ export class AdditionalStatusCharacteristic extends GattNotifyCharacteristic {
     // strokeRate: UInt8 in strokes/min
     bufferBuilder.writeUInt8(data.cycleStrokeRate > 0 ? Math.round(data.cycleStrokeRate) : 0)
     // heartrate: UInt8 in bpm, 255 if invalid
-    bufferBuilder.writeUInt8(data.heartrate > 0 ? Math.round(data.heartrate) : 0)
+    bufferBuilder.writeUInt8(data?.heartrate ? Math.round(data.heartrate) : 0)
     // currentPace: UInt16LE in 0.01 sec/500m
     // if split is infinite (i.e. while pausing), use the highest possible number
     bufferBuilder.writeUInt16LE(data.cyclePace !== Infinity && data.cyclePace > 0 && data.cyclePace < 655.34 ? Math.round(data.cyclePace * 100) : 0xFFFF)

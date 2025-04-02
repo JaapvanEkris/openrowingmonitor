@@ -145,6 +145,9 @@ export function createWebServer (config) {
     notifyClients('metrics', lastKnownMetrics)
   }
 
+  /**
+   * @param {Metrics} metrics
+   */
   function addHeartRateToMetrics (metrics) {
     if (heartRate !== undefined) {
       metrics.heartrate = heartRate
