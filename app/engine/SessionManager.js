@@ -217,6 +217,7 @@ export function createSessionManager (config) {
         if (temporaryDatapoint.modified) {
           // The intermediate datapoint is actually different
           resetMetricsSessionContext(temporaryDatapoint)
+          // ToDo: Move activateNextIntervalParameters(temporaryDatapoint) to AFTER the emitMetrics, so that the emit always reports the last interval state!
           activateNextIntervalParameters(temporaryDatapoint)
           temporaryDatapoint.metricsContext.isIntervalStart = true
           temporaryDatapoint.metricsContext.isSplitEnd = true
@@ -240,6 +241,7 @@ export function createSessionManager (config) {
           temporaryDatapoint.metricsContext.isIntervalStart = true
           temporaryDatapoint.metricsContext.isSplitEnd = true
           temporaryDatapoint.metricsContext.isPauseStart = true
+          // ToDo: Move interval.setStart(temporaryDatapoint) to AFTER the emitMetrics, so that the emit always reports the last interval state!
           interval.setStart(temporaryDatapoint)
           emitMetrics(temporaryDatapoint)
         } else {
@@ -270,6 +272,7 @@ export function createSessionManager (config) {
         splitNumber++
         temporaryDatapoint = split.interpolateEnd(lastBroadcastedMetrics, metrics)
         if (temporaryDatapoint.modified) {
+          // ToDo: Move split.setStart(temporaryDatapoint) to AFTER the emitMetrics, so that the emit always reports the last interval state!
           split.setStart(temporaryDatapoint)
           resetMetricsSessionContext(temporaryDatapoint)
           temporaryDatapoint.metricsContext.isSplitEnd = true
