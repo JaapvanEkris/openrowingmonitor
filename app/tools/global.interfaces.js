@@ -1,6 +1,5 @@
 /**
  * @typedef {'requestControl'|
- * 'setIndoorBikeSimulationParameters'|
  * 'updateIntervalSettings'|
  * 'start'|
  * 'startOrResume'|

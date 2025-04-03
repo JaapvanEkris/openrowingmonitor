@@ -3,13 +3,11 @@
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   The connected Central can remotely control some parameters or our rowing monitor via this Control Point
-
-  So far tested on:
-    - Fulgaz: uses setIndoorBikeSimulationParameters
-    - Zwift: uses startOrResume and setIndoorBikeSimulationParameters
 */
 import NodeBleHost from 'ble-host'
 import logevel from 'loglevel'
+
+import { swapObjectPropertyValues } from '../../../tools/Helper.js'
 
 import { ResultOpCode } from '../common/CommonOpCodes.js'
 
@@ -65,7 +63,7 @@ export class FitnessMachineControlPointCharacteristic {
       uuid: 0x2AD9,
       properties: ['write', 'indicate'],
       onWrite: (connection, _needsResponse, opCode, callback) => {
-        log.debug(`FTMS control is called: ${opCode}`)
+        log.debug('FTMS control is called:', opCode)
         const response = this.#onWriteRequest(opCode)
 
         if (this.#characteristic.indicate === undefined) {
@@ -127,24 +125,12 @@ export class FitnessMachineControlPointCharacteristic {
         break
       }
 
-      // todo: Most tested bike apps use these to simulate a bike ride. Not sure how we can use these in our rower
-      // since there is no adjustable resistance on the rowing machine
-      case ControlPointOpCode.setIndoorBikeSimulationParameters: {
-        const windspeed = data.readInt16LE(1) * 0.001
-        const grade = data.readInt16LE(3) * 0.01
-        const crr = data.readUInt8(5) * 0.0001
-        const cw = data.readUInt8(6) * 0.01
-        if (this.#controlPointCallback({ req: { name: 'setIndoorBikeSimulationParameters', data: { windspeed, grade, crr, cw }, client: null } })) {
-          return this.#buildResponse(opCode, ResultOpCode.success)
-        }
-
-        return this.#buildResponse(opCode, ResultOpCode.operationFailed)
-      }
+      // TODO: Potentially handle setTargetPower and setDistance, etc. by integrating it into the interval/session manager. Difficulty is that this is a simple justrow like command with one target and no limits.
 
       // no default
     }
 
-    log.info(`FitnessMachineControlPointCharacteristic: opCode ${opCode} is not supported`)
+    log.info(`FitnessMachineControlPointCharacteristic: opCode ${swapObjectPropertyValues(ControlPointOpCode)[opCode]} is not supported`)
     return this.#buildResponse(opCode, ResultOpCode.opCodeNotSupported)
   }
 
