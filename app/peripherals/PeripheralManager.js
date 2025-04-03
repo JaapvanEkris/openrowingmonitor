@@ -43,15 +43,36 @@ export function createPeripheralManager (config) {
    */
   const emitter = new EventEmitter()
   const mqttEnabled = (config.mqtt.mqttBroker !== '') && (config.mqtt.username !== '') && (config.mqtt.password !== '') && (config.mqtt.machineName !== '')
+  /**
+   * @type {AntManager}
+   */
   let _antManager
+  /**
+   * @type {BleManager}
+   */
   let _bleManager
 
+  /**
+   * @type {ReturnType<createCpsPeripheral | createCpsPeripheral | createFtmsPeripheral | createPm5Peripheral> | undefined}
+   */
   let blePeripheral
+  /**
+   * @type {BluetoothModes}
+   */
   let bleMode
 
+  /**
+   * @type {ReturnType<createFEPeripheral> | undefined}
+   */
   let antPeripheral
+  /**
+   * @type {AntPlusModes}
+   */
   let antMode
 
+  /**
+   * @type {ReturnType<createMQTTPeripheral> | undefined}
+   */
   let mqttPeripheral
   if (mqttEnabled) {
     mqttPeripheral = createMQTTPeripheral(config)
@@ -61,8 +82,17 @@ export function createPeripheralManager (config) {
     })
   }
 
+  /**
+   * @type {ReturnType<createAntHrmPeripheral> | ReturnType<createBleHrmPeripheral> | undefined}
+   */
   let hrmPeripheral
+  /**
+   * @type {HeartRateModes}
+   */
   let hrmMode
+  /**
+   * @type {NodeJS.Timeout}
+   */
   let hrmWatchdogTimer
   /**
    * @type {Omit<HeartRateMeasurementEvent,'batteryLevel'> & {heartRateBatteryLevel?: number }}
@@ -84,6 +114,11 @@ export function createPeripheralManager (config) {
     await createBlePeripheral(config.bluetoothMode)
   }
 
+  /**
+   * @param {Command} commandName
+   * @param {unknown} data
+   * @param {null} client
+   */
   // This function handles all incomming commands. As all commands are broadasted to all application parts,
   // we need to filter here what the PeripheralManager will react to and what it will ignore
   // eslint-disable-next-line no-unused-vars
@@ -132,6 +167,9 @@ export function createPeripheralManager (config) {
     }
   }
 
+  /**
+   * @param {BluetoothModes} [newMode]
+   */
   async function switchBlePeripheralMode (newMode) {
     if (isPeripheralChangeInProgress) return
     isPeripheralChangeInProgress = true
@@ -144,18 +182,27 @@ export function createPeripheralManager (config) {
     isPeripheralChangeInProgress = false
   }
 
+  /**
+   * @param {Metrics} metrics
+   */
   function notifyMetrics (metrics) {
     addHeartRateToMetrics(metrics)
     if (bleMode !== 'OFF') { blePeripheral?.notifyData(metrics) }
     if (antMode !== 'OFF') { antPeripheral?.notifyData(metrics) }
-    if (mqttEnabled) { mqttPeripheral.notifyData(metrics) }
+    if (mqttEnabled) { mqttPeripheral?.notifyData(metrics) }
   }
 
+  /**
+   * @param {{name: string}} status
+   */
   function notifyStatus (status) {
     if (bleMode !== 'OFF') { blePeripheral?.notifyStatus(status) }
     if (antMode !== 'OFF') { antPeripheral?.notifyStatus(status) }
   }
 
+  /**
+   * @param {BluetoothModes} newMode
+   */
   async function createBlePeripheral (newMode) {
     try {
       if (_bleManager === undefined && newMode !== 'OFF') {
@@ -219,6 +266,9 @@ export function createPeripheralManager (config) {
     })
   }
 
+  /**
+   * @param {AntPlusModes} [newMode]
+   */
   async function switchAntPeripheralMode (newMode) {
     if (isPeripheralChangeInProgress) return
     isPeripheralChangeInProgress = true
@@ -230,6 +280,9 @@ export function createPeripheralManager (config) {
     isPeripheralChangeInProgress = false
   }
 
+  /**
+   * @param {AntPlusModes} newMode
+   */
   async function createAntPeripheral (newMode) {
     if (antPeripheral) {
       await antPeripheral?.destroy()
@@ -273,6 +326,9 @@ export function createPeripheralManager (config) {
     })
   }
 
+  /**
+   * @param {HeartRateModes} [newMode]
+   */
   async function switchHrmMode (newMode) {
     if (isPeripheralChangeInProgress) return
     isPeripheralChangeInProgress = true
@@ -284,6 +340,9 @@ export function createPeripheralManager (config) {
     isPeripheralChangeInProgress = false
   }
 
+  /**
+   * @param {HeartRateModes} newMode
+   */
   async function createHrmPeripheral (newMode) {
     if (hrmPeripheral) {
       await hrmPeripheral?.destroy()
@@ -335,8 +394,8 @@ export function createPeripheralManager (config) {
         hrmMode = 'OFF'
     }
 
-    if (hrmMode.toLocaleLowerCase() !== 'OFF'.toLocaleLowerCase()) {
-      hrmPeripheral.on('heartRateMeasurement', (/** @type {HeartRateMeasurementEvent} */heartRateMeasurement) => {
+    if (hrmPeripheral && hrmMode.toLocaleLowerCase() !== 'OFF'.toLocaleLowerCase()) {
+      hrmPeripheral.on('heartRateMeasurement', (heartRateMeasurement) => {
         // Clear the HRM watchdog as new HRM data has been received
         clearTimeout(hrmWatchdogTimer)
         // Make sure we check the HRM validity here, so the rest of the app doesn't have to

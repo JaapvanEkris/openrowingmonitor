@@ -6,12 +6,21 @@
   It allows for determining the Average, Median, Number of Positive, number of Negative
 */
 
-export function createSeries (maxSeriesLength) {
+/**
+ * @param {number} [maxSeriesLength]
+ */
+export function createSeries (maxSeriesLength = 0) {
+  /**
+   * @type {Array<number>}
+   */
   let seriesArray = []
   let seriesSum = 0
   let numPos = 0
   let numNeg = 0
 
+  /**
+   * @param {number} value
+   */
   function push (value) {
     if (value === undefined || isNaN(value)) { return }
 
@@ -55,6 +64,9 @@ export function createSeries (maxSeriesLength) {
     }
   }
 
+  /**
+   * @param {number} position
+   */
   function get (position) {
     if (position >= 0 && position < seriesArray.length) {
       return seriesArray[position]
@@ -63,6 +75,9 @@ export function createSeries (maxSeriesLength) {
     }
   }
 
+  /**
+   * @param {number} testedValue
+   */
   function numberOfValuesAbove (testedValue) {
     if (testedValue === 0) {
       return numPos
@@ -79,6 +94,9 @@ export function createSeries (maxSeriesLength) {
     }
   }
 
+  /**
+   * @param {number} testedValue
+   */
   function numberOfValuesEqualOrBelow (testedValue) {
     if (testedValue === 0) {
       return numNeg
@@ -142,7 +160,7 @@ export function createSeries (maxSeriesLength) {
   }
 
   function reset () {
-    seriesArray = null
+    seriesArray = /** @type {Array<number>} */(/** @type {unknown} */(null))
     seriesArray = []
     seriesSum = 0
     numPos = 0
