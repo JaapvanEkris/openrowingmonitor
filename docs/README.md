@@ -59,9 +59,9 @@ If you connect a (optional) physical screen directly to the Raspberry Pi, then t
 
 OpenRowingMonitor can recieve heartrate data via Bluetooth Low Energy (BLE) and ANT+. But it also implements different protocols to share your rowing metrics with different applications and devices. We support most common industry standards to help you connect to your app and game of choice, OpenRowingMonitor currently supports the following protocols:
 
-* **Concept2 PM**: OpenRowingMonitor can simulate a Concept2 PM5, providing compatibility with most rowing apps. This implements the most common parts of the spec, so it might not work with all applications. It is known to work with [EXR](https://www.exrgame.com) and all the samples from [The Erg Arcade](https://ergarcade.com), for example you can [row in the clouds](https://ergarcade.github.io/mrdoob-clouds/).
+* **Concept2 PM**: OpenRowingMonitor can simulate a Concept2 PM5, providing compatibility with most rowing apps. This implements the most common parts of the spec, so it might not work with all applications. It is known to work with [EXR](https://www.exrgame.com) (preferred method) and all the samples from [The Erg Arcade](https://ergarcade.com), for example you can [row in the clouds](https://ergarcade.github.io/mrdoob-clouds/).
 
-* **FTMS Rower**: This is the FTMS profile for rowing machines and supports all rowing specific metrics (such as stroke rate). We've successfully tested it with [EXR](https://www.exrgame.com) (preferred method), [Peleton](https://www.onepeloton.com/app), [MyHomeFit](https://myhomefit.de) and [Kinomap](https://www.kinomap.com).
+* **FTMS Rower**: This is the FTMS profile for rowing machines and supports all rowing specific metrics (such as stroke rate). We've successfully tested it with [EXR](https://www.exrgame.com), [Peleton](https://www.onepeloton.com/app), [MyHomeFit](https://myhomefit.de) and [Kinomap](https://www.kinomap.com).
 
 * **FTMS Indoor Bike**: This FTMS profile is used by Smart Bike Trainers and widely adopted by bike training apps. It does not support rowing specific metrics, but it can present metrics such as power and distance to the biking application and use cadence for stroke rate. So why not use your virtual rowing bike to row up a mountain in [Zwift](https://www.zwift.com), [Bkool](https://www.bkool.com), [The Sufferfest](https://thesufferfest.com) or similar :-)
 
@@ -78,7 +78,7 @@ OpenRowingMonitor can recieve heartrate data via Bluetooth Low Energy (BLE) and 
 
 ### Export of Training Sessions
 
-OpenRowingMonitor is based on the idea that metrics should be easily accessible for further analysis on data platforms. Therefore, OpenRowingMonitor can create the following files:
+OpenRowingMonitor is based on the idea that metrics should be easily accessible for further analysis on data platforms. Automatic uploading your sessions to [RowsAndAll](https://rowsandall.com/), [Intervals.icu](https://intervals.icu/) and [Strava](https://www.strava.com) is an integrated feature, for all other platforms this is currently a manual step, see [the integration manual](Integrations.md). For these platforms, OpenRowingMonitor can create the following file types:
 
 * **RowingData** files, which are comma-seperated files with all metrics OpenRowingMonitor can produce. These can be used with [RowingData](https://pypi.org/project/rowingdata/) to display your results locally, or uploaded to [RowsAndAll](https://rowsandall.com/) for a webbased analysis (including dynamic in-stroke metrics). The csv-files can also be processed manually in Excel, allowing your own custom analysis;
 
@@ -86,7 +86,7 @@ OpenRowingMonitor is based on the idea that metrics should be easily accessible 
 
 * **Training Center XML files (TCX)**: These are legacy XML-files that contain the most essential metrics of a rowing session. Most training analysis tools will still accept a tcx-file (although FIT usually is recomended). You can upload these files to training platforms like [Strava](https://www.strava.com), [Garmin Connect](https://connect.garmin.com), [Intervals.icu](https://intervals.icu/), [RowsAndAll](https://rowsandall.com/) or [Trainingpeaks](https://trainingpeaks.com) to track your training sessions;
 
-Automatic uploading your sessions to [RowsAndAll](https://rowsandall.com/), [Intervals.icu](https://intervals.icu/) and [Strava](https://www.strava.com) is an integrated feature, for all other platforms this is currently a manual step, see [the integration manual](Integrations.md). The OpenRowingMonitor installer can also set up a network share that contains all training data so it is easy to grab the files from there and manually upload them to the training platform of your choice.
+The OpenRowingMonitor installer can also set up a network share that contains all training data so it is easy to grab the files from there and manually upload them to the training platform of your choice.
 
 ## Installation
 
