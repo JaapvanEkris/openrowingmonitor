@@ -320,23 +320,6 @@ export function createWorkoutSegment (config) {
     }
   }
 
-  function endDistance () {
-    if (_type === 'distance' && _endLinearDistance > 0) {
-      return _endLinearDistance
-    } else {
-      return undefined
-    }
-  }
-
-  function endTime () {
-    if (_type === 'time' && _endMovingTime > 0) {
-      // We have set a time boundary
-      return _endMovingTime
-    } else {
-      return undefined
-    }
-  }
-
   function getSplit () {
     return _split
   }
