@@ -9,13 +9,14 @@
 import log from 'loglevel'
 import { createDragLine, createVO2MaxLine, createHRRLine } from './utils/decorators.js'
 import { createSeries } from '../engine/utils/Series.js'
-import { createSegmentMetrics } from './utils/segmentMetrics.js'
+import { createSegmentMetrics } from './utils/segmentMetrics.js' // ToDo: Remove this dependency completely!
 import { createVO2max } from './utils/VO2max.js'
 
 export function createTCXRecorder (config) {
   const type = 'tcx'
   const postfix = '_rowing'
   const presentationName = 'Garmin tcx'
+  const lapHRMetrics = createSeries()
   const lapMetrics = createSegmentMetrics()
   const VO2max = createVO2max(config)
   const drag = createSeries()
@@ -83,7 +84,7 @@ export function createTCXRecorder (config) {
         startLap(lapnumber, metrics)
         addMetricsToStrokesArray(metrics)
         break
-      case (metrics.metricsContext.isIntervalStart):
+      case (metrics.metricsContext.isIntervalEnd):
         // Please note: we deliberatly add the metrics twice as it marks both the end of the old interval and the start of a new one
         addMetricsToStrokesArray(metrics)
         updateLapMetrics(metrics)
@@ -134,17 +135,9 @@ export function createTCXRecorder (config) {
 
   function calculateLapMetrics (metrics) {
     sessionData.lap[lapnumber].endTime = metrics.timestamp
-    sessionData.lap[lapnumber].totalMovingTime = lapMetrics.movingTime()
-    sessionData.lap[lapnumber].totalLinearDistance = lapMetrics.traveledLinearDistance()
-    sessionData.lap[lapnumber].totalCalories = lapMetrics.spentCalories()
-    sessionData.lap[lapnumber].numberOfStrokes = lapMetrics.numberOfStrokes()
-    sessionData.lap[lapnumber].averageStrokeRate = lapMetrics.strokerate.average()
-    sessionData.lap[lapnumber].averagePower = lapMetrics.power.average()
-    sessionData.lap[lapnumber].maximumPower = lapMetrics.power.maximum()
-    sessionData.lap[lapnumber].averageSpeed = lapMetrics.linearVelocity.average()
-    sessionData.lap[lapnumber].maximumSpeed = lapMetrics.linearVelocity.maximum()
-    sessionData.lap[lapnumber].averageHeartrate = lapMetrics.heartrate.average()
-    sessionData.lap[lapnumber].maximumHeartrate = lapMetrics.heartrate.maximum()
+    sessionData.lap[lapnumber].summary = { ...metrics.split }
+    sessionData.lap[lapnumber].averageHeartrate = lapMetrics.heartrate.average
+    sessionData.lap[lapnumber].maximumHeartrate = lapMetrics.heartrate.maximum
   }
 
   function resetLapMetrics () {
@@ -155,6 +148,7 @@ export function createTCXRecorder (config) {
     sessionData.lap[lapnumber] = { endTime: metrics.timestamp }
     sessionData.lap[lapnumber].intensity = 'Resting'
     sessionData.lap[lapnumber].startTime = startTime
+    sessionData.lap[lapnumber].summary = { ...metrics.split }
     VO2max.handleRestart(metrics.totalMovingTime)
   }
 
@@ -221,18 +215,18 @@ export function createTCXRecorder (config) {
   async function createActiveLap (lapdata) {
     let tcxData = ''
     // Make sure the lap is complete
-    if (!!lapdata.totalMovingTime && lapdata.totalMovingTime > 0 && !!lapdata.totalLinearDistance && lapdata.totalLinearDistance > 0) {
+    if (!!lapdata.summary.timeSpent.moving && lapdata.summary.timeSpent.moving > 0 && !!lapdata.summary.distance.fromStart && lapdata.summary.distance.fromStart > 0) {
       tcxData += `      <Lap StartTime="${lapdata.startTime.toISOString()}">\n`
-      tcxData += `        <TotalTimeSeconds>${lapdata.totalMovingTime.toFixed(1)}</TotalTimeSeconds>\n`
-      tcxData += `        <DistanceMeters>${lapdata.totalLinearDistance.toFixed(1)}</DistanceMeters>\n`
-      tcxData += `        <MaximumSpeed>${lapdata.maximumSpeed.toFixed(2)}</MaximumSpeed>\n`
-      tcxData += `        <Calories>${Math.round(lapdata.totalCalories)}</Calories>\n`
+      tcxData += `        <TotalTimeSeconds>${lapdata.summary.timeSpent.moving.toFixed(1)}</TotalTimeSeconds>\n`
+      tcxData += `        <DistanceMeters>${lapdata.summary.distance.fromStart.toFixed(1)}</DistanceMeters>\n`
+      tcxData += `        <MaximumSpeed>${lapdata.summary.linearVelocity.maximum.toFixed(2)}</MaximumSpeed>\n`
+      tcxData += `        <Calories>${Math.round(lapdata.summary.calories.totalSpent)}</Calories>\n`
       if (!!lapdata.averageHeartrate && !isNaN(lapdata.averageHeartrate) && lapdata.averageHeartrate > 0 && !isNaN(lapdata.maximumHeartrate) && lapdata.maximumHeartrate > 0) {
         tcxData += `        <AverageHeartRateBpm>${Math.round(lapdata.averageHeartrate.toFixed(0))}</AverageHeartRateBpm>\n`
         tcxData += `        <MaximumHeartRateBpm>${Math.round(lapdata.maximumHeartrate.toFixed(0))}</MaximumHeartRateBpm>\n`
       }
       tcxData += `        <Intensity>${lapdata.intensity}</Intensity>\n`
-      tcxData += `        <Cadence>${lapdata.averageStrokeRate.toFixed(0)}</Cadence>\n`
+      tcxData += `        <Cadence>${lapdata.summary.strokerate.average.toFixed(0)}</Cadence>\n`
       tcxData += '        <TriggerMethod>Manual</TriggerMethod>\n'
       tcxData += '        <Track>\n'
       // Add the strokes
@@ -245,10 +239,10 @@ export function createTCXRecorder (config) {
       tcxData += '        </Track>\n'
       tcxData += '        <Extensions>\n'
       tcxData += '          <ns2:LX>\n'
-      tcxData += `            <ns2:Steps>${lapdata.numberOfStrokes.toFixed(0)}</ns2:Steps>\n`
-      tcxData += `            <ns2:AvgSpeed>${lapdata.averageSpeed.toFixed(2)}</ns2:AvgSpeed>\n`
-      tcxData += `            <ns2:AvgWatts>${lapdata.averagePower.toFixed(0)}</ns2:AvgWatts>\n`
-      tcxData += `            <ns2:MaxWatts>${lapdata.maximumPower.toFixed(0)}</ns2:MaxWatts>\n`
+      tcxData += `            <ns2:Steps>${lapdata.summary.numberOfStrokes.toFixed(0)}</ns2:Steps>\n`
+      tcxData += `            <ns2:AvgSpeed>${lapdata.summary.linearVelocity.average.toFixed(2)}</ns2:AvgSpeed>\n`
+      tcxData += `            <ns2:AvgWatts>${lapdata.summary.power.average.toFixed(0)}</ns2:AvgWatts>\n`
+      tcxData += `            <ns2:MaxWatts>${lapdata.summary.power.maximum.toFixed(0)}</ns2:MaxWatts>\n`
       tcxData += '          </ns2:LX>\n'
       tcxData += '        </Extensions>\n'
       tcxData += '      </Lap>\n'
@@ -261,7 +255,7 @@ export function createTCXRecorder (config) {
     // Make sure the lap is complete
     if (!!lapdata.endTime && lapdata.endTime > 0) {
       tcxData += `      <Lap StartTime="${lapdata.startTime.toISOString()}">\n`
-      tcxData += `        <TotalTimeSeconds>${(lapdata.endTime - lapdata.startTime).toFixed(1)}</TotalTimeSeconds>\n`
+      tcxData += `        <TotalTimeSeconds>${lapdata.summary.timeSpent.total.toFixed(1)}</TotalTimeSeconds>\n`
       tcxData += '        <DistanceMeters>0</DistanceMeters>\n'
       tcxData += '        <MaximumSpeed>0</MaximumSpeed>\n'
       tcxData += '        <Calories>0</Calories>\n'
