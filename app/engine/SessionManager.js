@@ -41,6 +41,7 @@ export function createSessionManager (config) {
   // we need to filter here what the RowingEngine will react to and what it will ignore
   // eslint-disable-next-line no-unused-vars
   function handleCommand (commandName, data, client) {
+    lastBroadcastedMetrics.timestamp = new Date()
     switch (commandName) {
       case ('updateIntervalSettings'):
         if (sessionState !== 'Rowing') {
@@ -442,7 +443,9 @@ export function createSessionManager (config) {
     resetMetricsSessionContext(metrics)
     metrics.metricsContext.isSessionStop = true
     sessionState = 'Stopped'
+    metrics.timestamp = new Date()
     interval.push(metrics)
+    split.push(metrics)
     emitMetrics(metrics)
   }
 
