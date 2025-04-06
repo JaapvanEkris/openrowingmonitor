@@ -40,9 +40,9 @@ export class AdditionalStrokeDataCharacteristic extends GattNotifyCharacteristic
     // strokeCount: UInt16LE
     bufferBuilder.writeUInt16LE(data.totalNumberOfStrokes > 0 ? Math.round(data.totalNumberOfStrokes) : 0)
     // projectedWorkTime: UInt24LE in 1 sec
-    bufferBuilder.writeUInt24LE(data.cycleProjectedEndTime > 0 ? Math.round(data.cycleProjectedEndTime) : 0)
+    bufferBuilder.writeUInt24LE(data.interval.movingTime.projectedEnd > 0 ? Math.round(data.interval.movingTime.projectedEnd) : 0)
     // projectedWorkDistance: UInt24LE in 1 m
-    bufferBuilder.writeUInt24LE(data.cycleProjectedEndLinearDistance > 0 ? Math.round(data.cycleProjectedEndLinearDistance) : 0)
+    bufferBuilder.writeUInt24LE(data.interval.distance.projectedEnd > 0 ? Math.round(data.interval.distance.projectedEnd) : 0)
     if (!this.isSubscribed) {
       // the multiplexer uses a slightly different format for the AdditionalStrokeData
       // it adds workPerStroke at the end
