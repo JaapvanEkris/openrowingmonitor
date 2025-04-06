@@ -301,8 +301,14 @@ export function createWorkoutSegment (config) {
     }
     projectedMetrics.timestamp = new Date(currMetrics.timestamp.getTime() - ((currMetrics.totalMovingTime - projectedMetrics.totalMovingTime) * 1000))
     // Prevent the edge case where we trigger two strokes at milliseconds apart when using the interpolation function
-    projectedMetrics.isDriveStart = false
-    projectedMetrics.isRecoveryStart = false
+    projectedMetrics.metricsContext.isDriveStart = false
+    projectedMetrics.metricsContext.isRecoveryStart = false
+	  projectedMetrics.metricsContext.isSessionStart = false
+    projectedMetrics.metricsContext.isIntervalEnd = false
+    projectedMetrics.metricsContext.isSplitEnd = false
+    projectedMetrics.metricsContext.isPauseStart = false
+    projectedMetrics.metricsContext.isPauseEnd = false
+    projectedMetrics.metricsContext.isSessionStop = false
     return projectedMetrics
   }
 
