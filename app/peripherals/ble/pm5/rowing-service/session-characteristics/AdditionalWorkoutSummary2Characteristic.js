@@ -22,10 +22,9 @@ export class AdditionalWorkoutSummary2Characteristic {
 
   /**
    * @param {Metrics} data
-   * @param {SegmentMetrics} workoutData
    */
   // @ts-ignore: Type is not assignable to type
-  notify (data, workoutData) {
+  notify (data) {
     const bufferBuilder = new BufferBuilder()
     // Data bytes packed as follows: (10Bytes) example: (0x3C) 0333 1212 4808 10 0000 00
 
@@ -34,7 +33,7 @@ export class AdditionalWorkoutSummary2Characteristic {
     // Log Entry Time (see https://www.c2forum.com/viewtopic.php?t=200769)
     bufferBuilder.writeUInt16LE(new Concept2Date().toC2TimeInt())
     // Avg Pace (0.1 sec)
-    bufferBuilder.writeUInt16LE(workoutData.pace.average() !== Infinity && workoutData.pace.average() > 0 && workoutData.pace.average() < 655.34 ? Math.round(workoutData.pace.average() * 10) : 0xFFFF)
+    bufferBuilder.writeUInt16LE(data.workout.pace.average !== Infinity && data.workout.pace.average > 0 && data.workout.pace.average < 655.34 ? Math.round(data.workout.pace.average * 10) : 0xFFFF)
     // Game Identifier/ Workout Verified (see Appendix),
     bufferBuilder.writeUInt8((0 & 0x0F) | ((0 & 0xF0) >> 4))
     // Game Score (Fish/Darts 1 point LSB, Target 0.1% LSB)
