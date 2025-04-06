@@ -22,10 +22,10 @@ export const DASHBOARD_METRICS = {
           distance = 0
           break
         case (metrics?.sessiontype === 'distance'):
-          distance = Math.max(metrics?.intervalTargetDistance - metrics?.intervalLinearDistance, 0)
+          distance = Math.max(metrics?.interval.distance.toEnd, 0)
           break
         default:
-          distance = Math.max(metrics?.intervalLinearDistance, 0)
+          distance = Math.max(metrics?.interval.distance.fromStart, 0)
       }
       const linearDistance = formatDistance(distance ?? 0)
 
@@ -72,11 +72,11 @@ export const DASHBOARD_METRICS = {
           icon = icon_alarmclock
           break
         case (metrics?.sessiontype === 'time'):
-          time = Math.max(metrics?.intervalTargetTime - metrics?.intervalMovingTime, 0)
+          time = Math.max(metrics?.interval.movingTime.toEnd, 0)
           icon = icon_clock
           break
         default:
-          time = Math.max(metrics?.intervalMovingTime, 0)
+          time = Math.max(metrics?.interval.movingTime.sinceStart, 0)
           icon = icon_clock
       }
 
