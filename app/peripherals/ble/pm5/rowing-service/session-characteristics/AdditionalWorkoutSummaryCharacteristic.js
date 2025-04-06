@@ -28,10 +28,9 @@ export class AdditionalWorkoutSummaryCharacteristic extends GattNotifyCharacteri
 
   /**
    * @param {Metrics} data
-   * @param {SegmentMetrics} workoutData
    */
   // @ts-ignore: Type is not assignable to type
-  notify (data, workoutData) {
+  notify (data) {
     const bufferBuilder = new BufferBuilder()
     // Data bytes packed as follows: (19bytes) example: 0x 0333 1212 02 C800 05 3B00 2500 550000 3C00 AA01
 
@@ -41,26 +40,26 @@ export class AdditionalWorkoutSummaryCharacteristic extends GattNotifyCharacteri
     bufferBuilder.writeUInt16LE(new Concept2Date().toC2TimeInt())
     if (this.isSubscribed) {
     // Split/Interval Type12, - NOT IN MULTIPLEXED
-      bufferBuilder.writeUInt8(SessionTypes[data.sessiontype] ?? SessionTypes.justrow)
+      bufferBuilder.writeUInt8(SessionTypes[data.workout.type] ?? SessionTypes.justrow)
     }
     // Split/Interval Size (meters or seconds)
-    if (data.sessiontype === 'distance') {
-      bufferBuilder.writeUInt16LE(workoutData.traveledLinearDistance() > 0 ? Math.round(workoutData.traveledLinearDistance()) : 0)
+    if (data.workout.type === 'distance') {
+      bufferBuilder.writeUInt16LE(data.workout.distance.fromStart > 0 ? Math.round(data.workout.distance.fromStart) : 0)
     } else {
-      bufferBuilder.writeUInt16LE(workoutData.movingTime() > 0 ? Math.round(workoutData.movingTime()) : 0)
+      bufferBuilder.writeUInt16LE(data.workout.timeSpent.moving > 0 ? Math.round(data.workout.timeSpent.moving) : 0)
     }
     // Split/Interval Count,
     bufferBuilder.writeUInt8(data.splitNumber > 0 ? data.splitNumber : 0)
     // Total Calories
-    bufferBuilder.writeUInt16LE(workoutData.spentCalories() > 0 && workoutData.spentCalories() < 65534 ? Math.round(workoutData.spentCalories()) : 0)
+    bufferBuilder.writeUInt16LE(data.workout.calories.totalSpent > 0 && data.workout.calories.totalSpent < 65534 ? Math.round(data.workout.calories.totalSpent) : 0)
     // Power (Watts)
-    bufferBuilder.writeUInt16LE(workoutData.power.average() > 0 && workoutData.power.average() < 65534 ? Math.round(workoutData.power.average()) : 0)
+    bufferBuilder.writeUInt16LE(data.workout.power.average > 0 && data.workout.power.average < 65534 ? Math.round(data.workout.power.average) : 0)
     // Total Rest Distance Lo (1 m lsb)
     bufferBuilder.writeUInt24LE(0)
     // Interval Rest Time (seconds)
-    bufferBuilder.writeUInt16LE(workoutData.restTime() > 0 ? Math.round(workoutData.restTime()) : 0)
+    bufferBuilder.writeUInt16LE(data.workout.timeSpent.rest > 0 ? Math.round(data.workout.timeSpent.rest) : 0)
     // Avg Calories (cals/hr)
-    bufferBuilder.writeUInt16LE(workoutData.caloriesPerHour.average() > 0 && workoutData.caloriesPerHour.average() < 65534 ? Math.round(workoutData.caloriesPerHour.average()) : 0)
+    bufferBuilder.writeUInt16LE(data.workout.calories.averagePerHour > 0 && data.workout.calories.averagePerHour < 65534 ? Math.round(data.workout.calories.averagePerHour) : 0)
 
     if (this.isSubscribed) {
       super.notify(bufferBuilder.getBuffer())
