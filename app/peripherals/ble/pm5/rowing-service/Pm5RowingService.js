@@ -14,9 +14,7 @@
   - cloud simulation uses MULTIPLEXER, AdditionalStatus -> currentPace
   - EXR: subscribes to: 'general status', 'additional status', 'additional status 2', 'additional stroke data'
 */
-
-import { createSegmentMetrics } from '../../../../recorders/utils/segmentMetrics.js'
-
+import { createSeries } from '../../../../engine/utils/Series.js'
 import { GattService } from '../../BleManager.js'
 import { createStaticReadCharacteristic } from '../../common/StaticReadCharacteristic.js'
 
@@ -63,6 +61,8 @@ export class Pm5RowingService extends GattService {
   #lastKnownMetrics
   #config
 
+  #splitHR
+  #workoutHR
   #splitMetrics
   #previousSplitMetrics
   #workoutMetrics
@@ -144,8 +144,8 @@ export class Pm5RowingService extends GattService {
       totalLinearDistance: 0,
       dragFactor: config.rowerSettings.dragFactor
     }
-    this.#splitMetrics = createSegmentMetrics()
-    this.#workoutMetrics = createSegmentMetrics()
+    this.#splitHR = createSeries()
+    this.#workoutHR = createSeries()
     this.#config = config
     this.#previousSplitMetrics = {
       totalMovingTime: 0,
@@ -163,37 +163,40 @@ export class Pm5RowingService extends GattService {
     this.#lastKnownMetrics = metrics
     switch (true) {
       case (metrics.metricsContext.isSessionStop):
-        this.#workoutMetrics.push(this.#lastKnownMetrics)
-        this.#workoutEndDataNotifies(this.#lastKnownMetrics, this.#workoutMetrics)
+        this.#splitHR.push(this.#lastKnownMetrics.heartrate)
+        this.#workoutHR.push(this.#lastKnownMetrics.heartrate)
+        this.#workoutEndDataNotifies(this.#lastKnownMetrics, this.#workoutHR)
         break
       case (metrics.metricsContext.isSplitEnd):
-        this.#splitMetrics.push(this.#lastKnownMetrics)
-        this.#splitDataNotifies(this.#lastKnownMetrics, this.#splitMetrics)
+        this.#splitHR.push(this.#lastKnownMetrics.heartrate)
+        this.#workoutHR.push(this.#lastKnownMetrics.heartrate)
+        this.#splitDataNotifies(this.#lastKnownMetrics, this.#splitHR)
         this.#previousSplitMetrics = {
-          totalMovingTime: this.#splitMetrics.totalTime(),
-          totalLinearDistance: this.#splitMetrics.traveledLinearDistance()
+          totalMovingTime: this.#lastKnownMetrics.split.timeSpent.moving,
+          totalLinearDistance: this.#lastKnownMetrics.split.distancefromStart
         }
-        this.#splitMetrics.reset()
-        this.#splitMetrics.push(this.#lastKnownMetrics)
+        this.#splitHR.reset()
+        this.#splitHR.push(this.#lastKnownMetrics.heartrate)
         break
       case (metrics.metricsContext.isPauseStart):
-        this.#splitMetrics.push(this.#lastKnownMetrics)
-        this.#workoutMetrics.push(this.#lastKnownMetrics)
-        this.#splitDataNotifies(this.#lastKnownMetrics, this.#splitMetrics)
+        this.#splitHR.push(this.#lastKnownMetrics.heartrate)
+        this.#workoutHR.push(this.#lastKnownMetrics.heartrate)
+        this.#splitDataNotifies(this.#lastKnownMetrics, this.#splitHR)
         this.#previousSplitMetrics = {
-          totalMovingTime: this.#splitMetrics.totalTime(),
-          totalLinearDistance: this.#splitMetrics.traveledLinearDistance()
+          totalMovingTime: this.#lastKnownMetrics.split.timeSpent.moving,
+          totalLinearDistance: this.#lastKnownMetrics.split.distancefromStart
         }
-        this.#splitMetrics.reset()
+        this.#splitHR.reset()
+        this.#splitHR.push(this.#lastKnownMetrics.heartrate)
         break
       case (metrics.metricsContext.isDriveStart):
-        this.#splitMetrics.push(this.#lastKnownMetrics)
-        this.#workoutMetrics.push(this.#lastKnownMetrics)
+        this.#splitHR.push(this.#lastKnownMetrics.heartrate)
+        this.#workoutHR.push(this.#lastKnownMetrics.heartrate)
         this.#strokeData.notify(this.#lastKnownMetrics)
         break
       case (metrics.metricsContext.isRecoveryStart):
-        this.#splitMetrics.push(this.#lastKnownMetrics)
-        this.#workoutMetrics.push(this.#lastKnownMetrics)
+        this.#splitHR.push(this.#lastKnownMetrics.heartrate)
+        this.#workoutHR.push(this.#lastKnownMetrics.heartrate)
         this.#strokeEndDataNotifies(this.#lastKnownMetrics)
         break
       default:
@@ -202,7 +205,7 @@ export class Pm5RowingService extends GattService {
   }
 
   #onBroadcastInterval () {
-    this.#genericStatusDataNotifies(this.#lastKnownMetrics, this.#previousSplitMetrics, this.#splitMetrics)
+    this.#genericStatusDataNotifies(this.#lastKnownMetrics, this.#previousSplitMetrics)
   }
 
   /**
@@ -210,10 +213,10 @@ export class Pm5RowingService extends GattService {
    * @param {SplitTimeDistanceData} previousSplitMetrics
    * @param {SegmentMetrics} splitMetrics
    */
-  #genericStatusDataNotifies (metrics, previousSplitMetrics, splitMetrics) {
+  #genericStatusDataNotifies (metrics, previousSplitMetrics) {
     this.#generalStatus.notify(metrics)
     this.#additionalStatus.notify(metrics)
-    this.#additionalStatus2.notify(metrics, previousSplitMetrics, splitMetrics)
+    this.#additionalStatus2.notify(metrics, previousSplitMetrics)
     this.#additionalStatus3.notify(metrics)
     setTimeout(() => this.#onBroadcastInterval(), this.#config.pm5UpdateInterval)
   }
@@ -222,9 +225,9 @@ export class Pm5RowingService extends GattService {
    * @param {Metrics} metrics
    * @param {SegmentMetrics} splitMetrics
    */
-  #splitDataNotifies (metrics, splitMetrics) {
-    this.#splitData.notify(metrics, splitMetrics)
-    this.#additionalSplitData.notify(metrics, splitMetrics)
+  #splitDataNotifies (metrics, splitHRMetrics) {
+    this.#splitData.notify(metrics)
+    this.#additionalSplitData.notify(metrics, splitHRMetrics)
   }
 
   /**
@@ -240,10 +243,10 @@ export class Pm5RowingService extends GattService {
    * @param {Metrics} metrics
    * @param {SegmentMetrics} workoutMetrics
    */
-  #workoutEndDataNotifies (metrics, workoutMetrics) {
-    this.#workoutSummary.notify(metrics, workoutMetrics)
-    this.#additionalWorkoutSummary.notify(metrics, workoutMetrics)
-    this.#additionalWorkoutSummary2.notify(metrics, workoutMetrics)
-    this.#loggedWorkout.notify(metrics, workoutMetrics)
+  #workoutEndDataNotifies (metrics, workoutHRMetrics) {
+    this.#workoutSummary.notify(metrics, workoutHRMetrics)
+    this.#additionalWorkoutSummary.notify(metrics)
+    this.#additionalWorkoutSummary2.notify(metrics)
+    this.#loggedWorkout.notify(metrics, workoutHRMetrics)
   }
 }
