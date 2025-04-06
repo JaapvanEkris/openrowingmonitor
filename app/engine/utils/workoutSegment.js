@@ -61,6 +61,7 @@ export function createWorkoutSegment (config) {
         _targetDistance = 0
         _endMovingTime = _startMovingTime + Number(intervalSettings.targetTime)
         _endLinearDistance = 0
+        log.debug(`  Workout parser, recognised ${_type} interval/split, ${_targetTime} seconds`)
         break
       case (intervalSettings.type === 'distance' && intervalSettings.targetDistance > 0):
         // A target distance is set
@@ -69,6 +70,7 @@ export function createWorkoutSegment (config) {
         _targetDistance = Number(intervalSettings.targetDistance)
         _endMovingTime = 0
         _endLinearDistance = _startLinearDistance + Number(intervalSettings.targetDistance)
+        log.debug(`  Workout parser, recognised ${_type} interval/split, ${_targetDistance} meters`)
         break
       case (intervalSettings.type === 'time' && intervalSettings.targetTime > 0):
         // A target time is set
@@ -77,6 +79,7 @@ export function createWorkoutSegment (config) {
         _targetDistance = 0
         _endMovingTime = _startMovingTime + Number(intervalSettings.targetTime)
         _endLinearDistance = 0
+        log.debug(`  Workout parser, recognised ${_type} interval/split, ${_targetTime} seconds`)
         break
       case (intervalSettings.type === 'justrow'):
         _type = 'justrow'
@@ -84,6 +87,7 @@ export function createWorkoutSegment (config) {
         _targetDistance = 0
         _endMovingTime = 0
         _endLinearDistance = 0
+        log.debug(`  Workout parser, recognised ${_type} interval/split`)
         break
       default:
         log.error(`Workout parser, unknown interval type '${intervalSettings.type}', defaulting to a 'justrow' interval`)
@@ -341,16 +345,6 @@ export function createWorkoutSegment (config) {
     }
   }
 
-  // ToDo: Remove this!!!
-  function splitDistance () {
-    return _split.targetDistance
-  }
-
-  // ToDo: Remove this!!!
-  function splitTime () {
-    return _split.targetTime
-  }
-
   function type () {
     return _type
   }
@@ -456,10 +450,6 @@ export function createWorkoutSegment (config) {
     type,
     push,
     getSplit,
-    targetTime,
-    targetDistance,
-    splitTime,
-    splitDistance,
     reset
   }
 }
