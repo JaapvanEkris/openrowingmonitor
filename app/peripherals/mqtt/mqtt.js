@@ -40,7 +40,7 @@ export function createMQTTPeripheral (config) {
       isPauseStart: false,
       isPauseEnd: false,
       isSessionStop: false,
-      isIntervalStart: false,
+      isIntervalEnd: false,
       isSplitEnd: false
     },
     totalNumberOfStrokes: 0,
@@ -112,7 +112,7 @@ export function createMQTTPeripheral (config) {
       case (metrics.metricsContext.isSessionStop):
         publishMetrics(metrics)
         break
-      case (metrics.metricsContext.isIntervalStart):
+      case (metrics.metricsContext.isIntervalEnd):
         publishMetrics(metrics)
         break
       case (metrics.metricsContext.isSplitEnd):
