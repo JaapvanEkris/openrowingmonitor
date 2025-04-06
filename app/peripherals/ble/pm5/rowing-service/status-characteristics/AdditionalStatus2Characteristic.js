@@ -32,7 +32,7 @@ export class AdditionalStatus2Characteristic extends GattNotifyCharacteristic {
    * @param {SegmentMetrics} splitData
    */
   // @ts-ignore: Type is not assignable to type
-  notify (data, previousSplitData, splitData) {
+  notify (data, previousSplitData) {
     const bufferBuilder = new BufferBuilder()
     // elapsedTime: UInt24LE in 0.01 sec
     bufferBuilder.writeUInt24LE(Math.round(data.totalMovingTime * 100))
@@ -47,11 +47,11 @@ export class AdditionalStatus2Characteristic extends GattNotifyCharacteristic {
     // totalCalories: UInt16LE in kCal
     bufferBuilder.writeUInt16LE(data.totalCalories > 0 ? Math.round(data.totalCalories) : 0)
     // splitAveragePace: UInt16LE in 0.01 sec/500m
-    bufferBuilder.writeUInt16LE(splitData.pace.average() && splitData.pace.average() > 0 && splitData.pace.average() < 655.34 ? Math.round(splitData.pace.average() * 100) : 0xFFFF)
+    bufferBuilder.writeUInt16LE(data.split.pace.average && data.split.pace.average > 0 && data.split.pace.average < 655.34 ? Math.round(data.split.pace.average * 100) : 0xFFFF)
     // splitAveragePower UInt16LE in watts
-    bufferBuilder.writeUInt16LE(splitData.power.average() > 0 && splitData.power.average() < 65534 ? Math.round(splitData.power.average()) : 0)
+    bufferBuilder.writeUInt16LE(data.split.power.average > 0 && data.split.power.average < 65534 ? Math.round(data.split.power.average) : 0)
     // splitAverageCalories
-    bufferBuilder.writeUInt16LE(splitData.caloriesPerHour.average() > 0 && splitData.caloriesPerHour.average() < 65534 ? Math.round(splitData.caloriesPerHour.average()) : 0)
+    bufferBuilder.writeUInt16LE(data.split.calories.averagePerHour > 0 && data.split.calories.averagePerHour < 65534 ? Math.round(data.split.calories.averagePerHour) : 0)
     // lastSplitTime
     bufferBuilder.writeUInt24LE(previousSplitData.totalMovingTime > 0 ? Math.round(previousSplitData.totalMovingTime * 100) : 0)
     // lastSplitDistance in 1 m
