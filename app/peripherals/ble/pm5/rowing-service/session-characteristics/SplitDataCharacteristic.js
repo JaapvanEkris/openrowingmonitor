@@ -31,24 +31,24 @@ export class SplitDataCharacteristic extends GattNotifyCharacteristic {
    * @param {SegmentMetrics} splitData
    */
   // @ts-ignore: Type is not assignable to type
-  notify (data, splitData) {
+  notify (data) {
     const bufferBuilder = new BufferBuilder()
     // Data bytes packed as follows: (18bytes)
 
     // Elapsed Time (0.01 sec),
     bufferBuilder.writeUInt24LE(Math.round(data.totalMovingTime * 100))
-    // Distance (0.1 m)
-    bufferBuilder.writeUInt24LE(data.totalLinearDistance > 0 ? Math.round(data.totalLinearDistance * 10) : 0)
+    // Distance in split (0.1 m), based on experiments with the intervals screen
+    bufferBuilder.writeUInt24LE(data.split.distance.fromStart > 0 ? Math.round(data.split.distance.fromStart * 10) : 0)
     // Split/Interval Time (0.1 sec)
-    bufferBuilder.writeUInt24LE(splitData.totalTime() > 0 ? Math.round(splitData.totalTime() * 10) : 0)
+    bufferBuilder.writeUInt24LE(data.split.timeSpent.total > 0 ? Math.round(data.split.timeSpent.total * 10) : 0)
     // Split/Interval Distance ( 1m lsb)
-    bufferBuilder.writeUInt24LE(splitData.traveledLinearDistance() > 0 ? Math.round(splitData.traveledLinearDistance()) : 0)
+    bufferBuilder.writeUInt24LE(data.split.distance.fromStart > 0 ? Math.round(data.split.distance.fromStart) : 0)
     // Interval Rest Time (1 sec lsb)
-    bufferBuilder.writeUInt16LE(splitData.restTime() > 0 ? Math.round(splitData.restTime()) : 0)
+    bufferBuilder.writeUInt16LE(data.split.timeSpent.rest > 0 ? Math.round(data.split.timeSpent.rest) : 0)
     // Interval Rest Distance Lo (1m lsb)
     bufferBuilder.writeUInt16LE(Math.round(0))
     // Split/Interval Type (This value will change depending on where you are in the interval (work, rest, etc). Use workout type to determine whether the intervals are time or distance intervals),
-    bufferBuilder.writeUInt8(SessionTypes[data.sessiontype] ?? SessionTypes.justrow)
+    bufferBuilder.writeUInt8(SessionTypes[data.split.type] ?? SessionTypes.justrow)
     // Split/Interval Number,
     bufferBuilder.writeUInt8(data.splitNumber > 0 ? data.splitNumber : 0)
 
