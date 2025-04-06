@@ -114,7 +114,7 @@ export function createWebServer (config) {
       case (metrics.metricsContext.isSessionStop):
         notifyClients('metrics', metrics)
         break
-      case (metrics.metricsContext.isIntervalStart):
+      case (metrics.metricsContext.isIntervalEnd):
         notifyClients('metrics', metrics)
         break
       case (metrics.metricsContext.isPauseStart):
