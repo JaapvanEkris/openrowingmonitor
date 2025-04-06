@@ -46,7 +46,7 @@ export class WorkoutSummaryCharacteristic extends GattNotifyCharacteristic {
     // Average Stroke Rate,
     bufferBuilder.writeUInt8(data.workout.strokerate.average > 0 && data.workout.strokerate.average < 255 ? Math.round(data.workout.strokerate.average) : 0)
     // Ending Heartrate,
-    bufferBuilder.writeUInt8(workoutData.heartrate.atSeriesEnd() > 0 ? Math.round(workoutData.heartrate.atSeriesEnd()) : 0)
+    bufferBuilder.writeUInt8(workoutHRData.atSeriesEnd() > 0 ? Math.round(workoutHRData.atSeriesEnd()) : 0)
     // Average Heartrate,
     bufferBuilder.writeUInt8(workoutHRData.average() > 0 ? Math.round(workoutHRData.average()) : 0)
     // Min Heartrate,
