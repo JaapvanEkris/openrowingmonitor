@@ -8,7 +8,6 @@
 import { EventEmitter } from 'events'
 import { createRowingStatistics } from './RowingStatistics.js'
 import { createWorkoutSegment } from './utils/workoutSegment.js'
-import { secondsToTimeString } from '../tools/Helper.js'
 
 import loglevel from 'loglevel'
 const log = loglevel.getLogger('RowingEngine')
@@ -16,6 +15,9 @@ const log = loglevel.getLogger('RowingEngine')
 export function createSessionManager (config) {
   const emitter = new EventEmitter()
   const rowingStatistics = createRowingStatistics(config)
+  const workout = createWorkoutSegment(config)
+  const interval = createWorkoutSegment(config)
+  const split = createWorkoutSegment(config)
   let metrics
   let lastBroadcastedMetrics = { }
   let pauseTimer
@@ -26,12 +28,11 @@ export function createSessionManager (config) {
   let lastSessionState = 'WaitingForStart'
   let intervalSettings = []
   let currentIntervalNumber = -1
-  const interval = createWorkoutSegment(config)
-  const split = createWorkoutSegment(config)
   let splitNumber = 0
 
   metrics = rowingStatistics.getMetrics()
   resetMetricsSessionContext(metrics)
+  workout.setStart(metrics)
   interval.setStart(metrics)
   split.setStart(metrics)
   emitMetrics(metrics)
@@ -53,14 +54,14 @@ export function createSessionManager (config) {
       case ('start'):
         if (sessionState !== 'Rowing') {
           clearTimeout(pauseTimer)
-          StartOrResumeTraining(lastBroadcastedMetrics)
+          StartOrResumeTraining()
           sessionState = 'WaitingForStart'
         }
         break
       case ('startOrResume'):
         if (sessionState !== 'Rowing') {
           clearTimeout(pauseTimer)
-          StartOrResumeTraining(lastBroadcastedMetrics)
+          StartOrResumeTraining()
           sessionState = 'WaitingForStart'
         }
         break
@@ -119,7 +120,7 @@ export function createSessionManager (config) {
     lastSessionState = sessionState
   }
 
-  function StartOrResumeTraining (baseMetrics) {
+  function StartOrResumeTraining () {
     rowingStatistics.allowStartOrResumeTraining()
   }
 
@@ -133,6 +134,7 @@ export function createSessionManager (config) {
   // clear the metrics in case the user pauses rowing
   function pauseTraining (baseMetrics) {
     clearTimeout(watchdogTimer)
+    workout.push(baseMetrics)
     interval.push(baseMetrics)
     rowingStatistics.pauseTraining()
   }
@@ -166,7 +168,7 @@ export function createSessionManager (config) {
     // Provide the rower with new data
     metrics = rowingStatistics.handleRotationImpulse(currentDt)
     resetMetricsSessionContext(metrics)
-    if (lastSessionState === 'Rowing') {
+    if (lastSessionState === 'Rowing' && split.getStartTimestamp() !== undefined && split.timeSinceStart(metrics) >= 0) {
       // If we are moving, timestamps should be based on movingTime as it is more accurate and consistent for the consumers
       metrics.timestamp = new Date(split.getStartTimestamp().getTime() + (split.timeSinceStart(metrics) * 1000))
     } else {
@@ -174,6 +176,7 @@ export function createSessionManager (config) {
     }
 
     if (metrics.metricsContext.isMoving && (metrics.metricsContext.isDriveStart || metrics.metricsContext.isRecoveryStart)) {
+      workout.push(metrics)
       interval.push(metrics)
       split.push(metrics)
     }
@@ -181,11 +184,14 @@ export function createSessionManager (config) {
     // This is the core of the finite state machine that defines all state transitions
     switch (true) {
       case (lastSessionState === 'WaitingForStart' && metrics.metricsContext.isMoving === true):
-        StartOrResumeTraining(metrics)
+        StartOrResumeTraining()
         sessionState = 'Rowing'
         metrics.metricsContext.isSessionStart = true
-        interval.setStartTimestamp(new Date(metrics.timestamp.getTime() - metrics.totalMovingTime * 1000))
-        split.setStartTimestamp(new Date(metrics.timestamp.getTime() - metrics.totalMovingTime * 1000))
+        // eslint-disable-next-line no-case-declarations -- Code clarity outweighs lint rules
+        const startTimestamp = new Date(metrics.timestamp.getTime() - metrics.totalMovingTime * 1000)
+        workout.setStartTimestamp(startTimestamp)
+        interval.setStartTimestamp(startTimestamp)
+        split.setStartTimestamp(startTimestamp)
         emitMetrics(metrics)
         break
       case (lastSessionState === 'WaitingForStart'):
@@ -193,12 +199,11 @@ export function createSessionManager (config) {
         emitMetrics(metrics)
         break
       case (lastSessionState === 'Paused' && metrics.metricsContext.isMoving === true):
-        StartOrResumeTraining(metrics)
+        StartOrResumeTraining()
         sessionState = 'Rowing'
         metrics.metricsContext.isPauseEnd = true
         emitMetrics(metrics)
         if (interval.type() === 'rest') {
-          metrics.metricsContext.isIntervalStart = true // ToDo: REMOVE ME!!!
           metrics.metricsContext.isIntervalEnd = true
           activateNextIntervalParameters(metrics)
         } else {
@@ -240,14 +245,12 @@ export function createSessionManager (config) {
         if (temporaryDatapoint.modified) {
           // The intermediate datapoint is actually different
           resetMetricsSessionContext(temporaryDatapoint)
-          temporaryDatapoint.metricsContext.isIntervalStart = true // ToDo: REMOVE ME!!!
           temporaryDatapoint.metricsContext.isIntervalEnd = true
           temporaryDatapoint.metricsContext.isSplitEnd = true
           emitMetrics(temporaryDatapoint)
           activateNextIntervalParameters(temporaryDatapoint)
           emitMetrics(metrics)
         } else {
-          metrics.metricsContext.isIntervalStart = true // ToDo: REMOVE ME!!!
           metrics.metricsContext.isIntervalEnd = true
           metrics.metricsContext.isSplitEnd = true
           emitMetrics(metrics)
@@ -263,14 +266,12 @@ export function createSessionManager (config) {
         if (temporaryDatapoint.modified) {
           // The intermediate datapoint is actually different
           resetMetricsSessionContext(temporaryDatapoint)
-          temporaryDatapoint.metricsContext.isIntervalStart = true // ToDo: REMOVE ME!!!
           temporaryDatapoint.metricsContext.isIntervalEnd = true
           temporaryDatapoint.metricsContext.isSplitEnd = true
           temporaryDatapoint.metricsContext.isPauseStart = true
           emitMetrics(temporaryDatapoint)
           activateNextIntervalParameters(temporaryDatapoint)
         } else {
-          metrics.metricsContext.isIntervalStart = true // ToDo: REMOVE ME!!!
           metrics.metricsContext.isIntervalEnd = true
           metrics.metricsContext.isSplitEnd = true
           metrics.metricsContext.isPauseStart = true
@@ -330,7 +331,6 @@ export function createSessionManager (config) {
   // Basic metricContext structure
   function resetMetricsSessionContext (metricsToReset) {
     metricsToReset.metricsContext.isSessionStart = false
-    metricsToReset.metricsContext.isIntervalStart = false // ToDo: REMOVE ME!!!
     metricsToReset.metricsContext.isIntervalEnd = false
     metricsToReset.metricsContext.isSplitEnd = false
     metricsToReset.metricsContext.isPauseStart = false
@@ -345,6 +345,8 @@ export function createSessionManager (config) {
     if (intervalSettings.length > 0) {
       log.info(`SessionManager: Workout recieved with ${intervalSettings.length} interval(s)`)
       metrics = rowingStatistics.getMetrics()
+      workout.setStart(metrics)
+      // workout.setEnd(intervalSettings[0]) // ToDo: this is a justrow by default, to add identification for the underlying intervals
       activateNextIntervalParameters(metrics)
       resetMetricsSessionContext(metrics)
       emitMetrics(metrics)
@@ -377,9 +379,9 @@ export function createSessionManager (config) {
       // This function sets the interval parameters in absolute distances/times
       // Thus the interval target always is a projected "finishline" from the current position
       currentIntervalNumber++
+      log.info(`Activating interval settings for interval ${currentIntervalNumber + 1} of ${intervalSettings.length}`)
       interval.setStart(baseMetrics)
       interval.setEnd(intervalSettings[currentIntervalNumber])
-      log.info(`Interval settings for interval ${currentIntervalNumber + 1} of ${intervalSettings.length}: Distance target ${interval.targetDistance()} meters, time target ${secondsToTimeString(interval.targetTime())} minutes, split at ${interval.splitDistance()} meters`)
 
       // As the interval has changed, we need to reset the split metrics
       activateNextSplitParameters(baseMetrics)
@@ -390,6 +392,7 @@ export function createSessionManager (config) {
 
   function activateNextSplitParameters (baseMetrics) {
     splitNumber++
+    log.info(`Activating split settings for split ${splitNumber + 1}`)
     split.setStart(baseMetrics)
     split.setEnd(interval.getSplit())
   }
@@ -419,34 +422,31 @@ export function createSessionManager (config) {
 
   function enrichMetrics (metricsToEnrich) {
     const intervalMetrics = interval.metrics(metricsToEnrich)
-    const splitMetrics = split.metrics(metricsToEnrich)
-    metricsToEnrich.sessiontype = interval.type()
+    metricsToEnrich.sessiontype = interval.type() // ToDo: replace completely with workout.type when some intelligence is added to that
     metricsToEnrich.sessionStatus = sessionState // ToDo: remove this naming change by changing the consumers
-    metricsToEnrich.workoutStepNumber = Math.max(currentIntervalNumber, 0) // Interval number, to keep in sync with the workout plan
     metricsToEnrich.pauseCountdownTime = Math.max(pauseCountdownTimer, 0) // Time left on the countdown timer
-    metricsToEnrich.intervalMovingTime = intervalMetrics.movingTime.sinceStart // ToDo: REMOVE ME
-    metricsToEnrich.intervalTargetTime = intervalMetrics.movingTime.target // ToDo: REMOVE ME
+    metricsToEnrich.workout = { ...workout.metrics(metricsToEnrich) }
+    metricsToEnrich.workoutStepNumber = Math.max(currentIntervalNumber, 0) // Interval number, to keep in sync with the workout plan
     metricsToEnrich.interval = { ...interval.metrics(metricsToEnrich) }
     metricsToEnrich.splitNumber = splitNumber
     metricsToEnrich.split = { ...split.metrics(metricsToEnrich) }
-    metricsToEnrich.intervalLinearDistance = intervalMetrics.distance.fromStart // ToDo: REMOVE ME
-    metricsToEnrich.intervalTargetDistance = intervalMetrics.distance.target // ToDo: REMOVE ME
-    metricsToEnrich.splitLinearDistance = splitMetrics.distance.fromStart // ToDo: REMOVE ME
-    metricsToEnrich.cycleProjectedEndTime = intervalMetrics.movingTime.projectedEnd // ToDo: REMOVE ME
-    metricsToEnrich.cycleProjectedEndLinearDistance = intervalMetrics.distance.projectedEnd // ToDo: REMOVE ME
   }
 
   function onWatchdogTimeout () {
-    log.error(`Time: ${metrics.totalMovingTime}, Forced a session stop due to unexpeted flywheel stop, exceeding the maximumStrokeTimeBeforePause (i.e. ${watchdogTimout / 1000} seconds) without new datapoints`)
+    pauseTraining(lastBroadcastedMetrics)
     metrics = rowingStatistics.getMetrics()
-    stopTraining(metrics)
+    log.error(`Time: ${metrics.totalMovingTime}, Forced a session pause due to unexpeted flywheel stop, exceeding the maximumStrokeTimeBeforePause (i.e. ${watchdogTimout / 1000} seconds) without new datapoints`)
     resetMetricsSessionContext(metrics)
-    metrics.metricsContext.isSessionStop = true
-    sessionState = 'Stopped'
+    sessionState = 'Paused'
+    metrics.metricsContext.isPauseStart = true
+    metrics.metricsContext.isSplitEnd = true
     metrics.timestamp = new Date()
+    workout.push(metrics)
     interval.push(metrics)
     split.push(metrics)
     emitMetrics(metrics)
+    activateNextSplitParameters(metrics)
+    lastBroadcastedMetrics = { ...metrics }
   }
 
   function getMetrics () {
