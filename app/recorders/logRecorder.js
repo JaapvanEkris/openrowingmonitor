@@ -46,7 +46,7 @@ export function createLogRecorder () {
         logMetrics(metrics)
         log.info(`Rowing ended at ${currentdate.getHours()}:${currentdate.getMinutes()}:${currentdate.getSeconds()}, at ${metrics.totalMovingTime.toFixed(5)} seconds,distance ${metrics.totalLinearDistance.toFixed(1)}m`)
         break
-      case (metrics.metricsContext.isIntervalStart):
+      case (metrics.metricsContext.isIntervalEnd):
         log.info(`New interval started at ${metrics.totalMovingTime.toFixed(5)} seconds, distance ${metrics.totalLinearDistance.toFixed(1)}m`)
         break
       case (metrics.metricsContext.isSplitEnd):
