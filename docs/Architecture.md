@@ -121,22 +121,23 @@ sequenceDiagram
 
 Both the `webServer.js` and `PeripheralManager.js` can trigger a command. Server.js will communicate this command to all managers, where they will handle this as they see fit. The following commands are defined:
 
-| command | description |
-|---|---|
-| requestControl | A peripheral has requested control of the connection (currently nothing happens internally in ORM with this). This command is routinely sent at the start of a ANT+ FE-C communication. |
-| updateIntervalSettings | An update in the interval settings has to be processed. Here the `data` parameter has to be filled with a valid workout object in JSON format |
-| start | start of a session initiated by the user. As the true start of a session is actually triggered by the flywheel, which will always be communicated via the metrics, its only purpose is to make sure that the flywheel is allowed to move. This command is routinely sent at the start of a ANT+ FE-C communication. |
-| startOrResume | User forced (re)start of a session. As the true start of a session is actually triggered by the flywheel, which will always be communicated via the metrics, its only purpose is to clear the flywheel for further movement. This is not used in normal operation, but can functionally change a 'stopped' session into a 'paused' one. Intended use is to allow a user to continue beyond pre-programmed interval parameters as reaching them results in a session being 'stopped'. |
-| pause | User/device forced pause of a session (pause of a session triggered from the flywheel will always be triggered via the metrics) |
-| stop | User/device forced stop of a session (stop of a session triggered from the flywheel will always be triggered via the metrics) |
-| reset | User/device has reset the session |
-| switchBlePeripheralMode | User has selected another BLE device from the GUI, the peripheralmanager needs to effectuate this |
-| switchAntPeripheralMode | User has selected another ANT+ device from the GUI, the peripheralmanager needs to effectuate this |
-| switchHrmMode | User has selected another heartrate device |
-| refreshPeripheralConfig | A change in heartrate, BLE or ANT+ device has been triggered (this triggers a refresh of the current config from the GUI) |
-| uploadTraining | A request is made to upload a training to Strava |
-| stravaAuthorizationCode | An authorization code is provided to upload a training to Strava |
-| shutdown | A shutdown is requested, also used when a part of the application crashes or the application recieves a 'SIGINT' |
+
+| command | description | Relvant manager behaviour |
+|---|---|---|
+| requestControl | A peripheral has requested control of the connection. This command is routinely sent at the start of a ANT+ FE-C communication. | Currently nothing happens internally in ORM with this |
+| updateIntervalSettings | An update in the interval settings has to be processed. Here the `data` parameter has to be filled with a valid workout object in JSON format | The `SessionManager` will ingest it and use it to structure the workout (see its description). The `fitRecorder` will inject it in the recording |
+| start | start of a session initiated by the user. As the true start of a session is actually triggered by the flywheel, which will always be communicated via the metrics, its only purpose is to make sure that the flywheel is allowed to move. This command is routinely sent at the start of a ANT+ FE-C communication. | The `SessionManager` will activate a stopped workout. All other managers will ignore the command, but will obey the `SessionManager`'s response. |
+| startOrResume | User forced (re)start of a session. As the true start of a session is actually triggered by the flywheel, which will always be communicated via the metrics, its only purpose is to clear the flywheel for further movement. This is not used in normal operation, but can functionally change a 'stopped' session into a 'paused' one. Intended use is to allow a user to continue beyond pre-programmed interval parameters as reaching them results in a session being 'stopped'. | The `SessionManager` will reactivate a stopped workout. All other managers will ignore the command, but will obey the `SessionManager`'s resonse. |
+| pause | User/device forced pause of a session (pause of a session triggered from the flywheel will always be triggered via the metrics) | The `SessionManager` will pause an an active workout. All other managers will ignore the command, but will obey the `SessionManager`'s response. |
+| stop | User/device forced stop of a session (stop of a session triggered from the flywheel will always be triggered via the metrics) | The `SessionManager` will stop the active workout. All other managers will ignore the command, but will obey the `SessionManager`'s response. |
+| reset | User/device has reset the session | All managers will respond by closing the session decently and subsequently resetting their state to the initial state |
+| switchBlePeripheralMode | User has selected another BLE device from the GUI | The `peripheralManager` will effectuate this, the rest of the managers will ignore this |
+| switchAntPeripheralMode | User has selected another ANT+ device from the GUI | The `peripheralManager` will effectuate this, the rest of the managers will ignore this |
+| switchHrmMode | User has selected another heartrate device | The `peripheralManager` will effectuate this, the rest of the managers will ignore this |
+| refreshPeripheralConfig | A change in heartrate, BLE or ANT+ device has been performed by the `peripheralManager` | The WebServer/GUI will refresh the current config from the settings manager, the rest of the managers will ignore this |
+| uploadTraining | A request from the GUI is made to upload a training to Strava **THIS COMMAND WILL BE DELETED IN FUTURE RELEASES** | `Server.js`/`workoutUploader.js` will handle this request. |
+| stravaAuthorizationCode | The GUI is providing an authorization code to facilitate upload a training to Strava. **THIS COMMAND WILL BE DELETED IN FUTURE RELEASES** | `Server.js`/`workoutUploader.js` will handle this request. |
+| shutdown | A shutdown is requested, also used when a part of the application crashes or the application recieves a 'SIGINT' | All managers will respond by closing the session decently and closing hardware connections |
 
 > [!NOTE]
 > To guarantee a decent closure of data, a 'stop' command from the user will be ignored by `RecordingManager.js` and `PeripheralManager.js`, as the `SessionManager.js` will respond with a new set of metrics, with the 'isSessionStop' flag embedded. On a 'shutdown' command, `RecordingManager.js` and `PeripheralManager.js` do respond by closing their datastreams as if a session-stop was given, to ensure a decent closure.
