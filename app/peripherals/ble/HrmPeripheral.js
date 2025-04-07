@@ -20,20 +20,14 @@ export function createBleHrmPeripheral (bleManager) {
    */
   let _hrmService
 
-  setup()
-
-  async function setup () {
+  async function attach () {
     _hrmService = new HrmService(await bleManager.getManager())
 
     _hrmService.on('heartRateMeasurement', (data) => {
       emitter.emit('heartRateMeasurement', data)
     })
 
-    await _hrmService.start()
-  }
-
-  function attach () {
-    return setup()
+    _hrmService.start()
   }
 
   async function destroy () {
