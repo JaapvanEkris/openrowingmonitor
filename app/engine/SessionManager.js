@@ -115,7 +115,7 @@ export function createSessionManager (config) {
   }
 
   function refreshMetrics () {
-    let baseMetrics = rowingStatistics.getMetrics()
+    const baseMetrics = rowingStatistics.getMetrics()
     resetMetricsSessionContext(baseMetrics)
     baseMetrics.timestamp = new Date()
     return baseMetrics
