@@ -17,7 +17,8 @@ test('Test workoutSegment initialisation behaviour without setting an interval',
   const startingPoint = {
     timestamp: new Date(),
     totalMovingTime: 0,
-    totalLinearDistance: 0
+    totalLinearDistance: 0,
+    metricsContext: {}
   }
 
   const testSegment = createWorkoutSegment(basicConfig)
@@ -34,13 +35,15 @@ test('Test workoutSegment initialisation behaviour without setting an interval, 
   const startingPoint = {
     timestamp: new Date(),
     totalMovingTime: 0,
-    totalLinearDistance: 0
+    totalLinearDistance: 0,
+    metricsContext: {}
   }
 
   const endPoint = {
     timestamp: new Date(startingPoint.timestamp.getTime() + 490 * 1000),
     totalMovingTime: 490,
-    totalLinearDistance: 2050
+    totalLinearDistance: 2050,
+    metricsContext: {}
   }
 
   const testSegment = createWorkoutSegment(basicConfig)
@@ -73,19 +76,22 @@ test('Test workoutSegment behaviour with setting a distance interval', () => {
   const startingPoint = {
     timestamp: new Date(),
     totalMovingTime: 0,
-    totalLinearDistance: 0
+    totalLinearDistance: 0,
+    metricsContext: {}
   }
 
   const middlePoint = {
     timestamp: new Date(startingPoint.timestamp.getTime() + 480 * 1000),
     totalMovingTime: 480,
-    totalLinearDistance: 2000
+    totalLinearDistance: 2000,
+    metricsContext: {}
   }
 
   const endPoint = {
     timestamp: new Date(startingPoint.timestamp.getTime() + 490 * 1000),
     totalMovingTime: 490,
-    totalLinearDistance: 2050
+    totalLinearDistance: 2050,
+    metricsContext: {}
   }
 
   const testSegment = createWorkoutSegment(basicConfig)
@@ -124,19 +130,22 @@ test('Test workoutSegment behaviour with setting a time interval', () => {
   const startingPoint = {
     timestamp: new Date(),
     totalMovingTime: 0,
-    totalLinearDistance: 0
+    totalLinearDistance: 0,
+    metricsContext: {}
   }
 
   const middlePoint = {
     timestamp: new Date(startingPoint.timestamp.getTime() + 480 * 1000),
     totalMovingTime: 480,
-    totalLinearDistance: 2000
+    totalLinearDistance: 2000,
+    metricsContext: {}
   }
 
   const endPoint = {
     timestamp: new Date(startingPoint.timestamp.getTime() + 490 * 1000),
     totalMovingTime: 490,
-    totalLinearDistance: 2050
+    totalLinearDistance: 2050,
+    metricsContext: {}
   }
 
   const testSegment = createWorkoutSegment(basicConfig)
@@ -175,19 +184,22 @@ test('Test split behaviour when setting a distance interval', () => {
   const startingPoint = {
     timestamp: new Date(),
     totalMovingTime: 0,
-    totalLinearDistance: 0
+    totalLinearDistance: 0,
+    metricsContext: {}
   }
 
   const middlePoint = {
     timestamp: new Date(startingPoint.timestamp.getTime() + 118 * 1000),
     totalMovingTime: 118,
-    totalLinearDistance: 490
+    totalLinearDistance: 490,
+    metricsContext: {}
   }
 
   const endPoint = {
     timestamp: new Date(startingPoint.timestamp.getTime() + 122 * 1000),
     totalMovingTime: 122,
-    totalLinearDistance: 510
+    totalLinearDistance: 510,
+    metricsContext: {}
   }
 
   const testSegment = createWorkoutSegment(basicConfig)
@@ -229,19 +241,22 @@ test('Test split behaviour with setting a time interval', () => {
   const startingPoint = {
     timestamp: new Date(),
     totalMovingTime: 0,
-    totalLinearDistance: 0
+    totalLinearDistance: 0,
+    metricsContext: {}
   }
 
   const middlePoint = {
     timestamp: new Date(startingPoint.timestamp.getTime() + 118 * 1000),
     totalMovingTime: 118,
-    totalLinearDistance: 490
+    totalLinearDistance: 490,
+    metricsContext: {}
   }
 
   const endPoint = {
     timestamp: new Date(startingPoint.timestamp.getTime() + 122 * 1000),
     totalMovingTime: 122,
-    totalLinearDistance: 510
+    totalLinearDistance: 510,
+    metricsContext: {}
   }
 
   const testSegment = createWorkoutSegment(basicConfig)
