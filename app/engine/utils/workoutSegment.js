@@ -303,7 +303,7 @@ export function createWorkoutSegment (config) {
     // Prevent the edge case where we trigger two strokes at milliseconds apart when using the interpolation function
     projectedMetrics.metricsContext.isDriveStart = false
     projectedMetrics.metricsContext.isRecoveryStart = false
-	  projectedMetrics.metricsContext.isSessionStart = false
+    projectedMetrics.metricsContext.isSessionStart = false
     projectedMetrics.metricsContext.isIntervalEnd = false
     projectedMetrics.metricsContext.isSplitEnd = false
     projectedMetrics.metricsContext.isPauseStart = false
