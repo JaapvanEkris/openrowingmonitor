@@ -121,7 +121,6 @@ sequenceDiagram
 
 Both the `webServer.js` and `PeripheralManager.js` can trigger a command. Server.js will communicate this command to all managers, where they will handle this as they see fit. The following commands are defined:
 
-
 | command | description | Relvant manager behaviour |
 |---|---|---|
 | requestControl | A peripheral has requested control of the connection. This command is routinely sent at the start of a ANT+ FE-C communication. | Currently nothing happens internally in ORM with this |
@@ -181,7 +180,7 @@ Part of the metrics is the metricsContext object, which provides an insight in t
 | isDriveStart | Current metrics are related to the start of a drive |
 | isRecoveryStart | Current metrics are related to the start of a recovery |
 | isSessionStart | Current metrics are related to the start of a session |
-| isIntervalStart | Current metrics are related to the start of an session interval. An interval implies that there will be no stop of the rowing session between the current and next interval. If there is an intended (temporary) rest period in the session after an interval (i.e. the flywheel is intended to stop), a "isPauseStart" is indicated as well. |
+| isIntervalEnd | Current metrics are related to the end of an session interval. An interval implies that there will be no stop of the rowing session between the current and next interval unless there is an intended (temporary) rest period in the session after the interval. If a rest is specified (the flywheel is intended to stop), a "isPauseStart" is indicated as well. |
 | isSplitEnd | Current metrics are related to the end of a session split.  |
 | isPauseStart | Current metrics are related to the start of a session pause. This implies that the flywheel is intended to stop (interval with a forced rest period), or actually has stopped (spontanuous pause). |
 | isPauseEnd | Current metrics are related to the end of a session pause, implying that the flywheel has started to move again. This is NOT sent upon completion of an indicated rest period, but it requires the flywheel to reach its minimum speed again. |
@@ -266,8 +265,9 @@ In a nutshell:
 
 * `SessionManager.js` maintains the session state, thus determines whether the rowing machine is 'Rowing', or 'WaitingForDrive', etc.,
 * `SessionManager.js` maintains the workout intervals, guards interval and session boundaries, and will chop up the metrics-stream accordingly, where `RowingStatistics.js` will just move on without looking at these artifical boundaries.
+* `SessionManager.js` maintains the summary metrics for the entire workout, the current intervals, and current split.
 
-In total, this takes full control of the displayed metrics in a specific interval (i.e. distance or time to set interval target, etc.).
+In total, this takes full control of the displayed metrics in a specific workout, interval and split (i.e. distance or time to set workout segment target, etc.).
 
 #### RowingStatistics.js
 
