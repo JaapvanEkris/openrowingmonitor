@@ -62,7 +62,7 @@ export function createRowingDataRecorder (config) {
         postExerciseHR = []
         measureRecoveryHR()
         break
-      case (metrics.metricsContext.isIntervalStart):
+      case (metrics.metricsContext.isIntervalEnd):
         addMetricsToStrokesArray(metrics)
         splitNumber++
         break
