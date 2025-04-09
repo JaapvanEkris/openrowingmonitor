@@ -89,10 +89,10 @@ B(server.js) -->|Rowing metrics, every 2ms| M(WebServer.js)
 ```
 
 > [!NOTE]
-> An avenue for further improvement is to isolate the `GpioTimerService.js` process on a dedicated CPU, to prevent other processes from interfering with its timing. This is an option for the Raspberry Pi 3 and 4, but not on single-core machines like the Raspberry Pi Zero 2W
+> An avenue for further improvement is to isolate the `GpioTimerService.js` process on a dedicated CPU, to prevent other processes from interfering with its timing.
 <!-- MD028/no-blanks-blockquote -->
 > [!NOTE]
-> To further reduce CPU load, an option would be to move the non-time critical parts (i.e. the recorders and peripherals) into seperate processes, with their own (more relaxed) NICE-level.
+> To further reduce CPU load, an option would be to move the non-time critical parts (i.e. the GUI, recorders and peripherals) into seperate processes, with their own (more relaxed) NICE-level.
 
 ### Command flow
 
@@ -126,7 +126,7 @@ Both the `webServer.js` and `PeripheralManager.js` can trigger a command. Server
 | requestControl | A peripheral has requested control of the connection. This command is routinely sent at the start of a ANT+ FE-C communication. | Currently nothing happens internally in ORM with this |
 | updateIntervalSettings | An update in the interval settings has to be processed. Here the `data` parameter has to be filled with a valid workout object in JSON format | The `SessionManager` will ingest it and use it to structure the workout (see its description). The `fitRecorder` will inject it in the recording |
 | start | start of a session initiated by the user. As the true start of a session is actually triggered by the flywheel, which will always be communicated via the metrics, its only purpose is to make sure that the flywheel is allowed to move. This command is routinely sent at the start of a ANT+ FE-C communication. | The `SessionManager` will activate a stopped workout. All other managers will ignore the command, but will obey the `SessionManager`'s response. |
-| startOrResume | User forced (re)start of a session. As the true start of a session is actually triggered by the flywheel, which will always be communicated via the metrics, its only purpose is to clear the flywheel for further movement. This is not used in normal operation, but can functionally change a 'stopped' session into a 'paused' one. Intended use is to allow a user to continue beyond pre-programmed interval parameters as reaching them results in a session being 'stopped'. | The `SessionManager` will reactivate a stopped workout. All other managers will ignore the command, but will obey the `SessionManager`'s resonse. |
+| startOrResume | User forced (re)start of a session. As the true start of a session is actually triggered by the flywheel, its only purpose is to clear the flywheel for further movement. This is not used in normal operation, but can functionally change a 'stopped' session into a 'paused' one. Intended use is to allow a user to continue beyond pre-programmed interval parameters as reaching them results in a session being 'stopped'. | The `SessionManager` will reactivate a stopped workout. All other managers will ignore the command, but will obey the `SessionManager`'s resonse. |
 | pause | User/device forced pause of a session (pause of a session triggered from the flywheel will always be triggered via the metrics) | The `SessionManager` will pause an an active workout. All other managers will ignore the command, but will obey the `SessionManager`'s response. |
 | stop | User/device forced stop of a session (stop of a session triggered from the flywheel will always be triggered via the metrics) | The `SessionManager` will stop the active workout. All other managers will ignore the command, but will obey the `SessionManager`'s response. |
 | reset | User/device has reset the session | All managers will respond by closing the session decently and subsequently resetting their state to the initial state |
@@ -134,12 +134,12 @@ Both the `webServer.js` and `PeripheralManager.js` can trigger a command. Server
 | switchAntPeripheralMode | User has selected another ANT+ device from the GUI | The `peripheralManager` will effectuate this, the rest of the managers will ignore this |
 | switchHrmMode | User has selected another heartrate device | The `peripheralManager` will effectuate this, the rest of the managers will ignore this |
 | refreshPeripheralConfig | A change in heartrate, BLE or ANT+ device has been performed by the `peripheralManager` | The WebServer/GUI will refresh the current config from the settings manager, the rest of the managers will ignore this |
-| uploadTraining | A request from the GUI is made to upload a training to Strava **THIS COMMAND WILL BE DELETED IN FUTURE RELEASES** | `Server.js`/`workoutUploader.js` will handle this request. |
-| stravaAuthorizationCode | The GUI is providing an authorization code to facilitate upload a training to Strava. **THIS COMMAND WILL BE DELETED IN FUTURE RELEASES** | `Server.js`/`workoutUploader.js` will handle this request. |
+| uploadTraining | A request from the GUI is made to upload a training to Strava **THIS COMMAND WILL BE DELETED IN A FUTURE RELEASE** | `Server.js`/`workoutUploader.js` will handle this request. |
+| stravaAuthorizationCode | The GUI is providing an authorization code to facilitate upload a training to Strava. **THIS COMMAND WILL BE DELETED IN A FUTURE RELEASE** | `Server.js`/`workoutUploader.js` will handle this request. |
 | shutdown | A shutdown is requested, also used when a part of the application crashes or the application recieves a 'SIGINT' | All managers will respond by closing the session decently and closing hardware connections |
 
 > [!NOTE]
-> To guarantee a decent closure of data, a 'stop' command from the user will be ignored by `RecordingManager.js` and `PeripheralManager.js`, as the `SessionManager.js` will respond with a new set of metrics, with the 'isSessionStop' flag embedded. On a 'shutdown' command, `RecordingManager.js` and `PeripheralManager.js` do respond by closing their datastreams as if a session-stop was given, to ensure a decent closure.
+> To guarantee a decent closure of data, a 'stop' command from the user will be ignored by `RecordingManager.js` and `PeripheralManager.js`. The `SessionManager.js` will respond with a new set of metrics, with the 'isSessionStop' flag embedded. On a 'shutdown' command, `RecordingManager.js` and `PeripheralManager.js` do respond by closing their datastreams as if a session-stop was given, to ensure a decent closure.
 
 ### Rowing metrics flow
 
@@ -168,7 +168,7 @@ sequenceDiagram
   server.js-)clients: Metrics Updates<br>(State/Time based)
 ```
 
-The clients (both the webserver and periphal bluetooth devices) are updated based on the updates of metrics. OpenRowingMonitor therefore consists out of two subsystems: an solely interruptdriven part that processes flywheel and heartrate interrupts, and the time/state based needs of the clients. It is the responsibility of `SessionManager.js` to provide a steady stream of updated metrics as it monitors the timers, session state and guarantees that it can present the clients with the freshest data available. It is the responsibility of the clients themselves to act based on the metric updates, and guard against their internal timers. If a broadcast has to be made periodically, say ANT+ updates every 400ms, the ANT+-peripheral should buffer metrics and determine when the broadcast is due. This is needed as more complex broadcast patterns, like the PM5 which mixes time and event based updates, are too complex to manage from a single point.
+The clients (both the webserver and periphals) are updated based on the updates of metrics. OpenRowingMonitor therefore consists out of two subsystems: an solely interruptdriven part that processes flywheel and heartrate interrupts, and the time/state based needs of the clients. It is the responsibility of `SessionManager.js` to provide a steady stream of updated metrics as it monitors the timers, session state and guarantees that it can present the clients with the freshest data available. It is the responsibility of the clients themselves to act based on the metric updates, and guard against their internal timers. If a broadcast has to be made periodically, say ANT+ updates every 400ms, the ANT+-peripheral should buffer metrics and determine when the broadcast is due. This is needed as more complex broadcast patterns, like the PM5 which mixes time and event based updates, are too complex to manage from a single point.
 
 A key thing to realize is that `SessionManager.js` will process *currentDt* values and it will transform them into one or more *metricsUpdate* messages. Especially at the end of a lap or split, a single *currentDt* value can result in multiple *metricsUpdate* messages as the `SessionManager.js` will interpolate between distances/times to exactly hit the lap/split end, generating an extra message. Also, when the pause timer is running, a message will be broadcast every second to signal this. When the `SessionManager.js`'s watchdog acts upon an unexpected stop of the *currentDt* flow, spontanuous messages will appear to signal this as well. To enable this behaviour, the message based structure used by `SessionManager.js` is needed.
 
@@ -264,10 +264,13 @@ stateDiagram-v2
 In a nutshell:
 
 * `SessionManager.js` maintains the session state, thus determines whether the rowing machine is 'Rowing', or 'WaitingForDrive', etc.,
-* `SessionManager.js` maintains the workout intervals, guards interval and session boundaries, and will chop up the metrics-stream accordingly, where `RowingStatistics.js` will just move on without looking at these artifical boundaries.
-* `SessionManager.js` maintains the summary metrics for the entire workout, the current intervals, and current split.
+* `SessionManager.js` maintains the workout intervals, guards interval and split boundaries, and will chop up the metrics-stream accordingly, where `RowingStatistics.js` will just move on without looking at these artifical boundaries.
+* `SessionManager.js` maintains the summary metrics for the entire workout, the current interval, and the current split.
 
 In total, this takes full control of the displayed metrics in a specific workout, interval and split (i.e. distance or time to set workout segment target, etc.).
+
+> [!NOTE]
+> Unplanned rests are handled as rest splits, allowing them to be easily isolated from active parts of the training. The tcx and fit recorder explicitly distinguish between active and rest laps.
 
 #### RowingStatistics.js
 
@@ -277,7 +280,7 @@ In a nutshell:
 
 * `RowingStatistics.js` persists metrics to guarantee that they will always reflect the last known valid state to data consumers, removing the need for consumers to understand the effect of stroke state upon metrics validity,
 * `RowingStatistics.js` applies a moving median filter across strokes to make metrics less volatile and thus better suited for presentation,
-* `RowingStatistics.js` calculates derived metrics (like Calories) and trands (like Calories per hour),
+* `RowingStatistics.js` calculates derived metrics (like Calories) and trends (like Calories per hour),
 
 In total, this takes full control of buffering and stabilising the displayed metrics in a specific stroke.
 
