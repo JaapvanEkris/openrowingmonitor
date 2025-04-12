@@ -10,8 +10,7 @@ import loglevel from 'loglevel'
 const log = loglevel.getLogger('RowingEngine')
 
 export function createWorkoutSegment (config) {
-  const numOfDataPointsForAveraging = config.numOfPhasesForAveragingScreenData
-  const distanceOverTime = createOLSLinearSeries(Math.min(4, numOfDataPointsForAveraging))
+  const distanceOverTime = createOLSLinearSeries(Math.min(4, config.numOfPhasesForAveragingScreenData))
   const _power = createSeries()
   const _linearVelocity = createSeries()
   const _strokerate = createSeries()
@@ -183,7 +182,7 @@ export function createWorkoutSegment (config) {
   // Returns the projected time to the workoutsegment endpoint
   function projectedEndTime () {
     switch (true) {
-      case (_type === 'distance' && _endLinearDistance > 0 && distanceOverTime.length() >= numOfDataPointsForAveraging):
+      case (_type === 'distance' && _endLinearDistance > 0 && distanceOverTime.reliable()):
         // We are in a distance based interval, so we need to project
         return distanceOverTime.projectY(_endLinearDistance)
       case (_type === 'time' && _endMovingTime > 0):
@@ -198,7 +197,7 @@ export function createWorkoutSegment (config) {
     switch (true) {
       case (_type === 'distance' && _endLinearDistance > 0):
         return _endLinearDistance
-      case (_type === 'time' && _endMovingTime > 0 && distanceOverTime.length() >= numOfDataPointsForAveraging):
+      case (_type === 'time' && _endMovingTime > 0 && distanceOverTime.reliable()):
         // We are in a time based interval, so we need to project
         return distanceOverTime.projectX(_endMovingTime)
       default:
