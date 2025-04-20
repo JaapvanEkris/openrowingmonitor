@@ -3,13 +3,13 @@
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Implementation of the StrokeData as defined in:
-  https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
-  todo: we could calculate all the missing stroke metrics in the RowerEngine
+  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
+  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf
 */
 import { BufferBuilder } from '../../../BufferBuilder.js'
 import { GattNotifyCharacteristic } from '../../../BleManager.js'
-
-import { Concept2Date, SessionTypes, toC2128BitUUID } from '../../Pm5Constants.js'
+import { toC2128BitUUID, toC2IntervalType } from '../../utils/ORMtoC2Mapper.js'
+import { Concept2Date } from '../../Pm5Constants.js'
 
 export class AdditionalWorkoutSummaryCharacteristic extends GattNotifyCharacteristic {
   #multiplexedCharacteristic
@@ -39,22 +39,22 @@ export class AdditionalWorkoutSummaryCharacteristic extends GattNotifyCharacteri
     // Log Entry Time, (see https://www.c2forum.com/viewtopic.php?t=200769)
     bufferBuilder.writeUInt16LE(new Concept2Date().toC2TimeInt())
     if (this.isSubscribed) {
-    // Split/Interval Type12, - NOT IN MULTIPLEXED
-      bufferBuilder.writeUInt8(SessionTypes[data.workout.type] ?? SessionTypes.justrow)
+      // intervalType: UInt8, see OBJ_INTERVALTYPE_T enum - NOT IN MULTIPLEXED
+      bufferBuilder.writeUInt8(toC2IntervalType(data))
     }
     // Split/Interval Size (meters or seconds)
-    if (data.workout.type === 'distance') {
-      bufferBuilder.writeUInt16LE(data.workout.distance.fromStart > 0 ? Math.round(data.workout.distance.fromStart) : 0)
+    if (data.split.type === 'distance') {
+      bufferBuilder.writeUInt16LE(data.split.distance.fromStart > 0 ? Math.round(data.split.distance.fromStart) : 0)
     } else {
-      bufferBuilder.writeUInt16LE(data.workout.timeSpent.moving > 0 ? Math.round(data.workout.timeSpent.moving) : 0)
+      bufferBuilder.writeUInt16LE(data.split.timeSpent.moving > 0 ? Math.round(data.split.timeSpent.moving) : 0)
     }
-    // Split/Interval Count,
-    bufferBuilder.writeUInt8(data.splitNumber > 0 ? data.splitNumber : 0)
+    // Split/Interval Count
+    bufferBuilder.writeUInt8(data.split.number > 0 ? data.split.number : 0)
     // Total Calories
     bufferBuilder.writeUInt16LE(data.workout.calories.totalSpent > 0 && data.workout.calories.totalSpent < 65534 ? Math.round(data.workout.calories.totalSpent) : 0)
     // Power (Watts)
     bufferBuilder.writeUInt16LE(data.workout.power.average > 0 && data.workout.power.average < 65534 ? Math.round(data.workout.power.average) : 0)
-    // Total Rest Distance Lo (1 m lsb)
+    // Total Rest Distance (1 m lsb)
     bufferBuilder.writeUInt24LE(0)
     // Interval Rest Time (seconds)
     bufferBuilder.writeUInt16LE(data.workout.timeSpent.rest > 0 ? Math.round(data.workout.timeSpent.rest) : 0)
