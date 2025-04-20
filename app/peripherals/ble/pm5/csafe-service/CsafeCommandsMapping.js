@@ -1,7 +1,14 @@
+/*
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
+
+  based on version 08-08-2023 of the C2 Bluetooth specification, see https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf
+*/
+
 /**
  * @readonly
  * @enum {number}
  */
+/* eslint-disable max-lines -- Concept 2 uses a lot of enums, not much we can do about them*/
 export const UniqueFrameFlags = {
   ExtendedStartFlag: 0xF0,
   StandardStartFlag: 0xF1,
@@ -11,7 +18,7 @@ export const UniqueFrameFlags = {
 
 /**
  * @readonly
- * @enum {number}í
+ * @enum {number}
  */
 export const PreviousFrameStatus = {
   Ok: 0x00,
@@ -34,6 +41,43 @@ export const StateMachineState = {
   Finish: 0x07,
   Manual: 0x08,
   OffLine: 0x09
+}
+
+export const WorkoutState = {
+  WORKOUTSTATE_WAITTOBEGIN: 0,
+  WORKOUTSTATE_WORKOUTROW: 1,
+  WORKOUTSTATE_COUNTDOWNPAUSE: 2,
+  WORKOUTSTATE_INTERVALREST: 3,
+  WORKOUTSTATE_INTERVALWORKTIME: 4,
+  WORKOUTSTATE_INTERVALWORKDISTANCE: 5,
+  WORKOUTSTATE_INTERVALRESTENDTOWORKTIME: 6,
+  WORKOUTSTATE_INTERVALRESTENDTOWORKDISTANCE: 7,
+  WORKOUTSTATE_INTERVALWORKTIMETOREST: 8,
+  WORKOUTSTATE_INTERVALWORKDISTANCETOREST: 9,
+  WORKOUTSTATE_WORKOUTEND: 10,
+  WORKOUTSTATE_TERMINATE: 11,
+  WORKOUTSTATE_WORKOUTLOGGED: 12,
+  WORKOUTSTATE_REARM: 13
+}
+
+export const RowingState = {
+  ROWINGSTATE_INACTIVE: 0,
+  ROWINGSTATE_ACTIVE: 1
+}
+
+export const StrokeState = {
+  STROKESTATE_WAITING_FOR_WHEEL_TO_REACH_MIN_SPEED_STATE: 0,
+  STROKESTATE_WAITING_FOR_WHEEL_TO_ACCELERATE_STATE: 1,
+  STROKESTATE_DRIVING_STATE: 2,
+  STROKESTATE_DWELLING_AFTER_DRIVE_STATE: 3,
+  STROKESTATE_RECOVERY_STATE: 4
+}
+
+export const DurationTypes = {
+  CSAFE_TIME_DURATION: 0,
+  CSAFE_CALORIES_DURATION: 0X40,
+  CSAFE_DISTANCE_DURATION: 0X80,
+  CSAFE_WATTS_DURATION: 0XC0
 }
 
 /**
@@ -135,7 +179,7 @@ export const PublicLongCommands = {
   // CSAFE_SETVERTICAL_CMD: 0x22
   /** [Total Calories (LSB), Total Calories (MSB)] - Response N/A */
   CSAFE_SETCALORIES_CMD: 0x23,
-  /** [Programmed  or Pre-stored  Workout, <don’t care>] - Response N/A */
+  /** [Programmed  or Pre-stored  Workout, <don't care>] - Response N/A */
   CSAFE_SETPROGRAM_CMD: 0x24,
   /** <Not implemented> - Response */
   // CSAFE_SETSPEED_CMD: 0x25,
@@ -270,7 +314,7 @@ export const ProprietaryLongSetConfigCommands = {
   CSAFE_PM_SET_RACESTATUSWARNIN: 0x20,
   /** [Doze Sec (MSB), Doze Sec (LSB), Sleep Sec (MSB), Sleep Sec (LSB), Unused, Unused, Unused, Unused] - Response N/A */
   CSAFE_PM_SET_RACEIDLEMODEPARA: 0x21,
-  /** [Time Hours (1 – 12), Time Minutes (0 – 59), Time Meridiem (0 – AM, 1 – PM), Date Month (1 – 12), Date Day (1 – 31), Date Year (MSB), Date Year (LSB)] - Response N/A */
+  /** [Time Hours (1 - 12), Time Minutes (0 - 59), Time Meridiem (0 = AM, 1 = PM), Date Month (1 - 12), Date Day (1 - 31), Date Year (MSB), Date Year (LSB)] - Response N/A */
   CSAFE_PM_SET_DATETIME: 0x22,
   /** [Language Type] - Response N/A */
   CSAFE_PM_SET_LANGUAGETYPE: 0x23,
@@ -325,7 +369,7 @@ export const ProprietaryLongSetDataCommands = {
   CSAFE_PM_SET_EXTENDED_HRBELT_INFO: 0x39,
   /** [HRM mfg id, HRM device type, HRM belt id (MSB), HRM belt id, HRM belt id, HRM belt id (LSB)] - Response N/A */
   CSAFE_PM_SET_EXTENDED_HRM: 0x3A,
-  /** [State (enable/disable), Intensity (0 – 100%)] - Response N/A */
+  /** [State (enable/disable), Intensity (0 - 100%)] - Response N/A */
   CSAFE_PM_SET_LEDBACKLIGHT: 0x3B,
   /** [Record Type (Enum), Record Index (MSB), Record Index (LSB) (65535 archives all)] - Response N/A */
   CSAFE_PM_SET_DIAGLOG_RECORD_ARCHIVE: 0x3C,
@@ -386,7 +430,7 @@ export const ProprietaryLongGetDataCommands = {
   CSAFE_PM_GET_HRBELT_INFO: 0x56,
   /** [User Number] - Response [User Number, Mfg ID, Device Type, Belt ID (MSB), Belt ID, Belt ID, Belt ID (LSB)] */
   CSAFE_PM_GET_EXTENDED_HRBELT_INFO: 0x57,
-  /** [Structure ID enumeration, Split/interval number (1 – M), Bytes read, 1st data read, 2nd data read, ...,  2: Nth data read] - Response [Structure ID enumeration, Split/interval number, Bytes read, 1st data read, 2nd data read, ...,  2: Nth data read] */
+  /** [Structure ID enumeration, Split/interval number (1 - M), Bytes read, 1st data read, 2nd data read, ...,  2: Nth data read] - Response [Structure ID enumeration, Split/interval number, Bytes read, 1st data read, 2nd data read, ...,  2: Nth data read] */
   CSAFE_PM_GET_CURRENT_LOG_STRUCTURE: 0x58
 }
 
@@ -506,9 +550,9 @@ export const ProprietaryShortGetConfigCommands = {
   CSAFE_PM_GET_HW_ADDRESS: 0x82,
   /** [Tick timebase (Float MSB), Tick timebase, Tick timebase, Tick timebase (Float LSB)] */
   CSAFE_PM_GET_TICK_TIMEBASE: 0x83,
-  /** [(Channel Status, 0 – Inactive, 1 – Discovery, 2 – Paired If paired then:), Device Manufacture ID, Device Type, Device Num (MSB), Device Num (LSB), Else Bytes 1-4: 0] */
+  /** [(Channel Status, 0 = Inactive, 1 = Discovery, 2 = Paired If paired then:), Device Manufacture ID, Device Type, Device Num (MSB), Device Num (LSB), Else Bytes 1-4: 0] */
   CSAFE_PM_GET_HRM: 0x84,
-  /** [Time Hours (1 – 12), Time Minutes (0 – 59), Time Meridiem (0 – AM, 1 – PM), Date Month (1 – 12), Date Day (1 – 31), Date Year (MSB), Date Year (LSB)] */
+  /** [Time Hours (1 - 12), Time Minutes (0 - 59), Time Meridiem (0 = AM, 1 = PM), Date Month (1 - 12), Date Day (1 - 31), Date Year (MSB), Date Year (LSB)] */
   CSAFE_PM_GET_DATETIME: 0x85,
   /** [Screen type, Screen value, Screen status] */
   CSAFE_PM_GET_SCREENSTATESTATUS: 0x86,
@@ -772,6 +816,28 @@ export const ScreenValue = {
   SCREENVALUEWORKOUT_TACHSIMENABLERATERANDOM: 55,
   /** < Screen redraw (255). */
   SCREENVALUEWORKOUT_SCREENREDRAW: 255
+}
+
+/**
+ * @readonly
+ * @enum {number}
+ */
+export const OperationalStates = {
+  OPERATIONALSTATE_RESET: 0, // Reset state
+  OPERATIONALSTATE_READY: 1, //  Ready state
+  OPERATIONALSTATE_WORKOUT: 2, // Workout state
+  OPERATIONALSTATE_WARMUP: 3, // Warm-up state
+  OPERATIONALSTATE_RACE: 4, // Race state
+  OPERATIONALSTATE_POWEROFF: 5, // Power-off state
+  OPERATIONALSTATE_PAUSE: 6, // Pause state
+  OPERATIONALSTATE_INVOKEBOOTLOADER: 7, // Invoke boot loader state
+  OPERATIONALSTATE_POWEROFF_SHIP: 8, // Power-off ship state
+  OPERATIONALSTATE_IDLE_CHARGE: 9, // Idle charge state
+  OPERATIONALSTATE_IDLE: 10, // Idle state
+  OPERATIONALSTATE_MFGTEST: 11, // Manufacturing test state
+  OPERATIONALSTATE_FWUPDATE: 12, // Firmware update state
+  OPERATIONALSTATE_DRAGFACTOR: 13, // Drag factor state
+  OPERATIONALSTATE_DFCALIBRATION: 100 // Drag factor calibration state
 }
 
 /**
