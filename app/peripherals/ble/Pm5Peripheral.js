@@ -6,6 +6,7 @@
   Concept2 PM5 rowing machine.
 
   see: https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
+  and https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf
 */
 import NodeBleHost from 'ble-host'
 import log from 'loglevel'
