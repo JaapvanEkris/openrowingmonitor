@@ -3,12 +3,12 @@
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Implementation of the GeneralStatus as defined in:
-  https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
+  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
+  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf
 */
 import { BufferBuilder } from '../../../BufferBuilder.js'
 import { GattNotifyCharacteristic } from '../../../BleManager.js'
-
-import { toC2128BitUUID } from '../../Pm5Constants.js'
+import { toC2128BitUUID, toC2WorkoutType, toC2IntervalType, toC2WorkoutState, toC2RowingState, toC2StrokeState, toC2DurationType } from '../../utils/ORMtoC2Mapper.js'
 
 export class GeneralStatusCharacteristic extends GattNotifyCharacteristic {
   #multiplexedCharacteristic
@@ -32,26 +32,29 @@ export class GeneralStatusCharacteristic extends GattNotifyCharacteristic {
   notify (data) {
     const bufferBuilder = new BufferBuilder()
     // elapsedTime: UInt24LE in 0.01 sec
-    bufferBuilder.writeUInt24LE(Math.round(data.totalMovingTime * 100))
+    bufferBuilder.writeUInt24LE(data.workout.timeSpent.total > 0 ? Math.round(data.workout.timeSpent.total * 100) : 0)
     // distance: UInt24LE in 0.1 m
-    bufferBuilder.writeUInt24LE(data.totalLinearDistance > 0 ? Math.round(data.totalLinearDistance * 10) : 0)
-    // workoutType: UInt8: 0 WORKOUTTYPE_JUSTROW_NOSPLITS, 2 WORKOUTTYPE_FIXEDDIST_NOSPLITS, 4 WORKOUTTYPE_FIXEDTIME_NOSPLITS
-    bufferBuilder.writeUInt8(data.sessiontype === 'distance' ? 2 : (data.sessiontype === 'time' ? 4 : 0))
-    // intervalType: UInt8: 1 INTERVALTYPE_TIME, 2 INTERVALTYPE_DIST, 255 NONE
-    // ToDo: split down further to allow rest intervals when the PM5 schedule dictates it
-    bufferBuilder.writeUInt8(data.sessiontype === 'distance' ? 2 : (data.sessiontype === 'time' ? 1 : 255))
-    // workoutState: UInt8 0 WAITTOBEGIN, 1 WORKOUTROW, 10 WORKOUTEND
-    bufferBuilder.writeUInt8(data.sessionStatus === 'Rowing' ? 1 : (data.sessionStatus === 'WaitingForStart' ? 0 : 10))
-    // rowingState: UInt8 0 INACTIVE, 1 ACTIVE
-    bufferBuilder.writeUInt8(data.sessionStatus === 'Rowing' ? 1 : 0)
-    // strokeState: UInt8 2 DRIVING, 4 RECOVERY
-    bufferBuilder.writeUInt8(data.strokeState === 'WaitingForDrive' ? 0 : (data.strokeState === 'Drive' ? 2 : 4))
+    bufferBuilder.writeUInt24LE(data.workout.distance.fromStart > 0 ? Math.round(data.workout.distance.fromStart * 10) : 0)
+    // workoutType: UInt8, see OBJ_WORKOUTTYPE_T enum
+    bufferBuilder.writeUInt8(toC2WorkoutType(data))
+    // intervalType: UInt8, see OBJ_INTERVALTYPE_T enum
+    bufferBuilder.writeUInt8(toC2IntervalType(data))
+    // workoutState: UInt8, see OBJ_WORKOUTSTATE_T enum
+    bufferBuilder.writeUInt8(toC2WorkoutState(data))
+    // rowingState: UInt8, see OBJ_ROWINGSTATE_T
+    bufferBuilder.writeUInt8(toC2RowingState(data))
+    // strokeState: UInt8, see OBJ_STROKESTATE_T
+    bufferBuilder.writeUInt8(toC2StrokeState(data))
     // totalWorkDistance: UInt24LE in 1 m
-    bufferBuilder.writeUInt24LE(data.totalLinearDistance > 0 ? Math.round(data.totalLinearDistance) : 0)
+    bufferBuilder.writeUInt24LE(data.workout.distance.fromStart > 0 ? Math.round(data.interval.distance.fromStart) : 0)
     // workoutDuration: UInt24LE in 0.01 sec (if type TIME)
-    bufferBuilder.writeUInt24LE(Math.round(data.totalMovingTime * 100))
-    // workoutDurationType: UInt8 0 TIME, 0x40 CALORIES, 0x80 DISTANCE, 0xC0 WATTS
-    bufferBuilder.writeUInt8(data.sessiontype === 'distance' ? 0x80 : 0)
+    if (data.interval.type === 'distance') {
+      bufferBuilder.writeUInt24LE(data.interval.distance.target > 0 ? Math.round(data.interval.distance.absoluteTarget) : 0)
+    } else {
+      bufferBuilder.writeUInt24LE(data.interval.movingTime.target > 0 ? Math.round(data.interval.movingTime.absoluteTarget * 100) : 0)
+    }
+    // workoutDurationType: UInt8, see DurationTypes enum
+    bufferBuilder.writeUInt8(toC2DurationType(data))
     // dragFactor: UInt8
     bufferBuilder.writeUInt8(data.dragFactor > 0 ? Math.round(Math.min(data.dragFactor, 255)) : 0)
 
