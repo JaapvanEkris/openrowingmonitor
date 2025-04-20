@@ -27,9 +27,10 @@ export function createSessionManager (config) {
   let sessionState = 'WaitingForStart'
   let intervalSettings = []
   let currentIntervalNumber = -1
-  let splitNumber = 0
+  let splitNumber = -1
 
   metrics = refreshMetrics()
+  // ToDo: replace with activateNextInterval based on justrow, justrow
   workout.setStart(metrics)
   interval.setStart(metrics)
   split.setStart(metrics)
@@ -148,7 +149,7 @@ export function createSessionManager (config) {
     intervalSettings = []
     currentIntervalNumber = -1
     pauseCountdownTimer = 0
-    splitNumber = 0
+    splitNumber = -1
     metrics = refreshMetrics()
     lastBroadcastedMetrics = { ...metrics }
     sessionState = 'WaitingForStart'
@@ -341,11 +342,14 @@ export function createSessionManager (config) {
     intervalSettings = null
     intervalSettings = intervalParameters
     currentIntervalNumber = -1
+    splitNumber = -1
     if (intervalSettings.length > 0) {
       log.info(`SessionManager: Workout recieved with ${intervalSettings.length} interval(s)`)
       metrics = refreshMetrics()
+
       workout.setStart(metrics)
-      // workout.setEnd(intervalSettings[0]) // ToDo: this is a justrow by default, to add identification for the underlying intervals
+      workout.summarize(intervalParameters)
+
       activateNextIntervalParameters(metrics)
       emitMetrics(metrics)
     } else {
@@ -390,7 +394,7 @@ export function createSessionManager (config) {
 
   function activateNextSplitParameters (baseMetrics) {
     splitNumber++
-    log.info(`Activating split settings for split ${splitNumber + 1}`)
+    log.error(`Activating split settings for split ${splitNumber + 1}`)
     split.setStart(baseMetrics)
     split.setEnd(interval.getSplit())
   }
@@ -419,13 +423,13 @@ export function createSessionManager (config) {
 
   function enrichMetrics (metricsToEnrich) {
     metricsToEnrich.sessiontype = interval.type() // ToDo: replace completely with workout.type when some intelligence is added to that
-    metricsToEnrich.sessionStatus = sessionState // ToDo: remove this naming change by changing the consumers
+    metricsToEnrich.sessionState = sessionState
     metricsToEnrich.pauseCountdownTime = Math.max(pauseCountdownTimer, 0) // Time left on the countdown timer
     metricsToEnrich.workout = { ...workout.metrics(metricsToEnrich) }
-    metricsToEnrich.workoutStepNumber = Math.max(currentIntervalNumber, 0) // Interval number, to keep in sync with the workout plan
     metricsToEnrich.interval = { ...interval.metrics(metricsToEnrich) }
-    metricsToEnrich.splitNumber = splitNumber
+    metricsToEnrich.interval.workoutStepNumber = Math.max(currentIntervalNumber, 0) // Interval number, to keep in sync with the workout plan
     metricsToEnrich.split = { ...split.metrics(metricsToEnrich) }
+    metricsToEnrich.split.number = splitNumber
   }
 
   function onWatchdogTimeout () {
