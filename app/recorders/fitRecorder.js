@@ -93,7 +93,7 @@ export function createFITRecorder (config) {
       case (metrics.metricsContext.isPauseEnd):
         // The session is resumed, so it was a pause instead of a stop
         lapnumber++
-        addRestLap(lapnumber, metrics, sessionData.lap[lapnumber - 1].endTime, metrics.workoutStepNumber)
+        addRestLap(lapnumber, metrics, sessionData.lap[lapnumber - 1].endTime, metrics.interval.workoutStepNumber)
         lapnumber++
         startLap(lapnumber, metrics)
         addMetricsToStrokesArray(metrics)
@@ -143,7 +143,7 @@ export function createFITRecorder (config) {
   }
 
   function calculateLapMetrics (metrics) {
-    sessionData.lap[lapnumber].workoutStepNumber = metrics.workoutStepNumber
+    sessionData.lap[lapnumber].workoutStepNumber = metrics.interval.workoutStepNumber
     sessionData.lap[lapnumber].endTime = metrics.timestamp
     sessionData.lap[lapnumber].summary = { ...metrics.split }
     sessionData.lap[lapnumber].averageHeartrate = lapHRMetrics.average()
