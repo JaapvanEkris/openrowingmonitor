@@ -8,7 +8,7 @@
  * @readonly
  * @enum {number}
  */
-/* eslint-disable max-lines -- Concept 2 uses a lot of enums, not much we can do about them*/
+/* eslint-disable max-lines -- Concept 2 uses a lot of enums, not much we can do about them */
 export const UniqueFrameFlags = {
   ExtendedStartFlag: 0xF0,
   StandardStartFlag: 0xF1,
