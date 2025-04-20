@@ -3,8 +3,8 @@
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Implementation of the StrokeData as defined in:
-  https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
-  todo: we could calculate all the missing stroke metrics in the RowerEngine
+  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
+  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf
 */
 import { BufferBuilder } from '../../../BufferBuilder.js'
 
@@ -33,7 +33,7 @@ export class AdditionalWorkoutSummary2Characteristic {
     // Log Entry Time (see https://www.c2forum.com/viewtopic.php?t=200769)
     bufferBuilder.writeUInt16LE(new Concept2Date().toC2TimeInt())
     // Avg Pace (0.1 sec)
-    bufferBuilder.writeUInt16LE(data.workout.pace.average !== Infinity && data.workout.pace.average > 0 && data.workout.pace.average < 655.34 ? Math.round(data.workout.pace.average * 10) : 0xFFFF)
+    bufferBuilder.writeUInt16LE(data.workout.pace.average !== Infinity && data.workout.pace.average > 0 && data.workout.pace.average < 655.34 ? Math.round(data.workout.pace.average * 10) : 0)
     // Game Identifier/ Workout Verified (see Appendix),
     bufferBuilder.writeUInt8((0 & 0x0F) | ((0 & 0xF0) >> 4))
     // Game Score (Fish/Darts 1 point LSB, Target 0.1% LSB)
