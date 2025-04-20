@@ -7,7 +7,7 @@
 
 import { PeripheralConstants } from '../../PeripheralConstants.js'
 
-import { ErgModelType, IntervalTypes } from './csafe-service/CsafeCommandsMapping.js'
+import { ErgModelType } from './csafe-service/CsafeCommandsMapping.js'
 
 export const pm5Constants = {
   ...PeripheralConstants,
@@ -23,18 +23,6 @@ export const pm5Constants = {
  */
 export function toC2128BitUUID (uuid) {
   return `CE06${uuid}-43E5-11E4-916C-0800200C9A66`
-}
-
-/**
- * @readonly
- * @enum {UnionToObject<SessionType>}
- */
-export const SessionTypes = {
-  justrow: IntervalTypes.INTERVALTYPE_NONE,
-  time: IntervalTypes.INTERVALTYPE_TIME,
-  distance: IntervalTypes.INTERVALTYPE_DIST,
-  calories: IntervalTypes.INTERVALTYPE_CALORIE,
-  rest: IntervalTypes.INTERVALTYPE_REST
 }
 
 export class Concept2Date extends Date {
