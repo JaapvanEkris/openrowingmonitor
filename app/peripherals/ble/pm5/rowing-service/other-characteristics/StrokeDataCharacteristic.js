@@ -3,8 +3,8 @@
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Implementation of the StrokeData as defined in:
-  https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
-  todo: we could calculate all the missing stroke metrics in the RowerEngine
+  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
+  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf
 */
 import { BufferBuilder } from '../../../BufferBuilder.js'
 import { GattNotifyCharacteristic } from '../../../BleManager.js'
@@ -33,9 +33,9 @@ export class StrokeDataCharacteristic extends GattNotifyCharacteristic {
   notify (data) {
     const bufferBuilder = new BufferBuilder()
     // elapsedTime: UInt24LE in 0.01 sec
-    bufferBuilder.writeUInt24LE(Math.round(data.totalMovingTime * 100))
+    bufferBuilder.writeUInt24LE(data.workout.timeSpent.total > 0 ? Math.round(data.workout.timeSpent.total * 100) : 0)
     // distance: UInt24LE in 0.1 m
-    bufferBuilder.writeUInt24LE(data.totalLinearDistance > 0 ? Math.round(data.totalLinearDistance * 10) : 0)
+    bufferBuilder.writeUInt24LE(data.workout.distance.fromStart > 0 ? Math.round(data.workout.distance.fromStart * 10) : 0)
     // driveLength: UInt8 in 0.01 m
     bufferBuilder.writeUInt8(data.driveLength > 0 ? Math.round(data.driveLength * 100) : 0)
     // driveTime: UInt8 in 0.01 s
