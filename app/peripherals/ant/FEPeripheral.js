@@ -40,7 +40,7 @@ function createFEPeripheral (antManager) {
     instantaneousPower: 0,
     distancePerStroke: 0,
     fitnessEquipmentState: fitnessEquipmentStates.ready,
-    sessionStatus: 'WaitingForStart'
+    sessionState: 'WaitingForStart'
   }
 
   async function attach () {
@@ -123,7 +123,7 @@ function createFEPeripheral (antManager) {
           0x00, // Resistance (DF may be reported if conversion to the % is worked out (value in % with a resolution of 0.5%).
           ...Messages.intToLEHexArray(feCapabilitiesBitField, 1)
         ]
-        if (sessionData.sessionStatus === 'Rowing') {
+        if (sessionData.sessionState === 'Rowing') {
           log.trace(`Page 17 Data Sent. Event=${dataPageCount}. Stroke Length=${sessionData.distancePerStroke}.`)
           log.trace(`Hex Stroke Length=0x${sessionData.distancePerStroke.toString(16)}.`)
         }
@@ -140,7 +140,7 @@ function createFEPeripheral (antManager) {
           ...Messages.intToLEHexArray(sessionData.instantaneousPower, 2), // Instant Power (2 bytes)
           ...Messages.intToLEHexArray((sessionData.fitnessEquipmentState + rowingCapabilitiesBitField), 1)
         ]
-        if (sessionData.sessionStatus === 'Rowing') {
+        if (sessionData.sessionState === 'Rowing') {
           log.trace(`Page 22 Data Sent. Event=${dataPageCount}. Strokes=${sessionData.accumulatedStrokes}. Stroke Rate=${sessionData.strokeRate}. Power=${sessionData.instantaneousPower}`)
           log.trace(`Hex Strokes=0x${sessionData.accumulatedStrokes.toString(16)}. Hex Stroke Rate=0x${sessionData.strokeRate.toString(16)}. Hex Power=0x${Messages.intToLEHexArray(sessionData.instantaneousPower, 2)}.`)
         }
@@ -157,7 +157,7 @@ function createFEPeripheral (antManager) {
           0xFF, // heart rate not being sent
           ...Messages.intToLEHexArray((sessionData.fitnessEquipmentState + feCapabilitiesBitField), 1)
         ]
-        if (sessionData.sessionStatus === 'Rowing') {
+        if (sessionData.sessionState === 'Rowing') {
           log.trace(`Page 16 Data Sent. Event=${dataPageCount}. Time=${sessionData.accumulatedTime}. Distance=${sessionData.accumulatedDistance}. Speed=${sessionData.cycleLinearVelocity}.`)
           log.trace(`Hex Time=0x${sessionData.accumulatedTime.toString(16)}. Hex Distance=0x${sessionData.accumulatedDistance.toString(16)}. Hex Speed=0x${Messages.intToLEHexArray(sessionData.cycleLinearVelocity, 2)}.`)
         }
@@ -182,7 +182,7 @@ function createFEPeripheral (antManager) {
       strokeRate: (data.metricsContext.isMoving && data.cycleStrokeRate > 0 ? Math.round(data.cycleStrokeRate) : 0) & 0xFF,
       instantaneousPower: (data.metricsContext.isMoving && data.cyclePower > 0 ? Math.round(data.cyclePower) : 0) & 0xFFFF,
       distancePerStroke: (data.metricsContext.isMoving && data.cycleDistance > 0 ? Math.round(data.cycleDistance * 100) : 0),
-      sessionStatus: data.sessionStatus
+      sessionState: data.sessionState
     }
 
     // See https://c2usa.fogbugz.com/default.asp?W119
@@ -192,6 +192,7 @@ function createFEPeripheral (antManager) {
     // * Pause: go to 4 (finished, if data.metricsContext.isMoving = false); back to inUse if rowing starts coming back.
     // every time move from "ready" to "inUse" it will create a new piece on the watch.
     // ToDo: if cross split; raise LAP Toggle
+    // ToDo: Make this mapping based on the session state, instead of flags
     switch (true) {
       case (data.metricsContext.isSessionStart):
         sessionData.fitnessEquipmentState = fitnessEquipmentStates.inUse
