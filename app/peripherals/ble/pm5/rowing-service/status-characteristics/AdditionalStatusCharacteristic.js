@@ -3,7 +3,8 @@
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Implementation of the AdditionalStatus as defined in:
-  https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
+  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
+  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf
 */
 import { BufferBuilder } from '../../../BufferBuilder.js'
 import { GattNotifyCharacteristic } from '../../../BleManager.js'
@@ -33,7 +34,7 @@ export class AdditionalStatusCharacteristic extends GattNotifyCharacteristic {
   notify (data) {
     const bufferBuilder = new BufferBuilder()
     // elapsedTime: UInt24LE in 0.01 sec
-    bufferBuilder.writeUInt24LE(data.totalMovingTime ? Math.round(data.totalMovingTime * 100) : 0)
+    bufferBuilder.writeUInt24LE(data.workout.timeSpent.total > 0 ? Math.round(data.workout.timeSpent.total * 100) : 0)
     // speed: UInt16LE in 0.001 m/sec
     bufferBuilder.writeUInt16LE(data.cycleLinearVelocity > 0 ? Math.round(data.cycleLinearVelocity * 1000) : 0)
     // strokeRate: UInt8 in strokes/min
@@ -41,20 +42,13 @@ export class AdditionalStatusCharacteristic extends GattNotifyCharacteristic {
     // heartrate: UInt8 in bpm, 255 if invalid
     bufferBuilder.writeUInt8(data?.heartrate ? Math.round(data.heartrate) : 0)
     // currentPace: UInt16LE in 0.01 sec/500m
-    // if split is infinite (i.e. while pausing), use the highest possible number
-    bufferBuilder.writeUInt16LE(data.cyclePace !== Infinity && data.cyclePace > 0 && data.cyclePace < 655.34 ? Math.round(data.cyclePace * 100) : 0xFFFF)
+    bufferBuilder.writeUInt16LE(data.cyclePace !== Infinity && data.cyclePace > 0 && data.cyclePace < 655.34 ? Math.round(data.cyclePace * 100) : 0)
     // averagePace: UInt16LE in 0.01 sec/500m
-    let averagePace
-    if (data.totalLinearDistance > 0 && data.totalLinearDistance !== 0) {
-      averagePace = (data.totalMovingTime / data.totalLinearDistance) * 500
-    } else {
-      averagePace = 0
-    }
-    bufferBuilder.writeUInt16LE(Math.round(Math.min(averagePace * 100, 65535)))
+    bufferBuilder.writeUInt16LE(data.interval.pace.average !== Infinity && data.interval.pace.average > 0 && data.interval.pace.average < 655.34 ? Math.round(data.interval.pace.average * 100) : 0)
     // restDistance: UInt16LE
     bufferBuilder.writeUInt16LE(0)
     // restTime: UInt24LE in 0.01 sec
-    bufferBuilder.writeUInt24LE(0 * 100)
+    bufferBuilder.writeUInt24LE(data.workout.timeSpent.rest > 0 ? Math.round(data.workout.timeSpent.rest * 100) : 0)
     if (!this.isSubscribed) {
       // the multiplexer uses a slightly different format for the AdditionalStatus
       // it adds averagePower before the ergMachineType
