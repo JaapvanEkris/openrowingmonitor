@@ -37,7 +37,7 @@ export function createCscPeripheral (bleManager, config) {
     // This reference is to satisfy type checking while simplifying the initialization of lastKnownMetrics (i.e. allow partial initialization but have the type system consider it as a full Metrics type)
     .../** @type {Metrics} */({}),
     sessiontype: 'justrow',
-    sessionStatus: 'WaitingForStart',
+    sessionState: 'WaitingForStart',
     strokeState: 'WaitingForDrive',
     totalMovingTime: 0,
     totalLinearDistance: 0,
