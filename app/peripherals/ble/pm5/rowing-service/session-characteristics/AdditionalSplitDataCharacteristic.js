@@ -3,8 +3,8 @@
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Implementation of the StrokeData as defined in:
-  https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
-  todo: we could calculate all the missing stroke metrics in the RowerEngine
+  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
+  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf
 */
 import { BufferBuilder } from '../../../BufferBuilder.js'
 import { GattNotifyCharacteristic } from '../../../BleManager.js'
@@ -35,16 +35,16 @@ export class AdditionalSplitDataCharacteristic extends GattNotifyCharacteristic 
     const bufferBuilder = new BufferBuilder()
     // Data bytes packed as follows: (19bytes) - Multiplex as per spec 18bytes, but actually the list show 19. need to verify from the PM5
 
-    // Elapsed Time
-    bufferBuilder.writeUInt24LE(Math.round(data.totalMovingTime * 100))
+    // Elapsed Time in 0.01 sec
+    bufferBuilder.writeUInt24LE(data.workout.timeSpent.total > 0 ? Math.round(data.workout.timeSpent.total * 100) : 0)
     // Split/Interval Avg Stroke Rate
     bufferBuilder.writeUInt8(data.split.strokerate.average > 0 ? Math.round(data.split.strokerate.average) : 0)
     // Split/Interval Work Heartrate,
     bufferBuilder.writeUInt8(splitHRData.average() > 0 ? Math.round(splitHRData.average()) : 0)
     // Split/Interval Rest Heartrate,
     bufferBuilder.writeUInt8(0)
-    // Split/Interval Average Pace (0.1 sec)
-    bufferBuilder.writeUInt16LE(data.split.pace.average !== Infinity && data.split.pace.average > 0 && data.split.pace.average < 655.34 ? Math.round(data.split.pace.average * 10) : 0xFFFF)
+    // Split/Interval Average Pace (in 0.1 sec)
+    bufferBuilder.writeUInt16LE(data.split.pace.average !== Infinity && data.split.pace.average > 0 && data.split.pace.average < 655.34 ? Math.round(data.split.pace.average * 10) : 0)
     // Split/Interval Total Calories (Cals),
     bufferBuilder.writeUInt16LE(data.split.calories.totalSpent > 0 && data.split.calories.totalSpent < 65534 ? Math.round(data.split.calories.totalSpent) : 0)
     // Split/Interval Average Calories (Cals/Hr),
@@ -56,7 +56,7 @@ export class AdditionalSplitDataCharacteristic extends GattNotifyCharacteristic 
     // Split Avg Drag Factor,
     bufferBuilder.writeUInt8(data.split.dragfactor.average > 0 && data.split.dragfactor.average < 255 ? Math.round(data.split.dragfactor.average) : 255)
     // Split/Interval Number,
-    bufferBuilder.writeUInt8(data.splitNumber > 0 ? data.splitNumber : 0)
+    bufferBuilder.writeUInt8(data.split.number > 0 ? data.split.number + 1 : 0)
     // Erg Machine Type
     bufferBuilder.writeUInt8(pm5Constants.ergMachineType)
 
