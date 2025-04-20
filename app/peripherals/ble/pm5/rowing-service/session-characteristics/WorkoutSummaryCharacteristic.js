@@ -3,13 +3,13 @@
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Implementation of the StrokeData as defined in:
-  https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
-  todo: we could calculate all the missing stroke metrics in the RowerEngine
+  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
+  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf
 */
 import { BufferBuilder } from '../../../BufferBuilder.js'
 import { GattNotifyCharacteristic } from '../../../BleManager.js'
-
-import { Concept2Date, SessionTypes, toC2128BitUUID } from '../../Pm5Constants.js'
+import { toC2128BitUUID, toC2WorkoutType } from '../../utils/ORMtoC2Mapper.js'
+import { Concept2Date } from '../../Pm5Constants.js'
 
 export class WorkoutSummaryCharacteristic extends GattNotifyCharacteristic {
   #multiplexedCharacteristic
@@ -57,8 +57,8 @@ export class WorkoutSummaryCharacteristic extends GattNotifyCharacteristic {
     bufferBuilder.writeUInt8(data.workout.dragfactor.average > 0 && data.workout.dragfactor.average < 255 ? Math.round(data.workout.dragfactor.average) : 255)
     // Recovery Heart Rate, (zero = not valid data. After 1 minute of rest/recovery, PM5 sends this data as a revised End Of Workout summary data characteristic unless the monitor has been turned off or a new workout started)
     bufferBuilder.writeUInt8(0)
-    // Workout Type,
-    bufferBuilder.writeUInt8(SessionTypes[data.workout.type] ?? SessionTypes.justrow)
+    // workoutType: UInt8, see OBJ_WORKOUTTYPE_T enum
+    bufferBuilder.writeUInt8(toC2WorkoutType(data))
     if (this.isSubscribed) {
     // Avg Pace (0.1 sec) - NOT IN MULTIPLEXED
       bufferBuilder.writeUInt16LE(Math.round(data.workout.pace.average))
