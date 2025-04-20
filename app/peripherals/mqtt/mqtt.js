@@ -30,7 +30,7 @@ export function createMQTTPeripheral (config) {
     .../** @type {Metrics} */({}),
     timestamp: new Date(),
     sessiontype: 'justrow',
-    sessionStatus: 'WaitingForStart',
+    sessionState: 'WaitingForStart',
     strokeState: 'WaitingForDrive',
     metricsContext: {
       isMoving: false,
@@ -139,7 +139,7 @@ export function createMQTTPeripheral (config) {
     const jsonMetrics = {
       timestamp: (metrics.timestamp / 1000).toFixed(3),
       sessiontype: metrics.sessiontype,
-      sessionStatus: metrics.sessionStatus,
+      sessionState: metrics.sessionState,
       strokeState: metrics.strokeState,
       isMoving: metrics.metricsContext.isMoving,
       isDriveStart: metrics.metricsContext.isDriveStart,
@@ -152,7 +152,7 @@ export function createMQTTPeripheral (config) {
       totalMovingTime: metrics.totalMovingTime.toFixed(5),
       totalDistance: metrics.totalLinearDistance.toFixed(1),
       totalCalories: metrics.totalCalories.toFixed(1),
-      splitNumber: metrics.splitNumber.toFixed(0),
+      splitNumber: metrics.split.number.toFixed(0),
       heartrate: (metrics.heartrate !== undefined ? metrics.heartrate.toFixed(0) : NaN),
       velocity: (metrics.totalNumberOfStrokes > 0 && metrics.cycleLinearVelocity > 0 ? metrics.cycleLinearVelocity.toFixed(2) : NaN),
       pace: (metrics.totalNumberOfStrokes > 0 && metrics.cyclePace > 0 ? metrics.cyclePace.toFixed(2) : NaN),
