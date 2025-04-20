@@ -36,8 +36,8 @@ export class CsafeManagerService {
   processCommand (buffer) {
     const csafeFrame = new CsafeRequestFrame(buffer)
 
-    let csafeCommands = csafeFrame.commands.map((command) => command.command)
-    let commands = csafeFrame.commands
+    const csafeCommands = csafeFrame.commands.map((command) => command.command)
+    const commands = csafeFrame.commands
 
     log.debug('PM5 commands received:', csafeFrame.commands.map((command) => command.toString()))
 
