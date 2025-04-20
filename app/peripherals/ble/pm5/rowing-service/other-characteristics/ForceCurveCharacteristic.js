@@ -3,8 +3,8 @@
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Implementation of the StrokeData as defined in:
-  https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
-  todo: we could calculate all the missing stroke metrics in the RowerEngine
+  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
+  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf
 */
 import loglevel from 'loglevel'
 
