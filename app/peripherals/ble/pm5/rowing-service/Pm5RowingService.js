@@ -63,9 +63,8 @@ export class Pm5RowingService extends GattService {
 
   #splitHR
   #workoutHR
-  #splitMetrics
   #previousSplitMetrics
-  #workoutMetrics
+  #timer
 
   /**
    * @param {Config} config
@@ -138,7 +137,7 @@ export class Pm5RowingService extends GattService {
     this.#lastKnownMetrics = {
       .../** @type {Metrics} */({}),
       sessiontype: 'justrow',
-      sessionStatus: 'WaitingForStart',
+      sessionState: 'WaitingForStart',
       strokeState: 'WaitingForDrive',
       totalMovingTime: 0,
       totalLinearDistance: 0,
@@ -151,7 +150,7 @@ export class Pm5RowingService extends GattService {
       totalMovingTime: 0,
       totalLinearDistance: 0
     }
-    setTimeout(() => { this.#onBroadcastInterval() }, this.#config.pm5UpdateInterval)
+    this.#timer = setTimeout(() => { this.#onBroadcastInterval() }, this.#config.pm5UpdateInterval)
   }
   /* eslint-enable max-statements */
 
@@ -160,11 +159,18 @@ export class Pm5RowingService extends GattService {
   */
   notifyData (metrics) {
     if (metrics.metricsContext === undefined) { return }
-    this.#lastKnownMetrics = metrics
+    if (!(metrics.sessionState === 'Stopped' && !metrics.metricsContext.isSessionStop)) { this.#lastKnownMetrics = metrics }
     switch (true) {
+      case (metrics.metricsContext.isSessionStart):
+        this.#splitHR.push(this.#lastKnownMetrics.heartrate)
+        this.#workoutHR.push(this.#lastKnownMetrics.heartrate)
+        this.#driveStartNotifies(this.#lastKnownMetrics)
+        break
       case (metrics.metricsContext.isSessionStop):
         this.#splitHR.push(this.#lastKnownMetrics.heartrate)
         this.#workoutHR.push(this.#lastKnownMetrics.heartrate)
+        this.#splitDataNotifies(this.#lastKnownMetrics, this.#splitHR)
+        this.#genericStatusDataNotifies(this.#lastKnownMetrics, this.#previousSplitMetrics)
         this.#workoutEndDataNotifies(this.#lastKnownMetrics, this.#workoutHR)
         break
       case (metrics.metricsContext.isSplitEnd):
@@ -192,12 +198,12 @@ export class Pm5RowingService extends GattService {
       case (metrics.metricsContext.isDriveStart):
         this.#splitHR.push(this.#lastKnownMetrics.heartrate)
         this.#workoutHR.push(this.#lastKnownMetrics.heartrate)
-        this.#strokeData.notify(this.#lastKnownMetrics)
+        this.#driveStartNotifies(this.#lastKnownMetrics)
         break
       case (metrics.metricsContext.isRecoveryStart):
         this.#splitHR.push(this.#lastKnownMetrics.heartrate)
         this.#workoutHR.push(this.#lastKnownMetrics.heartrate)
-        this.#strokeEndDataNotifies(this.#lastKnownMetrics)
+        this.#recoveryStartDataNotifies(this.#lastKnownMetrics)
         break
       default:
         // Do nothing
@@ -214,11 +220,12 @@ export class Pm5RowingService extends GattService {
    * @param {SegmentMetrics} splitMetrics
    */
   #genericStatusDataNotifies (metrics, previousSplitMetrics) {
+    clearTimeout(this.#timer)
     this.#generalStatus.notify(metrics)
     this.#additionalStatus.notify(metrics)
     this.#additionalStatus2.notify(metrics, previousSplitMetrics)
     this.#additionalStatus3.notify(metrics)
-    setTimeout(() => this.#onBroadcastInterval(), this.#config.pm5UpdateInterval)
+    this.#timer = setTimeout(() => { this.#onBroadcastInterval() }, this.#config.pm5UpdateInterval)
   }
 
   /**
@@ -226,17 +233,30 @@ export class Pm5RowingService extends GattService {
    * @param {SegmentMetrics} splitMetrics
    */
   #splitDataNotifies (metrics, splitHRMetrics) {
+    clearTimeout(this.#timer)
     this.#splitData.notify(metrics)
     this.#additionalSplitData.notify(metrics, splitHRMetrics)
+    this.#timer = setTimeout(() => { this.#onBroadcastInterval() }, this.#config.pm5UpdateInterval)
   }
 
   /**
    * @param {Metrics} metrics
    */
-  #strokeEndDataNotifies (metrics) {
+  #driveStartNotifies (metrics) {
+    clearTimeout(this.#timer)
+    this.#strokeData.notify(metrics)
+    this.#timer = setTimeout(() => { this.#onBroadcastInterval() }, this.#config.pm5UpdateInterval)
+  }
+
+  /**
+   * @param {Metrics} metrics
+   */
+  #recoveryStartDataNotifies (metrics) {
+    clearTimeout(this.#timer)
     this.#strokeData.notify(metrics)
     this.#additionalStrokeData.notify(metrics)
     this.#forceCurveData.notify(metrics)
+    this.#timer = setTimeout(() => { this.#onBroadcastInterval() }, this.#config.pm5UpdateInterval)
   }
 
   /**
@@ -244,9 +264,11 @@ export class Pm5RowingService extends GattService {
    * @param {SegmentMetrics} workoutMetrics
    */
   #workoutEndDataNotifies (metrics, workoutHRMetrics) {
+    clearTimeout(this.#timer)
     this.#workoutSummary.notify(metrics, workoutHRMetrics)
     this.#additionalWorkoutSummary.notify(metrics)
     this.#additionalWorkoutSummary2.notify(metrics)
     this.#loggedWorkout.notify(metrics, workoutHRMetrics)
+    this.#timer = setTimeout(() => { this.#onBroadcastInterval() }, this.#config.pm5UpdateInterval)
   }
 }
