@@ -3,12 +3,12 @@
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Implementation of the AdditionalStatus2 as defined in:
-  https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
+  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
+  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf
 */
 import { BufferBuilder } from '../../../BufferBuilder.js'
 import { GattNotifyCharacteristic } from '../../../BleManager.js'
-
-import { toC2128BitUUID } from '../../Pm5Constants.js'
+import { toC2128BitUUID, toC2OperationalState } from '../../utils/ORMtoC2Mapper.js'
 
 export class AdditionalStatus3Characteristic extends GattNotifyCharacteristic {
   #multiplexedCharacteristic
@@ -30,14 +30,14 @@ export class AdditionalStatus3Characteristic extends GattNotifyCharacteristic {
    * @param {Metrics} data
    */
   //
-  /* eslint-disable-next-line no-unused-vars -- standardized characteristic interface where the data parameter isn't relevant
-  @ts-ignore: Type is not assignable to type */
+  /* @ts-ignore: Type is not assignable to type */
   notify (data) {
     const bufferBuilder = new BufferBuilder()
-    // Operational State: 0 RESET, 1 READY, 2 WORKOUT, 3 WARMUP, 6 PAUSE, 10 IDLE, TODO: to be mapped to something ORM uses
-    bufferBuilder.writeUInt8(1)
-    // Workout Verification State: unknown, but based on real PM5 1 is acceptable
-    bufferBuilder.writeUInt8(1)
+    // Operational State, see Operational states
+    bufferBuilder.writeUInt8(toC2OperationalState(data))
+    // Workout Verification State: PM5 1 is accepted by ErgData ans results in a verifued workout in the logbook. As ORM isn't that trustworthy, we explicitly set it to 0
+    // Despite setting this to 0, the logbook still records it as verified
+    bufferBuilder.writeUInt8(0)
     // Screen Number: UInt16
     bufferBuilder.writeUInt16LE(1)
     // Last Error: UInt16
