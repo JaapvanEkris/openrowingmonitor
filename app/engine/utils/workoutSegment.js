@@ -4,13 +4,15 @@
 
   This Module supports the creation and use of workoutSegment
 */
+/* eslint-disable max-lines -- This contains a lot of defensive programming, so it is long */
 import { createOLSLinearSeries } from './OLSLinearSeries.js'
 import { createSeries } from './Series.js'
 import loglevel from 'loglevel'
 const log = loglevel.getLogger('RowingEngine')
 
 export function createWorkoutSegment (config) {
-  const distanceOverTime = createOLSLinearSeries(Math.min(4, config.numOfPhasesForAveragingScreenData))
+  const numOfDataPointsForAveraging = config.numOfPhasesForAveragingScreenData
+  const distanceOverTime = createOLSLinearSeries(Math.min(4, numOfDataPointsForAveraging))
   const _power = createSeries()
   const _linearVelocity = createSeries()
   const _strokerate = createSeries()
@@ -27,6 +29,7 @@ export function createWorkoutSegment (config) {
   let _targetDistance = 0
   let _endMovingTime = 0
   let _endLinearDistance = 0
+  let _totalNumberIntervals = 0
   let _split = {
     type: 'justrow',
     targetDistance: 0,
@@ -48,6 +51,61 @@ export function createWorkoutSegment (config) {
 
   function getStartTimestamp () {
     return _startTimestamp
+  }
+
+  function summarize (intervals) {
+    let intervalNumber = 0
+    let totalDistance = 0
+    let totalTime = 0
+    let containsJustRow = false
+    _totalNumberIntervals = Math.max(intervals.length, 1)
+    switch (true) {
+      case (intervals.length === 0):
+        setEnd({ type: 'justrow' })
+        break
+      case (intervals.length === 1):
+        setEnd(intervals[0])
+        break
+      case (intervals.length > 1):
+        while (intervalNumber < intervals.length) {
+          switch (true) {
+            case (intervals[intervalNumber].type === 'rest' && intervals[intervalNumber].targetTime > 0):
+              // As a rest has no impact on the (target) total moving time and distance, there is nothing to do here
+              break
+            case (intervals[intervalNumber].type === 'distance' && intervals[intervalNumber].targetDistance > 0):
+              totalDistance = totalDistance + Number(intervals[intervalNumber].targetDistance)
+              break
+            case (intervals[intervalNumber].type === 'time' && intervals[intervalNumber].targetTime > 0):
+              totalTime = totalTime + Number(intervals[intervalNumber].targetTime)
+              break
+            case (intervals[intervalNumber].type === 'justrow'):
+              containsJustRow = true
+              break
+            default:
+              containsJustRow = true
+          }
+          intervalNumber++
+        }
+        switch (true) {
+          case (containsJustRow):
+            setEnd({ type: 'justrow' })
+            break
+          case (totalDistance > 0 && totalTime === 0):
+            setEnd({ type: 'distance', targetDistance: totalDistance })
+            break
+          case (totalTime > 0 && totalDistance === 0):
+            setEnd({ type: 'time', targetTime: totalTime })
+            break
+          case (totalTime > 0 && totalDistance > 0):
+            setEnd({ type: 'justrow' })
+            break
+          default:
+            setEnd({ type: 'justrow' })
+        }
+        break
+      default:
+        setEnd({ type: 'justrow' })
+    }
   }
 
   function setEnd (intervalSettings) {
@@ -102,9 +160,9 @@ export function createWorkoutSegment (config) {
       case (intervalSettings.type === 'rest'):
         // A rest interval has no split defined
         _split = {
-          type: 'justrow',
+          type: 'rest',
           targetDistance: 0,
-          targetTime: 0
+          targetTime: _targetTime
         }
         break
       case (!!intervalSettings.split && intervalSettings.split !== undefined && intervalSettings.split.type === 'distance' && intervalSettings.split.targetDistance > 0):
@@ -123,19 +181,27 @@ export function createWorkoutSegment (config) {
           targetTime: Number(intervalSettings.split.targetTime)
         }
         break
-      case (!intervalSettings.split || (!!intervalSettings.split && intervalSettings.split !== undefined && intervalSettings.split.type === 'justrow')):
+      case (!!intervalSettings.split && intervalSettings.split !== undefined && intervalSettings.split.type === 'justrow'):
         _split = {
-          type: 'justrow',
-          targetDistance: 0,
-          targetTime: 0
+          type: _type,
+          targetDistance: _targetDistance,
+          targetTime: _targetTime
+        }
+        break
+      case (!intervalSettings.split):
+        // Split is left empty, we default to the entire interval
+        _split = {
+          type: _type,
+          targetDistance: _targetDistance,
+          targetTime: _targetTime
         }
         break
       default:
-        log.error(`Workout parser, unknown split type '${intervalSettings.split.type}', defaulting to a 'justrow' split`)
+        log.error(`Workout parser, unknown split type '${intervalSettings.split.type}', defaulting to copying interval type`)
         _split = {
-          type: 'justrow',
-          targetDistance: 0,
-          targetTime: 0
+          type: _type,
+          targetDistance: _targetDistance,
+          targetTime: _targetTime
         }
     }
   }
@@ -341,10 +407,27 @@ export function createWorkoutSegment (config) {
     }
   }
 
+  function absoluteEndDistance () {
+    if (_type === 'distance' && _endLinearDistance > 0) {
+      return _endLinearDistance
+    } else {
+      return undefined
+    }
+  }
+
   function targetTime () {
     if (_type === 'time' && _endMovingTime > 0) {
       // We have a distance boundary
       return _targetTime
+    } else {
+      return undefined
+    }
+  }
+
+  function absoluteEndTime () {
+    if (_type === 'time' && _endMovingTime > 0) {
+      // We have a distance boundary
+      return _endMovingTime
     } else {
       return undefined
     }
@@ -357,16 +440,19 @@ export function createWorkoutSegment (config) {
   function metrics (baseMetrics) {
     return {
       type: _type,
+      ...(_totalNumberIntervals > 0 ? { numberOfIntervals: _totalNumberIntervals } : {}),
       numberOfStrokes: numberOfStrokes(baseMetrics),
       distance: {
         fromStart: distanceFromStart(baseMetrics),
         target: targetDistance(),
+        absoluteTarget: absoluteEndDistance(),
         toEnd: distanceToEnd(baseMetrics),
         projectedEnd: projectedEndDistance()
       },
       movingTime: {
         sinceStart: timeSinceStart(baseMetrics),
         target: targetTime(),
+        absoluteTarget: absoluteEndTime(),
         toEnd: timeToEnd(baseMetrics),
         projectedEnd: projectedEndTime()
       },
@@ -445,6 +531,7 @@ export function createWorkoutSegment (config) {
     setStart,
     setStartTimestamp,
     getStartTimestamp,
+    summarize,
     setEnd,
     isEndReached,
     interpolateEnd,
