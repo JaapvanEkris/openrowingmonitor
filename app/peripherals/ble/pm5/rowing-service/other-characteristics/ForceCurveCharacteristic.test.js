@@ -3,11 +3,9 @@
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Implementation of the StrokeData as defined in:
-  https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
-  todo: we could calculate all the missing stroke metrics in the RowerEngine
+  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
+  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf
 */
-/* eslint-disable max-lines -- more tests is always better */
-/* eslint-disable max-statements -- more tests is always better */
 import * as assert from 'uvu/assert'
 import { suite } from 'uvu'
 
