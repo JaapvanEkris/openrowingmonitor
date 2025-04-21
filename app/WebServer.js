@@ -19,7 +19,7 @@ export function createWebServer (config) {
   let timer = setTimeout(timeBasedPresenter, config.webUpdateInterval)
   let lastKnownMetrics = {
     strokeState: 'WaitingForDrive',
-    sessionStatus: 'WaitingForStart',
+    sessionState: 'WaitingForStart',
     totalMovingTime: 0,
     totalNumberOfStrokes: 0,
     totalLinearDistance: 0,
