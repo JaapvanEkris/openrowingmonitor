@@ -1,9 +1,10 @@
 import loglevel from 'loglevel'
 
 import { swapObjectPropertyValues } from '../../../../tools/Helper.js'
-import { readUInt16, readUInt32, toC2Date, createWorkoutPlan } from '../utils/C2toORMMapper.js'
 
-import { ProprietaryLongGetConfigCommands, ProprietaryLongSetConfigCommands, ProprietaryLongSetDataCommands, ProprietaryShortGetConfigCommands, DurationTypes, ScreenTypes, ScreenValue, WorkoutTypes, IntervalTypes } from './CsafeCommandsMapping.js'
+import { Concept2Date, createWorkoutPlan, readUInt16, readUInt32 } from '../utils/C2toORMMapper.js'
+
+import { DurationTypes, IntervalTypes, ProprietaryLongGetConfigCommands, ProprietaryLongSetConfigCommands, ProprietaryLongSetDataCommands, ProprietaryShortGetConfigCommands, ScreenTypes, ScreenValue, WorkoutTypes } from './CsafeCommandsMapping.js'
 
 import { CsafeRequestFrame } from './CsafeRequestFrame.js'
 import { CsafeResponseFrame } from './CsafeResponseFrame.js'
@@ -36,7 +37,6 @@ export class CsafeManagerService {
   processCommand (buffer) {
     const csafeFrame = new CsafeRequestFrame(buffer)
 
-    const csafeCommands = csafeFrame.commands.map((command) => command.command)
     const commands = csafeFrame.commands
 
     log.debug('PM5 commands received:', csafeFrame.commands.map((command) => command.toString()))
@@ -135,7 +135,7 @@ export class CsafeManagerService {
           )
           log.debug(`command ${i + 1}, CSAFE_PM_GET_EXTENDED_HRBELT_INFO`)
           break
-        case (ProprietaryLongSetConfigCommands.CSAFE_PM_SET_EXTENDED_HRBELT_INFO):
+        case (ProprietaryLongSetDataCommands.CSAFE_PM_SET_EXTENDED_HRBELT_INFO):
           response.addCommand(ProprietaryLongSetDataCommands.CSAFE_PM_SET_EXTENDED_HRBELT_INFO)
           log.debug(`command ${i + 1}, CSAFE_PM_SET_EXTENDED_HRBELT_INFO`)
           break
@@ -168,14 +168,10 @@ export class CsafeManagerService {
           break
         default:
           log.debug(`command ${i + 1}: unhandled command ${swapObjectPropertyValues(ProprietaryShortGetConfigCommands)[commands[i].command]}`)
+          response.addCommand(commands[i].command)
       }
       i++
     }
-
-    csafeCommands.forEach((command) => {
-      // "When sending a frame consisting of multiple commands to a secondary device, the resulting response frame consists of multiple command responses." CSAFE Spec
-      response.addCommand(command)
-    })
 
     this.#controlTransmitCharacteristic.notify(response.build())
   }
