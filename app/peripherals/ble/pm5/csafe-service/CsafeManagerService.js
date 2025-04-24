@@ -140,7 +140,7 @@ export class CsafeManagerService {
           log.debug(`command ${i + 1}, CSAFE_PM_SET_EXTENDED_HRBELT_INFO`)
           break
         case (ProprietaryShortGetConfigCommands.CSAFE_PM_GET_DATETIME):
-          response.addCommand(ProprietaryShortGetConfigCommands.CSAFE_PM_GET_DATETIME, toC2Date(new Date()))
+          response.addCommand(ProprietaryShortGetConfigCommands.CSAFE_PM_GET_DATETIME, new Concept2Date().toC2DateByteArray())
           log.debug(`command ${i + 1}, CSAFE_PM_GET_DATETIME`)
           break
         case (ProprietaryLongSetConfigCommands.CSAFE_PM_SET_SCREENSTATE):

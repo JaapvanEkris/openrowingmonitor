@@ -5,7 +5,7 @@
   Contains all mapping functions needed to map the internal ORM state to the externally communicated Concept2 PM5 states
 */
 /* eslint-disable no-unreachable -- the breaks after the returns trigger this, but there is a lot to say for being systematic about this */
-import { WorkoutTypes, IntervalTypes, DurationTypes } from './../csafe-service/CsafeCommandsMapping.js'
+import { DurationTypes, IntervalTypes, WorkoutTypes } from './../csafe-service/CsafeCommandsMapping.js'
 
 export function readUInt16 (msb, lsb) {
   return (msb * 256) + lsb
@@ -13,18 +13,6 @@ export function readUInt16 (msb, lsb) {
 
 export function readUInt32 (msb, byte2, byte3, lsb) {
   return (msb * 16777216) + (byte2 * 65536) + (byte3 * 256) + lsb
-}
-
-export function toC2Date (date) {
-  return [
-    date.getHours() % 12 || 12,
-    date.getMinutes(),
-    date.getHours() > 12 ? 1 : 0,
-    date.getMonth() + 1,
-    date.getDate(),
-    (date.getFullYear() >> 8) & 0xFF,
-    date.getFullYear() & 0xFF
-  ]
 }
 
 export function createWorkoutPlan () {
@@ -196,9 +184,9 @@ export function toC2DurationType (baseMetrics) {
 
 export class Concept2Date extends Date {
   /**
- * Converts a Date object to a Concept2 date binary format
- * @returns {number} The UTC date as a uint16 parsed as per the Concept2 specs
- */
+   * Converts a Date object to a Concept2 date binary format
+   * @returns {number} The UTC date as a uint16 parsed as per the Concept2 specs
+   */
   toC2DateInt () {
     const yearEpoch = 2000
 
@@ -206,9 +194,25 @@ export class Concept2Date extends Date {
   }
 
   /**
- * Converts a Date object to a Concept2 time binary format
- * @returns {number} The UTC time as a uint16 parsed as per the Concept2 specs
- */
+   * Converts a Date object to a Concept2 date byte array format
+   * @returns {number[]} The UTC date as a byte array parsed as per the Concept2 specs
+   */
+  toC2DateByteArray () {
+    return [
+      this.getHours() % 12 || 12,
+      this.getMinutes(),
+      this.getHours() > 12 ? 1 : 0,
+      this.getMonth() + 1,
+      this.getDate(),
+      (this.getFullYear() >> 8) & 0xFF,
+      this.getFullYear() & 0xFF
+    ]
+  }
+
+  /**
+   * Converts a Date object to a Concept2 time binary format
+   * @returns {number} The UTC time as a uint16 parsed as per the Concept2 specs
+   */
   toC2TimeInt () {
     return this.getMinutes() | this.getHours() << 8
   }
