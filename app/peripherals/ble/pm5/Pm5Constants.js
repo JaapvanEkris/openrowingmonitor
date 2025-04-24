@@ -24,23 +24,3 @@ export const pm5Constants = {
 export function toC2128BitUUID (uuid) {
   return `CE06${uuid}-43E5-11E4-916C-0800200C9A66`
 }
-
-export class Concept2Date extends Date {
-  /**
- * Converts a Date object to a Concept2 date binary format
- * @returns {number} The UTC date as a uint16 parsed as per the Concept2 specs
- */
-  toC2DateInt () {
-    const yearEpoch = 2000
-
-    return (this.getMonth() + 1) | (this.getDate()) << 4 | (this.getFullYear() - yearEpoch) << 9
-  }
-
-  /**
- * Converts a Date object to a Concept2 time binary format
- * @returns {number} The UTC time as a uint16 parsed as per the Concept2 specs
- */
-  toC2TimeInt () {
-    return this.getMinutes() | this.getHours() << 8
-  }
-}

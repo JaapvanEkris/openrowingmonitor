@@ -8,8 +8,9 @@
 */
 import { BufferBuilder } from '../../../BufferBuilder.js'
 import { GattNotifyCharacteristic } from '../../../BleManager.js'
+
 import { toC2128BitUUID, toC2IntervalType } from '../../utils/ORMtoC2Mapper.js'
-import { Concept2Date } from '../../Pm5Constants.js'
+import { Concept2Date } from '../../utils/C2toORMMapper.js'
 
 export class AdditionalWorkoutSummaryCharacteristic extends GattNotifyCharacteristic {
   #multiplexedCharacteristic

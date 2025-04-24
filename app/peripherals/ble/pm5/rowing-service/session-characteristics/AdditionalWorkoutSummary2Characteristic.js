@@ -8,7 +8,8 @@
 */
 import { BufferBuilder } from '../../../BufferBuilder.js'
 
-import { Concept2Date, pm5Constants } from '../../Pm5Constants.js'
+import { Concept2Date } from '../../utils/C2toORMMapper.js'
+import { pm5Constants } from '../../Pm5Constants.js'
 
 export class AdditionalWorkoutSummary2Characteristic {
   #multiplexedCharacteristic

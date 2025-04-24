@@ -5,7 +5,7 @@
   Contains all mapping functions needed to map the internal ORM state to the externally communicated Concept2 PM5 states
 */
 /* eslint-disable no-unreachable -- the breaks after the returns trigger this, but there is a lot to say for being systematic about this */
-import { WorkoutTypes, IntervalTypes, WorkoutState, RowingState, StrokeState, DurationTypes, OperationalStates } from './../csafe-service/CsafeCommandsMapping.js'
+import { DurationTypes, IntervalTypes, OperationalStates, RowingState, StrokeState, WorkoutState, WorkoutTypes } from './../csafe-service/CsafeCommandsMapping.js'
 
 /**
  * PM5 uses 128bit UUIDs that are always prefixed and suffixed the same way
@@ -202,25 +202,5 @@ export function toC2OperationalState (baseMetrics) {
       break
     default:
       return OperationalStates.OPERATIONALSTATE_READY
-  }
-}
-
-export class Concept2Date extends Date {
-  /**
- * Converts a Date object to a Concept2 date binary format
- * @returns {number} The UTC date as a uint16 parsed as per the Concept2 specs
- */
-  toC2DateInt () {
-    const yearEpoch = 2000
-
-    return (this.getMonth() + 1) | (this.getDate()) << 4 | (this.getFullYear() - yearEpoch) << 9
-  }
-
-  /**
- * Converts a Date object to a Concept2 time binary format
- * @returns {number} The UTC time as a uint16 parsed as per the Concept2 specs
- */
-  toC2TimeInt () {
-    return this.getMinutes() | this.getHours() << 8
   }
 }
