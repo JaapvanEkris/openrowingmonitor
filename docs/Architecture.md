@@ -35,6 +35,10 @@ sequenceDiagram
   server.js-)clients: Metrics Updates<br>(State/Time based)
 ```
 
+| Session ||||
+| Interval 1 || Interval 2 ||
+| Split 1 | Split 2 | Split 3 | Split 4 |
+
 The clients (both the webbased screens and periphal bluetooth devices) are updated based on both a set interval and when the stroke or session state changes. Open Rowing Monitor therefore consists out of two subsystems: an solely interruptdriven part that processes flywheel and heartrate interrupts, and the time/state based needs of the clients. It is the responsibility of `RowingStatistics.js` to manage this: it monitors the timers, session state and guarantees that it can present the clients with the freshest data availble.
 
 Secondly, the heartrate data follows the same path, but requires significantly less processing:
