@@ -36,6 +36,7 @@ sequenceDiagram
 ```
 
 | Session ||||
+|--------|
 | Interval 1 || Interval 2 ||
 | Split 1 | Split 2 | Split 3 | Split 4 |
 
