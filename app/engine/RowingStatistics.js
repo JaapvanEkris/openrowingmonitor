@@ -13,7 +13,8 @@ import loglevel from 'loglevel'
 const log = loglevel.getLogger('RowingEngine')
 
 export function createRowingStatistics (config) {
-  const numOfDataPointsForAveraging = config.numOfPhasesForAveragingScreenData
+  const numOfDataPointsForAveraging = config.numOfPhasesForAveragingScreenData // Used for metrics updated twice per cycle
+  const halfNumOfDataPointsForAveraging = Math.round(numOfDataPointsForAveraging / 2) // Used for metrics updated twice per cycle
   const rower = createRower(config.rowerSettings)
   const minimumStrokeTime = config.rowerSettings.minimumRecoveryTime + config.rowerSettings.minimumDriveTime
   const maximumStrokeTime = config.rowerSettings.maximumStrokeTimeBeforePause
@@ -29,12 +30,12 @@ export function createRowingStatistics (config) {
   let strokeCalories = 0
   let strokeWork = 0
   const calories = createOLSLinearSeries()
-  const driveDuration = createStreamFilter(numOfDataPointsForAveraging, undefined)
-  const driveLength = createStreamFilter(numOfDataPointsForAveraging, undefined)
-  const driveDistance = createStreamFilter(numOfDataPointsForAveraging, undefined)
-  const recoveryDuration = createStreamFilter(numOfDataPointsForAveraging, undefined)
-  const driveAverageHandleForce = createStreamFilter(numOfDataPointsForAveraging, undefined)
-  const drivePeakHandleForce = createStreamFilter(numOfDataPointsForAveraging, undefined)
+  const driveDuration = createStreamFilter(halfNumOfDataPointsForAveraging, undefined)
+  const driveLength = createStreamFilter(halfNumOfDataPointsForAveraging, undefined)
+  const driveDistance = createStreamFilter(halfNumOfDataPointsForAveraging, undefined)
+  const recoveryDuration = createStreamFilter(halfNumOfDataPointsForAveraging, undefined)
+  const driveAverageHandleForce = createStreamFilter(halfNumOfDataPointsForAveraging, undefined)
+  const drivePeakHandleForce = createStreamFilter(halfNumOfDataPointsForAveraging, undefined)
   const driveHandleForceCurve = createCurveAligner(config.rowerSettings.minimumForceBeforeStroke)
   const driveHandleVelocityCurve = createCurveAligner(1.0)
   const driveHandlePowerCurve = createCurveAligner(50)
