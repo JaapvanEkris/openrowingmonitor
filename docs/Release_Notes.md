@@ -1,16 +1,22 @@
 # OpenRowingMonitor Release Notes
 
-## From 0.9.5 to 0.9.6 (April 2025)
+## From 0.9.5 to 0.9.6 (May 2025)
 
 Main contributors: [Abasz](https://github.com/Abasz) and [Jaap van Ekris](https://github.com/JaapvanEkris)
 
 ### New functionality in 0.9.6
 
-- Rewrite of the entire b;uetooth stack, improving stability, removing limitations and bringing the PM5 interface much closer to the official PM5 interface specification
-- Added [RowsAndAll.com](https://rowsandall.com) integration for workout reporting (i.e. automatic uploading of a result)
-- Added [intervals.icu](https://intervals.icu) integration for workout reporting (i.e. automatic uploading a result)
-- Added a MQTT peripheral to report metrics live to MQTT brokers and control home automation, etc. (see [this discussion](https://github.com/laberning/openrowingmonitor/discussions/43) and [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/80))
-- Added a MQTT listener to allow the MQTT broker to push workout plans to OpenRowingMonitor (see [the integrations page](Integrations.md) for more information).
+- **[ErgZone](https://Erg.Zone) now works** in PM5 mode, allowing you to set up a training with ease, and record the data.
+- **Added [RowsAndAll.com](https://rowsandall.com) integration** for workout reporting (i.e. automatic uploading of a result).
+- **Added [intervals.icu](https://intervals.icu) integration** for workout reporting (i.e. automatic uploading a result).
+- **Added a MQTT peripheral**. This reports metrics live to MQTT brokers and control home automation, etc. (see [this discussion](https://github.com/laberning/openrowingmonitor/discussions/43) and [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/80)). The MQTT listener you to push workout plans to OpenRowingMonitor from home automation systems (see [the integrations page](Integrations.md) for more information).
+
+### Bugfixes and robustness improvements in 0.9.6
+
+- **Rewrite of the entire bluetooth stack**, greatly improving stability, removing limitations and bringing the PM5 interface much closer to the official PM5 interface specification.
+- **Fixed a bug in pause behaviour** for magnetic rowers.
+- **Fixed a bug in the metrics presentation**, which caused some metrics presented/recorded to be averaged too much.
+- **Simplified Strava integration**, which now is in line with the rest of the integrations.
 
 ## From 0.9.0 to 0.9.5 (February 2025)
 
