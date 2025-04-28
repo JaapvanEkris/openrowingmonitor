@@ -22,7 +22,6 @@ If you would like to contribute to this project, you are more than welcome, but 
   * Integrate with intervals.icu to retrieve training targets
   * add user friendly possibility for user to define workouts with targets via the GUI
   * add user friendly possibility for user to define workouts with targets via the PM5
-* Clean up the architectual mess that Strava integration currently is (it ping-pongs between GUI and uploader, this can't be the way). At least place it nicely in the recorders section where it belongs. Perhaps switch to the 'Simple OAuth2' NPM as a basis and work from there (as also other plaforms use this).
 * Add calories as interval type
   * Add weight correction factor (see [C2 formula](https://www.concept2.com/training/calorie-calculator))
   * Make Calories a continuous metric (similar to distance) instead of a cycle based one
