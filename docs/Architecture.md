@@ -134,8 +134,7 @@ Both the `webServer.js` and `PeripheralManager.js` can trigger a command. Server
 | switchAntPeripheralMode | User has selected another ANT+ device from the GUI | The `peripheralManager` will effectuate this, the rest of the managers will ignore this |
 | switchHrmMode | User has selected another heartrate device | The `peripheralManager` will effectuate this, the rest of the managers will ignore this |
 | refreshPeripheralConfig | A change in heartrate, BLE or ANT+ device has been performed by the `peripheralManager` | The WebServer/GUI will refresh the current config from the settings manager, the rest of the managers will ignore this |
-| uploadTraining | A request from the GUI is made to upload a training to Strava **THIS COMMAND WILL BE DELETED IN A FUTURE RELEASE** | `Server.js`/`workoutUploader.js` will handle this request. |
-| stravaAuthorizationCode | The GUI is providing an authorization code to facilitate upload a training to Strava. **THIS COMMAND WILL BE DELETED IN A FUTURE RELEASE** | `Server.js`/`workoutUploader.js` will handle this request. |
+| upload | A request from the GUI is made to upload the recordings that are set to upload manually | `recordingManager` will handle this request. |
 | shutdown | A shutdown is requested, also used when a part of the application crashes or the application recieves a 'SIGINT' | All managers will respond by closing the session decently and closing hardware connections |
 
 > [!NOTE]
