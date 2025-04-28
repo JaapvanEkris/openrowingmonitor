@@ -230,11 +230,60 @@ sequenceDiagram
 
 #### SessionManager.js
 
-`SessionManager.js` recieves *currentDt* updates, forwards them to `RowingStatistics.js` and subsequently recieves the resulting metrics. Based on state presented, it updates the finite state machine of the sessionstate and the associated metrics.
+`SessionManager.js` recieves *currentDt* updates, forwards them to `RowingStatistics.js` and subsequently recieves the resulting metrics. Based on state presented, it updates the finite state machine of the sessionstate and the associated metrics. In a nutshell:
+
+* `SessionManager.js` maintains the session state, thus determines whether the rowing machine is 'Rowing', or 'WaitingForDrive', etc.,
+* `SessionManager.js` maintains the workout intervals, guards interval and split boundaries, and will chop up the metrics-stream accordingly, where `RowingStatistics.js` will just move on without looking at these artifical boundaries.
+* `SessionManager.js` maintains the summary metrics for the entire workout, the current interval, and the current split.
+
+In total, this takes full control of the displayed metrics in a specific workout, interval and split (i.e. distance or time to set workout segment target, etc.).
+
+##### session, interval and split boundaries in SessionManager.js
+
+The `handleRotationImpulse` function of the `SessionManager.js` implements guarding the boundaries of the workoutplan. The session manager maintains three levels in a workoutplan:
+
+* The overall session: which is derived by summarising the intervals, and provides a general context for all overall statistics
+* The planned interval(s), which can be programmed via the PM5 and MQTT interface, this defaults to 'jutrow' when no data is provided
+* Underlying splits, dividing up a planned interval. Splits default to the entire interval when not provided.
+
+> [!NOTE]
+> Unplanned rests are adminstered as rest splits, allowing them to be easily isolated from active parts of the training. The tcx and fit recorder explicitly distinguish between active and rest laps.
+
+This setup is needed to maintain compatibility with the several outputs, where the PM5 emulation and FIT-data recording are the most dominant. The PM5 can be programmed to have a workout with intervals of a different length/type, but also have a single distance with underlying splits. In practice, using the default behaviour of splits 'inheriting' parameters from the interval, this all translates to being able to always report on the level of splits toi the PM5 interface. The fit-recorder divides a session into laps, where each lap (i.e. split) can be associated with a workoutstep (i.e. interval), again making the split the key element being reported.
+
+Schematically, a session is constructed as follows:
+
+<table><thead>
+  <tr>
+    <th colspan="8">Session</th>
+  </tr></thead>
+<tbody>
+  <tr>
+    <td colspan="2">Interval 1</td>
+    <td colspan="3">Interval 2</td>
+    <td colspan="3">Interval 3</td>
+  </tr>
+  <tr>
+    <td>Split 1</td>
+    <td>Split 2</td>
+    <td>Split 3</td>
+    <td>Split 4</td>
+    <td>Split 5</td>
+    <td>Split 6</td>
+    <td>Rest</td>
+    <td>Split 7</td>
+  </tr>
+</tbody>
+</table>
+
+OpenRowingMonitor will always report the ending of a split, interval and session, and the last message in the split/interval/session will be flagged with a isSplitEnd/isIntervalEnd/isSessionStop flag. Ending an interval will also end the split, raising both flags.
+
+> [!NOTE]
+> The state transitions for the end of an interval and the end of a session (i.e. no next interval) are handled individually as the resulting metrics updates differ slightly, and the expected behaviour of all other managers is different.
 
 ##### sessionStates in SessionManager.js
 
-The `handleRotationImpulse` function of the `SessionManager.js` implements all the state transitions regarding the sessionstates:
+The `handleRotationImpulse` function of the `SessionManager.js` also implements all the state transitions regarding the sessionstates:
 
 ```mermaid
 stateDiagram-v2
@@ -253,24 +302,10 @@ stateDiagram-v2
 ```
 
 > [!NOTE]
-> There is a watchdog timeout on recieving new *currentDt* values, which forces the state machine into 'Paused' when triggered. This watchdog is needed for specific high drag magnetic rowers that completely stop their flywheel within seconds.
-<!-- MD028/no-blanks-blockquote -->
-> [!NOTE]
-> The state transitions for the end of an interval and the end of a session (i.e. no next interval) are handled individually as the resulting metrics updates differ slightly.
+> The SessionManager contains a watchdog which will timeout on recieving new *currentDt* values, which forces the state machine into 'Paused' when triggered. This watchdog is needed for specific high drag magnetic rowers that completely stop their flywheel within seconds.
 <!-- MD028/no-blanks-blockquote -->
 > [!NOTE]
 > A session being 'stopped' can technically be turned into a 'Paused' by sending the 'startOrResume' command to the `handleCommand` function of `SessionManager.js`. Some peripherals send this command routinely.
-
-In a nutshell:
-
-* `SessionManager.js` maintains the session state, thus determines whether the rowing machine is 'Rowing', or 'WaitingForDrive', etc.,
-* `SessionManager.js` maintains the workout intervals, guards interval and split boundaries, and will chop up the metrics-stream accordingly, where `RowingStatistics.js` will just move on without looking at these artifical boundaries.
-* `SessionManager.js` maintains the summary metrics for the entire workout, the current interval, and the current split.
-
-In total, this takes full control of the displayed metrics in a specific workout, interval and split (i.e. distance or time to set workout segment target, etc.).
-
-> [!NOTE]
-> Unplanned rests are handled as rest splits, allowing them to be easily isolated from active parts of the training. The tcx and fit recorder explicitly distinguish between active and rest laps.
 
 #### RowingStatistics.js
 
