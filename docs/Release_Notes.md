@@ -13,7 +13,7 @@ Main contributors: [Abasz](https://github.com/Abasz) and [Jaap van Ekris](https:
 
 ### Bugfixes and robustness improvements in 0.9.6
 
-- **Rewrite of the entire bluetooth stack**, greatly improving stability, removing limitations and bringing the PM5 interface much closer to the official PM5 interface specification.
+- **Rewrite of the entire bluetooth stack**, greatly improving stability, removing limitations and bringing the PM5 interface much closer to the official PM5 interface specification. This also fixes the issue that heartrate device can't be switched dynamically.
 - **Fixed a bug in pause behaviour** for magnetic rowers.
 - **Fixed a bug in the metrics presentation**, which caused some metrics presented/recorded to be averaged too much.
 - **Simplified Strava integration**, which now is in line with the rest of the integrations.
