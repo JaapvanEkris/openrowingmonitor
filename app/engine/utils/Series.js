@@ -1,13 +1,12 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  This creates a series with a maximum number of values
-  It allows for determining the Average, Median, Number of Positive, number of Negative
 */
-
 /**
- * @param {number} [maxSeriesLength]
+ * @description This creates a series with a maximum number of values. It allows for determining the Average, Median, Number of Positive, number of Negative
+ * BE AWARE: The median function is extremely CPU intensive for larger series. Use the BinarySearchTree for that situation instead!
+ *
+ * @param {number} [maxSeriesLength] The maximum length of the series (0 for unlimited)
  */
 export function createSeries (maxSeriesLength = 0) {
   /**
@@ -17,12 +16,17 @@ export function createSeries (maxSeriesLength = 0) {
   let seriesSum = 0
   let numPos = 0
   let numNeg = 0
+  let min = undefined
+  let max = undefined
 
   /**
    * @param {number} value
    */
   function push (value) {
     if (value === undefined || isNaN(value)) { return }
+
+    min = Math.min(min, value)
+    max = Math.max(max, value)
 
     if (maxSeriesLength > 0 && seriesArray.length >= maxSeriesLength) {
       // The maximum of the array has been reached, we have to create room by removing the first
@@ -32,6 +36,12 @@ export function createSeries (maxSeriesLength = 0) {
         numPos--
       } else {
         numNeg--
+      }
+      if (min === seriesArray[0]) {
+        min = undefined
+      }
+      if (max === seriesArray[0]) {
+        max = undefined
       }
       seriesArray.shift()
     }
@@ -127,7 +137,8 @@ export function createSeries (maxSeriesLength = 0) {
 
   function minimum () {
     if (seriesArray.length > 0) {
-      return Math.min(...seriesArray)
+      if (min === undefined) { min = Math.min(...seriesArray) }
+      return min
     } else {
       return 0
     }
@@ -135,7 +146,8 @@ export function createSeries (maxSeriesLength = 0) {
 
   function maximum () {
     if (seriesArray.length > 0) {
-      return Math.max(...seriesArray)
+      if (max === undefined) { max = Math.max(...seriesArray) }
+      return max
     } else {
       return 0
     }
@@ -165,6 +177,8 @@ export function createSeries (maxSeriesLength = 0) {
     seriesSum = 0
     numPos = 0
     numNeg = 0
+    min = undefined
+    max = undefined
   }
 
   return {
