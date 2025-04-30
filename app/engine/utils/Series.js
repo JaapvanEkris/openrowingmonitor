@@ -3,7 +3,7 @@
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 */
 /**
- * @description This creates a series with a maximum number of values. It allows for determining the Average, Median, Number of Positive, number of Negative
+ * This creates a series with a maximum number of values. It allows for determining the Average, Median, Number of Positive, number of Negative
  * BE AWARE: The median function is extremely CPU intensive for larger series. Use the BinarySearchTree for that situation instead!
  *
  * @param {number} [maxSeriesLength] The maximum length of the series (0 for unlimited)
@@ -20,7 +20,7 @@ export function createSeries (maxSeriesLength = 0) {
   let max = undefined
 
   /**
-   * @param {number} value
+   * @param {float} value to be added to the series
    */
   function push (value) {
     if (value === undefined || isNaN(value)) { return }
@@ -54,10 +54,16 @@ export function createSeries (maxSeriesLength = 0) {
     }
   }
 
+  /**
+   * @output {number} length of the series
+   */
   function length () {
     return seriesArray.length
   }
 
+  /**
+   * @output {float} value at the head of the series (i.e. the one first added)
+   */
   function atSeriesBegin () {
     if (seriesArray.length > 0) {
       return seriesArray[0]
@@ -66,6 +72,9 @@ export function createSeries (maxSeriesLength = 0) {
     }
   }
 
+  /**
+   * @output {float} value at the tail of the series (i.e. the one last added)
+   */
   function atSeriesEnd () {
     if (seriesArray.length > 0) {
       return seriesArray[seriesArray.length - 1]
@@ -76,6 +85,7 @@ export function createSeries (maxSeriesLength = 0) {
 
   /**
    * @param {number} position
+   * @output {float} value at a specific postion, starting at 0
    */
   function get (position) {
     if (position >= 0 && position < seriesArray.length) {
@@ -87,6 +97,7 @@ export function createSeries (maxSeriesLength = 0) {
 
   /**
    * @param {number} testedValue
+   * @output {number} number of values in the series above the tested value
    */
   function numberOfValuesAbove (testedValue) {
     if (testedValue === 0) {
@@ -106,6 +117,7 @@ export function createSeries (maxSeriesLength = 0) {
 
   /**
    * @param {number} testedValue
+   * @output {number} number of values in the series below or equal to the tested value
    */
   function numberOfValuesEqualOrBelow (testedValue) {
     if (testedValue === 0) {
@@ -123,10 +135,16 @@ export function createSeries (maxSeriesLength = 0) {
     }
   }
 
+  /**
+   * @output {float} sum of the entire series
+   */
   function sum () {
     return seriesSum
   }
 
+  /**
+   * @output {float} average of the entire series
+   */
   function average () {
     if (seriesArray.length > 0) {
       return seriesSum / seriesArray.length
@@ -135,6 +153,9 @@ export function createSeries (maxSeriesLength = 0) {
     }
   }
 
+  /**
+   * @output {float} smallest element in the series
+   */
   function minimum () {
     if (seriesArray.length > 0) {
       if (min === undefined) { min = Math.min(...seriesArray) }
@@ -144,6 +165,9 @@ export function createSeries (maxSeriesLength = 0) {
     }
   }
 
+  /**
+   * @output {float} largest value in the series
+   */
   function maximum () {
     if (seriesArray.length > 0) {
       if (max === undefined) { max = Math.max(...seriesArray) }
@@ -153,6 +177,9 @@ export function createSeries (maxSeriesLength = 0) {
     }
   }
 
+  /**
+   * @output {float} median of the series (DO NOT USE FOR LARGE SERIES!)
+   */
   function median () {
     if (seriesArray.length > 0) {
       const mid = Math.floor(seriesArray.length / 2)
@@ -163,6 +190,9 @@ export function createSeries (maxSeriesLength = 0) {
     }
   }
 
+  /**
+   * @output {array} returns the entire series
+   */
   function series () {
     if (seriesArray.length > 0) {
       return seriesArray
@@ -171,6 +201,9 @@ export function createSeries (maxSeriesLength = 0) {
     }
   }
 
+  /**
+   * Resets the series to its initial state
+   */
   function reset () {
     seriesArray = /** @type {Array<number>} */(/** @type {unknown} */(null))
     seriesArray = []
