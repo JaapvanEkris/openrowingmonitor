@@ -9,9 +9,9 @@ export class CsafeFrameBase {
    */
   static isProprietary (command) {
     return command === PublicLongCommands.CSAFE_SETPMCFG_CMD ||
-        command === PublicLongCommands.CSAFE_SETPMDATA_CMD ||
-        command === PublicLongCommands.CSAFE_GETPMCFG_CMD ||
-        command === PublicLongCommands.CSAFE_GETPMDATA_CMD
+      command === PublicLongCommands.CSAFE_SETPMDATA_CMD ||
+      command === PublicLongCommands.CSAFE_GETPMCFG_CMD ||
+      command === PublicLongCommands.CSAFE_GETPMDATA_CMD
   }
 
   /**
