@@ -15,19 +15,19 @@ const log = loglevel.getLogger('Peripherals')
  * @returns {Partial<import('../ble-host.interface.js').GattServerCharacteristic>}
  */
 export function createStaticReadCharacteristic (uuid, value, description, addNotify = false) {
-  const descriptors = description !== undefined
-    ? [
-        {
-          uuid: 0x2901,
-          value: description
-        }]
-    : undefined
+  const descriptors = description !== undefined ?
+    [
+      {
+        uuid: 0x2901,
+        value: description
+      }] :
+    undefined
 
-  const onSubscriptionChange = addNotify
-    ? (connection, notification) => {
-        log.debug(`${description !== undefined ? description : uuid} subscription change: ${connection.peerAddress}, notification: ${notification}`)
-      }
-    : undefined
+  const onSubscriptionChange = addNotify ?
+    (connection, notification) => {
+      log.debug(`${description !== undefined ? description : uuid} subscription change: ${connection.peerAddress}, notification: ${notification}`)
+    } :
+    undefined
 
   return {
     uuid,
