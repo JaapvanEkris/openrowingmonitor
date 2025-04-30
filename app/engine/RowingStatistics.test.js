@@ -1,16 +1,14 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  This test is a test of the Rower object, that tests wether this object fills all fields correctly, given one validated rower, (the
-  Concept2 RowErg) using a validated cycle of strokes. This thoroughly tests the raw physics of the translation of Angular physics
-  to Linear physics. The combination with all possible known rowers is tested when testing the above function RowingStatistics, as
-  these statistics are dependent on these settings as well.
-
-  ToDo: test the effects of smoothing parameters
 */
-/* eslint-disable max-lines -- more tests is always better */
-/* eslint-disable max-statements -- more tests is always better */
+/**
+ * This test is a test of the Rower object, that tests wether this object fills all fields correctly, given one validated rower, (the
+ * Concept2 RowErg) using a validated cycle of strokes. This thoroughly tests the raw physics of the translation of Angular physics
+ * to Linear physics. The combination with all possible known rowers is tested when testing the above function RowingStatistics, as
+ * these statistics are dependent on these settings as well.
+*/
+// ToDo: test the effects of smoothing parameters
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 import rowerProfiles from '../../config/rowerProfiles.js'
