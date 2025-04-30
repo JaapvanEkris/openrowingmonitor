@@ -120,6 +120,15 @@ export function createWorkoutSegment (config) {
         _endLinearDistance = 0
         log.debug(`  Workout parser, recognised ${_type} interval/split, ${_targetTime} seconds`)
         break
+      case (intervalSettings.type === 'rest'):
+        // An undefined rest interval
+        _type = 'rest'
+        _targetTime = 0
+        _targetDistance = 0
+        _endMovingTime = _startMovingTime
+        _endLinearDistance = 0
+        log.debug(`  Workout parser, recognised undetermined ${_type} interval`)
+        break
       case (intervalSettings.type === 'distance' && intervalSettings.targetDistance > 0):
         // A target distance is set
         _type = 'distance'
@@ -538,7 +547,6 @@ export function createWorkoutSegment (config) {
     metrics,
     timeSinceStart,
     timeToEnd,
-    setInterval,
     type,
     push,
     getSplit,
