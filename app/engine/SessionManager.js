@@ -1,13 +1,16 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  This Module calculates the training specific metrics.
-*/
+/*
+/**
+ * This Module calculates the workout, interval and split specific metrics, as well as guards their boundaries
+ * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Architecture.md#sessionmanagerjs|the description}
+ */
 /* eslint-disable max-lines -- This handles quite a complex state machine with three levels of workout segments, not much we can do about it */
 import { EventEmitter } from 'events'
 import { createRowingStatistics } from './RowingStatistics.js'
 import { createWorkoutSegment } from './utils/workoutSegment.js'
+// import { createWorkoutSegment } from './utils/workoutSegment_STRIPPED.js'
 
 import loglevel from 'loglevel'
 const log = loglevel.getLogger('RowingEngine')
@@ -15,7 +18,7 @@ const log = loglevel.getLogger('RowingEngine')
 export function createSessionManager (config) {
   const emitter = new EventEmitter()
   const rowingStatistics = createRowingStatistics(config)
-  const workout = createWorkoutSegment(config)
+  const session = createWorkoutSegment(config)
   const interval = createWorkoutSegment(config)
   const split = createWorkoutSegment(config)
   let metrics = {}
@@ -31,16 +34,22 @@ export function createSessionManager (config) {
 
   metrics = refreshMetrics()
   // ToDo: replace with activateNextInterval based on justrow, justrow
-  workout.setStart(metrics)
+  session.setStart(metrics)
   interval.setStart(metrics)
   split.setStart(metrics)
   emitMetrics(metrics)
   lastBroadcastedMetrics = { ...metrics }
 
-  // This function handles all incomming commands. As all commands are broadasted to all application parts,
-  // we need to filter here what the RowingEngine will react to and what it will ignore
-  // eslint-disable-next-line no-unused-vars
-  function handleCommand (commandName, data, client) {
+  /**
+   * This function handles all incomming commands. As all commands are broadasted to all managers, we need to filter here what is relevant
+   * for the RowingEngine and what is not
+   *
+   * @param {Command} Name of the command to be executed by the commandhandler
+   * @param {unknown} data for executing the command
+   *
+   * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Architecture.md#command-flow|The command flow documentation}
+  */
+  function handleCommand (commandName, data) {
     switch (commandName) {
       case ('updateIntervalSettings'):
         if (sessionState !== 'Rowing') {
@@ -83,8 +92,10 @@ export function createSessionManager (config) {
         break
       case ('reset'):
         clearTimeout(pauseTimer)
-        lastBroadcastedMetrics.metricsContext.isSessionStop = true
-        emitMetrics(lastBroadcastedMetrics)
+        if (sessionState === 'Rowing') {
+          lastBroadcastedMetrics.metricsContext.isSessionStop = true
+          emitMetrics(lastBroadcastedMetrics)
+        }
         resetTraining(lastBroadcastedMetrics)
         lastBroadcastedMetrics = refreshMetrics() // as the engine is reset, we need to fetch the zero'ed metrics
         sessionState = 'WaitingForStart'
@@ -97,17 +108,15 @@ export function createSessionManager (config) {
         break
       case 'refreshPeripheralConfig':
         break
-      case 'authorizeStrava':
-        break
-      case 'uploadTraining':
-        break
-      case 'stravaAuthorizationCode':
+      case 'upload':
         break
       case 'shutdown':
         clearTimeout(pauseTimer)
         stopTraining(lastBroadcastedMetrics)
-        lastBroadcastedMetrics.metricsContext.isSessionStop = true
-        sessionState = 'Stopped'
+        if (sessionState === 'Rowing') {
+          lastBroadcastedMetrics.metricsContext.isSessionStop = true
+          sessionState = 'Stopped'
+        }
         break
       default:
         log.error(`Recieved unknown command: ${commandName}`)
@@ -136,7 +145,7 @@ export function createSessionManager (config) {
   // clear the metrics in case the user pauses rowing
   function pauseTraining (baseMetrics) {
     clearTimeout(watchdogTimer)
-    workout.push(baseMetrics)
+    session.push(baseMetrics)
     interval.push(baseMetrics)
     rowingStatistics.pauseTraining()
   }
@@ -153,15 +162,24 @@ export function createSessionManager (config) {
     metrics = refreshMetrics()
     lastBroadcastedMetrics = { ...metrics }
     sessionState = 'WaitingForStart'
-    workout.reset()
+    session.reset()
     interval.reset()
     split.reset()
-    workout.setStart(metrics)
+    session.setStart(metrics)
     interval.setStart(metrics)
     split.setStart(metrics)
     emitMetrics(metrics)
   }
 
+  /**
+   * This function guards the session, interval and split states boundaries
+   *
+   * @param {float} time between two impulses in seconds
+   *
+   * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Architecture.md#session-interval-and-split-boundaries-in-sessionmanagerjs|The session, interval and split setup}
+   * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Architecture.md#sessionstates-in-sessionmanagerjs|The states maintained}
+   * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Architecture.md#rowing-metrics-flow|the flags set}
+  */
   /* eslint-disable max-statements, complexity -- This handles quite a complex state machine with three levels of workout segments, not much we can do about it */
   function handleRotationImpulse (currentDt) {
     let temporaryDatapoint
@@ -180,7 +198,7 @@ export function createSessionManager (config) {
     }
 
     if (metrics.metricsContext.isMoving && (metrics.metricsContext.isDriveStart || metrics.metricsContext.isRecoveryStart)) {
-      workout.push(metrics)
+      session.push(metrics)
       interval.push(metrics)
       split.push(metrics)
     }
@@ -193,7 +211,7 @@ export function createSessionManager (config) {
         metrics.metricsContext.isSessionStart = true
         // eslint-disable-next-line no-case-declarations -- Code clarity outweighs lint rules
         const startTimestamp = new Date(metrics.timestamp.getTime() - metrics.totalMovingTime * 1000)
-        workout.setStartTimestamp(startTimestamp)
+        session.setStartTimestamp(startTimestamp)
         interval.setStartTimestamp(startTimestamp)
         split.setStartTimestamp(startTimestamp)
         emitMetrics(metrics)
@@ -265,7 +283,6 @@ export function createSessionManager (config) {
       case (sessionState === 'Rowing' && metrics.metricsContext.isMoving && interval.isEndReached(metrics) && isNextIntervalAvailable()):
         // There is a next interval, but it is a rest interval, so we forcefully stop the session
         // As we typically overshoot our interval target, we project the intermediate value
-        stopTraining(metrics)
         sessionState = 'Paused'
         temporaryDatapoint = interval.interpolateEnd(lastBroadcastedMetrics, metrics)
         if (temporaryDatapoint.modified) {
@@ -282,9 +299,18 @@ export function createSessionManager (config) {
           emitMetrics(metrics)
           activateNextIntervalParameters(metrics)
         }
+
+        if (interval.timeToEnd(metrics) > 0) {
+          // If a minimal pause timer has been set, we need to make sure the user obeys that
+          pauseCountdownTimer = interval.timeToEnd(temporaryDatapoint)
+          stopTraining(temporaryDatapoint)
+          pauseTimer = setTimeout(onPauseTimer, 100)
+        } else {
+          // No minimal pause time has been set, so we pause the engine. In this state automatically activates the session again upon the next drive
+          pauseCountdownTimer = 0
+          pauseTraining(temporaryDatapoint)
+        }
         metrics = refreshMetrics() // Here we want to switch to a zero-ed message as the flywheel has stopped
-        pauseCountdownTimer = interval.timeToEnd(metrics)
-        pauseTimer = setTimeout(onPauseTimer, 100)
         break
       case (sessionState === 'Rowing' && metrics.metricsContext.isMoving && interval.isEndReached(metrics)):
         // Here we do NOT want zero the metrics, as we want to keep the metrics we had when we crossed the finishline
@@ -344,17 +370,17 @@ export function createSessionManager (config) {
     currentIntervalNumber = -1
     splitNumber = -1
     if (intervalSettings.length > 0) {
-      log.info(`SessionManager: Workout recieved with ${intervalSettings.length} interval(s)`)
+      log.info(`SessionManager: Workout plan recieved with ${intervalSettings.length} interval(s)`)
       metrics = refreshMetrics()
 
-      workout.setStart(metrics)
-      workout.summarize(intervalParameters)
+      session.setStart(metrics)
+      session.summarize(intervalParameters)
 
       activateNextIntervalParameters(metrics)
       emitMetrics(metrics)
     } else {
       // intervalParameters were empty, lets log this odd situation
-      log.error('SessionManager: Recieved workout containing no intervals')
+      log.error('SessionManager: Recieved workout plan containing no intervals')
     }
   }
 
@@ -425,10 +451,10 @@ export function createSessionManager (config) {
     metricsToEnrich.sessiontype = interval.type() // ToDo: replace completely with workout.type when some intelligence is added to that
     metricsToEnrich.sessionState = sessionState
     metricsToEnrich.pauseCountdownTime = Math.max(pauseCountdownTimer, 0) // Time left on the countdown timer
-    metricsToEnrich.workout = { ...workout.metrics(metricsToEnrich) }
-    metricsToEnrich.interval = { ...interval.metrics(metricsToEnrich) }
+    metricsToEnrich.workout = session.metrics(metricsToEnrich)
+    metricsToEnrich.interval = interval.metrics(metricsToEnrich)
     metricsToEnrich.interval.workoutStepNumber = Math.max(currentIntervalNumber, 0) // Interval number, to keep in sync with the workout plan
-    metricsToEnrich.split = { ...split.metrics(metricsToEnrich) }
+    metricsToEnrich.split = split.metrics(metricsToEnrich)
     metricsToEnrich.split.number = splitNumber
   }
 
@@ -439,7 +465,7 @@ export function createSessionManager (config) {
     sessionState = 'Paused'
     metrics.metricsContext.isPauseStart = true
     metrics.metricsContext.isSplitEnd = true
-    workout.push(metrics)
+    session.push(metrics)
     interval.push(metrics)
     split.push(metrics)
     emitMetrics(metrics)
@@ -447,8 +473,11 @@ export function createSessionManager (config) {
     lastBroadcastedMetrics = { ...metrics }
   }
 
+  /**
+   * @returns all metrics in the session manager
+   * @remark FOR TESTING PURPOSSES ONLY!
+   */
   function getMetrics () {
-    // TESTING PURPOSSES ONLY!
     enrichMetrics(metrics)
     return metrics
   }
