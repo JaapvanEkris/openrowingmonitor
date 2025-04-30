@@ -14,7 +14,6 @@ export function createLabelledBinarySearchTree () {
     if (tree === null) {
       tree = newNode(label, value)
     } else {
-      // pushInTree(tree, label, value)
       tree = pushInTree(tree, label, value)
     }
   }
@@ -54,6 +53,30 @@ export function createLabelledBinarySearchTree () {
       return tree.numberOfLeafsAndNodes
     } else {
       return 0
+    }
+  }
+
+  function minimum () {
+    return minimumValueInTree(tree)
+  }
+
+  function minimumValueInTree (subTree) {
+    if (subTree.leftNode === null) {
+      return subTree.value
+    } else {
+      return minimumValueInTree(subTree.leftNode)
+    }
+  }
+
+  function maximum () {
+    return maximumValueInTree(tree)
+  }
+
+  function maximumValueInTree (subTree) {
+    if (subTree.rightNode === null) {
+      return subTree.value
+    } else {
+      return maximumValueInTree(subTree.rightNode)
     }
   }
 
@@ -245,7 +268,10 @@ export function createLabelledBinarySearchTree () {
     }
   }
 
-  function valueAtInorderPos (position) { // BE AWARE TESTING PURPOSSES ONLY
+  /**
+   * @remark: // BE AWARE TESTING PURPOSSES ONLY
+   */
+  function valueAtInorderPos (position) {
     if (tree !== null && position >= 1) {
       return valueAtInorderPosition(tree, position)
     } else {
@@ -325,8 +351,10 @@ export function createLabelledBinarySearchTree () {
     size,
     numberOfValuesAbove,
     numberOfValuesEqualOrBelow,
+    minimum,
+    maximum,
     median,
-    valueAtInorderPos, // BE AWARE TESTING PURPOSSES ONLY
+    valueAtInorderPos,
     orderedSeries,
     reset
   }
