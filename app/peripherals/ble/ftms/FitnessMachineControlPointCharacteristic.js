@@ -89,8 +89,7 @@ export class FitnessMachineControlPointCharacteristic {
           if (this.#controlPointCallback({
             req: {
               name: 'requestControl',
-              data: {},
-              client: null
+              data: {}
             }
           })) {
             log.debug('FitnessMachineControlPointCharacteristic: requestControl successful')
@@ -143,8 +142,7 @@ export class FitnessMachineControlPointCharacteristic {
       if (this.#controlPointCallback({
         req: {
           name: opName,
-          data: {},
-          client: null
+          data: {}
         }
       })) {
         const response = this.#buildResponse(opCode, ResultOpCode.success)
