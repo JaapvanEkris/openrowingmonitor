@@ -14,6 +14,7 @@ import { createFITRecorder } from './fitRecorder.js'
 import { createRowingDataRecorder } from './rowingDataRecorder.js'
 import { createRowsAndAllInterface } from './rowsAndAllInterface.js'
 import { createIntervalsInterface } from './intervalsInterface.js'
+import { createStravaInterface } from './stravaInterface.js'
 
 export function createRecordingManager (config) {
   let startTime
@@ -26,18 +27,26 @@ export function createRecordingManager (config) {
   const rowingDataRecorder = createRowingDataRecorder(config)
   const rowsAndAllInterface = createRowsAndAllInterface(config)
   const intervalsInterface = createIntervalsInterface(config)
+  const stravaInterface = createStravaInterface(config)
   const recordRawData = config.createRawDataFiles
   const recordTcxData = config.createTcxFiles || config.stravaClientId !== ''
-  const recordFitData = config.createFitFiles || config.userSettings.intervals.upload
-  const recordRowingData = config.createRowingDataFiles || config.userSettings.rowsAndAll.upload
+  const recordFitData = config.createFitFiles || config.userSettings.intervals.allowUpload || config.userSettings.strava.allowUpload
+  const recordRowingData = config.createRowingDataFiles || config.userSettings.rowsAndAll.allowUpload
   let writeTimer
   let uploadTimer
 
-  // This function handles all incomming commands. As all commands are broadasted to all application parts,
-  // we need to filter here what the WorkoutRecorder will react to and what it will ignore
-  // For the 'start', 'startOrResume', 'pause' and 'stop' commands, we await the official rowingengine reaction
-  // eslint-disable-next-line no-unused-vars
-  async function handleCommand (commandName, data, client) {
+  /**
+   * This function handles all incomming commands. As all commands are broadasted to all managers, we need to filter here what is relevant
+   * for the recorders and what is not
+   *
+   * For the 'start', 'startOrResume', 'pause' and 'stop' commands, we await the official SessionManager reaction
+   *
+   * @param {Command} Name of the command to be executed by the commandhandler
+   * @param {unknown} data for executing the command
+   *
+   * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Architecture.md#command-flow|The command flow documentation}
+  */
+  async function handleCommand (commandName, data) {
     switch (commandName) {
       case ('updateIntervalSettings'):
         executeCommandsInParralel(commandName, data)
@@ -67,11 +76,11 @@ export function createRecordingManager (config) {
         break
       case 'refreshPeripheralConfig':
         break
-      case 'authorizeStrava':
-        break
-      case 'uploadTraining':
-        break
-      case 'stravaAuthorizationCode':
+      case 'upload':
+        log.debug('Manual upload requested')
+        if (config.userSettings.rowsAndAll.allowUpload && !config.userSettings.rowsAndAll.autoUpload) { await rowsAndAllInterface.uploadSessionResults(rowingDataRecorder) }
+        if (config.userSettings.intervals.allowUpload && !config.userSettings.intervals.autoUpload) { await intervalsInterface.uploadSessionResults(fitRecorder) }
+        if (config.userSettings.strava.allowUpload && !config.userSettings.strava.autoUpload) { await stravaInterface.uploadSessionResults(fitRecorder) }
         break
       case 'shutdown':
         await executeCommandsInParralel(commandName, data)
@@ -151,6 +160,7 @@ export function createRecordingManager (config) {
     const fileBaseName = `${directory}/${stringifiedStartTime}`
     fileWriter.setBaseFileName(fileBaseName)
     rowsAndAllInterface.setBaseFileName(fileBaseName)
+    stravaInterface.setBaseFileName(fileBaseName)
   }
 
   async function writeRecordings () {
@@ -162,8 +172,9 @@ export function createRecordingManager (config) {
 
   async function uploadRecordings () {
     if (allRecordingsHaveBeenUploaded === true) { return }
-    if (config.userSettings.rowsAndAll.upload) { await rowsAndAllInterface.uploadSessionResults(rowingDataRecorder) }
-    if (config.userSettings.intervals.upload) { await intervalsInterface.uploadSessionResults(fitRecorder) }
+    if (config.userSettings.rowsAndAll.allowUpload && config.userSettings.rowsAndAll.autoUpload) { await rowsAndAllInterface.uploadSessionResults(rowingDataRecorder) }
+    if (config.userSettings.intervals.allowUpload && config.userSettings.intervals.autoUpload) { await intervalsInterface.uploadSessionResults(fitRecorder) }
+    if (config.userSettings.strava.allowUpload && config.userSettings.strava.autoUpload) { await stravaInterface.uploadSessionResults(fitRecorder) }
     allRecordingsHaveBeenUploaded = true
   }
 
@@ -174,20 +185,10 @@ export function createRecordingManager (config) {
     if (recordRowingData) { rowingDataRecorder.reset() }
   }
 
-  async function activeWorkoutToTcx () {
-    const tcx = await tcxRecorder.fileContent()
-    const filename = 'results.tcx'
-    return {
-      tcx,
-      filename
-    }
-  }
-
   return {
     handleCommand,
     recordHeartRate,
     recordRotationImpulse,
-    recordMetrics,
-    activeWorkoutToTcx
+    recordMetrics
   }
 }
