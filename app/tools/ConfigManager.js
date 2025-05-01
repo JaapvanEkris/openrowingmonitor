@@ -1,10 +1,12 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  Merges the different config files and presents the configuration to the application
-  Checks the config for plausibility, fixes the errors when needed
 */
+/**
+ * Merges the different config files and presents the configuration to the application
+ * Checks the config for plausibility, fixes the errors when needed
+ */
+/* eslint-disable max-statements -- There simply is a lot to check before we activate a config */
 import defaultConfig from '../../config/default.config.js'
 import { checkRangeValue, checkIntegerValue, checkBooleanValue, checkFloatValue } from './ConfigValidations.js'
 import { deepMerge } from './Helper.js'
@@ -26,7 +28,7 @@ async function getConfig () {
   try {
     customConfig = await import('../../config/config.js')
   } catch (exception) {
-    log.error('Configuration Error: config.js could not be imported')
+    log.error('Configuration Error: config.js could not be imported. Reason: ', exception)
   }
 
   // ToDo: check if config.js is a valdif JSON object
@@ -59,6 +61,8 @@ function runConfigMigration (configToCheck) {
     configToCheck.rowerSettings.minimumRecoverySlope = configToCheck.rowerSettings.minumumRecoverySlope
   }
 }
+
+// ToDo: check the configs of the uploaders!
 
 /**
  * @param {Config | OldConfig} configToCheck
