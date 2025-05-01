@@ -93,6 +93,7 @@ export function createSessionManager (config) {
       case ('reset'):
         clearTimeout(pauseTimer)
         if (sessionState === 'Rowing') {
+          sessionState = 'Stopped'
           lastBroadcastedMetrics.metricsContext.isSessionStop = true
           emitMetrics(lastBroadcastedMetrics)
         }
