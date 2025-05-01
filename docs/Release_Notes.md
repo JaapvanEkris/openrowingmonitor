@@ -6,20 +6,20 @@ Main contributors: [Abasz](https://github.com/Abasz) and [Jaap van Ekris](https:
 
 ### New functionality in 0.9.6
 
-- **[ErgZone](https://Erg.Zone) now works** in PM5 mode, allowing you to set up a training with ease, and record the data.
+- **[ErgZone](https://Erg.Zone) now works** in PM5 mode, allowing you to set up a training with ease, and record the data (adresses [this request](https://github.com/JaapvanEkris/openrowingmonitor/discussions/78)).
 - **Added [RowsAndAll.com](https://rowsandall.com) integration** for workout reporting (i.e. automatic uploading of a result).
 - **Added [intervals.icu](https://intervals.icu) integration** for workout reporting (i.e. automatic uploading a result).
-- **Added a MQTT peripheral**. This reports metrics live to MQTT brokers and control home automation, etc. (see [this discussion](https://github.com/laberning/openrowingmonitor/discussions/43) and [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/80)). The MQTT listener you to push workout plans to OpenRowingMonitor from home automation systems (see [the integrations page](Integrations.md) for more information).
+- **Added a MQTT peripheral**. This reports metrics live to MQTT brokers and control home automation, etc. (see [this discussion](https://github.com/laberning/openrowingmonitor/discussions/43), [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/80) and [this request](https://github.com/JaapvanEkris/openrowingmonitor/discussions/98)). The MQTT listener you to push workout plans to OpenRowingMonitor from home automation systems (see [the integrations page](Integrations.md) for more information).
 
 ### Bugfixes and robustness improvements in 0.9.6
 
-- **Rewrite of the entire bluetooth stack**, greatly improving stability, removing limitations and bringing the PM5 interface much closer to the official PM5 interface specification. This also fixes the issue that heartrate device can't be switched dynamically.
-- **Fixed a bug in pause behaviour** for magnetic rowers.
+- **Rewrite of the entire bluetooth stack**, greatly improving stability, removing limitations and bringing the PM5 interface much closer to the official PM5 interface specification. This also fixes the issue that heartrate device can't be switched dynamically (adresses [this bug](https://github.com/JaapvanEkris/openrowingmonitor/issues/69), [this feature request](https://github.com/JaapvanEkris/openrowingmonitor/discussions/93) and [this bug report](https://github.com/JaapvanEkris/openrowingmonitor/issues/94).
+- **Fixed a bug in pause behaviour** for magnetic rowers (fixes [this bug](https://github.com/JaapvanEkris/openrowingmonitor/discussions/96)).
 - **Fixed a bug in the metrics presentation**, which caused some metrics presented/recorded to be averaged too much.
-- **Fixed a bug in restart behaviour** that made the recorders crash.
-- **Simplified Strava integration**, which now is in line with the rest of the integrations.
+- **Fixed a bug in restart behaviour** that made the recorders crash (fixes [this bug](https://github.com/JaapvanEkris/openrowingmonitor/discussions/100)).
+- **Simplified Strava integration**, which now is in line with the rest of the integrations (see [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/64)).
 - **Upgraded ESLint and its configuration**, now code is inspected beyond the use of spaces.
-- **Introducing JSDoc** in our code, to make our code easier to understand.
+- **Introducing JSDoc** in our code, to make our code easier to understand ([see also](https://github.com/JaapvanEkris/openrowingmonitor/issues/90)).
 - **Upgraded all NPM packages**, making our stack current again.
 
 ## Version 0.9.5 (February 2025)
