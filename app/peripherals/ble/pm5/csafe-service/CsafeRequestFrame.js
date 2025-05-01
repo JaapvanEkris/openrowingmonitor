@@ -1,4 +1,7 @@
 'use strict'
+/*
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
+*/
 
 import { toHexString } from '../../../../tools/Helper.js'
 
@@ -114,9 +117,9 @@ export class CsafeRequestFrame {
         }
 
         buffer.push(
-          index > 0 && CsafeFrameBase.shouldUnStuffByte(array[index - 1], byte)
-            ? CsafeFrameBase.unStuffByte(byte)
-            : byte
+          index > 0 && CsafeFrameBase.shouldUnStuffByte(array[index - 1], byte) ?
+            CsafeFrameBase.unStuffByte(byte) :
+            byte
         )
 
         return buffer

@@ -1,11 +1,11 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  This Module captures the metrics of a rowing session and persists them into the fit format
-  It provides a fit-file content, and some metadata for the filewriter and the file-uploaders
 */
-
+/**
+ * This Module captures the metrics of a rowing session and persists them into the fit format
+ * It provides a fit-file content, and some metadata for the filewriter and the file-uploaders
+ */
 /* eslint-disable camelcase -- Imported parameters are not camelCase */
 /* eslint-disable max-lines -- The length is governed by the fit-parameterisation, which we can't control */
 import log from 'loglevel'
@@ -99,7 +99,6 @@ export function createFITRecorder (config) {
         addMetricsToStrokesArray(metrics)
         break
       case (metrics.metricsContext.isIntervalEnd):
-        addHeartRateToMetrics(metrics)
         if (metrics.metricsContext.isDriveStart) { addMetricsToStrokesArray(metrics) }
         calculateLapMetrics(metrics)
         calculateSessionMetrics(metrics)
@@ -108,7 +107,6 @@ export function createFITRecorder (config) {
         startLap(lapnumber, metrics)
         break
       case (metrics.metricsContext.isSplitEnd):
-        addHeartRateToMetrics(metrics)
         if (metrics.metricsContext.isDriveStart) { addMetricsToStrokesArray(metrics) }
         calculateLapMetrics(metrics)
         calculateSessionMetrics(metrics)
@@ -125,8 +123,21 @@ export function createFITRecorder (config) {
   }
 
   function addMetricsToStrokesArray (metrics) {
-    addHeartRateToMetrics(metrics)
-    sessionData.lap[lapnumber].strokes.push(metrics)
+    sessionData.lap[lapnumber].strokes.push({})
+    const strokenumber = sessionData.lap[lapnumber].strokes.length - 1
+    sessionData.lap[lapnumber].strokes[strokenumber].timestamp = metrics.timestamp
+    sessionData.lap[lapnumber].strokes[strokenumber].totalLinearDistance = metrics.totalLinearDistance
+    sessionData.lap[lapnumber].strokes[strokenumber].totalNumberOfStrokes = metrics.totalNumberOfStrokes
+    sessionData.lap[lapnumber].strokes[strokenumber].cycleStrokeRate = metrics.cycleStrokeRate
+    sessionData.lap[lapnumber].strokes[strokenumber].cyclePower = metrics.cyclePower
+    sessionData.lap[lapnumber].strokes[strokenumber].cycleLinearVelocity = metrics.cycleLinearVelocity
+    sessionData.lap[lapnumber].strokes[strokenumber].cycleDistance = metrics.metricsContext.cycleDistance
+    sessionData.lap[lapnumber].strokes[strokenumber].dragFactor = metrics.dragFactor
+    if (!isNaN(heartRate) && heartRate > 0) {
+      sessionData.lap[lapnumber].strokes[strokenumber].heartrate = heartRate
+    } else {
+      sessionData.lap[lapnumber].strokes[strokenumber].heartrate = undefined
+    }
     VO2max.push(metrics)
     fitfileContentIsCurrent = false
     allDataHasBeenWritten = false
@@ -145,6 +156,41 @@ export function createFITRecorder (config) {
   function calculateLapMetrics (metrics) {
     sessionData.lap[lapnumber].workoutStepNumber = metrics.interval.workoutStepNumber
     sessionData.lap[lapnumber].endTime = metrics.timestamp
+    switch (true) {
+      case (metrics.metricsContext.isSessionStop && (metrics.interval.type === 'distance' || metrics.interval.type === 'time')):
+        // As the workout closure has its own events, we need to close the workout step here
+        sessionData.lap[lapnumber].trigger = metrics.interval.type
+        sessionData.lap[lapnumber].event = 'workoutStep'
+        break
+      case (metrics.metricsContext.isSessionStop):
+        sessionData.lap[lapnumber].trigger = 'manual'
+        sessionData.lap[lapnumber].event = 'workoutStep'
+        break
+      case (metrics.metricsContext.isIntervalEnd && (metrics.interval.type === 'distance' || metrics.interval.type === 'time')):
+        sessionData.lap[lapnumber].trigger = metrics.interval.type
+        sessionData.lap[lapnumber].event = 'workoutStep'
+        break
+      case (metrics.metricsContext.isIntervalEnd):
+        sessionData.lap[lapnumber].trigger = 'manual'
+        sessionData.lap[lapnumber].event = 'workoutStep'
+        break
+      case (metrics.metricsContext.isPauseStart):
+        // As metrics.metricsContext.isIntervalEnd === false, we know this is a spontanuous pause and not a planned rest interval
+        sessionData.lap[lapnumber].trigger = 'manual'
+        sessionData.lap[lapnumber].event = 'speedLowAlert'
+        break
+      case (metrics.metricsContext.isSplitEnd && (metrics.split.type === 'distance' || metrics.split.type === 'time')):
+        sessionData.lap[lapnumber].trigger = metrics.split.type
+        sessionData.lap[lapnumber].event = 'lap'
+        break
+      case (metrics.metricsContext.isSplitEnd):
+        sessionData.lap[lapnumber].trigger = 'manual'
+        sessionData.lap[lapnumber].event = 'lap'
+        break
+      default:
+        sessionData.lap[lapnumber].trigger = 'manual'
+        sessionData.lap[lapnumber].event = 'lap'
+    }
     sessionData.lap[lapnumber].summary = { ...metrics.split }
     sessionData.lap[lapnumber].averageHeartrate = lapHRMetrics.average()
     sessionData.lap[lapnumber].maximumHeartrate = lapHRMetrics.maximum()
@@ -160,6 +206,17 @@ export function createFITRecorder (config) {
     sessionData.lap[lapnumber] = { startTime }
     sessionData.lap[lapnumber].intensity = 'rest'
     sessionData.lap[lapnumber].workoutStepNumber = workoutStepNo
+    switch (true) {
+      case (metrics.metricsContext.isIntervalEnd):
+        // This occurs when the sessionmanager termnates a planned rest interval
+        sessionData.lap[lapnumber].trigger = 'time'
+        sessionData.lap[lapnumber].event = 'workoutStep'
+        break
+      default:
+        // It is an unplanned rest lap
+        sessionData.lap[lapnumber].trigger = 'manual'
+        sessionData.lap[lapnumber].event = 'lap'
+    }
     sessionData.lap[lapnumber].lapNumber = lapnumber + 1
     sessionData.lap[lapnumber].endTime = metrics.timestamp
     sessionData.lap[lapnumber].averageHeartrate = lapHRMetrics.average()
@@ -196,14 +253,6 @@ export function createFITRecorder (config) {
     if (!isNaN(heartRate) && heartRate > 0) {
       lapHRMetrics.push(heartRate)
       sessionHRMetrics.push(heartRate)
-    }
-  }
-
-  function addHeartRateToMetrics (metrics) {
-    if (heartRate !== undefined && heartRate > 0) {
-      metrics.heartrate = heartRate
-    } else {
-      metrics.heartrate = undefined
     }
   }
 
@@ -311,7 +360,8 @@ export function createFITRecorder (config) {
 
   async function createActivity (writer, workout) {
     // Start of the session
-    await addTimerEvent(writer, workout.startTime, 'start')
+    await addEvent(writer, workout.startTime, 'workout', 'start')
+    await addEvent(writer, workout.startTime, 'timer', 'start')
 
     // Write all laps
     let i = 0
@@ -328,7 +378,8 @@ export function createFITRecorder (config) {
     }
 
     // Finish the seesion with a stop event
-    await addTimerEvent(writer, workout.endTime, 'stopAll')
+    await addEvent(writer, workout.endTime, 'timer', 'stopAll')
+    await addEvent(writer, workout.endTime, 'workout', 'stop')
 
     // Write the split summary
     // ToDo: Find out how records, splits, laps and sessions can be subdivided
@@ -379,8 +430,8 @@ export function createFITRecorder (config) {
         ...(sessionData.averageHeartrate > 0 ? { avg_heart_rate: sessionData.averageHeartrate } : {}),
         ...(sessionData.maximumHeartrate > 0 ? { max_heart_rate: sessionData.maximumHeartrate } : {}),
         avg_stroke_distance: workout.averageStrokeDistance,
-        num_laps: sessionData.totalNoLaps,
-        first_lap_index: 0
+        first_lap_index: 0,
+        num_laps: sessionData.totalNoLaps
       },
       null,
       true
@@ -405,12 +456,12 @@ export function createFITRecorder (config) {
     await addHRR2Event(writer)
   }
 
-  async function addTimerEvent (writer, time, eventType) {
+  async function addEvent (writer, time, event, eventType) {
     writer.writeMessage(
       'event',
       {
         timestamp: writer.time(time),
-        event: 'timer',
+        event: event,
         event_type: eventType,
         event_group: 0
       },
@@ -429,6 +480,8 @@ export function createFITRecorder (config) {
         i++
       }
 
+      await addEvent(writer, lapdata.endTime, lapdata.event, 'stop')
+
       // Conclude the lap with a summary
       // See https://developer.garmin.com/fit/cookbook/durations/ for how the different times are defined
       writer.writeMessage(
@@ -438,11 +491,11 @@ export function createFITRecorder (config) {
           message_index: lapdata.lapNumber - 1,
           sport: 'rowing',
           sub_sport: 'indoorRowing',
-          event: 'lap',
+          event: lapdata.event,
           wkt_step_index: lapdata.workoutStepNumber,
           event_type: 'stop',
           intensity: lapdata.intensity,
-          ...(sessionData.totalNoLaps === lapdata.lapNumber ? { lap_trigger: 'sessionEnd' } : { lap_trigger: 'fitnessEquipment' }),
+          ...(sessionData.totalNoLaps === lapdata.lapNumber ? { lap_trigger: 'sessionEnd' } : { lap_trigger: lapdata.trigger }),
           start_time: writer.time(lapdata.startTime),
           total_elapsed_time: lapdata.summary.timeSpent.total,
           total_timer_time: lapdata.summary.timeSpent.total,
@@ -469,8 +522,8 @@ export function createFITRecorder (config) {
   async function createRestLap (writer, lapdata) {
     // First, make sure the rest lap is complete
     if (!!lapdata.endTime && lapdata.endTime > 0 && !!lapdata.startTime && lapdata.startTime > 0) {
-      // Pause the session with a stop event at the begin of the rest interval
-      await addTimerEvent(writer, lapdata.startTime, 'stopAll')
+      // Pause the session timer with a stop event at the begin of the rest interval
+      await addEvent(writer, lapdata.startTime, 'timer', 'stop')
 
       // Add a rest lap summary
       // See https://developer.garmin.com/fit/cookbook/durations/ for how the different times are defined
@@ -481,11 +534,11 @@ export function createFITRecorder (config) {
           message_index: lapdata.lapNumber - 1,
           sport: 'rowing',
           sub_sport: 'indoorRowing',
-          event: 'lap',
+          event: lapdata.event,
           wkt_step_index: lapdata.workoutStepNumber,
           event_type: 'stop',
           intensity: lapdata.intensity,
-          lap_trigger: 'fitnessEquipment',
+          lap_trigger: lapdata.trigger,
           start_time: writer.time(lapdata.startTime),
           total_elapsed_time: lapdata.summary.timeSpent.total,
           total_timer_time: lapdata.summary.timeSpent.total,
@@ -508,7 +561,8 @@ export function createFITRecorder (config) {
       )
 
       // Restart of the session
-      await addTimerEvent(writer, lapdata.endTime, 'start')
+      await addEvent(writer, lapdata.endTime, lapdata.event, 'stop')
+      await addEvent(writer, lapdata.endTime, 'timer', 'start')
     }
   }
 

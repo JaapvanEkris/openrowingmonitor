@@ -1,10 +1,10 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  Creates the WebServer which serves the static assets and communicates with the clients
-  via WebSockets
 */
+/**
+ * Creates the WebServer which serves the static assets and communicates with the clients via WebSockets
+ */
 import { WebSocket, WebSocketServer } from 'ws'
 import finalhandler from 'finalhandler'
 import http from 'http'
@@ -50,7 +50,7 @@ export function createWebServer (config) {
       try {
         const message = JSON.parse(data)
         if (message) {
-          emitter.emit('messageReceived', message, client)
+          emitter.emit('messageReceived', message)
         } else {
           log.warn(`invalid message received: ${data}`)
         }
@@ -66,7 +66,8 @@ export function createWebServer (config) {
   // This function handles all incomming commands. As all commands are broadasted to all application parts,
   // we need to filter here what the webserver will react to and what it will ignore
   // The start...reset commands are handled by the RowingEngine and the result will be reported by the metrics update, so we ignore them here
-  function handleCommand (commandName, data, client) {
+  /* eslint-disable-next-line no-unused-vars -- this is part of the standardised handleCommand interface */
+  function handleCommand (commandName, data) {
     switch (commandName) {
       case ('updateIntervalSettings'):
         break
@@ -91,12 +92,7 @@ export function createWebServer (config) {
       case 'refreshPeripheralConfig':
         notifyClients('config', getConfig())
         break
-      case 'authorizeStrava':
-        notifyClient(client, 'authorizeStrava', data)
-        break
-      case 'uploadTraining':
-        break
-      case 'stravaAuthorizationCode':
+      case 'upload':
         break
       case 'shutdown':
         break
@@ -189,7 +185,7 @@ export function createWebServer (config) {
       blePeripheralMode: config.bluetoothMode,
       antPeripheralMode: config.antPlusMode,
       hrmPeripheralMode: config.heartRateMode,
-      stravaUploadEnabled: !!config.stravaClientId && !!config.stravaClientSecret,
+      uploadEnabled: ((config.userSettings.strava.allowUpload && !config.userSettings.strava.autoUpload) || (config.userSettings.intervals.allowUpload && !config.userSettings.intervals.autoUpload) || (config.userSettings.rowsAndAll.allowUpload && !config.userSettings.rowsAndAll.autoUpload)),
       shutdownEnabled: !!config.shutdownCommand
     }
   }

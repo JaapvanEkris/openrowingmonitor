@@ -1,9 +1,10 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  This Module creates a persistent, consistent and user presentable set of metrics.
 */
+/**
+ *  This Module creates a persistent, consistent and user presentable set of metrics.
+ */
 import { createRower } from './Rower.js'
 import { createOLSLinearSeries } from './utils/OLSLinearSeries.js'
 import { createStreamFilter } from './utils/StreamFilter.js'
@@ -93,6 +94,13 @@ export function createRowingStatistics (config) {
     resetMetricsContext()
   }
 
+  /**
+   * Calculates the linear metrics based on a currentDt
+   *
+   * @param {float} time between two impulses in seconds
+   *
+   * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/new-ble-api/docs/Architecture.md#rowingstatisticsjs|the architecture description}
+  */
   function handleRotationImpulse (currentDt) {
     // Provide the rower with new data
     rower.handleRotationImpulse(currentDt)

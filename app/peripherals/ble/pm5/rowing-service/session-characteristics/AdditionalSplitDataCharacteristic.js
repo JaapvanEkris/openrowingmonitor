@@ -1,11 +1,12 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  Implementation of the StrokeData as defined in:
-  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
-  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf
 */
+/**
+ * Implementation of the StrokeData as defined in:
+ * - https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
+ * - https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf
+ */
 import { BufferBuilder } from '../../../BufferBuilder.js'
 import { GattNotifyCharacteristic } from '../../../BleManager.js'
 
@@ -55,7 +56,7 @@ export class AdditionalSplitDataCharacteristic extends GattNotifyCharacteristic 
     bufferBuilder.writeUInt16LE(data.split.power.average > 0 && data.split.power.average < 65534 ? Math.round(data.split.power.average) : 0)
     // Split Avg Drag Factor,
     bufferBuilder.writeUInt8(data.split.dragfactor.average > 0 && data.split.dragfactor.average < 255 ? Math.round(data.split.dragfactor.average) : 255)
-    // Split/Interval Number,
+    // Split/Interval Number, needs to start with 1 for ErgZone to work well
     bufferBuilder.writeUInt8(data.split.number > 0 ? data.split.number + 1 : 0)
     // Erg Machine Type
     bufferBuilder.writeUInt8(pm5Constants.ergMachineType)

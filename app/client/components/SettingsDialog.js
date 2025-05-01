@@ -7,7 +7,7 @@
 
 import { AppElement, html, css } from './AppElement.js'
 import { customElement, property, query, queryAll, state } from 'lit/decorators.js'
-import { icon_settings } from '../lib/icons.js'
+import { iconSettings } from '../lib/icons.js'
 import './AppDialog.js'
 import { DASHBOARD_METRICS } from '../store/dashboardMetrics.js'
 
@@ -128,7 +128,7 @@ export class DashboardActions extends AppElement {
   render () {
     return html`
     <app-dialog class="settings-dialog" .isValid=${this._isValid} @close=${this.close}>
-    <legend>${icon_settings}<br/>Settings</legend>
+    <legend>${iconSettings}<br/>Settings</legend>
 
     <p>Select metrics to be shown:</p>
     <div class="metric-selector">
@@ -185,16 +185,16 @@ export class DashboardActions extends AppElement {
     const selectedMetrics = [html`<tr>${[0, 1, 2, 3].map(index => html`<td style="${this._selectedMetrics[3] === this._selectedMetrics[4] && index === 3 ? 'color: red' : ''}">${this._selectedMetrics[index]}</td>`)}</tr>`]
     selectedMetrics.push(html`<tr>${[4, 5, 6, 7].map(index => html`<td  style="${
       (index === 4 && this._selectedMetrics[3] === this._selectedMetrics[4]) ||
-      (index === 7 && this._selectedMetrics[7] === this._selectedMetrics[8])
-        ? 'color: red'
-        : ''
+      (index === 7 && this._selectedMetrics[7] === this._selectedMetrics[8]) ?
+        'color: red' :
+        ''
       }">${this._selectedMetrics[index]}</td>`)}</tr>`)
     if (this._maxNumberOfTiles === 12) {
       selectedMetrics.push(html`<tr>${[8, 9, 10, 11].map(index => html`<td  style="${
         (index === 8 && this._selectedMetrics[7] === this._selectedMetrics[8]) ||
-        (index === 11 && this._selectedMetrics.length > 12)
-          ? 'color: red'
-          : ''
+        (index === 11 && this._selectedMetrics.length > 12) ?
+          'color: red' :
+          ''
         }">${this._selectedMetrics[index]}</td>`)}</tr>`)
     }
 
@@ -202,9 +202,7 @@ export class DashboardActions extends AppElement {
   }
 
   toggleCheck (e) {
-    if (e.target.checked &&
-      ((this._selectedMetrics.length % 4 === 3 && e.target.size > 1) ||
-      (this._sumSelectedSlots + e.target.size > this._maxNumberOfTiles))) {
+    if (e.target.checked && ((this._selectedMetrics.length % 4 === 3 && e.target.size > 1) || (this._sumSelectedSlots + e.target.size > this._maxNumberOfTiles))) {
       this._isValid = this.isFormValid()
       e.target.checked = false
       return

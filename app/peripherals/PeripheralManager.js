@@ -1,10 +1,12 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  This manager creates the different Bluetooth Low Energy (BLE) Peripherals and allows
-  switching between them
 */
+/**
+ * This manager creates the different Bluetooth Low Energy (BLE), ANT+ and MQTT Peripherals and allows
+ * switching between them
+ */
+/* eslint-disable max-lines -- This handles quite a lot of peripherals, can't do that with less code */
 import EventEmitter from 'node:events'
 
 import log from 'loglevel'
@@ -115,14 +117,16 @@ export function createPeripheralManager (config) {
   }
 
   /**
-   * @param {Command} commandName
-   * @param {unknown} data
-   * @param {null} client
-   */
-  // This function handles all incomming commands. As all commands are broadasted to all application parts,
-  // we need to filter here what the PeripheralManager will react to and what it will ignore
-  // eslint-disable-next-line no-unused-vars
-  async function handleCommand (commandName, data, client) {
+   * This function handles all incomming commands. As all commands are broadasted to all managers, we need to filter here what is relevant
+   * for the peripherals and what is not
+   *
+   * @param {Command} Name of the command to be executed by the commandhandler
+   * @param {unknown} data for executing the command
+   *
+   * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Architecture.md#command-flow|The command flow documentation}
+  */
+  /* eslint-disable-next-line no-unused-vars -- data is irrelevant here, but it is a standardised interface */
+  async function handleCommand (commandName, data) {
     switch (commandName) {
       case ('updateIntervalSettings'):
         break
@@ -153,11 +157,7 @@ export function createPeripheralManager (config) {
         break
       case 'refreshPeripheralConfig':
         break
-      case 'authorizeStrava':
-        break
-      case 'uploadTraining':
-        break
-      case 'stravaAuthorizationCode':
+      case 'upload':
         break
       case 'shutdown':
         await shutdownAllPeripherals()
@@ -171,7 +171,7 @@ export function createPeripheralManager (config) {
    * @param {BluetoothModes} [newMode]
    */
   async function switchBlePeripheralMode (newMode) {
-    if (isPeripheralChangeInProgress) return
+    if (isPeripheralChangeInProgress) { return }
     isPeripheralChangeInProgress = true
     // if no mode was passed, select the next one from the list
     if (newMode === undefined) {
@@ -260,8 +260,7 @@ export function createPeripheralManager (config) {
     emitter.emit('control', {
       req: {
         name: 'refreshPeripheralConfig',
-        data: {},
-        client: null
+        data: {}
       }
     })
   }
@@ -270,7 +269,7 @@ export function createPeripheralManager (config) {
    * @param {AntPlusModes} [newMode]
    */
   async function switchAntPeripheralMode (newMode) {
-    if (isPeripheralChangeInProgress) return
+    if (isPeripheralChangeInProgress) { return }
     isPeripheralChangeInProgress = true
     if (newMode === undefined) {
       newMode = antModes[(antModes.indexOf(antMode) + 1) % antModes.length]
@@ -320,8 +319,7 @@ export function createPeripheralManager (config) {
     emitter.emit('control', {
       req: {
         name: 'refreshPeripheralConfig',
-        data: {},
-        client: null
+        data: {}
       }
     })
   }
@@ -330,7 +328,7 @@ export function createPeripheralManager (config) {
    * @param {HeartRateModes} [newMode]
    */
   async function switchHrmMode (newMode) {
-    if (isPeripheralChangeInProgress) return
+    if (isPeripheralChangeInProgress) { return }
     isPeripheralChangeInProgress = true
     if (newMode === undefined) {
       newMode = hrmModes[(hrmModes.indexOf(hrmMode) + 1) % hrmModes.length]
@@ -416,8 +414,7 @@ export function createPeripheralManager (config) {
     emitter.emit('control', {
       req: {
         name: 'refreshPeripheralConfig',
-        data: {},
-        client: null
+        data: {}
       }
     })
   }

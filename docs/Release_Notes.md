@@ -1,6 +1,6 @@
 # OpenRowingMonitor Release Notes
 
-## From 0.9.5 to 0.9.6 (May 2025)
+## Version 0.9.6 (May 2025)
 
 Main contributors: [Abasz](https://github.com/Abasz) and [Jaap van Ekris](https://github.com/JaapvanEkris)
 
@@ -16,9 +16,13 @@ Main contributors: [Abasz](https://github.com/Abasz) and [Jaap van Ekris](https:
 - **Rewrite of the entire bluetooth stack**, greatly improving stability, removing limitations and bringing the PM5 interface much closer to the official PM5 interface specification. This also fixes the issue that heartrate device can't be switched dynamically.
 - **Fixed a bug in pause behaviour** for magnetic rowers.
 - **Fixed a bug in the metrics presentation**, which caused some metrics presented/recorded to be averaged too much.
+- **Fixed a bug in restart behaviour** that made the recorders crash.
 - **Simplified Strava integration**, which now is in line with the rest of the integrations.
+- **Upgraded ESLint and its configuration**, now code is inspected beyond the use of spaces.
+- **Introducing JSDoc** in our code, to make our code easier to understand.
+- **Upgraded all NPM packages**, making our stack current again.
 
-## From 0.9.0 to 0.9.5 (February 2025)
+## Version 0.9.5 (February 2025)
 
 Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz](https://github.com/Abasz)
 
@@ -41,7 +45,7 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz]
 
 - **Bluetooth Heartrate can't be switched dynamically**: due to some underlying changes in the OS, BLE heartrate monitors can't be activated through the GUI without crashing the BLE metrics broadcast (see [the description of issue 69](https://github.com/JaapvanEkris/openrowingmonitor/issues/69)). As this is an issue in the OS, **all previous versions of OpenRowingMonitor are also affected by this issue**. In version 0.9.5 has a workaround implemented that mitigates this at startup. So configuring the use of a BLE heartrate monitor in the config file should work. However, dynamic switching via the GUI will crash the BLE connections.
 
-## From 0.8.4 to 0.9.0 (January 2024)
+## Version 0.9.0 (January 2024)
 
 Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz](https://github.com/Abasz)
 
@@ -71,7 +75,7 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz]
 
 - **Support has been dropped for the Raspberry Pi Zero W**, as WebAssembly will not work on Node.js V16 on ArmV6, and other core packages require at least Node V18 to function on newer versions of the Raspberry Pi OS (see [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/33))
 
-## From 0.8.2 to 0.8.4 (January 2023)
+## Version 0.8.4 (January 2023)
 
 Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz](https://github.com/Abasz)
 
@@ -92,7 +96,7 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz]
 - **Finite State Machine based state management**: OpenRowingEngine will now maintain an explicit state for the rower, and RowingStatistics will maintain an explicit state for the session. Aside reducing the code complexity significantly, it greatly impoved robustness.
 - **Added a new GPIO-library**, making measurement of the flywheel data much more accurate and allowing to "debounce" the measurements, as many sensors have this issue
 
-## From 0.8.1 to 0.8.2 (Febuary 2022)
+## Version 0.8.2 (Febuary 2022)
 
 Main contributor: [Lars Berning](https://github.com/laberning)
 
@@ -100,7 +104,7 @@ Main contributor: [Lars Berning](https://github.com/laberning)
 
 - Added Strava support
 
-## From 0.8.0 to 0.8.1 (September 2021)
+## Version 0.8.1 (September 2021)
 
 Main contributor: [Jaap van Ekris](https://github.com/JaapvanEkris)
 
@@ -108,6 +112,6 @@ Main contributor: [Jaap van Ekris](https://github.com/JaapvanEkris)
 
 - **Refactoring of the Rowing Engine**, as [Dave Vernooy's engine (ErgWare)](https://dvernooy.github.io/projects/ergware/) is good, but its variable naming left a bit to be desired. The underlying physics has been described in [the physics of OpenRowingMonitor](physics_openrowingmonitor.md), and is largely based on the work of [Dave Vernooy](https://dvernooy.github.io/projects/ergware/) and [Anu Dudhia](http://eodg.atm.ox.ac.uk/user/dudhia/rowing/physics/ergometer.html).
 
-## 0.7.0 (March 2021)
+## Version 0.7.0 (March 2021)
 
 Initial release, Main contributor: [Lars Berning](https://github.com/laberning), porting of [Dave Vernooy's ErgWare](https://dvernooy.github.io/projects/ergware/) to JavaScript and addition of Bluetooth.

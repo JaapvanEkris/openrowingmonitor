@@ -1,11 +1,12 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  Implementation of the StrokeData as defined in:
-  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
-  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf
 */
+/**
+ * Implementation of the StrokeData as defined in:
+ * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
+ * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf
+ */
 import loglevel from 'loglevel'
 
 import { BufferBuilder } from '../../../BufferBuilder.js'
@@ -72,7 +73,7 @@ export class ForceCurveCharacteristic extends GattNotifyCharacteristic {
 
       if (this.isSubscribed) {
         super.notify(bufferBuilder.getBuffer())
-
+        /* eslint-disable-next-line no-continue -- let's get out of here */
         continue
       }
 

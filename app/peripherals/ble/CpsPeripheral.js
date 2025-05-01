@@ -1,10 +1,11 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  Creates a Bluetooth Low Energy (BLE) Peripheral with all the Services that are required for
-  a Cycling Power Profile
 */
+/**
+ * Creates a Bluetooth Low Energy (BLE) Peripheral with all the Services that are required for
+ * a Cycling Power Profile
+ */
 import NodeBleHost from 'ble-host'
 import loglevel from 'loglevel'
 
@@ -106,7 +107,7 @@ export function createCpsPeripheral (bleManager, config) {
    * @param {Metrics} metrics
    */
   function notifyData (metrics) {
-    if (metrics.metricsContext === undefined) return
+    if (metrics.metricsContext === undefined) { return }
     switch (true) {
       case (metrics.metricsContext.isSessionStop):
         lastKnownMetrics = { ...metrics }

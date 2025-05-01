@@ -15,8 +15,8 @@ export const APP_STATE = {
     hrmPeripheralMode: '',
     // currently can be FE, OFF
     antPeripheralMode: '',
-    // true if upload to strava is enabled
-    stravaUploadEnabled: false,
+    // true if manual upload to strava, intervals or rowsandall is enabled
+    uploadEnabled: false,
     // true if remote device shutdown is enabled
     shutdownEnabled: false,
     guiConfigs: {

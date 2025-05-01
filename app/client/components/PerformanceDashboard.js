@@ -8,7 +8,7 @@
 import { AppElement, html, css } from './AppElement.js'
 import { customElement, property, state } from 'lit/decorators.js'
 import './SettingsDialog.js'
-import { icon_settings } from '../lib/icons.js'
+import { iconSettings } from '../lib/icons.js'
 import { DASHBOARD_METRICS } from '../store/dashboardMetrics.js'
 
 @customElement('performance-dashboard')
@@ -90,7 +90,7 @@ export class PerformanceDashboard extends AppElement {
         }
       </style>
       <div class="settings" @click=${this.openSettings}>
-        ${icon_settings}
+        ${iconSettings}
         ${this._dialog ? this._dialog : ''}
       </div>
 
@@ -101,6 +101,7 @@ export class PerformanceDashboard extends AppElement {
   openSettings () {
     this._dialog = html`<settings-dialog .config=${this.appState.config.guiConfigs} @close=${dialogClosed}></settings-dialog>`
 
+    /* eslint-disable-next-line no-unused-vars -- Standard construct?? */
     function dialogClosed (event) {
       this._dialog = undefined
     }

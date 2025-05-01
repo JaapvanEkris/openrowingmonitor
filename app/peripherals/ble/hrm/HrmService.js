@@ -1,9 +1,6 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  Starts the central this.#manager in a forked thread since noble does not like
-  to run in the same thread as bleno
 */
 import EventEmitter from 'node:events'
 
@@ -81,6 +78,7 @@ export class HrmService extends EventEmitter {
     this.#manager = manager
   }
 
+  /* eslint-disable max-statements -- This initialises the BLE HRM handler */
   async start () {
     this.#scanner = this.#manager.startScan({
       scanFilters: [new BleManager.ServiceUUIDScanFilter(heartRateServiceUUID)]

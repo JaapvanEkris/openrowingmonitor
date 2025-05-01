@@ -2,8 +2,6 @@
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 */
-/* eslint-disable max-lines -- more tests is always better */
-/* eslint-disable max-statements -- more tests is always better */
 import * as assert from 'uvu/assert'
 import { suite } from 'uvu'
 

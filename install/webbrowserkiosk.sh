@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+#  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 #
 #  Runs the Web Frontend in a chromium browser in fullscreen kiosk mode
 #

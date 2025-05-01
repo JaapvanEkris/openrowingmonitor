@@ -105,7 +105,7 @@ export function createCscPeripheral (bleManager, config) {
   * @param {Metrics} metrics
   */
   function notifyData (metrics) {
-    if (metrics.metricsContext === undefined) return
+    if (metrics.metricsContext === undefined) { return }
     switch (true) {
       case (metrics.metricsContext.isSessionStop):
         lastKnownMetrics = { ...metrics }

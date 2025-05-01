@@ -1,19 +1,15 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  This is the central service to get information about the workout
-
-  ToDo: Check if all messages are correctly with respect to the rowing stroke. It seems a bit overkill to broadcast a longNotifyData every second,
-        as most metrics broadcast haven't changed
-
-  ToDo: figure out to which services some common applications subscribe and then just implement those
-
-  Critical messages:
-  - fluid simulation uses GeneralStatus STROKESTATE_DRIVING
-  - cloud simulation uses MULTIPLEXER, AdditionalStatus -> currentPace
-  - EXR: subscribes to: 'general status', 'additional status', 'additional status 2', 'additional stroke data'
 */
+/**
+ * This is the central service to get information about the workout
+ *
+ * Critical messages:
+ * - fluid simulation uses GeneralStatus STROKESTATE_DRIVING
+ * - cloud simulation uses MULTIPLEXER, AdditionalStatus -> currentPace
+ * - EXR: subscribes to: 'general status', 'additional status', 'additional status 2', 'additional stroke data' and 'force curve data'
+ */
 import { createSeries } from '../../../../engine/utils/Series.js'
 import { GattService } from '../../BleManager.js'
 import { createStaticReadCharacteristic } from '../../common/StaticReadCharacteristic.js'
@@ -96,7 +92,7 @@ export class Pm5RowingService extends GattService {
         // C2 rowing additional status 2
         additionalStatus2.characteristic,
         // C2 rowing additional status 3
-        // additionalStatus3.characteristic, // TODO: disabled for now as otherwise ErgData connection does not seem to be stable
+        additionalStatus3.characteristic, // TODO: disabled for now as otherwise ErgData connection does not seem to be stable
         // C2 rowing general status and additional status sample rate (0 - for 1000 ms)
         new SampleRateCharacteristic(config).characteristic,
         // C2 rowing stroke data
@@ -164,7 +160,7 @@ export class Pm5RowingService extends GattService {
       case (metrics.metricsContext.isSessionStart):
         this.#splitHR.push(this.#lastKnownMetrics.heartrate)
         this.#workoutHR.push(this.#lastKnownMetrics.heartrate)
-        this.#driveStartNotifies(this.#lastKnownMetrics)
+        this.#genericStatusDataNotifies(this.#lastKnownMetrics, this.#previousSplitMetrics)
         break
       case (metrics.metricsContext.isSessionStop):
         this.#splitHR.push(this.#lastKnownMetrics.heartrate)
@@ -176,6 +172,7 @@ export class Pm5RowingService extends GattService {
       case (metrics.metricsContext.isSplitEnd):
         this.#splitHR.push(this.#lastKnownMetrics.heartrate)
         this.#workoutHR.push(this.#lastKnownMetrics.heartrate)
+        this.#genericStatusDataNotifies(this.#lastKnownMetrics, this.#previousSplitMetrics)
         this.#splitDataNotifies(this.#lastKnownMetrics, this.#splitHR)
         this.#previousSplitMetrics = {
           totalMovingTime: this.#lastKnownMetrics.split.timeSpent.moving,
@@ -187,6 +184,7 @@ export class Pm5RowingService extends GattService {
       case (metrics.metricsContext.isPauseStart):
         this.#splitHR.push(this.#lastKnownMetrics.heartrate)
         this.#workoutHR.push(this.#lastKnownMetrics.heartrate)
+        this.#genericStatusDataNotifies(this.#lastKnownMetrics, this.#previousSplitMetrics)
         this.#splitDataNotifies(this.#lastKnownMetrics, this.#splitHR)
         this.#previousSplitMetrics = {
           totalMovingTime: this.#lastKnownMetrics.split.timeSpent.moving,
@@ -195,6 +193,7 @@ export class Pm5RowingService extends GattService {
         this.#splitHR.reset()
         this.#splitHR.push(this.#lastKnownMetrics.heartrate)
         break
+      // ToDo: isPauseEnd
       case (metrics.metricsContext.isDriveStart):
         this.#splitHR.push(this.#lastKnownMetrics.heartrate)
         this.#workoutHR.push(this.#lastKnownMetrics.heartrate)

@@ -1,5 +1,4 @@
 'use strict'
-
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
@@ -21,8 +20,8 @@ export function filterObjectByKeys (object, keys) {
   * @param {number} timeInSeconds The actual time in seconds.
 */
 export function secondsToTimeString (timeInSeconds) {
-  if (timeInSeconds === undefined || timeInSeconds === null || isNaN(timeInSeconds)) return '--'
-  if (timeInSeconds === Infinity) return '∞'
+  if (timeInSeconds === undefined || timeInSeconds === null || isNaN(timeInSeconds)) { return '--' }
+  if (timeInSeconds === Infinity) { return 'âˆž' }
   const timeInRoundedSeconds = Math.round(timeInSeconds)
   const hours = Math.floor(timeInRoundedSeconds / 3600)
   const minutes = Math.floor(timeInRoundedSeconds / 60) - (hours * 60)
@@ -39,9 +38,9 @@ export function secondsToTimeString (timeInSeconds) {
   * @param {number} value The distance in meters.
 */
 export function formatDistance (value) {
-  return value >= 99999.5
-    ? { distance: formatNumber((value / 1000), 2), unit: 'km' }
-    : { distance: formatNumber(value), unit: 'm' }
+  return value >= 99999.5 ?
+    { distance: formatNumber((value / 1000), 2), unit: 'km' } :
+    { distance: formatNumber(value), unit: 'm' }
 }
 
 /**
