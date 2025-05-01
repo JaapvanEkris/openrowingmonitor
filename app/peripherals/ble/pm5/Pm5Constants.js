@@ -1,9 +1,10 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  Some PM5 specific constants
 */
+/**
+ * Some PM5 specific constants
+ */
 
 import { PeripheralConstants } from '../../PeripheralConstants.js'
 
