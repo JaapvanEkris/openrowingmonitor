@@ -88,8 +88,6 @@ export function createSessionManager (config) {
           sessionState = 'Stopped'
         }
         break
-      case ('requestControl'):
-        break
       case ('reset'):
         clearTimeout(pauseTimer)
         if (sessionState === 'Rowing') {
