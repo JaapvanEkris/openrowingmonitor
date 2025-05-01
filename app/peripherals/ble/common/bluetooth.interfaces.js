@@ -2,8 +2,7 @@
  * @typedef {{
  * req?: {
  *   name: Command,
- *   data: unknown,
- *   client: null
+ *   data: unknown
  * }
  * }} ControlPointEvent
  */
