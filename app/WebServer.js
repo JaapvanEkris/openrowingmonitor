@@ -191,7 +191,6 @@ export function createWebServer (config) {
   }
 
   return Object.assign(emitter, {
-    notifyClient,
     presentRowingMetrics,
     presentHeartRate,
     handleCommand
