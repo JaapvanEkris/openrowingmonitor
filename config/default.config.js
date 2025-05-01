@@ -197,15 +197,26 @@ export default {
 
     // Configuration for the RowsAndAll.com upload
     rowsAndAll: {
-      upload: false,
+      allowUpload: false,
+      autoUpload: false,
       apiKey: ''
     },
 
     // Configuration for the intervals.icu upload
     intervals: {
-      upload: false,
+      allowUpload: false,
+      autoUpload: false,
       athleteId: '',
       apiKey: ''
+    },
+
+    // Configuration for the Strava.com upload
+    strava: {
+      allowUpload: false,
+      autoUpload: false,
+      clientId: '',
+      clientSecret: '',
+      refreshToken: ''
     }
   },
 
