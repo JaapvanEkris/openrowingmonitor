@@ -1,10 +1,11 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  This Module captures the metrics of a rowing session and persists them into the tcx format
-  It provides a tcx-file content, and some metadata for the filewriter and the file-uploaders
 */
+/**
+ * This Module captures the metrics of a rowing session and persists them into the tcx format
+ * It provides a tcx-file content, and some metadata for the filewriter and the file-uploaders
+ */
 /* eslint-disable max-lines -- The length is governed by the creation of all the tcx-parameters, which we can't control */
 import log from 'loglevel'
 import { createDragLine, createVO2MaxLine, createHRRLine } from './utils/decorators.js'
@@ -97,8 +98,19 @@ export function createTCXRecorder (config) {
   }
 
   function addMetricsToStrokesArray (metrics) {
-    addHeartRateToMetrics(metrics)
-    sessionData.lap[lapnumber].strokes.push(metrics)
+    sessionData.lap[lapnumber].strokes.push({})
+    const strokenumber = sessionData.lap[lapnumber].strokes.length - 1
+    sessionData.lap[lapnumber].strokes[strokenumber].timestamp = metrics.timestamp
+    sessionData.lap[lapnumber].strokes[strokenumber].totalLinearDistance = metrics.totalLinearDistance
+    sessionData.lap[lapnumber].strokes[strokenumber].cycleStrokeRate = metrics.cycleStrokeRate
+    sessionData.lap[lapnumber].strokes[strokenumber].cyclePower = metrics.cyclePower
+    sessionData.lap[lapnumber].strokes[strokenumber].cycleLinearVelocity = metrics.cycleLinearVelocity
+    sessionData.lap[lapnumber].strokes[strokenumber].isPauseStart = metrics.metricsContext.isPauseStart
+    if (!isNaN(heartRate) && heartRate > 0) {
+      sessionData.lap[lapnumber].strokes[strokenumber].heartrate = heartRate
+    } else {
+      sessionData.lap[lapnumber].strokes[strokenumber].heartrate = undefined
+    }
     VO2max.push(metrics)
     tcxfileContentIsCurrent = false
     allDataHasBeenWritten = false
@@ -134,14 +146,6 @@ export function createTCXRecorder (config) {
     sessionData.lap[lapnumber].summary = { ...metrics.split }
     sessionData.lap[lapnumber].complete = true
     VO2max.handleRestart(metrics.totalMovingTime)
-  }
-
-  function addHeartRateToMetrics (metrics) {
-    if (!isNaN(heartRate) && heartRate > 0) {
-      metrics.heartrate = heartRate
-    } else {
-      metrics.heartrate = undefined
-    }
   }
 
   // initiated when a new heart rate value is received from heart rate sensor
@@ -268,13 +272,13 @@ export function createTCXRecorder (config) {
     tcxData += `            <Time>${trackpoint.timestamp.toISOString()}</Time>\n`
     tcxData += `            <DistanceMeters>${trackpoint.totalLinearDistance.toFixed(2)}</DistanceMeters>\n`
     tcxData += `            <Cadence>${(trackpoint.cycleStrokeRate > 0 ? Math.round(trackpoint.cycleStrokeRate) : 0)}</Cadence>\n`
-    if (trackpoint.cycleLinearVelocity > 0 || trackpoint.cyclePower > 0 || trackpoint.metricsContext.isPauseStart) {
+    if (trackpoint.cycleLinearVelocity > 0 || trackpoint.cyclePower > 0 || trackpoint.isPauseStart) {
       tcxData += '            <Extensions>\n'
       tcxData += '              <ns2:TPX>\n'
-      if (trackpoint.cycleLinearVelocity > 0 || trackpoint.metricsContext.isPauseStart) {
+      if (trackpoint.cycleLinearVelocity > 0 || trackpoint.isPauseStart) {
         tcxData += `                <ns2:Speed>${(trackpoint.cycleLinearVelocity > 0 ? trackpoint.cycleLinearVelocity.toFixed(2) : 0)}</ns2:Speed>\n`
       }
-      if (trackpoint.cyclePower > 0 || trackpoint.metricsContext.isPauseStart) {
+      if (trackpoint.cyclePower > 0 || trackpoint.isPauseStart) {
         tcxData += `                <ns2:Watts>${(trackpoint.cyclePower > 0 ? Math.round(trackpoint.cyclePower) : 0)}</ns2:Watts>\n`
       }
       tcxData += '              </ns2:TPX>\n'
