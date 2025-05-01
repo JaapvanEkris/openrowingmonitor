@@ -1,9 +1,10 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  Helper functions
 */
+/**
+ * Helper functions
+ */
 
 /**
  * Deeply merges any number of objects into a new object
@@ -38,7 +39,7 @@ export function deepMerge (...objects) {
  * @returns
  */
 export function secondsToTimeString (secondsTimeStamp) {
-  if (secondsTimeStamp === Infinity) return '∞'
+  if (secondsTimeStamp === Infinity) { return 'âˆž' }
   const hours = Math.floor(secondsTimeStamp / 60 / 60)
   const minutes = Math.floor(secondsTimeStamp / 60) - (hours * 60)
   const seconds = Math.floor(secondsTimeStamp % 60)
