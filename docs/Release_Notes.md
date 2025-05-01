@@ -18,8 +18,9 @@ Main contributors: [Abasz](https://github.com/Abasz) and [Jaap van Ekris](https:
 - **Fixed a bug in the metrics presentation**, which caused some metrics presented/recorded to be averaged too much.
 - **Fixed a bug in restart behaviour** that made the recorders crash.
 - **Simplified Strava integration**, which now is in line with the rest of the integrations.
-- **Upgraded ESLint and its configuration**, now code is inspected beyond spaces.
+- **Upgraded ESLint and its configuration**, now code is inspected beyond the use of spaces.
 - **Introducing JSDoc** in our code, to make our code easier to understand.
+- **Upgraded all NPM packages**, making our stack current again.
 
 ## Version 0.9.5 (February 2025)
 
