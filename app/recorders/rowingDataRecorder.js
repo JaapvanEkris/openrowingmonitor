@@ -1,10 +1,11 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  This Module captures the metrics of a rowing session and persists them into a RowingData format
-  It provides a RowingData file content, and some metadata for the filewriter and the file-uploaders
 */
+/**
+ * This Module captures the metrics of a rowing session and persists them into a RowingData format
+ * It provides a RowingData file content, and some metadata for the filewriter and the file-uploaders
+ */
 import log from 'loglevel'
 import { createSeries } from '../engine/utils/Series.js'
 import { createVO2max } from './utils/VO2max.js'
@@ -89,25 +90,37 @@ export function createRowingDataRecorder (config) {
   }
 
   function addMetricsToStrokesArray (metrics) {
-    addHeartRateToMetrics(metrics)
-    addSplitnumberToMetrics(metrics)
-    strokes.push(metrics)
+    strokes.push({})
+    const strokeNumber = strokes.length - 1
+    strokes[strokeNumber].totalNumberOfStrokes = metrics.totalNumberOfStrokes
+    strokes[strokeNumber].rowingDataSplitNumber = splitNumber
+    strokes[strokeNumber].timestamp = metrics.timestamp
+    strokes[strokeNumber].totalMovingTime = metrics.totalMovingTime
+    if (heartRate !== undefined && heartRate > 0) {
+      strokes[strokeNumber].heartrate = heartRate
+    } else {
+      strokes[strokeNumber].heartrate = undefined
+    }
+    strokes[strokeNumber].totalLinearDistance = metrics.totalLinearDistance
+    strokes[strokeNumber].cycleStrokeRate = metrics.cycleStrokeRate
+    strokes[strokeNumber].cycleLinearVelocity = metrics.cycleLinearVelocity
+    strokes[strokeNumber].cyclePace = metrics.cyclePace
+    strokes[strokeNumber].cyclePower = metrics.cyclePower
+    strokes[strokeNumber].cycleDistance = metrics.cycleDistance
+    strokes[strokeNumber].driveDuration = metrics.driveDuration
+    strokes[strokeNumber].driveLength = metrics.driveLength
+    strokes[strokeNumber].recoveryDuration = metrics.recoveryDuration
+    strokes[strokeNumber].totalCalories = metrics.totalCalories
+    strokes[strokeNumber].dragFactor = metrics.dragFactor
+    strokes[strokeNumber].drivePeakHandleForce = metrics.drivePeakHandleForce
+    strokes[strokeNumber].driveAverageHandleForce = metrics.driveAverageHandleForce
+    strokes[strokeNumber].driveHandleForceCurve = metrics.driveHandleForceCurve
+    strokes[strokeNumber].driveHandleVelocityCurve = metrics.driveHandleVelocityCurve
+    strokes[strokeNumber].driveHandlePowerCurve = metrics.driveHandlePowerCurve
     VO2max.push(metrics)
     if (!isNaN(metrics.dragFactor) && metrics.dragFactor > 0) { drag.push(metrics.dragFactor) }
     allDataHasBeenWritten = false
     rowingDataFileContentIsCurrent = false
-  }
-
-  function addHeartRateToMetrics (metrics) {
-    if (heartRate !== undefined && heartRate > 0) {
-      metrics.heartrate = heartRate
-    } else {
-      metrics.heartrate = undefined
-    }
-  }
-
-  function addSplitnumberToMetrics (metrics) {
-    metrics.rowingDataSplitNumber = splitNumber
   }
 
   async function fileContent () {
