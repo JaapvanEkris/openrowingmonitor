@@ -70,9 +70,9 @@ Open the [https://strava.github.io/api/v3/oauth/](https://strava.github.io/api/v
 
 ### Step 2: Generate a refresh token
 
-Open the following URL (replace `CLIENT_ID` with the Client ID you wrote down earlier): 
+Open the following URL (replace `CLIENT_ID` with the Client ID you wrote down earlier):
 
-```
+```HTML
 https://www.strava.com/oauth/authorize?client_id=CLIENT_ID&response_type=code&redirect_uri=http%3A%2F%2Flocalhost&scope=activity:write&state=mystate&approval_prompt=force
 ```
 
@@ -107,7 +107,9 @@ The parameter 'allowUpload' allows uploads in general (so disabling it will bloc
 
 ## RowsAndAll.com
 
-[RowsAndAll](https://rowsandall.com/) provides the most extensive on-line data analysis environment for rowing. Our RowingData export is made in collaboration with them, and provides the most extensve dataset OpenRowingMonitor can provide. The RowsAndAll.com uploader will create and upload the RowingData-files automatically, and does not require setting the `createRowingDataFiles` parameter. Uploading is activated by adding the API-key (which can be found in your [import settings of you user profile](https://rowsandall.com/rowers/me/exportsettings/)) and setting `upload` to true in the user profile of `config.js`:
+[RowsAndAll](https://rowsandall.com/) provides the most extensive on-line data analysis environment for rowing. Our RowingData export is made in collaboration with them, and provides the most extensve dataset OpenRowingMonitor can provide.
+
+The RowsAndAll.com uploader will create and upload the RowingData-files automatically, and does not require setting the `createRowingDataFiles` parameter. Uploading is activated by adding the API-key (which can be found in your [import settings of you user profile](https://rowsandall.com/rowers/me/exportsettings/)) and setting `AllowUpload` to true in the user profile of `config.js`:
 
 ```js
     // Configuration for the RowsAndAll.com upload
@@ -118,7 +120,7 @@ The parameter 'allowUpload' allows uploads in general (so disabling it will bloc
     },
 ```
 
-The parameter 'allowUpload' allows uploads in general (so disabling it will block all forms of uploading). The parameter 'autoUpload" determines if your workout is uploaded at the end of the session. If you set 'autoUpload' to false, but 'allowUpload' to true, you need to push the upload button on the screen to trigger the upload (making uploading a manual step).
+The parameter `allowUpload` allows uploads in general (so disabling it will block all forms of uploading). The parameter `autoUpload` determines if your workout is uploaded at the end of the session. If you set `autoUpload` to false, but `allowUpload` to true, you need to push the upload button on the screen to trigger the upload (making uploading a manual step).
 
 > [!NOTE]
 > Please note that for visualising in-stroke metrics in [RowsAndAll](https://rowsandall.com/) (i.e. force, power and handle speed curves), you need their yearly subscription
@@ -129,7 +131,9 @@ The parameter 'allowUpload' allows uploads in general (so disabling it will bloc
 
 ## Intervals.icu
 
-Uploading of fit-files to [Intervals.icu](https://intervals.icu/) is an integrated service. The RowsAndAll uploader will create and upload the FIT-files automatically, and does not require setting the `createFitFiles` parameter. It is activated by adding the athlete-Id and API-key (which can be found in your [settings of you user profile](https://intervals.icu/settings)) and setting `upload` to true in the user profile of `config.js`:
+Uploading of fit-files to [Intervals.icu](https://intervals.icu/) is an integrated service. The Intervals.icu uploader will create and upload the FIT-files automatically, and does not require setting the `createFitFiles` parameter.
+
+The Intervals.icu uploader is activated by adding the athlete-Id and API-key (which can be found in your [settings of you user profile](https://intervals.icu/settings)) and setting `allowUpload` to true in the user profile of `config.js`:
 
 ```js
     // Configuration for the intervals.icu upload
@@ -141,7 +145,7 @@ Uploading of fit-files to [Intervals.icu](https://intervals.icu/) is an integrat
     }
 ```
 
-The parameter 'allowUpload' allows uploads in general (so disabling it will block all forms of uploading). The parameter 'autoUpload" determines if your workout is uploaded at the end of the session. If you set 'autoUpload' to false, but 'allowUpload' to true, you need to push the upload button on the screen to trigger the upload (making uploading a manual step).
+The parameter `allowUpload` allows uploads in general (so disabling it will block all forms of uploading). The parameter `autoUpload` determines if your workout is uploaded at the end of the session. If you set `autoUpload` to false, but `allowUpload` to true, you need to push the upload button on the screen to trigger the upload (making uploading a manual step).
 
 ## Garmin Connect
 
