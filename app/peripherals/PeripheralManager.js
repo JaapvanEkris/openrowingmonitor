@@ -141,8 +141,6 @@ export function createPeripheralManager (config) {
       case ('stop'):
         notifyStatus({ name: 'stoppedOrPausedByUser' })
         break
-      case ('requestControl'):
-        break
       case ('reset'):
         notifyStatus({ name: 'reset' })
         break
