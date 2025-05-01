@@ -40,15 +40,15 @@ export class SplitDataCharacteristic extends GattNotifyCharacteristic {
     bufferBuilder.writeUInt24LE(data.split.distance.fromStart > 0 ? Math.round(data.workout.distance.fromStart * 10) : 0)
     // Split/Interval Time (0.1 sec)
     bufferBuilder.writeUInt24LE(data.split.timeSpent.total > 0 ? Math.round(data.split.timeSpent.total * 10) : 0)
-    // Split/Interval Distance ( 1m lsb)
+    // Split/Interval Distance (1m accurate)
     bufferBuilder.writeUInt24LE(data.split.distance.fromStart > 0 ? Math.round(data.split.distance.fromStart) : 0)
-    // Interval Rest Time (1 sec lsb)
+    // Interval Rest Time (1 sec accurate)
     bufferBuilder.writeUInt16LE(data.split.timeSpent.rest > 0 ? Math.round(data.split.timeSpent.rest) : 0)
-    // Interval Rest Distance Lo (1m lsb)
+    // Interval Rest Distance Lo (1m accurate)
     bufferBuilder.writeUInt16LE(Math.round(0))
     // intervalType: UInt8, see OBJ_INTERVALTYPE_T enum
     bufferBuilder.writeUInt8(toC2IntervalType(data))
-    // Split/Interval Number,
+    // Split/Interval Number, needs to start with 1 for ErgZone to work well
     bufferBuilder.writeUInt8(data.split.number > 0 ? data.split.number + 1 : 0)
 
     if (this.isSubscribed) {
