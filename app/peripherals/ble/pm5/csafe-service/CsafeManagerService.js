@@ -170,16 +170,16 @@ export class CsafeManagerService {
               case ScreenValue.SCREENVALUEWORKOUT_TERMINATEWORKOUT:
                 // we can handle specific commands and communicate back via the controlPointCallback by calling a Command
                 // EXR and the PM5 routinely send this at the START of a rowing session. To prevent this from blocking valid sessions, it is mapped to the startOrResume event
-                this.#controlPointCallback({ req: { name: 'startOrResume', client: null, data: {} } })
+                this.#controlPointCallback({ req: { name: 'startOrResume', data: {} } })
                 break
               case ScreenValue.SCREENVALUEWORKOUT_PREPARETOROWWORKOUT:
                 // TODO: the ControlPointEvent data interface should be fixed because it is not unified now across the consumers. The peripherals are the only one using the `req: {name: etc.}`format
                 if (this.#workoutplan.length() > 0) {
                   // We have a workout plan with defined intervals, let's tell everybody the good news!
-                  this.#controlPointCallback({ req: { name: 'updateIntervalSettings', client: null, data: this.#workoutplan.result() } })
+                  this.#controlPointCallback({ req: { name: 'updateIntervalSettings', data: this.#workoutplan.result() } })
                   this.#workoutplan.reset()
                 }
-                this.#controlPointCallback({ req: { name: 'start', client: null, data: {} } })
+                this.#controlPointCallback({ req: { name: 'start', data: {} } })
                 break
               // no default
             }
