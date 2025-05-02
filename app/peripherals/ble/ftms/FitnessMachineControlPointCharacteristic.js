@@ -91,11 +91,12 @@ export class FitnessMachineControlPointCharacteristic {
         // The spec expects that after the reset command also the control shall be reset, but this leads to an error situation
         // ErgZone will send a reset at the start of communication, without pushing any workoutplan, leading to a loss of information
         if (this.#controlled) {
-          this.#controlPointCallback({ req: { name: 'reset', data: {} }})
+          this.#controlPointCallback({ req: { name: 'reset', data: {} } })
           return this.#buildResponse(opCode, ResultOpCode.success)
         } else {
           log.error('FTMS: Reset attempted before RequestControl')
         }
+        break
       case ControlPointOpCode.startOrResume:
         if (this.#controlled) {
           this.#controlPointCallback({ req: { name: 'startOrResume', data: {} }})
@@ -103,14 +104,15 @@ export class FitnessMachineControlPointCharacteristic {
         } else {
           log.error('FTMS: startOrResume attempted before RequestControl')
         }
+        break
       case ControlPointOpCode.stopOrPause: {
         if (this.#controlled) {
           const controlParameter = data.readUInt8(1)
           if (controlParameter === 1) {
-            this.#controlPointCallback({ req: { name: 'stop', data: {} }})
+            this.#controlPointCallback({ req: { name: 'stop', data: {} } })
             return this.#buildResponse(opCode, ResultOpCode.success)
           } else if (controlParameter === 2) {
-            this.#controlPointCallback({ req: { name: 'pause', data: {} }})
+            this.#controlPointCallback({ req: { name: 'pause', data: {} } })
             return this.#buildResponse(opCode, ResultOpCode.success)
           }
           log.error(`FitnessMachineControlPointCharacteristic: stopOrPause with invalid controlParameter: ${controlParameter}`)
