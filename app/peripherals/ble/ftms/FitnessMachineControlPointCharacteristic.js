@@ -99,7 +99,7 @@ export class FitnessMachineControlPointCharacteristic {
         break
       case ControlPointOpCode.startOrResume:
         if (this.#controlled) {
-          this.#controlPointCallback({ req: { name: 'startOrResume', data: {} }})
+          this.#controlPointCallback({ req: { name: 'startOrResume', data: {} } })
           return this.#buildResponse(opCode, ResultOpCode.success)
         } else {
           log.error('FTMS: startOrResume attempted before RequestControl')
