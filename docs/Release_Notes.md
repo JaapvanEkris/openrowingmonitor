@@ -13,14 +13,14 @@ Main contributors: [Abasz](https://github.com/Abasz) and [Jaap van Ekris](https:
 
 ### Bugfixes and robustness improvements in 0.9.6
 
+- **Simplified Strava integration**, which now is in line with the rest of the integrations (see [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/64)). Please be aware that you configure your Strava setup in `config.js` again (please look at the [integrations manual](Integrations.md) for the new setup.
 - **Rewrite of the entire bluetooth stack**, greatly improving stability, removing limitations and bringing the PM5 interface much closer to the official PM5 interface specification. This also fixes the issue that heartrate device can't be switched dynamically (adresses [this bug](https://github.com/JaapvanEkris/openrowingmonitor/issues/69), [this feature request](https://github.com/JaapvanEkris/openrowingmonitor/discussions/93) and [this bug report](https://github.com/JaapvanEkris/openrowingmonitor/issues/94).
 - **Fixed a bug in pause behaviour** for magnetic rowers (fixes [this bug](https://github.com/JaapvanEkris/openrowingmonitor/discussions/96)).
 - **Fixed a bug in the metrics presentation**, which caused some metrics presented/recorded to be averaged too much.
 - **Fixed a bug in restart behaviour** that made the recorders crash (fixes [this bug](https://github.com/JaapvanEkris/openrowingmonitor/discussions/100)).
-- **Simplified Strava integration**, which now is in line with the rest of the integrations (see [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/64)).
 - **Upgraded ESLint and its configuration**, now code is inspected beyond the use of spaces.
 - **Introducing JSDoc** in our code, to make our code easier to understand ([see also](https://github.com/JaapvanEkris/openrowingmonitor/issues/90)).
-- **Upgraded all NPM packages**, making our stack current again.
+- **Upgraded all NPM packages** and Node.js, making our stack current again.
 
 ## Version 0.9.5 (February 2025)
 
@@ -43,7 +43,7 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz]
 
 ### Known issues in 0.9.5
 
-- **Bluetooth Heartrate can't be switched dynamically**: due to some underlying changes in the OS, BLE heartrate monitors can't be activated through the GUI without crashing the BLE metrics broadcast (see [the description of issue 69](https://github.com/JaapvanEkris/openrowingmonitor/issues/69)). As this is an issue in the OS, **all previous versions of OpenRowingMonitor are also affected by this issue**. In version 0.9.5 has a workaround implemented that mitigates this at startup. So configuring the use of a BLE heartrate monitor in the config file should work. However, dynamic switching via the GUI will crash the BLE connections.
+- **Bluetooth Heartrate can't be switched dynamically**: due to some underlying changes in the OS, BLE heartrate monitors can't be activated through the GUI without crashing the BLE metrics broadcast (see [the description of issue 69](https://github.com/JaapvanEkris/openrowingmonitor/issues/69)). As this is an issue in the OS, **all previous versions of OpenRowingMonitor are also affected by this issue**. In version 0.9.5 has a workaround implemented that mitigates this at startup. So configuring the use of a BLE heartrate monitor in the config file should work. However, dynamic switching via the GUI will crash the BLE connections. This issue is resolved in version 0.9.6.
 
 ## Version 0.9.0 (January 2024)
 
