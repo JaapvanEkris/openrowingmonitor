@@ -62,8 +62,6 @@ function runConfigMigration (configToCheck) {
   }
 }
 
-// ToDo: check the configs of the uploaders!
-
 /**
  * @param {Config | OldConfig} configToCheck
  */
@@ -130,6 +128,52 @@ function checkConfig (configToCheck) {
   checkFloatValue(configToCheck.rowerSettings, 'minimumRecoveryTime', 0, null, false, true, 0.001)
   checkFloatValue(configToCheck.rowerSettings, 'maximumStrokeTimeBeforePause', 3, 60, false, true, 6)
   checkFloatValue(configToCheck.rowerSettings, 'magicConstant', 0, null, false, true, 2.8)
+  if (!configToCheck.mqtt) {
+    configToCheck.mqtt = {
+      mqttBroker: '',
+      username: '',
+      password: '',
+      machineName: ''
+    }
+    log.error('Configuration Error: MQTT configuration error')
+  }
+  if (!!configToCheck.userSettings.rowsAndAll && !!configToCheck.userSettings.rowsAndAll.allowUpload && configToCheck.userSettings.rowsAndAll.allowUpload === true) {
+    if (!configToCheck.userSettings.rowsAndAll.apiKey || configToCheck.userSettings.rowsAndAll.apiKey === '') {
+      log.error('Configuration Error: RowsAndAll ApiKey error')
+      configToCheck.userSettings.rowsAndAll.allowUpload = false
+    }
+  } else {
+    configToCheck.userSettings.rowsAndAll = { allowUpload: false }
+  }
+  if (!!configToCheck.userSettings.intervals && !!configToCheck.userSettings.intervals.allowUpload && configToCheck.userSettings.intervals.allowUpload === true) {
+    if (!configToCheck.userSettings.intervals.athleteId || configToCheck.userSettings.intervals.athleteId === '' || isNaN(configToCheck.userSettings.intervals.athleteId)) {
+      log.error('Configuration Error: intervals.icu athleteId error')
+      configToCheck.userSettings.intervals.allowUpload = false
+    }
+    if (!configToCheck.userSettings.intervals.apiKey || configToCheck.userSettings.intervals.apiKey === '') {
+      log.error('Configuration Error: intervals.icu apiKey error')
+      configToCheck.userSettings.intervals.allowUpload = false
+    }
+  } else {
+    configToCheck.userSettings.intervals = { allowUpload: false }
+  }
+  if (!!configToCheck.userSettings.strava && !!configToCheck.userSettings.strava.allowUpload && configToCheck.userSettings.strava.allowUpload === true) {
+    if (!configToCheck.userSettings.strava.clientId || configToCheck.userSettings.strava.clientId === '' || isNaN(configToCheck.userSettings.strava.clientId)) {
+      log.error('Configuration Error: strava clientId error')
+      configToCheck.userSettings.strava.allowUpload = false
+    }
+    if (!configToCheck.userSettings.strava.clientSecret || configToCheck.userSettings.strava.clientSecret === '') {
+      log.error('Configuration Error: strava clientSecret error')
+      configToCheck.userSettings.strava.allowUpload = false
+    }
+    if (!configToCheck.userSettings.strava.refreshToken || configToCheck.userSettings.strava.refreshToken === '') {
+      log.error('Configuration Error: strava refreshToken error')
+      configToCheck.userSettings.strava.allowUpload = false
+    }
+  } else {
+    configToCheck.userSettings.strava = { allowUpload: false }
+  }
+
 }
 
 const config = await getConfig()
