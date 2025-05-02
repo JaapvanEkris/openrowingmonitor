@@ -5,6 +5,7 @@
   Contains all mapping functions needed to map the internal ORM state to the externally communicated Concept2 PM5 states
 */
 /* eslint-disable no-unreachable -- the breaks after the returns trigger this, but there is a lot to say for being systematic about this */
+/* eslint-disable complexity -- There are a lot of decission tables needed to thread this needle */
 import { DurationTypes, IntervalTypes, OperationalStates, RowingState, StrokeState, WorkoutState, WorkoutTypes } from './../csafe-service/CsafeCommandsMapping.js'
 
 /**
@@ -96,8 +97,17 @@ export function toC2WorkoutState (baseMetrics) {
     case (baseMetrics.sessionState === 'WaitingForStart'):
       return WorkoutState.WORKOUTSTATE_WAITTOBEGIN
       break
+    case (baseMetrics.sessionState === 'Rowing' && baseMetrics.metricsContext.isPauseEnd && baseMetrics.split.type === 'distance'):
+      return WorkoutState.WORKOUTSTATE_INTERVALRESTENDTOWORKDISTANCE
+      break
+    case (baseMetrics.sessionState === 'Rowing' && baseMetrics.metricsContext.isPauseEnd && baseMetrics.split.type === 'time'):
+      return WorkoutState.WORKOUTSTATE_INTERVALRESTENDTOWORKTIME
+      break
     case (baseMetrics.sessionState === 'Rowing'):
       return WorkoutState.WORKOUTSTATE_WORKOUTROW
+      break
+    case (baseMetrics.sessionState === 'Paused' && baseMetrics.metricsContext.isPauseStart):
+      return WorkoutState.WORKOUTSTATE_INTERVALWORKDISTANCETOREST
       break
     case (baseMetrics.sessionState === 'Paused'):
       return WorkoutState.WORKOUTSTATE_INTERVALREST
