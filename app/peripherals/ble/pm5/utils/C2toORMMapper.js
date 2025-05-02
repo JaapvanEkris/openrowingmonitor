@@ -23,34 +23,49 @@ export function createWorkoutPlan () {
     workoutplan = []
   }
 
-  function addInterval (type, duration) {
-    let workoutstep = workoutplan.length - 1
+  function addInterval (type, data) {
+    let workoutstep
+    let targetTime
     switch (true) {
-      case (type === 'rest' && duration > 0):
-        workoutplan.push({})
-        workoutstep = workoutplan.length - 1
-        workoutplan[workoutstep].type = 'rest'
-        workoutplan[workoutstep].targetTime = duration
-        break
       case (type === 'rest'):
-        // Skip the empty rest interval
+        if (data.length > 1) {
+          targetTime = readUInt16(data[0], data[1])
+          if (targetTime > 0) {
+            workoutplan.push({})
+            workoutstep = workoutplan.length - 1
+            workoutplan[workoutstep].type = 'rest'
+            workoutplan[workoutstep].targetTime = targetTime
+          }
+        }
+        // As ErgData and ErgZone will always send a rest interval (with 0 length), we must ignore that
         break
       case (type === 'justrow'):
         workoutplan.push({})
         workoutstep = workoutplan.length - 1
         workoutplan[workoutstep].type = 'justrow'
         break
-      case (type === 'distance' && duration > 0):
+      case (type === 'distance' && data.length > 4):
         workoutplan.push({})
         workoutstep = workoutplan.length - 1
-        workoutplan[workoutstep].type = 'distance'
-        workoutplan[workoutstep].targetDistance = duration
+        /* eslint-disable-next-line no-case-declarations -- readable code outweighs rules */
+        const targetDistance = readUInt32(data[1], data[2], data[3], data[4])
+        if (targetDistance > 0) {
+          workoutplan[workoutstep].type = 'distance'
+          workoutplan[workoutstep].targetDistance = targetDistance
+        } else {
+          workoutplan[workoutstep].type = 'justrow'
+        }
         break
-      case (type === 'time' && duration > 0):
+      case (type === 'time' && data.length > 4):
         workoutplan.push({})
         workoutstep = workoutplan.length - 1
-        workoutplan[workoutstep].type = 'time'
-        workoutplan[workoutstep].targetTime = duration / 100
+        targetTime = readUInt32(data[1], data[2], data[3], data[4]) / 100
+        if (targetTime > 0) {
+          workoutplan[workoutstep].type = 'time'
+          workoutplan[workoutstep].targetTime = targetTime
+        } else {
+          workoutplan[workoutstep].type = 'justrow'
+        }
         break
       default:
         workoutplan.push({})
@@ -59,24 +74,50 @@ export function createWorkoutPlan () {
     }
   }
 
-  function addSplit (type, duration) {
+  function addPaceTarget (data) {
     if (workoutplan.length < 1) { return }
     const workoutstep = workoutplan.length - 1
+    if (data.length > 3) {
+      const targetLinearVelocity = 50000 / readUInt32(data[0], data[1], data[2], data[3])
+      if (targetLinearVelocity > 0) { workoutplan[workoutstep].targetLinearVelocity = targetLinearVelocity }
+    }
+  }
+
+  function addSplit (type, data) {
+    if (workoutplan.length < 1) { return }
+    const workoutstep = workoutplan.length - 1
+
     workoutplan[workoutstep].split = {}
     switch (true) {
       case (type === 'justrow'):
         workoutplan[workoutstep].split.type = 'justrow'
         break
-      case (type === 'distance' && duration > 0):
-        workoutplan[workoutstep].split.type = 'distance'
-        workoutplan[workoutstep].split.targetDistance = duration
+      case (type === 'distance' && data.length > 4):
+        /* eslint-disable-next-line no-case-declarations -- readable code outweighs rules */
+        const targetDistance = readUInt32(data[1], data[2], data[3], data[4])
+        if (targetDistance > 0) {
+          workoutplan[workoutstep].split.type = 'distance'
+          workoutplan[workoutstep].split.targetDistance = targetDistance
+        } else {
+          workoutplan[workoutstep].split.type = workoutplan[workoutstep].type
+          workoutplan[workoutstep].split.targetDistance = workoutplan[workoutstep].targetDistance
+        }
         break
-      case (type === 'time' && duration > 0):
-        workoutplan[workoutstep].split.type = 'time'
-        workoutplan[workoutstep].split.targetTime = duration / 100
+      case (type === 'time' && data.length > 4):
+        /* eslint-disable-next-line no-case-declarations -- readable code outweighs rules */
+        const targetTime = readUInt32(data[1], data[2], data[3], data[4]) / 100
+        if (targetTime > 0) {
+          workoutplan[workoutstep].split.type = 'time'
+          workoutplan[workoutstep].split.targetTime = readUInt32(data[1], data[2], data[3], data[4]) / 100
+        } else {
+          workoutplan[workoutstep].split.type = workoutplan[workoutstep].type
+          workoutplan[workoutstep].split.targetTime = workoutplan[workoutstep].targetTime
+        }
         break
       default:
-        workoutplan[workoutstep].split.type = 'justrow'
+        workoutplan[workoutstep].split.type = workoutplan[workoutstep].type
+        if (workoutplan[workoutstep].type === 'distance') { workoutplan[workoutstep].split.targetDistance = workoutplan[workoutstep].targetDistance }
+        if (workoutplan[workoutstep].type === 'time' || workoutplan[workoutstep].type === 'rest') { workoutplan[workoutstep].split.targetTime = workoutplan[workoutstep].targetTime }
     }
   }
 
@@ -84,15 +125,27 @@ export function createWorkoutPlan () {
     return workoutplan.length
   }
 
+  function lastInterval () {
+    return workoutplan[workoutplan.length - 1]
+  }
+
   function result () {
-    return workoutplan
+    if (workoutplan.length > 0) {
+      // Make sure we don't end with a rest interval
+      if (workoutplan[workoutplan.length - 1].type === 'rest') { workoutplan.pop() }
+      return workoutplan
+    } else {
+      return []
+    }
   }
 
   return {
     reset,
     addInterval,
     addSplit,
+    addPaceTarget,
     length,
+    lastInterval,
     result
   }
 }
