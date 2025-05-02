@@ -112,9 +112,7 @@ function checkConfig (configToCheck) {
     checkFloatValue(configToCheck.rowerSettings, 'minimumDragQuality', 0, 1, true, true, 0)
   }
   checkFloatValue(configToCheck.rowerSettings, 'flywheelInertia', 0, null, false, false, null)
-
   checkFloatValue(configToCheck.rowerSettings, 'minimumForceBeforeStroke', 0, 500, true, true, 0)
-
   checkFloatValue(configToCheck.rowerSettings, 'minimumRecoverySlope', 0, null, true, true, 0)
   checkFloatValue(configToCheck.rowerSettings, 'minimumStrokeQuality', 0, 1, true, true, 0)
   checkBooleanValue(configToCheck.rowerSettings, 'autoAdjustRecoverySlope', true, false)
@@ -173,7 +171,6 @@ function checkConfig (configToCheck) {
   } else {
     configToCheck.userSettings.strava = { allowUpload: false }
   }
-
 }
 
 const config = await getConfig()
