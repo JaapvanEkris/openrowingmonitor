@@ -47,7 +47,9 @@ export function createMQTTPeripheral (config) {
     totalMovingTime: 0,
     totalLinearDistance: 0,
     totalCalories: 0,
-    splitNumber: 0,
+    split: {
+      number: 0
+    },
     heartrate: NaN,
     cycleLinearVelocity: 0,
     cyclePace: 0,
