@@ -19,7 +19,7 @@
   ],
   "scripts": {
     "lint": "eslint ./app ./config && markdownlint-cli2 '**/*.md' '#node_modules'",
-    "start": "NOBLE_MULTI_ROLE=1 node app/server.js",
+    "start": "node app/server.js",
     "build": "rollup -c",
     "build:watch": "rollup -cw",
     "test": "uvu"
