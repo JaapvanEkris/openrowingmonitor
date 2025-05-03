@@ -197,6 +197,26 @@ export default {
     maximumStrokeTimeBeforePause: 4
   },
 
+  // KayakFirst kayak/canoe erg (2020 model blue, non-bull)
+  KayakFirst_Blue: {
+    numOfImpulsesPerRevolution: 6,
+    sprocketRadius: 2.7,
+    maximumStrokeTimeBeforePause: 7.0,
+    dragFactor: 40,
+    autoAdjustDragFactor: true,
+    minimumDragQuality: 0.736,
+    dragFactorSmoothing: 4,
+    minimumTimeBetweenImpulses: 0.005,
+    maximumTimeBetweenImpulses: 0.0145,
+    flankLength: 12,
+    smoothing: 1,
+    minimumForceBeforeStroke: 1,
+    minimumDriveTime: 0.145,
+    minimumRecoveryTime: 0.17,
+    flywheelInertia: 0.039,
+    magicConstant: 3.45
+  },
+
   // NordicTrack RX800 Air Rower
   NordicTrack_RX800: {
     numOfImpulsesPerRevolution: 4,
@@ -227,24 +247,24 @@ export default {
     flywheelInertia: 0.72,
     dragFactor: 32000
   },
-
-  // KayakFirst kayak/canoe erg (2020 model blue, non-bull)
-  KayakFirst_Blue: {
-    numOfImpulsesPerRevolution: 6,
-    sprocketRadius: 2.7,
-    maximumStrokeTimeBeforePause: 7.0,
-    dragFactor: 40,
+  
+  // Virtufit Magnetic Rowing Machine
+  // https://virtufit.nl/wp-content/uploads/2022/01/VirtuFit-Elite-Magnetic-Rowing-Machine-Manual-EN.pdf
+  // aka: Obelix - https://pesaschile.cl/categorias/1162-remo-de-aire-magnetico-lite-series-obelix.html
+  // https://fedesport.cl/products/remo-de-aire-magnetico-lite-series-obelix
+  virtufit: {
+    numOfImpulsesPerRevolution: 4,
+    dragFactor: 380,
     autoAdjustDragFactor: true,
-    minimumDragQuality: 0.736,
-    dragFactorSmoothing: 4,
-    minimumTimeBetweenImpulses: 0.005,
-    maximumTimeBetweenImpulses: 0.0145,
-    flankLength: 12,
-    smoothing: 1,
-    minimumForceBeforeStroke: 1,
-    minimumDriveTime: 0.145,
-    minimumRecoveryTime: 0.17,
-    flywheelInertia: 0.039,
-    magicConstant: 3.45
+    minimumDragQuality: 0.93,
+    autoAdjustRecoverySlope: true,
+    autoAdjustRecoverySlopeMargin: 0.5,
+    minimumForceBeforeStroke: 10,
+    flankLength: 4,
+    minimumDriveTime: 0.30,
+    minimumRecoveryTime: 0.020,
+    minimumTimeBetweenImpulses: 0.007,
+    flywheelInertia: 0.015,
+    maximumStrokeTimeBeforePause: 10.0
   }
 }
