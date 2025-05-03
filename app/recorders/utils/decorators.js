@@ -5,6 +5,10 @@
   Decorators for translating raw metrics to human readable notes in file names and notes
 */
 
+/**
+ * @param {number} distance
+ * @param {number} time
+ */
 export function createName (distance, time) {
   let shortDuration
   switch (true) {
@@ -35,10 +39,16 @@ export function createName (distance, time) {
   return shortDuration
 }
 
+/**
+ * @param {number} drag
+ */
 export function createDragLine (drag) {
   return `Drag factor: ${drag.toFixed(1)} 10-6 N*m*s2`
 }
 
+/**
+ * @param {number} VO2MaxResult
+ */
 export function createVO2MaxLine (VO2MaxResult) {
   let VO2MaxLine
   if (VO2MaxResult !== undefined) {
@@ -49,6 +59,9 @@ export function createVO2MaxLine (VO2MaxResult) {
   return VO2MaxLine
 }
 
+/**
+ * @param {Array<number>} HRRArray
+ */
 export function createHRRLine (HRRArray) {
   let HRRLine
   switch (HRRArray.length) {

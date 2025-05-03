@@ -11,6 +11,9 @@ import log from 'loglevel'
 import EventEmitter from 'node:events'
 import mqtt from 'mqtt'
 
+/**
+ * @param {Config} config
+ */
 export function createMQTTPeripheral (config) {
   const emitter = new EventEmitter()
   const protocol = 'mqtt'
@@ -20,10 +23,14 @@ export function createMQTTPeripheral (config) {
   const metricsTopic = `OpenRowingMonitor/${config.mqtt.machineName}/metrics`
   const workoutsTopic = `OpenRowingMonitor/${config.mqtt.machineName}/workoutplans`
   const connectUrl = `${protocol}://${host}:${port}`
+  /**
+   * @type {Metrics}
+   */
   let lastMetrics = {
-    timestamp: (new Date()),
-    sessiontype: 'JustRow',
-    sessionStatus: 'WaitingForStart',
+    .../** @type {Metrics} */({}),
+    timestamp: new Date(),
+    sessiontype: 'justrow',
+    sessionState: 'WaitingForStart',
     strokeState: 'WaitingForDrive',
     metricsContext: {
       isMoving: false,
@@ -32,13 +39,17 @@ export function createMQTTPeripheral (config) {
       isSessionStart: false,
       isPauseStart: false,
       isPauseEnd: false,
-      isSessionStop: false
+      isSessionStop: false,
+      isIntervalEnd: false,
+      isSplitEnd: false
     },
     totalNumberOfStrokes: 0,
     totalMovingTime: 0,
     totalLinearDistance: 0,
     totalCalories: 0,
-    splitNumber: 0,
+    split: {
+      number: 0
+    },
     heartrate: NaN,
     cycleLinearVelocity: 0,
     cyclePace: 0,
@@ -92,6 +103,9 @@ export function createMQTTPeripheral (config) {
     }
   })
 
+  /**
+   * @param {Metrics} metrics
+   */
   async function notifyData (metrics) {
     switch (true) {
       case (metrics.metricsContext.isSessionStart):
@@ -100,7 +114,7 @@ export function createMQTTPeripheral (config) {
       case (metrics.metricsContext.isSessionStop):
         publishMetrics(metrics)
         break
-      case (metrics.metricsContext.isIntervalStart):
+      case (metrics.metricsContext.isIntervalEnd):
         publishMetrics(metrics)
         break
       case (metrics.metricsContext.isSplitEnd):
@@ -115,15 +129,19 @@ export function createMQTTPeripheral (config) {
       case (metrics.metricsContext.isDriveStart):
         publishMetrics(metrics)
         break
+      // no default
     }
     lastMetrics = metrics
   }
 
+  /**
+   * @param {Metrics} metrics
+   */
   async function publishMetrics (metrics) {
     const jsonMetrics = {
       timestamp: (metrics.timestamp / 1000).toFixed(3),
       sessiontype: metrics.sessiontype,
-      sessionStatus: metrics.sessionStatus,
+      sessionState: metrics.sessionState,
       strokeState: metrics.strokeState,
       isMoving: metrics.metricsContext.isMoving,
       isDriveStart: metrics.metricsContext.isDriveStart,
@@ -136,7 +154,7 @@ export function createMQTTPeripheral (config) {
       totalMovingTime: metrics.totalMovingTime.toFixed(5),
       totalDistance: metrics.totalLinearDistance.toFixed(1),
       totalCalories: metrics.totalCalories.toFixed(1),
-      splitNumber: metrics.splitNumber.toFixed(0),
+      splitNumber: metrics.split.number.toFixed(0),
       heartrate: (metrics.heartrate !== undefined ? metrics.heartrate.toFixed(0) : NaN),
       velocity: (metrics.totalNumberOfStrokes > 0 && metrics.cycleLinearVelocity > 0 ? metrics.cycleLinearVelocity.toFixed(2) : NaN),
       pace: (metrics.totalNumberOfStrokes > 0 && metrics.cyclePace > 0 ? metrics.cyclePace.toFixed(2) : NaN),
@@ -149,15 +167,12 @@ export function createMQTTPeripheral (config) {
       distancePerStroke: (metrics.cycleDistance > 0 ? metrics.cycleDistance.toFixed(2) : NaN),
       peakHandleForce: (metrics.totalNumberOfStrokes > 0 && metrics.drivePeakHandleForce > 0 ? metrics.drivePeakHandleForce.toFixed(1) : NaN),
       averageHandleForce: (metrics.totalNumberOfStrokes > 0 && metrics.driveAverageHandleForce > 0 ? metrics.driveAverageHandleForce.toFixed(1) : NaN),
-      forceCurve: (metrics.driveAverageHandleForce > 0 ? metrics.driveHandleForceCurve.map(value => value.toFixed(2)) : NaN),
-      velocityCurve: (metrics.driveAverageHandleForce > 0 ? metrics.driveHandleVelocityCurve.map(value => value.toFixed(3)) : NaN),
-      powerCurve: (metrics.driveAverageHandleForce > 0 ? metrics.driveHandlePowerCurve.map(value => value.toFixed(1)) : NaN),
       dragfactor: (metrics.dragFactor > 0 ? metrics.dragFactor.toFixed(1) : NaN)
     }
 
     client.publish(metricsTopic, JSON.stringify(jsonMetrics), { qos: 0, retain: false }, (error) => {
       if (error) {
-        console.error(error)
+        log.debug(`MQTT publisher, Error: ${error}`)
       }
     })
   }

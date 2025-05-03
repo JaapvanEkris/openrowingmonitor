@@ -5,7 +5,7 @@
 
 import { html } from 'lit'
 import { formatDistance, formatNumber, secondsToTimeString } from '../lib/helper'
-import { icon_bolt, icon_clock, icon_alarmclock, icon_fire, icon_heartbeat, icon_paddle, icon_route, icon_stopwatch, rower_icon } from '../lib/icons'
+import { iconBolt, iconClock, iconAlarmclock, iconFire, iconHeartbeat, iconPaddle, iconRoute, iconStopwatch, rowerIcon } from '../lib/icons'
 import '../components/DashboardForceCurve.js'
 import '../components/DashboardActions.js'
 import '../components/DashboardMetric.js'
@@ -22,33 +22,33 @@ export const DASHBOARD_METRICS = {
           distance = 0
           break
         case (metrics?.sessiontype === 'distance'):
-          distance = Math.max(metrics?.intervalTargetDistance - metrics?.intervalLinearDistance, 0)
+          distance = Math.max(metrics?.interval.distance.toEnd, 0)
           break
         default:
-          distance = Math.max(metrics?.intervalLinearDistance, 0)
+          distance = Math.max(metrics?.interval.distance.fromStart, 0)
       }
       const linearDistance = formatDistance(distance ?? 0)
 
-      return simpleMetricFactory(linearDistance.distance, linearDistance.unit, config.guiConfigs.showIcons ? icon_route : '')
+      return simpleMetricFactory(linearDistance.distance, linearDistance.unit, config.guiConfigs.showIcons ? iconRoute : '')
     }
   },
 
-  pace: { displayName: 'Pace/500', size: 1, template: (metrics, config) => simpleMetricFactory(secondsToTimeString(500 / metrics?.cycleLinearVelocity), '/500m', config.guiConfigs.showIcons ? icon_stopwatch : '') },
+  pace: { displayName: 'Pace/500', size: 1, template: (metrics, config) => simpleMetricFactory(secondsToTimeString(500 / metrics?.cycleLinearVelocity), '/500m', config.guiConfigs.showIcons ? iconStopwatch : '') },
 
-  power: { displayName: 'Power', size: 1, template: (metrics, config) => simpleMetricFactory(formatNumber(metrics?.cyclePower), 'watt', config.guiConfigs.showIcons ? icon_bolt : '') },
+  power: { displayName: 'Power', size: 1, template: (metrics, config) => simpleMetricFactory(formatNumber(metrics?.cyclePower), 'watt', config.guiConfigs.showIcons ? iconBolt : '') },
 
-  stkRate: { displayName: 'Stroke rate', size: 1, template: (metrics, config) => simpleMetricFactory(formatNumber(metrics?.cycleStrokeRate), '/min', config.guiConfigs.showIcons ? icon_paddle : '') },
+  stkRate: { displayName: 'Stroke rate', size: 1, template: (metrics, config) => simpleMetricFactory(formatNumber(metrics?.cycleStrokeRate), '/min', config.guiConfigs.showIcons ? iconPaddle : '') },
   heartRate: {
     displayName: 'Heart rate',
     size: 1,
-    template: (metrics, config) => html`<dashboard-metric .icon=${config.guiConfigs.showIcons ? icon_heartbeat : ''} unit="bpm" .value=${formatNumber(metrics?.heartrate)}>
-      ${metrics?.heartRateBatteryLevel > 0
-        ? html`<battery-icon .batteryLevel=${metrics?.heartRateBatteryLevel}></battery-icon>`
-        : ''}
+    template: (metrics, config) => html`<dashboard-metric .icon=${config.guiConfigs.showIcons ? iconHeartbeat : ''} unit="bpm" .value=${formatNumber(metrics?.heartrate)}>
+      ${metrics?.heartRateBatteryLevel > 0 ?
+        html`<battery-icon .batteryLevel=${metrics?.heartRateBatteryLevel}></battery-icon>` :
+        ''}
     </dashboard-metric>`
   },
 
-  totalStk: { displayName: 'Total strokes', size: 1, template: (metrics, config) => simpleMetricFactory(metrics?.totalNumberOfStrokes, 'stk', config.guiConfigs.showIcons ? icon_paddle : '') },
+  totalStk: { displayName: 'Total strokes', size: 1, template: (metrics, config) => simpleMetricFactory(metrics?.totalNumberOfStrokes, 'stk', config.guiConfigs.showIcons ? iconPaddle : '') },
 
   calories: {
     displayName: 'Calories',
@@ -56,7 +56,7 @@ export const DASHBOARD_METRICS = {
     template: (metrics, config) => {
       const calories = metrics?.sessiontype === 'Calories' ? Math.max(metrics?.intervalTargetCalories - metrics?.intervalLinearCalories, 0) : metrics?.totalCalories
 
-      return simpleMetricFactory(formatNumber(calories ?? 0), 'kcal', config.guiConfigs.showIcons ? icon_fire : '')
+      return simpleMetricFactory(formatNumber(calories ?? 0), 'kcal', config.guiConfigs.showIcons ? iconFire : '')
     }
   },
 
@@ -69,22 +69,22 @@ export const DASHBOARD_METRICS = {
       switch (true) {
         case (metrics?.sessiontype === 'rest' && metrics?.pauseCountdownTime > 0):
           time = metrics?.pauseCountdownTime
-          icon = icon_alarmclock
+          icon = iconAlarmclock
           break
         case (metrics?.sessiontype === 'time'):
-          time = Math.max(metrics?.intervalTargetTime - metrics?.intervalMovingTime, 0)
-          icon = icon_clock
+          time = Math.max(metrics?.interval.movingTime.toEnd, 0)
+          icon = iconClock
           break
         default:
-          time = Math.max(metrics?.intervalMovingTime, 0)
-          icon = icon_clock
+          time = Math.max(metrics?.interval.movingTime.sinceStart, 0)
+          icon = iconClock
       }
 
       return simpleMetricFactory(secondsToTimeString(time ?? 0), '', config.guiConfigs.showIcons ? icon : '')
     }
   },
 
-  distancePerStk: { displayName: 'Dist per Stroke', size: 1, template: (metrics, config) => simpleMetricFactory(formatNumber(metrics?.cycleDistance, 1), 'm', config.guiConfigs.showIcons ? rower_icon : '') },
+  distancePerStk: { displayName: 'Dist per Stroke', size: 1, template: (metrics, config) => simpleMetricFactory(formatNumber(metrics?.cycleDistance, 1), 'm', config.guiConfigs.showIcons ? rowerIcon : '') },
 
   dragFactor: { displayName: 'Drag factor', size: 1, template: (metrics, config) => simpleMetricFactory(formatNumber(metrics?.dragFactor), '', config.guiConfigs.showIcons ? 'Drag' : '') },
 
@@ -101,7 +101,6 @@ export const DASHBOARD_METRICS = {
 
 /**
   * Helper function to create a simple metric tile
-  *
   * @param {string | number} value The metric to show
   * @param {string} unit The unit of the metric.
   * @param {string | import('lit').TemplateResult<2>} icon The number of decimal places to round to (default: 0).

@@ -13,13 +13,18 @@
 */
 import rowerProfiles from './rowerProfiles.js'
 
+/**
+ * The default configuration for the Open Rowing Monitor.
+ * @type {Config}
+ */
 export default {
   // Available log levels: trace, debug, info, warn, error, silent
   loglevel: {
     // The default log level
     default: 'info',
     // The log level of of the rowing engine (stroke detection and physics model)
-    RowingEngine: 'warn'
+    RowingEngine: 'warn',
+    Peripherals: 'warn'
   },
 
   // Defines the GPIO Pin that is used to read the sensor data from the rowing machine
@@ -192,15 +197,26 @@ export default {
 
     // Configuration for the RowsAndAll.com upload
     rowsAndAll: {
-      upload: false,
+      allowUpload: false,
+      autoUpload: false,
       apiKey: ''
     },
 
     // Configuration for the intervals.icu upload
     intervals: {
-      upload: false,
+      allowUpload: false,
+      autoUpload: false,
       athleteId: '',
       apiKey: ''
+    },
+
+    // Configuration for the Strava.com upload
+    strava: {
+      allowUpload: false,
+      autoUpload: false,
+      clientId: '',
+      clientSecret: '',
+      refreshToken: ''
     }
   },
 

@@ -1,13 +1,16 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  This Module calculates the training specific metrics.
-*/
+/*
+/**
+ * This Module calculates the workout, interval and split specific metrics, as well as guards their boundaries
+ * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Architecture.md#sessionmanagerjs|the description}
+ */
+/* eslint-disable max-lines -- This handles quite a complex state machine with three levels of workout segments, not much we can do about it */
 import { EventEmitter } from 'events'
 import { createRowingStatistics } from './RowingStatistics.js'
 import { createWorkoutSegment } from './utils/workoutSegment.js'
-import { secondsToTimeString } from '../tools/Helper.js'
+// import { createWorkoutSegment } from './utils/workoutSegment_STRIPPED.js'
 
 import loglevel from 'loglevel'
 const log = loglevel.getLogger('RowingEngine')
@@ -15,35 +18,38 @@ const log = loglevel.getLogger('RowingEngine')
 export function createSessionManager (config) {
   const emitter = new EventEmitter()
   const rowingStatistics = createRowingStatistics(config)
-  let metrics
+  const session = createWorkoutSegment(config)
+  const interval = createWorkoutSegment(config)
+  const split = createWorkoutSegment(config)
+  let metrics = {}
   let lastBroadcastedMetrics = {}
   let pauseTimer
   let pauseCountdownTimer = 0
   let watchdogTimer
   const watchdogTimout = 1000 * config.rowerSettings.maximumStrokeTimeBeforePause // Pause timeout in miliseconds
   let sessionState = 'WaitingForStart'
-  let lastSessionState = 'WaitingForStart'
   let intervalSettings = []
   let currentIntervalNumber = -1
-  const interval = createWorkoutSegment(config)
-  const intervalAndPause = createWorkoutSegment(config)
-  const split = createWorkoutSegment(config)
-  let intervalAndPauseStartTime = new Date()
-  let splitNumber = 0
+  let splitNumber = -1
 
-  metrics = rowingStatistics.getMetrics()
-  resetMetricsSessionContext(metrics)
+  metrics = refreshMetrics()
+  // ToDo: replace with activateNextInterval based on justrow, justrow
+  session.setStart(metrics)
   interval.setStart(metrics)
-  intervalAndPause.setStart(metrics)
   split.setStart(metrics)
   emitMetrics(metrics)
+  lastBroadcastedMetrics = { ...metrics }
 
-  // This function handles all incomming commands. As all commands are broadasted to all application parts,
-  // we need to filter here what the RowingEngine will react to and what it will ignore
-  // eslint-disable-next-line no-unused-vars
-  function handleCommand (commandName, data, client) {
-    metrics = rowingStatistics.getMetrics()
-    resetMetricsSessionContext(metrics)
+  /**
+   * This function handles all incomming commands. As all commands are broadasted to all managers, we need to filter here what is relevant
+   * for the RowingEngine and what is not
+   *
+   * @param {Command} Name of the command to be executed by the commandhandler
+   * @param {unknown} data for executing the command
+   *
+   * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Architecture.md#command-flow|The command flow documentation}
+  */
+  function handleCommand (commandName, data) {
     switch (commandName) {
       case ('updateIntervalSettings'):
         if (sessionState !== 'Rowing') {
@@ -55,35 +61,42 @@ export function createSessionManager (config) {
       case ('start'):
         if (sessionState !== 'Rowing') {
           clearTimeout(pauseTimer)
-          StartOrResumeTraining(metrics)
+          StartOrResumeTraining()
           sessionState = 'WaitingForStart'
         }
         break
       case ('startOrResume'):
         if (sessionState !== 'Rowing') {
           clearTimeout(pauseTimer)
-          StartOrResumeTraining(metrics)
+          StartOrResumeTraining()
           sessionState = 'WaitingForStart'
         }
         break
       case ('pause'):
-        pauseTraining(metrics)
-        metrics = rowingStatistics.getMetrics() // as the pause button is forced, we need to fetch the zero'ed metrics
-        metrics.metricsContext.isPauseStart = true
-        sessionState = 'Paused'
+        if (sessionState === 'Rowing') {
+          pauseTraining(lastBroadcastedMetrics)
+          lastBroadcastedMetrics = refreshMetrics() // as the pause button is forced, we need to fetch the zero'ed metrics
+          lastBroadcastedMetrics.metricsContext.isPauseStart = true
+          sessionState = 'Paused'
+        }
         break
       case ('stop'):
-        clearTimeout(pauseTimer)
-        stopTraining(metrics)
-        metrics.metricsContext.isSessionStop = true
-        sessionState = 'Stopped'
-        break
-      case ('requestControl'):
+        if (sessionState === 'Rowing') {
+          clearTimeout(pauseTimer)
+          stopTraining(lastBroadcastedMetrics)
+          lastBroadcastedMetrics.metricsContext.isSessionStop = true
+          sessionState = 'Stopped'
+        }
         break
       case ('reset'):
         clearTimeout(pauseTimer)
-        resetTraining(metrics)
-        metrics.metricsContext.isPauseStart = true
+        if (sessionState === 'Rowing') {
+          sessionState = 'Stopped'
+          lastBroadcastedMetrics.metricsContext.isSessionStop = true
+          emitMetrics(lastBroadcastedMetrics)
+        }
+        resetTraining(lastBroadcastedMetrics)
+        lastBroadcastedMetrics = refreshMetrics() // as the engine is reset, we need to fetch the zero'ed metrics
         sessionState = 'WaitingForStart'
         break
       case 'switchBlePeripheralMode':
@@ -94,43 +107,45 @@ export function createSessionManager (config) {
         break
       case 'refreshPeripheralConfig':
         break
-      case 'authorizeStrava':
-        break
-      case 'uploadTraining':
-        break
-      case 'stravaAuthorizationCode':
+      case 'upload':
         break
       case 'shutdown':
         clearTimeout(pauseTimer)
-        stopTraining(metrics)
-        metrics.metricsContext.isSessionStop = true
-        sessionState = 'Stopped'
+        stopTraining(lastBroadcastedMetrics)
+        if (sessionState === 'Rowing') {
+          lastBroadcastedMetrics.metricsContext.isSessionStop = true
+          sessionState = 'Stopped'
+        }
         break
       default:
         log.error(`Recieved unknown command: ${commandName}`)
     }
-    emitMetrics(metrics)
-    lastSessionState = sessionState
+    emitMetrics(lastBroadcastedMetrics)
   }
 
-  function StartOrResumeTraining (baseMetrics) {
+  function refreshMetrics () {
+    const baseMetrics = rowingStatistics.getMetrics()
+    resetMetricsSessionContext(baseMetrics)
+    baseMetrics.timestamp = new Date()
+    return baseMetrics
+  }
+
+  function StartOrResumeTraining () {
     rowingStatistics.allowStartOrResumeTraining()
-    intervalAndPauseStartTime = new Date()
-    intervalAndPause.setStart(baseMetrics)
-    split.setStart(baseMetrics)
-    split.setEnd(interval.getSplit())
   }
 
   function stopTraining (baseMetrics) {
     clearTimeout(watchdogTimer)
-    interval.updateProjections(baseMetrics)
+    interval.push(baseMetrics)
+    split.push(baseMetrics)
     rowingStatistics.stopTraining()
   }
 
   // clear the metrics in case the user pauses rowing
   function pauseTraining (baseMetrics) {
     clearTimeout(watchdogTimer)
-    interval.updateProjections(baseMetrics)
+    session.push(baseMetrics)
+    interval.push(baseMetrics)
     rowingStatistics.pauseTraining()
   }
 
@@ -142,19 +157,29 @@ export function createSessionManager (config) {
     intervalSettings = []
     currentIntervalNumber = -1
     pauseCountdownTimer = 0
-    splitNumber = 0
-    metrics = rowingStatistics.getMetrics()
-    resetMetricsSessionContext(metrics)
+    splitNumber = -1
+    metrics = refreshMetrics()
+    lastBroadcastedMetrics = { ...metrics }
     sessionState = 'WaitingForStart'
-    lastSessionState = 'WaitingForStart'
+    session.reset()
     interval.reset()
+    split.reset()
+    session.setStart(metrics)
     interval.setStart(metrics)
-    intervalAndPauseStartTime = new Date()
-    intervalAndPause.setStart(metrics)
     split.setStart(metrics)
     emitMetrics(metrics)
   }
 
+  /**
+   * This function guards the session, interval and split states boundaries
+   *
+   * @param {float} time between two impulses in seconds
+   *
+   * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Architecture.md#session-interval-and-split-boundaries-in-sessionmanagerjs|The session, interval and split setup}
+   * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Architecture.md#sessionstates-in-sessionmanagerjs|The states maintained}
+   * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Architecture.md#rowing-metrics-flow|the flags set}
+  */
+  /* eslint-disable max-statements, complexity -- This handles quite a complex state machine with three levels of workout segments, not much we can do about it */
   function handleRotationImpulse (currentDt) {
     let temporaryDatapoint
 
@@ -164,139 +189,174 @@ export function createSessionManager (config) {
     // Provide the rower with new data
     metrics = rowingStatistics.handleRotationImpulse(currentDt)
     resetMetricsSessionContext(metrics)
+    if (sessionState === 'Rowing' && split.getStartTimestamp() !== undefined && split.timeSinceStart(metrics) >= 0) {
+      // If we are moving, timestamps should be based on movingTime as it is more accurate and consistent for the consumers
+      metrics.timestamp = new Date(split.getStartTimestamp().getTime() + (split.timeSinceStart(metrics) * 1000))
+    } else {
+      metrics.timestamp = new Date()
+    }
 
     if (metrics.metricsContext.isMoving && (metrics.metricsContext.isDriveStart || metrics.metricsContext.isRecoveryStart)) {
-      interval.updateProjections(metrics)
+      session.push(metrics)
+      interval.push(metrics)
+      split.push(metrics)
     }
 
     // This is the core of the finite state machine that defines all state transitions
     switch (true) {
-      case (lastSessionState === 'WaitingForStart' && metrics.metricsContext.isMoving === true):
-        StartOrResumeTraining(metrics)
+      case (sessionState === 'WaitingForStart' && metrics.metricsContext.isMoving === true):
+        StartOrResumeTraining()
         sessionState = 'Rowing'
-        metrics.metricsContext.isIntervalStart = true
         metrics.metricsContext.isSessionStart = true
+        // eslint-disable-next-line no-case-declarations -- Code clarity outweighs lint rules
+        const startTimestamp = new Date(metrics.timestamp.getTime() - metrics.totalMovingTime * 1000)
+        session.setStartTimestamp(startTimestamp)
+        interval.setStartTimestamp(startTimestamp)
+        split.setStartTimestamp(startTimestamp)
+        emitMetrics(metrics)
         break
-      case (lastSessionState === 'WaitingForStart'):
+      case (sessionState === 'WaitingForStart'):
         // We can't change into the "Rowing" state since we are waiting for a drive phase that didn't come
+        emitMetrics(metrics)
         break
-      case (lastSessionState === 'Paused' && metrics.metricsContext.isMoving === true):
-        StartOrResumeTraining(metrics)
+      case (sessionState === 'Paused' && metrics.metricsContext.isMoving === true):
+        StartOrResumeTraining()
         sessionState = 'Rowing'
-        metrics.metricsContext.isIntervalStart = true
         metrics.metricsContext.isPauseEnd = true
+        emitMetrics(metrics)
+        if (interval.type() === 'rest') {
+          // We are leaving a rest interval
+          metrics.metricsContext.isIntervalEnd = true
+          activateNextIntervalParameters(metrics)
+        } else {
+          // It was a spontanuous pause
+          activateNextSplitParameters(metrics)
+        }
         break
-      case (lastSessionState === 'Paused'):
+      case (sessionState === 'Paused'):
         // We are in a paused state, and didn't see a drive, so nothing to do here
+        emitMetrics(metrics)
         break
-      case (lastSessionState !== 'Stopped' && metrics.strokeState === 'Stopped'):
+      case (sessionState !== 'Stopped' && metrics.strokeState === 'Stopped'):
         // We do not need to refetch the metrics as RowingStatistics will already have zero-ed the metrics when strokeState = 'Stopped'
         // This is intended behaviour, as the rower/flywheel indicate the rower has stopped somehow
         stopTraining(metrics)
         sessionState = 'Stopped'
         metrics.metricsContext.isSessionStop = true
+        emitMetrics(metrics)
         break
-      case (lastSessionState === 'Stopped'):
+      case (sessionState === 'Stopped'):
         // We are in a stopped state, and will remain there
         sessionState = 'Stopped'
+        emitMetrics(metrics)
         break
-      case (lastSessionState === 'Rowing' && metrics.strokeState === 'WaitingForDrive'):
+      case (sessionState === 'Rowing' && metrics.strokeState === 'WaitingForDrive'):
         // We do not need to refetch the metrics as RowingStatistics will already have zero-ed the metrics when strokeState = 'WaitingForDrive'
         // This is intended behaviour, as the rower/flywheel indicate the rower has paused somehow
         pauseTraining(metrics)
         sessionState = 'Paused'
         metrics.metricsContext.isPauseStart = true
+        metrics.metricsContext.isSplitEnd = true
+        emitMetrics(metrics)
+        activateNextSplitParameters(metrics)
         break
-      case (lastSessionState === 'Rowing' && metrics.metricsContext.isMoving && interval.isEndReached(metrics) && isNextIntervalActive()):
+      case (sessionState === 'Rowing' && metrics.metricsContext.isMoving && interval.isEndReached(metrics) && isNextIntervalActive()):
         // The next interval is an active one, so we just keep on going
         // As we typically overshoot our interval target, we project the intermediate value
         temporaryDatapoint = interval.interpolateEnd(lastBroadcastedMetrics, metrics)
         sessionState = 'Rowing'
         if (temporaryDatapoint.modified) {
           // The intermediate datapoint is actually different
-          resetMetricsSessionContext(temporaryDatapoint)
-          activateNextIntervalParameters(temporaryDatapoint)
-          temporaryDatapoint.metricsContext.isIntervalStart = true
+          temporaryDatapoint.metricsContext.isIntervalEnd = true
           temporaryDatapoint.metricsContext.isSplitEnd = true
           emitMetrics(temporaryDatapoint)
+          activateNextIntervalParameters(temporaryDatapoint)
+          emitMetrics(metrics)
         } else {
-          activateNextIntervalParameters(metrics)
-          metrics.metricsContext.isIntervalStart = true
+          metrics.metricsContext.isIntervalEnd = true
           metrics.metricsContext.isSplitEnd = true
+          emitMetrics(metrics)
+          activateNextIntervalParameters(metrics)
         }
         break
-      case (lastSessionState === 'Rowing' && metrics.metricsContext.isMoving && interval.isEndReached(metrics) && isNextIntervalAvailable()):
+      case (sessionState === 'Rowing' && metrics.metricsContext.isMoving && interval.isEndReached(metrics) && isNextIntervalAvailable()):
         // There is a next interval, but it is a rest interval, so we forcefully stop the session
         // As we typically overshoot our interval target, we project the intermediate value
-        stopTraining(metrics)
-        temporaryDatapoint = interval.interpolateEnd(lastBroadcastedMetrics, metrics)
         sessionState = 'Paused'
-        currentIntervalNumber++
+        temporaryDatapoint = interval.interpolateEnd(lastBroadcastedMetrics, metrics)
         if (temporaryDatapoint.modified) {
           // The intermediate datapoint is actually different
-          resetMetricsSessionContext(temporaryDatapoint)
-          temporaryDatapoint.metricsContext.isIntervalStart = true
+          temporaryDatapoint.metricsContext.isIntervalEnd = true
           temporaryDatapoint.metricsContext.isSplitEnd = true
           temporaryDatapoint.metricsContext.isPauseStart = true
-          interval.setStart(temporaryDatapoint)
           emitMetrics(temporaryDatapoint)
+          activateNextIntervalParameters(temporaryDatapoint)
         } else {
-          metrics.metricsContext.isIntervalStart = true
+          metrics.metricsContext.isIntervalEnd = true
           metrics.metricsContext.isSplitEnd = true
           metrics.metricsContext.isPauseStart = true
-          interval.setStart(metrics)
+          emitMetrics(metrics)
+          activateNextIntervalParameters(metrics)
         }
-        interval.setEnd(intervalSettings[currentIntervalNumber])
-        pauseCountdownTimer = interval.timeToEnd(metrics)
-        pauseTimer = setTimeout(onPauseTimer, 100)
+
+        if (interval.timeToEnd(metrics) > 0) {
+          // If a minimal pause timer has been set, we need to make sure the user obeys that
+          pauseCountdownTimer = interval.timeToEnd(temporaryDatapoint)
+          stopTraining(temporaryDatapoint)
+          pauseTimer = setTimeout(onPauseTimer, 100)
+        } else {
+          // No minimal pause time has been set, so we pause the engine. In this state automatically activates the session again upon the next drive
+          pauseCountdownTimer = 0
+          pauseTraining(temporaryDatapoint)
+        }
+        metrics = refreshMetrics() // Here we want to switch to a zero-ed message as the flywheel has stopped
         break
-      case (lastSessionState === 'Rowing' && metrics.metricsContext.isMoving && interval.isEndReached(metrics)):
+      case (sessionState === 'Rowing' && metrics.metricsContext.isMoving && interval.isEndReached(metrics)):
         // Here we do NOT want zero the metrics, as we want to keep the metrics we had when we crossed the finishline
         stopTraining(metrics)
         sessionState = 'Stopped'
         temporaryDatapoint = interval.interpolateEnd(lastBroadcastedMetrics, metrics)
         if (temporaryDatapoint.modified) {
-          resetMetricsSessionContext(temporaryDatapoint)
           temporaryDatapoint.metricsContext.isSessionStop = true
           emitMetrics(temporaryDatapoint)
         } else {
           metrics.metricsContext.isSessionStop = true
+          emitMetrics(metrics)
         }
         break
-      case (lastSessionState === 'Rowing' && metrics.metricsContext.isMoving && split.isEndReached(metrics)):
+      case (sessionState === 'Rowing' && metrics.metricsContext.isMoving && split.isEndReached(metrics)):
         sessionState = 'Rowing'
-        splitNumber++
         temporaryDatapoint = split.interpolateEnd(lastBroadcastedMetrics, metrics)
         if (temporaryDatapoint.modified) {
-          split.setStart(temporaryDatapoint)
-          resetMetricsSessionContext(temporaryDatapoint)
           temporaryDatapoint.metricsContext.isSplitEnd = true
           emitMetrics(temporaryDatapoint)
+          activateNextSplitParameters(temporaryDatapoint)
+          emitMetrics(metrics)
         } else {
-          split.setStart(metrics)
           metrics.metricsContext.isSplitEnd = true
+          emitMetrics(metrics)
+          activateNextSplitParameters(metrics)
         }
-        split.setEnd(interval.getSplit())
         break
-      case (lastSessionState === 'Rowing' && metrics.metricsContext.isMoving):
+      case (sessionState === 'Rowing' && metrics.metricsContext.isMoving):
         sessionState = 'Rowing'
+        emitMetrics(metrics)
         break
       default:
-        log.error(`Time: ${metrics.totalMovingTime}, combination of ${sessionState} and state ${metrics.strokeState()} found in the Rowing Statistics, which is not captured by Finite State Machine`)
+        log.error(`SessionManager: Time: ${metrics.totalMovingTime}, combination of ${sessionState} and state ${metrics.strokeState} is not captured by Finite State Machine`)
     }
-    emitMetrics(metrics)
 
     if (sessionState === 'Rowing' && metrics.metricsContext.isMoving) {
       watchdogTimer = setTimeout(onWatchdogTimeout, watchdogTimout)
     }
-    lastSessionState = sessionState
     lastBroadcastedMetrics = { ...metrics }
   }
+  /* eslint-enable max-statements, complexity */
 
   // Basic metricContext structure
   function resetMetricsSessionContext (metricsToReset) {
     metricsToReset.metricsContext.isSessionStart = false
-    metricsToReset.metricsContext.isIntervalStart = false
+    metricsToReset.metricsContext.isIntervalEnd = false
     metricsToReset.metricsContext.isSplitEnd = false
     metricsToReset.metricsContext.isPauseStart = false
     metricsToReset.metricsContext.isPauseEnd = false
@@ -307,15 +367,19 @@ export function createSessionManager (config) {
     intervalSettings = null
     intervalSettings = intervalParameters
     currentIntervalNumber = -1
+    splitNumber = -1
     if (intervalSettings.length > 0) {
-      log.info(`SessionManager: Workout recieved with ${intervalSettings.length} interval(s)`)
-      metrics = rowingStatistics.getMetrics()
+      log.info(`SessionManager: Workout plan recieved with ${intervalSettings.length} interval(s)`)
+      metrics = refreshMetrics()
+
+      session.setStart(metrics)
+      session.summarize(intervalParameters)
+
       activateNextIntervalParameters(metrics)
-      resetMetricsSessionContext(metrics)
       emitMetrics(metrics)
     } else {
       // intervalParameters were empty, lets log this odd situation
-      log.error('SessionManager: Recieved workout containing no intervals')
+      log.error('SessionManager: Recieved workout plan containing no intervals')
     }
   }
 
@@ -341,38 +405,40 @@ export function createSessionManager (config) {
     if (intervalSettings.length > 0 && intervalSettings.length > (currentIntervalNumber + 1)) {
       // This function sets the interval parameters in absolute distances/times
       // Thus the interval target always is a projected "finishline" from the current position
-      interval.setStart(baseMetrics)
-      intervalAndPauseStartTime = new Date(intervalAndPauseStartTime.getTime() + intervalAndPause.timeSinceStart(baseMetrics) * 1000)
-      intervalAndPause.setStart(baseMetrics)
-
       currentIntervalNumber++
+      log.info(`Activating interval settings for interval ${currentIntervalNumber + 1} of ${intervalSettings.length}`)
+      interval.setStart(baseMetrics)
       interval.setEnd(intervalSettings[currentIntervalNumber])
-      log.info(`Interval settings for interval ${currentIntervalNumber + 1} of ${intervalSettings.length}: Distance target ${interval.targetDistance()} meters, time target ${secondsToTimeString(interval.targetTime())} minutes, split at ${interval.splitDistance()} meters`)
 
       // As the interval has changed, we need to reset the split metrics
-      split.setStart(baseMetrics)
-      split.setEnd(interval.getSplit())
+      activateNextSplitParameters(baseMetrics)
     } else {
-      log.error('Interval error: there is no next interval!')
+      log.error('SessionManager: expected a next interval, but did not find one!')
     }
+  }
+
+  function activateNextSplitParameters (baseMetrics) {
+    splitNumber++
+    log.error(`Activating split settings for split ${splitNumber + 1}`)
+    split.setStart(baseMetrics)
+    split.setEnd(interval.getSplit())
   }
 
   function onPauseTimer () {
     pauseCountdownTimer = pauseCountdownTimer - 0.1
     if (pauseCountdownTimer > 0) {
-      // The countdowntimer still has some time left on itq
+      // The countdowntimer still has some time left on it
       pauseTimer = setTimeout(onPauseTimer, 100)
+      lastBroadcastedMetrics.timestamp = new Date()
     } else {
       // The timer has run out
-      pauseTraining(metrics)
+      pauseTraining(lastBroadcastedMetrics)
       sessionState = 'Paused'
-      metrics = rowingStatistics.getMetrics()
-      activateNextIntervalParameters(metrics)
-      resetMetricsSessionContext(metrics)
+      lastBroadcastedMetrics = refreshMetrics()
       pauseCountdownTimer = 0
-      log.debug(`Time: ${metrics.totalMovingTime}, rest interval ended`)
+      log.debug(`Time: ${lastBroadcastedMetrics.totalMovingTime}, rest interval ended`)
     }
-    emitMetrics(metrics)
+    emitMetrics(lastBroadcastedMetrics)
   }
 
   function emitMetrics (metricsToEmit) {
@@ -381,37 +447,36 @@ export function createSessionManager (config) {
   }
 
   function enrichMetrics (metricsToEnrich) {
-    // ToDo: add absolute timestamp and base all recorders and BLE connections use that to harmonize timestamps across devices
-    metricsToEnrich.timestamp = new Date(intervalAndPauseStartTime.getTime() + intervalAndPause.timeSinceStart(metricsToEnrich) * 1000)
-    metricsToEnrich.sessiontype = interval.type()
-    metricsToEnrich.sessionStatus = sessionState // ToDo: remove this naming change by changing the consumers
-    metricsToEnrich.workoutStepNumber = Math.max(currentIntervalNumber, 0) // Interval number, to keep in sync with the workout plan
+    metricsToEnrich.sessiontype = interval.type() // ToDo: replace completely with workout.type when some intelligence is added to that
+    metricsToEnrich.sessionState = sessionState
     metricsToEnrich.pauseCountdownTime = Math.max(pauseCountdownTimer, 0) // Time left on the countdown timer
-    metricsToEnrich.intervalMovingTime = interval.timeSinceStart(metricsToEnrich)
-    metricsToEnrich.intervalTargetTime = interval.targetTime()
-    metricsToEnrich.intervalAndPauseMovingTime = intervalAndPause.timeSinceStart(metricsToEnrich)
-    metricsToEnrich.intervalLinearDistance = interval.distanceFromStart(metricsToEnrich)
-    metricsToEnrich.intervalTargetDistance = interval.targetDistance()
-    metricsToEnrich.intervalAndPauseLinearDistance = intervalAndPause.distanceFromStart(metricsToEnrich)
-    metricsToEnrich.splitNumber = metrics.metricsContext.isSplitEnd ? splitNumber - 1 : splitNumber // This is needed to satisfy the RowingData recorder, it needs the start of the split to mark the end of the previous split
-    metricsToEnrich.splitLinearDistance = metrics.metricsContext.isSplitEnd ? interval.splitDistance() : split.distanceFromStart(metricsToEnrich) // This is needed to satisfy the RowingData recorder
-    metricsToEnrich.cycleProjectedEndTime = interval.projectedEndTime()
-    metricsToEnrich.cycleProjectedEndLinearDistance = interval.projectedEndDistance()
+    metricsToEnrich.workout = session.metrics(metricsToEnrich)
+    metricsToEnrich.interval = interval.metrics(metricsToEnrich)
+    metricsToEnrich.interval.workoutStepNumber = Math.max(currentIntervalNumber, 0) // Interval number, to keep in sync with the workout plan
+    metricsToEnrich.split = split.metrics(metricsToEnrich)
+    metricsToEnrich.split.number = splitNumber
   }
 
   function onWatchdogTimeout () {
-    log.error(`Time: ${metrics.totalMovingTime}, Forced a session stop due to unexpeted flywheel stop, exceeding the maximumStrokeTimeBeforePause (i.e. ${watchdogTimout} seconds) without new datapoints`)
-    metrics = rowingStatistics.getMetrics()
-    stopTraining(metrics)
-    resetMetricsSessionContext(metrics)
-    metrics.metricsContext.isSessionStop = true
-    sessionState = 'Stopped'
-    interval.updateProjections(metrics)
+    pauseTraining(lastBroadcastedMetrics)
+    metrics = refreshMetrics()
+    log.error(`Time: ${metrics.totalMovingTime}, Forced a session pause due to unexpeted flywheel stop, exceeding the maximumStrokeTimeBeforePause (i.e. ${watchdogTimout / 1000} seconds) without new datapoints`)
+    sessionState = 'Paused'
+    metrics.metricsContext.isPauseStart = true
+    metrics.metricsContext.isSplitEnd = true
+    session.push(metrics)
+    interval.push(metrics)
+    split.push(metrics)
     emitMetrics(metrics)
+    activateNextSplitParameters(metrics)
+    lastBroadcastedMetrics = { ...metrics }
   }
 
+  /**
+   * @returns all metrics in the session manager
+   * @remark FOR TESTING PURPOSSES ONLY!
+   */
   function getMetrics () {
-    // TESTING PURPOSSES ONLY!
     enrichMetrics(metrics)
     return metrics
   }

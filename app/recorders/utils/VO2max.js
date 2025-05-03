@@ -9,15 +9,24 @@ import { createBucketedLinearSeries } from './BucketedLinearSeries.js'
 import loglevel from 'loglevel'
 const log = loglevel.getLogger('RowingEngine')
 
+/**
+ * @param {Config} config
+ */
 export function createVO2max (config) {
   const bucketedLinearSeries = createBucketedLinearSeries(5.0, 7.0, 6.0)
   const minimumValidBrackets = 5.0
   const warmupPeriod = 600 // Period to ignore HR changes to allow the HR to settle
   let offset = warmupPeriod
+  /**
+   * @type {Vo2MaxMetrics}
+   */
   let metricsArray = []
   let VO2MaxResult = 0
   let VO2MaxResultIsCurrent = true
 
+  /**
+   * @param {Metrics} metrics
+   */
   function push (metrics) {
     VO2MaxResultIsCurrent = false
     if (metrics.totalMovingTime > offset && !!metrics.heartrate && !isNaN(metrics.heartrate) && metrics.heartrate >= config.userSettings.restingHR && metrics.heartrate < config.userSettings.maxHR && !isNaN(metrics.cyclePower) && metrics.cyclePower > 0 && metrics.cyclePower <= config.userSettings.maxPower) {
@@ -31,6 +40,9 @@ export function createVO2max (config) {
     }
   }
 
+  /**
+   * @param {number} totalMovingTime
+   */
   function handleRestart (totalMovingTime) {
     offset = totalMovingTime + warmupPeriod
   }
@@ -89,6 +101,9 @@ export function createVO2max (config) {
     return VO2MaxResult
   }
 
+  /**
+   * @param {Vo2MaxMetrics} metrics
+   */
   function extrapolatedVO2max (metrics) {
     // This implements the extrapolation-based VO2Max determination
     // Which is based on the extrapolated maximum power output based on the correlation between heartrate and power,
@@ -118,6 +133,9 @@ export function createVO2max (config) {
     return ProjectedVO2max
   }
 
+  /**
+   * @param {Vo2MaxMetrics} metrics
+   */
   function calculateInterpolatedVO2max (metrics) {
     // This is based on research done by concept2, https://www.concept2.com/indoor-rowers/training/calculators/vo2max-calculator,
     // which determines the VO2Max based on the 2K speed
@@ -161,6 +179,11 @@ export function createVO2max (config) {
     return (Y * 1000) / config.userSettings.weight
   }
 
+  /**
+   * @param {number} origintime
+   * @param {number} origindistance
+   * @param {number} targetdistance
+   */
   function interpolatePace (origintime, origindistance, targetdistance) {
     // We interpolate the 2K speed based on Paul's Law: https://paulergs.weebly.com/blog/a-quick-explainer-on-pauls-law
     let originpace = 0
@@ -182,6 +205,7 @@ export function createVO2max (config) {
   }
 
   function reset () {
+    // @ts-ignore
     metricsArray = null
     metricsArray = []
     bucketedLinearSeries.reset()

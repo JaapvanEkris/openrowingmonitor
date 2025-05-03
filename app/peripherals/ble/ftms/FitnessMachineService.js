@@ -15,42 +15,58 @@
   - Fitness Machine Status Characteristic
   - Fitness Machine Control Point Characteristic
 */
-import bleno from '@stoprocent/bleno'
+import { BufferBuilder } from '../BufferBuilder.js'
+import { GattService } from '../BleManager.js'
+import { createStaticReadCharacteristic } from '../common/StaticReadCharacteristic.js'
 
-import RowerDataCharacteristic from './RowerDataCharacteristic.js'
-import IndoorBikeDataCharacteristic from './IndoorBikeDataCharacteristic.js'
-import FitnessMachineControlPointCharacteristic from './FitnessMachineControlPointCharacteristic.js'
-import FitnessMachineStatusCharacteristic from './FitnessMachineStatusCharacteristic.js'
-import StaticReadCharacteristic from '../common/StaticReadCharacteristic.js'
-import BufferBuilder from '../BufferBuilder.js'
+import { FitnessMachineControlPointCharacteristic } from './FitnessMachineControlPointCharacteristic.js'
+import { FitnessMachineStatusCharacteristic } from './FitnessMachineStatusCharacteristic.js'
+import { IndoorBikeDataCharacteristic } from './IndoorBikeDataCharacteristic.js'
+import { RowerDataCharacteristic } from './RowerDataCharacteristic.js'
 
-export default class FitnessMachineService extends bleno.PrimaryService {
+export class FitnessMachineService extends GattService {
+  #dataCharacteristic
+  #statusCharacteristic
+
+  /**
+   * @param {ControlPointCallback} controlPointCallback
+   * @param {boolean} [simulateIndoorBike = false]
+   */
   constructor (controlPointCallback, simulateIndoorBike = false) {
-    const dataCharacteristic = simulateIndoorBike ? new IndoorBikeDataCharacteristic() : new RowerDataCharacteristic()
-    const statusCharacteristic = new FitnessMachineStatusCharacteristic()
     const ftmsFeaturesBuffer = new BufferBuilder()
     ftmsFeaturesBuffer.writeUInt16LE(featuresFlag)
 
+    const dataCharacteristic = simulateIndoorBike ? new IndoorBikeDataCharacteristic() : new RowerDataCharacteristic()
+    const statusCharacteristic = new FitnessMachineStatusCharacteristic()
+
     super({
-      // Fitness Machine
-      uuid: '1826',
+      name: 'Fitness Machine',
+      uuid: 0x1826,
       characteristics: [
-        new StaticReadCharacteristic('2ACC', 'FTMS Feature', ftmsFeaturesBuffer.getBuffer()),
-        dataCharacteristic,
-        new FitnessMachineControlPointCharacteristic(controlPointCallback),
-        statusCharacteristic
+        createStaticReadCharacteristic(0x2ACC, ftmsFeaturesBuffer.getBuffer(), 'FTMS Feature'),
+        dataCharacteristic.characteristic,
+        new FitnessMachineControlPointCharacteristic(controlPointCallback).characteristic,
+        statusCharacteristic.characteristic
       ]
     })
-    this.dataCharacteristic = dataCharacteristic
-    this.statusCharacteristic = statusCharacteristic
+
+    this.#dataCharacteristic = dataCharacteristic
+    this.#statusCharacteristic = statusCharacteristic
   }
 
+  /**
+   * @param {Metrics} data
+   */
   notifyData (data) {
-    this.dataCharacteristic.notify(data)
+    this.#dataCharacteristic.notify(data)
   }
 
-  notifyStatus (event) {
-    this.statusCharacteristic.notify(event)
+  /**
+   * Present current rowing status to FTMS central
+   * @param {{name: string}} status
+   */
+  notifyStatus (status) {
+    this.#statusCharacteristic.notify(status)
   }
 }
 
@@ -75,3 +91,12 @@ export const FtmsBikeFeaturesFlags = {
 }
 
 export const featuresFlag = FtmsBikeFeaturesFlags.cadenceSupported | FtmsBikeFeaturesFlags.totalDistanceSupported | FtmsBikeFeaturesFlags.paceSupported | FtmsBikeFeaturesFlags.expendedEnergySupported | FtmsBikeFeaturesFlags.heartRateMeasurementSupported | FtmsBikeFeaturesFlags.elapsedTimeSupported | FtmsBikeFeaturesFlags.powerMeasurementSupported
+
+export const FTMSTypeField = {
+  TreadmillSupported: (0x01 << 0),
+  CrossTrainerSupported: (0x01 << 1),
+  StepClimberSupported: (0x01 << 2),
+  StairClimberSupported: (0x01 << 3),
+  RowerSupported: (0x01 << 4),
+  IndoorBikeSupported: (0x01 << 5)
+}

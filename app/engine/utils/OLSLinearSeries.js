@@ -98,6 +98,10 @@ export function createOLSLinearSeries (maxSeriesLength = 0) {
     }
   }
 
+  function reliable () {
+    return (X.length() >= 2 && _slope !== 0)
+  }
+
   function reset () {
     X.reset()
     XX.reset()
@@ -119,6 +123,7 @@ export function createOLSLinearSeries (maxSeriesLength = 0) {
     goodnessOfFit,
     projectX,
     projectY,
+    reliable,
     reset
   }
 }

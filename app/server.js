@@ -2,6 +2,7 @@
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 */
+/* eslint-disable camelcase -- Some imports simply don't use camelCase */
 import os from 'os'
 import child_process from 'child_process'
 import { promisify } from 'util'
@@ -11,9 +12,8 @@ import { createSessionManager } from './engine/SessionManager.js'
 import { createWebServer } from './WebServer.js'
 import { createPeripheralManager } from './peripherals/PeripheralManager.js'
 import { createRecordingManager } from './recorders/recordingManager.js'
-// eslint-disable-next-line no-unused-vars
+/* eslint-disable-next-line no-unused-vars -- replayRowingSession shouldn't be used in a production environments */
 import { replayRowingSession } from './recorders/RowingReplayer.js'
-import { createWorkoutUploader } from './recorders/WorkoutUploader.js'
 
 const exec = promisify(child_process.exec)
 
@@ -37,7 +37,7 @@ if (config.appPriority) {
     // setting priority of current process
     os.setPriority(mainPriority)
   } catch (err) {
-    log.debug('need root permission to set priority of main server thread')
+    log.error('Could not set priority of main server thread (perhaps root permission is missing?):', err)
   }
 }
 
@@ -53,11 +53,11 @@ const intervalSettings = []
 intervalSettings[0] = {
   type: 'time',
   targetDistance: 0,
-  targetTime: 60,
+  targetTime: 120,
   split: {
-    type: 'distance',
+    type: 'time',
     targetDistance: 0,
-    targetTime: 30
+    targetTime: 60
   }
 }
 
@@ -87,7 +87,7 @@ intervalSettings[3] = {
 intervalSettings[4] = {
   type: 'time',
   targetDistance: 0,
-  targetTime: 60,
+  targetTime: 240,
   split: {
     type: 'distance',
     targetDistance: 500,
@@ -100,7 +100,7 @@ const peripheralManager = createPeripheralManager(config)
 
 peripheralManager.on('control', (event) => {
   log.debug(`Server: peripheral requested ${event?.req?.name}`)
-  handleCommand(event?.req?.name, event?.req?.data, event?.req?.client)
+  handleCommand(event?.req?.name, event?.req?.data)
   event.res = true
 })
 
@@ -120,7 +120,6 @@ function handleRotationImpulse (dataPoint) {
 }
 
 const recordingManager = createRecordingManager(config)
-const workoutUploader = createWorkoutUploader(config, recordingManager)
 
 const sessionManager = createSessionManager(config)
 
@@ -130,18 +129,13 @@ sessionManager.on('metricsUpdate', (metrics) => {
   peripheralManager.notifyMetrics(metrics)
 })
 
-workoutUploader.on('authorizeStrava', (data, client) => {
-  // ToDo: bring further in line with command handler structure to allow workoutUploader to send more commands
-  handleCommand('authorizeStrava', data, client)
-})
-
 const webServer = createWebServer(config)
-webServer.on('messageReceived', async (message, client) => {
+webServer.on('messageReceived', async (message) => {
   log.debug(`server: webclient requested ${message.command}`)
-  await handleCommand(message.command, message.data, client)
+  await handleCommand(message.command, message.data)
 })
 
-async function handleCommand (command, data, client) {
+async function handleCommand (command, data) {
   switch (command) {
     case 'shutdown':
       if (shutdownEnabled) {
@@ -151,20 +145,19 @@ async function handleCommand (command, data, client) {
         log.error('Shutdown requested, but shutdown is disabled')
       }
       break
-    case 'uploadTraining':
-      // ToDo: move this into the recordingmanager commandhandler
-      workoutUploader.upload(client)
-      break
-    case 'stravaAuthorizationCode':
-      // ToDo: move this into the recordingmanager commandhandler
-      workoutUploader.stravaAuthorizationCode(data)
+    case 'reset':
+      // The initial sessionmanager stop and order of commands is important to prevent race conditions between the recordingManager and sessionMananager during resets
+      // If the sessionManager starts a new session too soon, recorders will miss the initial metrics broadcast, and crash as there is data added to a lap that hasn't started
+      await sessionManager.handleCommand(command, data)
+      await webServer.handleCommand(command, data)
+      await peripheralManager.handleCommand(command, data)
+      await recordingManager.handleCommand(command, data)
       break
     default:
-      sessionManager.handleCommand(command, data, client)
-      recordingManager.handleCommand(command, data, client)
-      peripheralManager.handleCommand(command, data, client)
-      webServer.handleCommand(command, data, client)
-      break
+      sessionManager.handleCommand(command, data)
+      recordingManager.handleCommand(command, data)
+      peripheralManager.handleCommand(command, data)
+      webServer.handleCommand(command, data)
   }
 }
 
@@ -179,7 +172,7 @@ if (intervalSettings.length > 0) {
 
 // This shuts down the pi hardware, use with caution!
 async function shutdownPi () {
-  console.info('shutting down device...')
+  log.info('shutting down device...')
   try {
     const { stdout, stderr } = await exec(config.shutdownCommand)
     if (stderr) {
@@ -218,9 +211,12 @@ async function shutdownApp () {
 }
 
 /* Uncomment the following lines to simulate a session
-replayRowingSession(handleRotationImpulse, {
-  filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', // Concept 2, 2000 meter session
-  realtime: true,
-  loop: false
-})
+setTimeout(function() {
+  replayRowingSession(handleRotationImpulse, {
+    filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', // Concept 2, 2000 meter session
+    // filename: '/home/pi/C2_RowErg_2K_raw.csv',
+    realtime: true,
+    loop: true
+  })
+}, 30000)
 */

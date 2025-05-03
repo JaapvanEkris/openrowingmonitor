@@ -1,24 +1,30 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  This keeps an array, which we can ask for an moving average
-
-  Please note: The array contains maxLength values
 */
-
-import { createSeries } from './Series.js'
+/**
+ * This keeps a series of specified length, which we can ask for an moving median
+ *
+ */
+import { createLabelledBinarySearchTree } from './BinarySearchTree.js'
 
 export function createStreamFilter (maxLength, defaultValue) {
-  const dataPoints = createSeries(maxLength)
   let lastRawDatapoint = defaultValue
   let cleanDatapoint = defaultValue
+  let position = 0
+  let bst = createLabelledBinarySearchTree()
 
   function push (dataPoint) {
     if (dataPoint !== undefined && !isNaN(dataPoint)) {
       lastRawDatapoint = dataPoint
-      dataPoints.push(dataPoint)
-      cleanDatapoint = dataPoints.median()
+      if (maxLength > 0) {
+        position = (position + 1) % maxLength
+        bst.remove(position)
+        bst.push(position, dataPoint)
+      } else {
+        bst.push(position, dataPoint)
+      }
+      cleanDatapoint = bst.median()
     }
   }
 
@@ -27,7 +33,7 @@ export function createStreamFilter (maxLength, defaultValue) {
   }
 
   function clean () {
-    if (dataPoints.length() > 0) {
+    if (bst.size() > 0) {
       // The series contains sufficient values to be valid
       return cleanDatapoint
     } else {
@@ -37,11 +43,11 @@ export function createStreamFilter (maxLength, defaultValue) {
   }
 
   function reliable () {
-    return dataPoints.length() > 0
+    return bst.size() > 0
   }
 
   function reset () {
-    dataPoints.reset()
+    bst.reset()
     lastRawDatapoint = defaultValue
     cleanDatapoint = defaultValue
   }

@@ -1,16 +1,14 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  This test is a test of the Rower object, that tests wether this object fills all fields correctly, given one validated rower, (the
-  Concept2 RowErg) using a validated cycle of strokes. This thoroughly tests the raw physics of the translation of Angular physics
-  to Linear physics. The combination with all possible known rowers is tested when testing the above function RowingStatistics, as
-  these statistics are dependent on these settings as well.
-
-  ToDo: test the effects of smoothing parameters
 */
-/* eslint-disable max-lines -- more tests is always better */
-/* eslint-disable max-statements -- more tests is always better */
+/**
+ * This test is a test of the Rower object, that tests wether this object fills all fields correctly, given one validated rower, (the
+ * Concept2 RowErg) using a validated cycle of strokes. This thoroughly tests the raw physics of the translation of Angular physics
+ * to Linear physics. The combination with all possible known rowers is tested when testing the above function RowingStatistics, as
+ * these statistics are dependent on these settings as well.
+*/
+// ToDo: test the effects of smoothing parameters
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 import rowerProfiles from '../../config/rowerProfiles.js'
@@ -219,11 +217,11 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testCycleDistance(rowingStatistics, undefined)
   testCycleLinearVelocity(rowingStatistics, undefined)
   testCyclePower(rowingStatistics, undefined)
-  testDriveDuration(rowingStatistics, 0.19167255400000002)
-  testDriveDistance(rowingStatistics, 0.7680505612186648)
-  testDriveLength(rowingStatistics, 0.25656340004316636)
-  testDriveAverageHandleForce(rowingStatistics, 280.6471205939905)
-  testDrivePeakHandleForce(rowingStatistics, 382.45134148370266)
+  testDriveDuration(rowingStatistics, 0.23985939100000003)
+  testDriveDistance(rowingStatistics, 1.0733115961672441)
+  testDriveLength(rowingStatistics, 0.322536845768552)
+  testDriveAverageHandleForce(rowingStatistics, 285.0923064376231)
+  testDrivePeakHandleForce(rowingStatistics, 439.7407274840117)
   testRecoveryDuration(rowingStatistics, 0.20540926600000003)
   testDragFactor(rowingStatistics, 283.12720365097886) // As we decelerate the flywheel quite fast, this is expected
   testInstantHandlePower(rowingStatistics, undefined)
@@ -255,12 +253,12 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testCycleDistance(rowingStatistics, undefined)
   testCycleLinearVelocity(rowingStatistics, undefined)
   testCyclePower(rowingStatistics, undefined)
-  testDriveDuration(rowingStatistics, 0.19167255400000002)
-  testDriveDistance(rowingStatistics, 0.7680505612186648)
-  testDriveLength(rowingStatistics, 0.25656340004316636)
-  testDriveAverageHandleForce(rowingStatistics, 280.6471205939905)
-  testDrivePeakHandleForce(rowingStatistics, 382.45134148370266)
-  testRecoveryDuration(rowingStatistics, 0.1517668715000001)
+  testDriveDuration(rowingStatistics, 0.23985939100000003)
+  testDriveDistance(rowingStatistics, 1.0733115961672441)
+  testDriveLength(rowingStatistics, 0.322536845768552)
+  testDriveAverageHandleForce(rowingStatistics, 285.0923064376231)
+  testDrivePeakHandleForce(rowingStatistics, 439.7407274840117)
+  testRecoveryDuration(rowingStatistics, 0.09812447700000015)
   testDragFactor(rowingStatistics, 283.12720365097886)
   testInstantHandlePower(rowingStatistics, undefined)
   // Recovery third stroke starts here
@@ -287,12 +285,12 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testCycleDistance(rowingStatistics, undefined)
   testCycleLinearVelocity(rowingStatistics, undefined)
   testCyclePower(rowingStatistics, undefined)
-  testDriveDuration(rowingStatistics, 0.2564858390000001)
-  testDriveDistance(rowingStatistics, 1.1464919322695564)
-  testDriveLength(rowingStatistics, 0.34452799434368064)
-  testDriveAverageHandleForce(rowingStatistics, 270.00339931631424)
-  testDrivePeakHandleForce(rowingStatistics, 439.7407274834184)
-  testRecoveryDuration(rowingStatistics, 0.1517668715000001)
+  testDriveDuration(rowingStatistics, 0.27311228700000023)
+  testDriveDistance(rowingStatistics, 1.2196722683718688)
+  testDriveLength(rowingStatistics, 0.3665191429188092)
+  testDriveAverageHandleForce(rowingStatistics, 254.91449219500532)
+  testDrivePeakHandleForce(rowingStatistics, 439.74072748282515)
+  testRecoveryDuration(rowingStatistics, 0.09812447700000015)
   testDragFactor(rowingStatistics, 283.12720365097886)
   testInstantHandlePower(rowingStatistics, undefined)
   // Dwelling state starts here

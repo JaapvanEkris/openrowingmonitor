@@ -15,8 +15,10 @@ const basicConfig = {
 
 test('Test workoutSegment initialisation behaviour without setting an interval', () => {
   const startingPoint = {
+    timestamp: new Date(),
     totalMovingTime: 0,
-    totalLinearDistance: 0
+    totalLinearDistance: 0,
+    metricsContext: {}
   }
 
   const testSegment = createWorkoutSegment(basicConfig)
@@ -24,20 +26,24 @@ test('Test workoutSegment initialisation behaviour without setting an interval',
   testTimeSinceStart(testSegment, startingPoint, 0)
   testdistanceToEnd(testSegment, startingPoint, undefined)
   testTimeToEnd(testSegment, startingPoint, undefined)
-  testTargetTime(testSegment, undefined)
-  testTargetDistance(testSegment, undefined)
+  testTargetTime(testSegment, startingPoint, undefined)
+  testTargetDistance(testSegment, startingPoint, undefined)
   testIsEndReached(testSegment, startingPoint, false)
 })
 
 test('Test workoutSegment initialisation behaviour without setting an interval, after 2050 meters', () => {
   const startingPoint = {
+    timestamp: new Date(),
     totalMovingTime: 0,
-    totalLinearDistance: 0
+    totalLinearDistance: 0,
+    metricsContext: {}
   }
 
   const endPoint = {
+    timestamp: new Date(startingPoint.timestamp.getTime() + 490 * 1000),
     totalMovingTime: 490,
-    totalLinearDistance: 2050
+    totalLinearDistance: 2050,
+    metricsContext: {}
   }
 
   const testSegment = createWorkoutSegment(basicConfig)
@@ -45,8 +51,8 @@ test('Test workoutSegment initialisation behaviour without setting an interval, 
   testTimeSinceStart(testSegment, startingPoint, 0)
   testdistanceToEnd(testSegment, startingPoint, undefined)
   testTimeToEnd(testSegment, startingPoint, undefined)
-  testTargetTime(testSegment, undefined)
-  testTargetDistance(testSegment, undefined)
+  testTargetTime(testSegment, startingPoint, undefined)
+  testTargetDistance(testSegment, startingPoint, undefined)
   testIsEndReached(testSegment, startingPoint, false)
   testDistanceFromStart(testSegment, endPoint, 2050)
   testTimeSinceStart(testSegment, endPoint, 490)
@@ -68,18 +74,24 @@ test('Test workoutSegment behaviour with setting a distance interval', () => {
   }
 
   const startingPoint = {
+    timestamp: new Date(),
     totalMovingTime: 0,
-    totalLinearDistance: 0
+    totalLinearDistance: 0,
+    metricsContext: {}
   }
 
   const middlePoint = {
+    timestamp: new Date(startingPoint.timestamp.getTime() + 480 * 1000),
     totalMovingTime: 480,
-    totalLinearDistance: 2000
+    totalLinearDistance: 2000,
+    metricsContext: {}
   }
 
   const endPoint = {
+    timestamp: new Date(startingPoint.timestamp.getTime() + 490 * 1000),
     totalMovingTime: 490,
-    totalLinearDistance: 2050
+    totalLinearDistance: 2050,
+    metricsContext: {}
   }
 
   const testSegment = createWorkoutSegment(basicConfig)
@@ -116,18 +128,24 @@ test('Test workoutSegment behaviour with setting a time interval', () => {
   }
 
   const startingPoint = {
+    timestamp: new Date(),
     totalMovingTime: 0,
-    totalLinearDistance: 0
+    totalLinearDistance: 0,
+    metricsContext: {}
   }
 
   const middlePoint = {
+    timestamp: new Date(startingPoint.timestamp.getTime() + 480 * 1000),
     totalMovingTime: 480,
-    totalLinearDistance: 2000
+    totalLinearDistance: 2000,
+    metricsContext: {}
   }
 
   const endPoint = {
+    timestamp: new Date(startingPoint.timestamp.getTime() + 490 * 1000),
     totalMovingTime: 490,
-    totalLinearDistance: 2050
+    totalLinearDistance: 2050,
+    metricsContext: {}
   }
 
   const testSegment = createWorkoutSegment(basicConfig)
@@ -164,18 +182,24 @@ test('Test split behaviour when setting a distance interval', () => {
   }
 
   const startingPoint = {
+    timestamp: new Date(),
     totalMovingTime: 0,
-    totalLinearDistance: 0
+    totalLinearDistance: 0,
+    metricsContext: {}
   }
 
   const middlePoint = {
+    timestamp: new Date(startingPoint.timestamp.getTime() + 118 * 1000),
     totalMovingTime: 118,
-    totalLinearDistance: 490
+    totalLinearDistance: 490,
+    metricsContext: {}
   }
 
   const endPoint = {
+    timestamp: new Date(startingPoint.timestamp.getTime() + 122 * 1000),
     totalMovingTime: 122,
-    totalLinearDistance: 510
+    totalLinearDistance: 510,
+    metricsContext: {}
   }
 
   const testSegment = createWorkoutSegment(basicConfig)
@@ -213,19 +237,26 @@ test('Test split behaviour with setting a time interval', () => {
       targetTime: 120
     }
   }
+
   const startingPoint = {
+    timestamp: new Date(),
     totalMovingTime: 0,
-    totalLinearDistance: 0
+    totalLinearDistance: 0,
+    metricsContext: {}
   }
 
   const middlePoint = {
+    timestamp: new Date(startingPoint.timestamp.getTime() + 118 * 1000),
     totalMovingTime: 118,
-    totalLinearDistance: 490
+    totalLinearDistance: 490,
+    metricsContext: {}
   }
 
   const endPoint = {
+    timestamp: new Date(startingPoint.timestamp.getTime() + 122 * 1000),
     totalMovingTime: 122,
-    totalLinearDistance: 510
+    totalLinearDistance: 510,
+    metricsContext: {}
   }
 
   const testSegment = createWorkoutSegment(basicConfig)
@@ -255,31 +286,31 @@ test('Test split behaviour with setting a time interval', () => {
 // ToDo: Test the project EndTime and project EndDistance functions
 
 function testDistanceFromStart (testedSegment, testedDatapoint, expectedValue) {
-  assert.ok(testedSegment.distanceFromStart(testedDatapoint) === expectedValue, `Expected distance from the start should be ${expectedValue}, encountered ${testedSegment.distanceFromStart(testedDatapoint)}`)
+  assert.ok(testedSegment.metrics(testedDatapoint).distance.fromStart === expectedValue, `Expected distance from the start should be ${expectedValue}, encountered ${testedSegment.metrics(testedDatapoint).distance.fromStart}`)
 }
 
 function testTimeSinceStart (testedSegment, testedDatapoint, expectedValue) {
-  assert.ok(testedSegment.timeSinceStart(testedDatapoint) === expectedValue, `Expected time since start should be ${expectedValue}, encountered ${testedSegment.timeSinceStart(testedDatapoint)}`)
+  assert.ok(testedSegment.metrics(testedDatapoint).movingTime.sinceStart === expectedValue, `Expected time since start should be ${expectedValue}, encountered ${testedSegment.metrics(testedDatapoint).movingTime.sinceStart}`)
 }
 
 function testdistanceToEnd (testedSegment, testedDatapoint, expectedValue) {
-  assert.ok(testedSegment.distanceToEnd(testedDatapoint) === expectedValue, `Expected distance from the end to be ${expectedValue}, encountered ${testedSegment.distanceToEnd(testedDatapoint)}`)
+  assert.ok(testedSegment.metrics(testedDatapoint).distance.toEnd === expectedValue, `Expected distance from the end to be ${expectedValue}, encountered ${testedSegment.metrics(testedDatapoint).distance.toEnd}`)
 }
 
 function testTimeToEnd (testedSegment, testedDatapoint, expectedValue) {
-  assert.ok(testedSegment.timeToEnd(testedDatapoint) === expectedValue, `Expected time to end to be ${expectedValue}, encountered ${testedSegment.timeToEnd(testedDatapoint)}`)
+  assert.ok(testedSegment.metrics(testedDatapoint).movingTime.toEnd === expectedValue, `Expected time to end to be ${expectedValue}, encountered ${testedSegment.metrics(testedDatapoint).movingTime.toEnd}`)
 }
 
 function testIsEndReached (testedSegment, testedDatapoint, expectedValue) {
   assert.ok(testedSegment.isEndReached(testedDatapoint) === expectedValue, `Expected time to end to be ${expectedValue}, encountered ${testedSegment.isEndReached(testedDatapoint)}`)
 }
 
-function testTargetTime (testedSegment, expectedValue) {
-  assert.ok(testedSegment.targetTime() === expectedValue, `Expected time to end to be ${expectedValue}, encountered ${testedSegment.targetTime()}`)
+function testTargetTime (testedSegment, testedDatapoint, expectedValue) {
+  assert.ok(testedSegment.metrics(testedDatapoint).movingTime.target === expectedValue, `Expected time to end to be ${expectedValue}, encountered ${testedSegment.metrics(testedDatapoint).movingTime.target}`)
 }
 
-function testTargetDistance (testedSegment, expectedValue) {
-  assert.ok(testedSegment.targetDistance() === expectedValue, `Expected time to end to be ${expectedValue}, encountered ${testedSegment.targetDistance()}`)
+function testTargetDistance (testedSegment, testedDatapoint, expectedValue) {
+  assert.ok(testedSegment.metrics(testedDatapoint).distance.target === expectedValue, `Expected time to end to be ${expectedValue}, encountered ${testedSegment.metrics(testedDatapoint).distance.target}`)
 }
 
 function testExtrapolation (testedSegment, dataPointOne, dataPointTwo, ExpectedTime, ExpectedDistance) {
