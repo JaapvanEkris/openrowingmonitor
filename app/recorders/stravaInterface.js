@@ -11,6 +11,7 @@
 import log from 'loglevel'
 import { createName, createDragLine, createVO2MaxLine, createHRRLine } from './utils/decorators.js'
 import fetch, { FormData } from 'node-fetch'
+import { replaceInFile } from 'replace-in-file'
 
 export function createStravaInterface (config) {
   let basefilename = ''
@@ -39,12 +40,20 @@ export function createStravaInterface (config) {
     })
 
     let responseJson = await response.json()
-
     const newRefreshToken = responseJson.refresh_token
     const accessToken = responseJson.access_token
-
     if (newRefreshToken !== config.userSettings.strava.refreshToken) {
-      // ToDo: Replace the refreshtoken in the config if the old is stale
+      try {
+        replaceInFile({
+          files: '/opt/openrowingmonitor/config/config.js',
+          from: config.userSettings.strava.refreshToken,
+          to: newRefreshToken
+        })
+        log.debug('Strava interface: replaced refresh token in config file')
+      }
+      catch (error) {
+      log.error('Strava Interface: error replacing refresh token in config file:', error)
+      }
     }
 
     const form = new FormData()
