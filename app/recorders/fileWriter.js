@@ -18,7 +18,12 @@ export function createFileWriter () {
   }
 
   async function writeFile (recorder, compress = false) {
-    const filename = `${basefilename}${recorder.postfix}.${recorder.type}`
+    let filename
+    if (compress) {
+      filename = `${basefilename}${recorder.postfix}.${recorder.type}.gz`
+    } else {
+      filename = `${basefilename}${recorder.postfix}.${recorder.type}`
+    }
 
     // we need enough data
     if (!recorder.minimumDataAvailable()) {
