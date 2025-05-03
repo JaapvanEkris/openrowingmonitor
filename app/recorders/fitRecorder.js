@@ -131,7 +131,7 @@ export function createFITRecorder (config) {
     sessionData.lap[lapnumber].strokes[strokenumber].cycleStrokeRate = metrics.cycleStrokeRate
     sessionData.lap[lapnumber].strokes[strokenumber].cyclePower = metrics.cyclePower
     sessionData.lap[lapnumber].strokes[strokenumber].cycleLinearVelocity = metrics.cycleLinearVelocity
-    sessionData.lap[lapnumber].strokes[strokenumber].cycleDistance = metrics.metricsContext.cycleDistance
+    sessionData.lap[lapnumber].strokes[strokenumber].cycleDistance = metrics.cycleDistance
     sessionData.lap[lapnumber].strokes[strokenumber].dragFactor = metrics.dragFactor
     if (!isNaN(heartRate) && heartRate > 0) {
       sessionData.lap[lapnumber].strokes[strokenumber].heartrate = heartRate
@@ -574,8 +574,8 @@ export function createFITRecorder (config) {
         distance: trackpoint.totalLinearDistance,
         total_cycles: trackpoint.totalNumberOfStrokes,
         activity_type: 'fitnessEquipment',
-        ...(trackpoint.cycleLinearVelocity > 0 || trackpoint.metricsContext.isPauseStart ? { speed: trackpoint.cycleLinearVelocity } : {}),
-        ...(trackpoint.cyclePower > 0 || trackpoint.metricsContext.isPauseStart ? { power: trackpoint.cyclePower } : {}),
+        ...(trackpoint.cycleLinearVelocity > 0 || trackpoint.isPauseStart ? { speed: trackpoint.cycleLinearVelocity } : {}),
+        ...(trackpoint.cyclePower > 0 || trackpoint.isPauseStart ? { power: trackpoint.cyclePower } : {}),
         ...(trackpoint.cycleStrokeRate > 0 ? { cadence: trackpoint.cycleStrokeRate } : {}),
         ...(trackpoint.cycleDistance > 0 ? { cycle_length16: trackpoint.cycleDistance } : {}),
         ...(trackpoint.dragFactor > 0 || trackpoint.dragFactor < 255 ? { resistance: trackpoint.dragFactor } : {}), // As the data is stored in an int8, we need to guard the maximum
