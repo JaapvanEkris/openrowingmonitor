@@ -18,10 +18,10 @@ export const DASHBOARD_METRICS = {
     template: (metrics, config) => {
       let distance
       switch (true) {
-        case (metrics?.sessiontype === 'rest' && metrics?.pauseCountdownTime > 0):
+        case (metrics?.interval.type === 'rest' && metrics?.pauseCountdownTime > 0):
           distance = 0
           break
-        case (metrics?.sessiontype === 'distance'):
+        case (metrics?.interval.type === 'distance'):
           distance = Math.max(metrics?.interval.distance.toEnd, 0)
           break
         default:
@@ -54,7 +54,7 @@ export const DASHBOARD_METRICS = {
     displayName: 'Calories',
     size: 1,
     template: (metrics, config) => {
-      const calories = metrics?.sessiontype === 'Calories' ? Math.max(metrics?.intervalTargetCalories - metrics?.intervalLinearCalories, 0) : metrics?.totalCalories
+      const calories = metrics?.interval.type === 'Calories' ? Math.max(metrics?.interval.TargetCalories - metrics?.interval.Calories, 0) : metrics?.totalCalories
 
       return simpleMetricFactory(formatNumber(calories ?? 0), 'kcal', config.guiConfigs.showIcons ? iconFire : '')
     }
@@ -67,11 +67,11 @@ export const DASHBOARD_METRICS = {
       let time
       let icon
       switch (true) {
-        case (metrics?.sessiontype === 'rest' && metrics?.pauseCountdownTime > 0):
+        case (metrics?.interval.type === 'rest' && metrics?.pauseCountdownTime > 0):
           time = metrics?.pauseCountdownTime
           icon = iconAlarmclock
           break
-        case (metrics?.sessiontype === 'time'):
+        case (metrics?.interval.type === 'time'):
           time = Math.max(metrics?.interval.movingTime.toEnd, 0)
           icon = iconClock
           break
