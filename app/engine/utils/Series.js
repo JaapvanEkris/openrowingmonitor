@@ -16,8 +16,8 @@ export function createSeries (maxSeriesLength = 0) {
   let seriesSum = 0
   let numPos = 0
   let numNeg = 0
-  let min = undefined
-  let max = undefined
+  let min = null
+  let max = null
 
   /**
    * @param {float} value to be added to the series
@@ -38,10 +38,10 @@ export function createSeries (maxSeriesLength = 0) {
         numNeg--
       }
       if (min === seriesArray[0]) {
-        min = undefined
+        min = null
       }
       if (max === seriesArray[0]) {
-        max = undefined
+        max = null
       }
       seriesArray.shift()
     }
@@ -158,7 +158,7 @@ export function createSeries (maxSeriesLength = 0) {
    */
   function minimum () {
     if (seriesArray.length > 0) {
-      if (min === undefined) { min = Math.min(...seriesArray) }
+      if (isNaN(min)) { min = Math.min(...seriesArray) }
       return min
     } else {
       return 0
@@ -170,7 +170,7 @@ export function createSeries (maxSeriesLength = 0) {
    */
   function maximum () {
     if (seriesArray.length > 0) {
-      if (max === undefined) { max = Math.max(...seriesArray) }
+      if (isNaN(max)) { max = Math.max(...seriesArray) }
       return max
     } else {
       return 0
@@ -178,7 +178,8 @@ export function createSeries (maxSeriesLength = 0) {
   }
 
   /**
-   * @output {float} median of the series (DO NOT USE FOR LARGE SERIES!)
+   * @remark DO NOT USE FOR LARGE SERIES!
+   * @output {float} median of the series
    */
   function median () {
     if (seriesArray.length > 0) {
@@ -210,8 +211,8 @@ export function createSeries (maxSeriesLength = 0) {
     seriesSum = 0
     numPos = 0
     numNeg = 0
-    min = undefined
-    max = undefined
+    min = null
+    max = null
   }
 
   return {
