@@ -10,7 +10,6 @@
 import { EventEmitter } from 'events'
 import { createRowingStatistics } from './RowingStatistics.js'
 import { createWorkoutSegment } from './utils/workoutSegment.js'
-// import { createWorkoutSegment } from './utils/workoutSegment_STRIPPED.js'
 
 import loglevel from 'loglevel'
 const log = loglevel.getLogger('RowingEngine')
