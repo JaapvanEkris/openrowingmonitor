@@ -175,16 +175,16 @@ The topic 'OpenRowingMonitor/`machineName`/metrics' will contain your metrics. E
 | Field | Meaning | Unit |
 |---|---|---|
 | timestamp | The timestamp of the creation of the metrics | JSON timestamp |
-| sessiontype | The type of the current interval | `justrow`, `distance`, `time` or `rest` |
+| intervaltype | The type of the current interval | `justrow`, `distance`, `time` or `rest` |
 | sessionStatus | | |
 | strokeState | | |
-| isMoving | | Boolean |
-| isDriveStart | | Boolean |
-| isRecoveryStart | | Boolean |
-| isSessionStart | | Boolean |
-| isPauseStart | | Boolean |
-| isPauseEnd | | Boolean |
-| isSessionStop | | Boolean |
+| isMoving | Flag indicating the rowing machine is moving | Boolean |
+| isDriveStart | Flag indicating the message is sent at the beginning of the drive. As the MQTT typically sends this message at the start of the drive, expect this to be true 99% of the time | Boolean |
+| isRecoveryStart | Flag indicating the message is sent at the beginning of the recovery. This should be extremely rare. | Boolean |
+| isSessionStart | Flag indicating the message is sent at the beginning of a rowing session. | Boolean |
+| isPauseStart | Flag indicating the message is sent at the beginning of a pause. | Boolean |
+| isPauseEnd | Flag indicating the message is sent at the end of a pause. | Boolean |
+| isSessionStop | Flag indicating the message is sent at the end of a session | Boolean |
 | totalNumberOfStrokes | | Counter |
 | totalMovingTime | | Seconds |
 | totalDistance | | Meters |
