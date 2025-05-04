@@ -41,61 +41,6 @@ if (config.appPriority) {
   }
 }
 
-// a hook for setting session parameters that the rower has to obey
-// Hopefully this will be filled through the WebGUI or through the BLE interface (PM5-BLE can do this...)
-// When set, ORM will terminate the session after reaching the target. If not set, it will behave as usual (a "Just row" session).
-// When set, the GUI will behave similar to a PM5 in that it counts down from the target to 0
-const intervalSettings = []
-
-/* an example of the workout setting that the sessionManager will obey: a 1 minute warmup, one minute rest, a 2K timed piece, followed by one minute rest, and a 1 minute cooldown
-// Some with a 500 meter split, one with a 30 second split
-// ToDo: This should normally come from the PM5 interface, the webinterface or one of the integration partners
-intervalSettings[0] = {
-  type: 'time',
-  targetDistance: 0,
-  targetTime: 120,
-  split: {
-    type: 'time',
-    targetDistance: 0,
-    targetTime: 60
-  }
-}
-
-intervalSettings[1] = {
-  type: 'rest',
-  targetDistance: 0,
-  targetTime: 60,
-}
-
-intervalSettings[2] = {
-  type: 'distance',
-  targetDistance: 2000,
-  targetTime: 0,
-  split: {
-    type: 'distance',
-    targetDistance: 500,
-    targetTime: 0
-  }
-}
-
-intervalSettings[3] = {
-  type: 'rest',
-  targetDistance: 0,
-  targetTime: 60,
-}
-
-intervalSettings[4] = {
-  type: 'time',
-  targetDistance: 0,
-  targetTime: 240,
-  split: {
-    type: 'distance',
-    targetDistance: 500,
-    targetTime: 0
-  }
-}
-*/
-
 const peripheralManager = createPeripheralManager(config)
 
 peripheralManager.on('control', (event) => {
@@ -161,15 +106,6 @@ async function handleCommand (command, data) {
   }
 }
 
-// Be Aware, this is a temporary workaround to activate the hardcoded settings at application start
-// ToDo: move this to the handlecommand structure as soon as the PM5/web-interface can do this
-if (intervalSettings.length > 0) {
-  // There is a manually defined interval at startup, let's inform the sessionManager
-  handleCommand('updateIntervalSettings', intervalSettings, null)
-} else {
-  log.info('Starting a just row session, no time or distance target set')
-}
-
 // This shuts down the pi hardware, use with caution!
 async function shutdownPi () {
   log.info('shutting down device...')
@@ -214,7 +150,6 @@ async function shutdownApp () {
 setTimeout(function() {
   replayRowingSession(handleRotationImpulse, {
     filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', // Concept 2, 2000 meter session
-    // filename: '/home/pi/C2_RowErg_2K_raw.csv',
     realtime: true,
     loop: true
   })
