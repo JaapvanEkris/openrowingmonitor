@@ -8,7 +8,7 @@
  * Please note: as most brokers get easily flooded by highly frequent reporting, so we only report on a per-stroke basis
  *
  * The MQTT peripheral also allows setting of workout parameters
- * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/0.9.6-(in-development)/docs/Integrations.md#pushing-workouts|the workout setup}
+ * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Integrations.md#pushing-workouts|the workout setup}
  */
 import log from 'loglevel'
 import EventEmitter from 'node:events'
