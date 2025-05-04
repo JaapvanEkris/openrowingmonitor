@@ -132,7 +132,6 @@ export class Pm5RowingService extends GattService {
     this.#loggedWorkout = loggedWorkout
     this.#lastKnownMetrics = {
       .../** @type {Metrics} */({}),
-      sessiontype: 'justrow',
       sessionState: 'WaitingForStart',
       strokeState: 'WaitingForDrive',
       totalMovingTime: 0,
