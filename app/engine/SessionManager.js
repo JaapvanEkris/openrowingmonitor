@@ -446,7 +446,6 @@ export function createSessionManager (config) {
   }
 
   function enrichMetrics (metricsToEnrich) {
-    metricsToEnrich.sessiontype = interval.type() // ToDo: replace completely with workout.type when some intelligence is added to that
     metricsToEnrich.sessionState = sessionState
     metricsToEnrich.pauseCountdownTime = Math.max(pauseCountdownTimer, 0) // Time left on the countdown timer
     metricsToEnrich.workout = session.metrics(metricsToEnrich)
