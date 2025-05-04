@@ -35,7 +35,6 @@
 /**
  * @typedef {{
  * metricsContext: MetricsContext,
- * sessiontype: SessionType,
  * sessionStatus: SessionState,
  * strokeState: StrokeState,
  * timestamp: number,
