@@ -1,12 +1,15 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  This Module broadcastst the rowing metrics to a MQTT broker
-  Please note: most brokers get easily flooded by highly frequent reporting, so we only report on a per-stroke basis
-
-  It also allows setting of workout parameters via MQTT
 */
+/**
+ * This Module broadcastst the rowing metrics to a MQTT broker
+ * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Integrations.md#recieving-metrics|the description of the metrics provided}
+ * Please note: as most brokers get easily flooded by highly frequent reporting, so we only report on a per-stroke basis
+ *
+ * The MQTT peripheral also allows setting of workout parameters
+ * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/0.9.6-(in-development)/docs/Integrations.md#pushing-workouts|the workout setup}
+ */
 import log from 'loglevel'
 import EventEmitter from 'node:events'
 import mqtt from 'mqtt'
@@ -29,7 +32,7 @@ export function createMQTTPeripheral (config) {
   let lastMetrics = {
     .../** @type {Metrics} */({}),
     timestamp: new Date(),
-    sessiontype: 'justrow',
+    interval: { type: 'justrow' },
     sessionState: 'WaitingForStart',
     strokeState: 'WaitingForDrive',
     metricsContext: {
@@ -140,7 +143,7 @@ export function createMQTTPeripheral (config) {
   async function publishMetrics (metrics) {
     const jsonMetrics = {
       timestamp: (metrics.timestamp / 1000).toFixed(3),
-      sessiontype: metrics.sessiontype,
+      intervaltype: metrics.interval.type,
       sessionState: metrics.sessionState,
       strokeState: metrics.strokeState,
       isMoving: metrics.metricsContext.isMoving,
