@@ -25,8 +25,8 @@ export function createSeries (maxSeriesLength = 0) {
   function push (value) {
     if (value === undefined || isNaN(value)) { return }
 
-    if (!isNaN(min)) { min = Math.min(min, value) }
-    if (!isNaN(max)) { max = Math.max(max, value) }
+    if (min !== undefined) { min = Math.min(min, value) }
+    if (max !== undefined) { max = Math.max(max, value) }
 
     if (maxSeriesLength > 0 && seriesArray.length >= maxSeriesLength) {
       // The maximum of the array has been reached, we have to create room by removing the first
@@ -210,8 +210,8 @@ export function createSeries (maxSeriesLength = 0) {
     seriesSum = 0
     numPos = 0
     numNeg = 0
-    min = null
-    max = null
+    min = undefined
+    max = undefined
   }
 
   return {
