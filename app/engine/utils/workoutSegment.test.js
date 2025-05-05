@@ -1,9 +1,10 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  This Module tests the behaviour of the workout segments
 */
+/**
+ * This Module tests the behaviour of the workout segments
+ */
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 
@@ -36,6 +37,12 @@ test('Test workoutSegment initialisation behaviour without setting an interval, 
     timestamp: new Date(),
     totalMovingTime: 0,
     totalLinearDistance: 0,
+    cyclePower: 0,
+    cycleLinearVelocity: 0,
+    cycleStrokeRate: 0,
+    cycleDistance: 0,
+    totalCaloriesPerHour: 0,
+    dragFactor: 0,
     metricsContext: {}
   }
 
@@ -43,6 +50,12 @@ test('Test workoutSegment initialisation behaviour without setting an interval, 
     timestamp: new Date(startingPoint.timestamp.getTime() + 490 * 1000),
     totalMovingTime: 490,
     totalLinearDistance: 2050,
+    cyclePower: 200,
+    cycleLinearVelocity: 4.16666,
+    cycleStrokeRate: 20,
+    cycleDistance: 10,
+    totalCaloriesPerHour: 800,
+    dragFactor: 100,
     metricsContext: {}
   }
 
@@ -59,6 +72,16 @@ test('Test workoutSegment initialisation behaviour without setting an interval, 
   testdistanceToEnd(testSegment, endPoint, undefined)
   testTimeToEnd(testSegment, endPoint, undefined)
   testIsEndReached(testSegment, endPoint, false)
+  testSegment.push(endPoint)
+  testAverageLinearVelocity (testSegment, endPoint, 4.183673469387755)
+  testMaximumLinearVelocity (testSegment, endPoint, 4.16666)
+  testMinimumLinearVelocity (testSegment, endPoint, 4.16666)
+  testAveragePace (testSegment, endPoint, 119.51219512195122)
+  testMaximumPace (testSegment, endPoint, 120.0001920003072)
+  testMinimumPace (testSegment, endPoint, 120.0001920003072)
+  testAveragePower (testSegment, endPoint, 200)
+  testMaximumPower (testSegment, endPoint, 200)
+  testMinimumPower (testSegment, endPoint, 200)
 })
 
 test('Test workoutSegment behaviour with setting a distance interval', () => {
@@ -77,6 +100,12 @@ test('Test workoutSegment behaviour with setting a distance interval', () => {
     timestamp: new Date(),
     totalMovingTime: 0,
     totalLinearDistance: 0,
+    cyclePower: 0,
+    cycleLinearVelocity: 0,
+    cycleStrokeRate: 0,
+    cycleDistance: 0,
+    totalCaloriesPerHour: 0,
+    dragFactor: 100,
     metricsContext: {}
   }
 
@@ -84,6 +113,12 @@ test('Test workoutSegment behaviour with setting a distance interval', () => {
     timestamp: new Date(startingPoint.timestamp.getTime() + 480 * 1000),
     totalMovingTime: 480,
     totalLinearDistance: 2000,
+    cyclePower: 200,
+    cycleLinearVelocity: 4.16666,
+    cycleStrokeRate: 20,
+    cycleDistance: 10,
+    totalCaloriesPerHour: 800,
+    dragFactor: 100,
     metricsContext: {}
   }
 
@@ -91,6 +126,12 @@ test('Test workoutSegment behaviour with setting a distance interval', () => {
     timestamp: new Date(startingPoint.timestamp.getTime() + 490 * 1000),
     totalMovingTime: 490,
     totalLinearDistance: 2050,
+    cyclePower: 200,
+    cycleLinearVelocity: 4.16666,
+    cycleStrokeRate: 20,
+    cycleDistance: 10,
+    totalCaloriesPerHour: 800,
+    dragFactor: 100,
     metricsContext: {}
   }
 
@@ -112,7 +153,18 @@ test('Test workoutSegment behaviour with setting a distance interval', () => {
   testdistanceToEnd(testSegment, endPoint, -25)
   testTimeToEnd(testSegment, endPoint, undefined)
   testIsEndReached(testSegment, endPoint, true)
-  testExtrapolation(testSegment, middlePoint, endPoint, 485, 2025)
+  testInterpolation(testSegment, middlePoint, endPoint, 485, 2025)
+  testSegment.push(middlePoint)
+  testSegment.push(endPoint)
+  testAverageLinearVelocity (testSegment, endPoint, 4.183673469387755)
+  testMaximumLinearVelocity (testSegment, endPoint, 4.16666)
+  testMinimumLinearVelocity (testSegment, endPoint, 4.16666)
+  testAveragePace (testSegment, endPoint, 119.51219512195122)
+  testMaximumPace (testSegment, endPoint, 120.0001920003072)
+  testMinimumPace (testSegment, endPoint, 120.0001920003072)
+  testAveragePower (testSegment, endPoint, 200)
+  testMaximumPower (testSegment, endPoint, 200)
+  testMinimumPower (testSegment, endPoint, 200)
 })
 
 test('Test workoutSegment behaviour with setting a time interval', () => {
@@ -138,6 +190,12 @@ test('Test workoutSegment behaviour with setting a time interval', () => {
     timestamp: new Date(startingPoint.timestamp.getTime() + 480 * 1000),
     totalMovingTime: 480,
     totalLinearDistance: 2000,
+    cyclePower: 200,
+    cycleLinearVelocity: 4.16666,
+    cycleStrokeRate: 20,
+    cycleDistance: 10,
+    totalCaloriesPerHour: 800,
+    dragFactor: 100,
     metricsContext: {}
   }
 
@@ -145,6 +203,12 @@ test('Test workoutSegment behaviour with setting a time interval', () => {
     timestamp: new Date(startingPoint.timestamp.getTime() + 490 * 1000),
     totalMovingTime: 490,
     totalLinearDistance: 2050,
+    cyclePower: 200,
+    cycleLinearVelocity: 4.16666,
+    cycleStrokeRate: 20,
+    cycleDistance: 10,
+    totalCaloriesPerHour: 800,
+    dragFactor: 100,
     metricsContext: {}
   }
 
@@ -166,7 +230,18 @@ test('Test workoutSegment behaviour with setting a time interval', () => {
   testdistanceToEnd(testSegment, endPoint, undefined)
   testTimeToEnd(testSegment, endPoint, -5)
   testIsEndReached(testSegment, endPoint, true)
-  testExtrapolation(testSegment, middlePoint, endPoint, 485, 2025)
+  testInterpolation(testSegment, middlePoint, endPoint, 485, 2025)
+  testSegment.push(middlePoint)
+  testSegment.push(endPoint)
+  testAverageLinearVelocity (testSegment, middlePoint, 4.166666666666667)
+  testMaximumLinearVelocity (testSegment, middlePoint, 4.16666)
+  testMinimumLinearVelocity (testSegment, middlePoint, 4.16666)
+  testAveragePace (testSegment, middlePoint, 119.99999999999999)
+  testMaximumPace (testSegment, middlePoint, 120.0001920003072)
+  testMinimumPace (testSegment, middlePoint, 120.0001920003072)
+  testAveragePower (testSegment, middlePoint, 200)
+  testMaximumPower (testSegment, middlePoint, 200)
+  testMinimumPower (testSegment, middlePoint, 200)
 })
 
 test('Test split behaviour when setting a distance interval', () => {
@@ -192,6 +267,12 @@ test('Test split behaviour when setting a distance interval', () => {
     timestamp: new Date(startingPoint.timestamp.getTime() + 118 * 1000),
     totalMovingTime: 118,
     totalLinearDistance: 490,
+    cyclePower: 180,
+    cycleLinearVelocity: 4.1,
+    cycleStrokeRate: 20,
+    cycleDistance: 10,
+    totalCaloriesPerHour: 800,
+    dragFactor: 100,
     metricsContext: {}
   }
 
@@ -199,6 +280,12 @@ test('Test split behaviour when setting a distance interval', () => {
     timestamp: new Date(startingPoint.timestamp.getTime() + 122 * 1000),
     totalMovingTime: 122,
     totalLinearDistance: 510,
+    cyclePower: 220,
+    cycleLinearVelocity: 4.3,
+    cycleStrokeRate: 20,
+    cycleDistance: 10,
+    totalCaloriesPerHour: 800,
+    dragFactor: 100,
     metricsContext: {}
   }
 
@@ -223,7 +310,18 @@ test('Test split behaviour when setting a distance interval', () => {
   testdistanceToEnd(testSplit, endPoint, -10)
   testTimeToEnd(testSplit, endPoint, undefined)
   testIsEndReached(testSplit, endPoint, true)
-  testExtrapolation(testSplit, middlePoint, endPoint, 120, 500)
+  testInterpolation(testSplit, middlePoint, endPoint, 120, 500)
+  testSegment.push(middlePoint)
+  testSegment.push(endPoint)
+  testAverageLinearVelocity (testSegment, middlePoint, 4.1525423728813555)
+  testMaximumLinearVelocity (testSegment, middlePoint, 4.3)
+  testMinimumLinearVelocity (testSegment, middlePoint, 4.1)
+  testAveragePace (testSegment, middlePoint, 120.40816326530613)
+  testMaximumPace (testSegment, middlePoint, 116.27906976744187)
+  testMinimumPace (testSegment, middlePoint, 121.95121951219514)
+  testAveragePower (testSegment, middlePoint, 200)
+  testMaximumPower (testSegment, middlePoint, 220)
+  testMinimumPower (testSegment, middlePoint, 180)
 })
 
 test('Test split behaviour with setting a time interval', () => {
@@ -249,6 +347,12 @@ test('Test split behaviour with setting a time interval', () => {
     timestamp: new Date(startingPoint.timestamp.getTime() + 118 * 1000),
     totalMovingTime: 118,
     totalLinearDistance: 490,
+    cyclePower: 200,
+    cycleLinearVelocity: 4.16666,
+    cycleStrokeRate: 20,
+    cycleDistance: 10,
+    totalCaloriesPerHour: 800,
+    dragFactor: 100,
     metricsContext: {}
   }
 
@@ -256,6 +360,12 @@ test('Test split behaviour with setting a time interval', () => {
     timestamp: new Date(startingPoint.timestamp.getTime() + 122 * 1000),
     totalMovingTime: 122,
     totalLinearDistance: 510,
+    cyclePower: 200,
+    cycleLinearVelocity: 4.16666,
+    cycleStrokeRate: 20,
+    cycleDistance: 10,
+    totalCaloriesPerHour: 800,
+    dragFactor: 100,
     metricsContext: {}
   }
 
@@ -280,7 +390,18 @@ test('Test split behaviour with setting a time interval', () => {
   testdistanceToEnd(testSplit, endPoint, undefined)
   testTimeToEnd(testSplit, endPoint, -2)
   testIsEndReached(testSplit, endPoint, true)
-  testExtrapolation(testSplit, middlePoint, endPoint, 120, 500)
+  testInterpolation(testSplit, middlePoint, endPoint, 120, 500)
+  testSegment.push(middlePoint)
+  testSegment.push(endPoint)
+  testAverageLinearVelocity (testSegment, middlePoint, 4.1525423728813555)
+  testMaximumLinearVelocity (testSegment, middlePoint, 4.16666)
+  testMinimumLinearVelocity (testSegment, middlePoint, 4.16666)
+  testAveragePace (testSegment, middlePoint, 120.40816326530613)
+  testMaximumPace (testSegment, middlePoint, 120.0001920003072)
+  testMinimumPace (testSegment, middlePoint, 120.0001920003072)
+  testAveragePower (testSegment, middlePoint, 200)
+  testMaximumPower (testSegment, middlePoint, 200)
+  testMinimumPower (testSegment, middlePoint, 200)
 })
 
 // ToDo: Test the project EndTime and project EndDistance functions
@@ -313,9 +434,45 @@ function testTargetDistance (testedSegment, testedDatapoint, expectedValue) {
   assert.ok(testedSegment.metrics(testedDatapoint).distance.target === expectedValue, `Expected time to end to be ${expectedValue}, encountered ${testedSegment.metrics(testedDatapoint).distance.target}`)
 }
 
-function testExtrapolation (testedSegment, dataPointOne, dataPointTwo, ExpectedTime, ExpectedDistance) {
+function testInterpolation (testedSegment, dataPointOne, dataPointTwo, ExpectedTime, ExpectedDistance) {
   assert.ok(testedSegment.interpolateEnd(dataPointOne, dataPointTwo).totalMovingTime === ExpectedTime, `Expected extrapolated time be ${ExpectedTime}, encountered ${testedSegment.interpolateEnd(dataPointOne, dataPointTwo).totalMovingTime}`)
   assert.ok(testedSegment.interpolateEnd(dataPointOne, dataPointTwo).totalLinearDistance === ExpectedDistance, `Expected time to end to be ${ExpectedDistance}, encountered ${testedSegment.interpolateEnd(dataPointOne, dataPointTwo).totalLinearDistance}`)
+}
+
+function testAverageLinearVelocity (testedSegment, testedDatapoint, expectedValue) {
+  assert.ok(testedSegment.metrics(testedDatapoint).linearVelocity.average === expectedValue, `Expected average linear velocity to be ${expectedValue}, encountered ${testedSegment.metrics(testedDatapoint).linearVelocity.average}`)
+}
+
+function testMaximumLinearVelocity (testedSegment, testedDatapoint, expectedValue) {
+  assert.ok(testedSegment.metrics(testedDatapoint).linearVelocity.maximum === expectedValue, `Expected maximum linear velocity to be ${expectedValue}, encountered ${testedSegment.metrics(testedDatapoint).linearVelocity.maximum}`)
+}
+
+function testMinimumLinearVelocity (testedSegment, testedDatapoint, expectedValue) {
+  assert.ok(testedSegment.metrics(testedDatapoint).linearVelocity.minimum === expectedValue, `Expected minimum linear velocity to be ${expectedValue}, encountered ${testedSegment.metrics(testedDatapoint).linearVelocity.minimum}`)
+}
+
+function testAveragePace (testedSegment, testedDatapoint, expectedValue) {
+  assert.ok(testedSegment.metrics(testedDatapoint).pace.average === expectedValue, `Expected average pace to end to be ${expectedValue}, encountered ${testedSegment.metrics(testedDatapoint).pace.average}`)
+}
+
+function testMaximumPace (testedSegment, testedDatapoint, expectedValue) {
+  assert.ok(testedSegment.metrics(testedDatapoint).pace.maximum === expectedValue, `Expected maximum pace to be ${expectedValue}, encountered ${testedSegment.metrics(testedDatapoint).pace.maximum}`)
+}
+
+function testMinimumPace (testedSegment, testedDatapoint, expectedValue) {
+  assert.ok(testedSegment.metrics(testedDatapoint).pace.minimum === expectedValue, `Expected minimum pace to be ${expectedValue}, encountered ${testedSegment.metrics(testedDatapoint).pace.minimum}`)
+}
+
+function testAveragePower (testedSegment, testedDatapoint, expectedValue) {
+  assert.ok(testedSegment.metrics(testedDatapoint).power.average === expectedValue, `Expected average power to be ${expectedValue}, encountered ${testedSegment.metrics(testedDatapoint).power.average}`)
+}
+
+function testMaximumPower (testedSegment, testedDatapoint, expectedValue) {
+  assert.ok(testedSegment.metrics(testedDatapoint).power.maximum === expectedValue, `Expected maximum power to be ${expectedValue}, encountered ${testedSegment.metrics(testedDatapoint).power.maximum}`)
+}
+
+function testMinimumPower (testedSegment, testedDatapoint, expectedValue) {
+  assert.ok(testedSegment.metrics(testedDatapoint).power.minimum === expectedValue, `Expected minimum power to be ${expectedValue}, encountered ${testedSegment.metrics(testedDatapoint).power.minimum}`)
 }
 
 test.run()
