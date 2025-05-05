@@ -4,7 +4,7 @@
 */
 /**
  * This creates a series with a maximum number of values. It allows for determining the Average, Median, Number of Positive, number of Negative
- * BE AWARE: The median function is extremely CPU intensive for larger series. Use the BinarySearchTree for that situation instead!
+ * @remark BE AWARE: The median function is extremely CPU intensive for larger series. Use the BinarySearchTree for that situation instead!
  *
  * @param {number} [maxSeriesLength] The maximum length of the series (0 for unlimited)
  */
@@ -16,8 +16,8 @@ export function createSeries (maxSeriesLength = 0) {
   let seriesSum = 0
   let numPos = 0
   let numNeg = 0
-  let min = null
-  let max = null
+  let min = undefined
+  let max = undefined
 
   /**
    * @param {float} value to be added to the series
@@ -25,8 +25,8 @@ export function createSeries (maxSeriesLength = 0) {
   function push (value) {
     if (value === undefined || isNaN(value)) { return }
 
-    min = Math.min(min, value)
-    max = Math.max(max, value)
+    if (!isNaN(min)) { min = Math.min(min, value) }
+    if (!isNaN(max)) { max = Math.max(max, value) }
 
     if (maxSeriesLength > 0 && seriesArray.length >= maxSeriesLength) {
       // The maximum of the array has been reached, we have to create room by removing the first
@@ -38,10 +38,10 @@ export function createSeries (maxSeriesLength = 0) {
         numNeg--
       }
       if (min === seriesArray[0]) {
-        min = null
+        min = undefined
       }
       if (max === seriesArray[0]) {
-        max = null
+        max = undefined
       }
       seriesArray.shift()
     }
@@ -178,8 +178,7 @@ export function createSeries (maxSeriesLength = 0) {
   }
 
   /**
-   * @remark DO NOT USE FOR LARGE SERIES!
-   * @output {float} median of the series
+   * @output {float} median of the series (DO NOT USE FOR LARGE SERIES!)
    */
   function median () {
     if (seriesArray.length > 0) {
