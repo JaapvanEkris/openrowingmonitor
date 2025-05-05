@@ -60,7 +60,7 @@ export function createApp (app) {
             break
           }
           default: {
-            console.error(`unknown message type: ${message.type}`, message.data)
+            console.error('unknown message type: %s', message.type, message.data)
           }
         }
       } catch (err) {
