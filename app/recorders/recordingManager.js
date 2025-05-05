@@ -164,13 +164,15 @@ export function createRecordingManager (config) {
   }
 
   async function writeRecordings () {
-    if (config.createRawDataFiles) { fileWriter.writeFile(rawRecorder, config.gzipRawDataFiles) }
-    if (config.createRowingDataFiles) { fileWriter.writeFile(rowingDataRecorder, false) }
-    if (config.createFitFiles) { fileWriter.writeFile(fitRecorder, config.gzipFitFiles) }
-    if (config.createTcxFiles) { fileWriter.writeFile(tcxRecorder, config.gzipTcxFiles) }
+    // The await is necessary to prevent a 'reset' to occur during the writing process caused by the same reset
+    if (config.createRawDataFiles) { await fileWriter.writeFile(rawRecorder, config.gzipRawDataFiles) }
+    if (config.createRowingDataFiles) { await fileWriter.writeFile(rowingDataRecorder, false) }
+    if (config.createFitFiles) { await fileWriter.writeFile(fitRecorder, config.gzipFitFiles) }
+    if (config.createTcxFiles) { await fileWriter.writeFile(tcxRecorder, config.gzipTcxFiles) }
   }
 
   async function uploadRecordings () {
+    // The await is necessary to prevent the 'reset' to execute (and thus clear file content!) before the uploads has been completed
     if (allRecordingsHaveBeenUploaded === true) { return }
     if (config.userSettings.rowsAndAll.allowUpload && config.userSettings.rowsAndAll.autoUpload) { await rowsAndAllInterface.uploadSessionResults(rowingDataRecorder) }
     if (config.userSettings.intervals.allowUpload && config.userSettings.intervals.autoUpload) { await intervalsInterface.uploadSessionResults(fitRecorder) }
@@ -179,10 +181,11 @@ export function createRecordingManager (config) {
   }
 
   async function resetRecordings () {
-    if (recordRawData) { rawRecorder.reset() }
-    if (recordTcxData) { tcxRecorder.reset() }
-    if (recordFitData) { fitRecorder.reset() }
-    if (recordRowingData) { rowingDataRecorder.reset() }
+    // The await is necessary to prevent writes already occuring during a reset
+    if (recordRawData) { await rawRecorder.reset() }
+    if (recordTcxData) { await tcxRecorder.reset() }
+    if (recordFitData) { await fitRecorder.reset() }
+    if (recordRowingData) { await rowingDataRecorder.reset() }
   }
 
   return {
