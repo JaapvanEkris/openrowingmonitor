@@ -37,8 +37,8 @@ export class LoggedWorkoutCharacteristic extends GattNotifyCharacteristic {
     // Data bytes packed as follows: (15bytes) example: 0x 41A09A0C97A37088 CAE10801 D400 00 (00000000)
 
     // Logged Workout Hash, CSAFE_GET_CURRENT_WORKOUT_HASH
-    bufferBuilder.writeUInt32LE(0)
-    bufferBuilder.writeUInt32LE(0)
+    bufferBuilder.writeUInt32LE(0xFFFF)
+    bufferBuilder.writeUInt32LE(0xFFFF)
     // Logged Workout Internal Log Address, CSAFE_GET_INTERNALLOGPARAMS
     bufferBuilder.writeUInt32LE(0)
     // Logged Workout Size (file size in bytes)
