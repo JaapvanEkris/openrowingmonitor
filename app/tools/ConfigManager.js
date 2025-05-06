@@ -144,7 +144,7 @@ function checkConfig (configToCheck) {
     configToCheck.userSettings.rowsAndAll = { allowUpload: false }
   }
   if (!!configToCheck.userSettings.intervals && !!configToCheck.userSettings.intervals.allowUpload && configToCheck.userSettings.intervals.allowUpload === true) {
-    if (!configToCheck.userSettings.intervals.athleteId || configToCheck.userSettings.intervals.athleteId === '' || isNaN(configToCheck.userSettings.intervals.athleteId)) {
+    if (!configToCheck.userSettings.intervals.athleteId || configToCheck.userSettings.intervals.athleteId === '') {
       log.error('Configuration Error: intervals.icu athleteId error')
       configToCheck.userSettings.intervals.allowUpload = false
     }
