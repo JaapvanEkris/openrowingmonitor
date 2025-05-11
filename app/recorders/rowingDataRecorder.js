@@ -57,7 +57,7 @@ export function createRowingDataRecorder (config) {
         }
         addMetricsToStrokesArray(metrics)
         break
-      case (metrics.metricsContext.isSessionStop):
+      case (metrics.metricsContext.isSessionStop && lastMetrics.sessionState !== 'Stopped'):
         addMetricsToStrokesArray(metrics)
         postExerciseHR = null
         postExerciseHR = []
