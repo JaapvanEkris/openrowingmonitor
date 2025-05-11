@@ -46,7 +46,7 @@ export class GeneralStatusCharacteristic extends GattNotifyCharacteristic {
     // strokeState: UInt8, see OBJ_STROKESTATE_T
     bufferBuilder.writeUInt8(toC2StrokeState(data))
     // totalWorkDistance: UInt24LE in 1 m
-    bufferBuilder.writeUInt24LE(data.workout.distance.fromStart > 0 ? Math.round(data.interval.distance.fromStart) : 0)
+    bufferBuilder.writeUInt24LE(data.interval.distance.fromStart > 0 ? Math.round(data.interval.distance.fromStart) : 0)
     // workoutDuration: UInt24LE in 0.01 sec (if type TIME)
     if (data.interval.type === 'distance') {
       bufferBuilder.writeUInt24LE(data.interval.distance.target > 0 ? Math.round(data.interval.distance.absoluteTarget) : 0)
