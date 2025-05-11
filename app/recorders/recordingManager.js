@@ -77,7 +77,7 @@ export function createRecordingManager (config) {
       case 'refreshPeripheralConfig':
         break
       case 'upload':
-        log.debug('Manual upload requested')
+        log.debug('RecordingManager: Manual upload requested')
         if (config.userSettings.rowsAndAll.allowUpload && !config.userSettings.rowsAndAll.autoUpload) { await rowsAndAllInterface.uploadSessionResults(rowingDataRecorder) }
         if (config.userSettings.intervals.allowUpload && !config.userSettings.intervals.autoUpload) { await intervalsInterface.uploadSessionResults(fitRecorder) }
         if (config.userSettings.strava.allowUpload && !config.userSettings.strava.autoUpload) { await stravaInterface.uploadSessionResults(fitRecorder) }
@@ -88,7 +88,7 @@ export function createRecordingManager (config) {
         await uploadRecordings()
         break
       default:
-        log.error(`recordingManager: Recieved unknown command: ${commandName}`)
+        log.error(`RecordingManager: Recieved unknown command: ${commandName}`)
     }
   }
 
@@ -116,10 +116,10 @@ export function createRecordingManager (config) {
     }
 
     if (metrics.metricsContext.isSessionStop || metrics.metricsContext.isPauseStart) {
-      writeRecordings()
       // Cancel any old timers before setting new ones as it makes them impossible to cancel later on
       clearTimeout(writeTimer)
       clearTimeout(uploadTimer)
+      writeRecordings()
       const delayTime = 1000 * Math.max(metrics.pauseCountdownTime, 180)
       writeTimer = setTimeout(writeRecordings, (delayTime + 10000))
       uploadTimer = setTimeout(uploadRecordings, (delayTime + 15000))
