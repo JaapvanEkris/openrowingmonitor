@@ -73,7 +73,7 @@ export function createFITRecorder (config) {
         sessionHRMetrics.reset()
         addMetricsToStrokesArray(metrics)
         break
-      case (metrics.metricsContext.isSessionStop):
+      case (metrics.metricsContext.isSessionStop && lastMetrics.sessionState !== 'Stopped'):
         addMetricsToStrokesArray(metrics)
         calculateLapMetrics(metrics)
         calculateSessionMetrics(metrics)
