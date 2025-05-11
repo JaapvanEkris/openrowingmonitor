@@ -56,7 +56,7 @@ export function createTCXRecorder (config) {
         startLap(lapnumber, metrics)
         addMetricsToStrokesArray(metrics)
         break
-      case (metrics.metricsContext.isSessionStop):
+      case (metrics.metricsContext.isSessionStop && lastMetrics.sessionState !== 'Stopped'):
         addMetricsToStrokesArray(metrics)
         calculateLapMetrics(metrics)
         postExerciseHR = null
