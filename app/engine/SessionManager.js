@@ -56,12 +56,14 @@ export function createSessionManager (config) {
         } else {
           log.debug(`SessionManager, time: ${metrics.totalMovingTime}, rejected new interval settings as session was already in progress`)
         }
+        emitMetrics(lastBroadcastedMetrics)
         break
       case ('start'):
         if (sessionState !== 'Rowing') {
           clearTimeout(pauseTimer)
           StartOrResumeTraining()
           sessionState = 'WaitingForStart'
+          emitMetrics(lastBroadcastedMetrics)
         }
         break
       case ('startOrResume'):
@@ -69,6 +71,7 @@ export function createSessionManager (config) {
           clearTimeout(pauseTimer)
           StartOrResumeTraining()
           sessionState = 'WaitingForStart'
+          emitMetrics(lastBroadcastedMetrics)
         }
         break
       case ('pause'):
@@ -77,6 +80,7 @@ export function createSessionManager (config) {
           lastBroadcastedMetrics = refreshMetrics() // as the pause button is forced, we need to fetch the zero'ed metrics
           lastBroadcastedMetrics.metricsContext.isPauseStart = true
           sessionState = 'Paused'
+          emitMetrics(lastBroadcastedMetrics)
         }
         break
       case ('stop'):
@@ -85,6 +89,7 @@ export function createSessionManager (config) {
           stopTraining(lastBroadcastedMetrics)
           lastBroadcastedMetrics.metricsContext.isSessionStop = true
           sessionState = 'Stopped'
+          emitMetrics(lastBroadcastedMetrics)
         }
         break
       case ('reset'):
@@ -97,6 +102,7 @@ export function createSessionManager (config) {
         resetTraining(lastBroadcastedMetrics)
         lastBroadcastedMetrics = refreshMetrics() // as the engine is reset, we need to fetch the zero'ed metrics
         sessionState = 'WaitingForStart'
+        emitMetrics(lastBroadcastedMetrics)
         break
       case 'switchBlePeripheralMode':
         break
@@ -114,12 +120,12 @@ export function createSessionManager (config) {
         if (sessionState === 'Rowing') {
           lastBroadcastedMetrics.metricsContext.isSessionStop = true
           sessionState = 'Stopped'
+          emitMetrics(lastBroadcastedMetrics)
         }
         break
       default:
         log.error(`Recieved unknown command: ${commandName}`)
     }
-    emitMetrics(lastBroadcastedMetrics)
   }
 
   function refreshMetrics () {
@@ -222,10 +228,10 @@ export function createSessionManager (config) {
         StartOrResumeTraining()
         sessionState = 'Rowing'
         metrics.metricsContext.isPauseEnd = true
+        if (interval.type() === 'rest') { metrics.metricsContext.isIntervalEnd = true }
         emitMetrics(metrics)
         if (interval.type() === 'rest') {
           // We are leaving a rest interval
-          metrics.metricsContext.isIntervalEnd = true
           activateNextIntervalParameters(metrics)
         } else {
           // It was a spontanuous pause
