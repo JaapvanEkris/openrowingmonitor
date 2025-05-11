@@ -136,6 +136,46 @@ export class Pm5RowingService extends GattService {
       strokeState: 'WaitingForDrive',
       totalMovingTime: 0,
       totalLinearDistance: 0,
+      cycleLinearVelocity: 0,
+      cycleStrokeRate: 0,
+      cyclePace: 0,
+      cyclePower: 0,
+      workout: {
+        timeSpent: {
+          total: 0,
+          rest: 0
+        },
+        distance: {
+          fromStart: 0
+        },
+        calories: {
+          totalSpent: 0
+        }
+      },
+      interval: {
+        type: 'justrow',
+        movingTime: {
+          target: 0
+        },
+        distance: {
+          target: 0
+        },
+        pace: {
+          average: 0
+        }
+      },
+      split: {
+        type: 'justrow',
+        pace: {
+          average: 0
+        },
+        power: {
+          average: 0
+        },
+        calories: {
+          averagePerHour: 0
+        }
+      },
       dragFactor: config.rowerSettings.dragFactor
     }
     this.#splitHR = createSeries()
