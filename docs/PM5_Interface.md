@@ -4,7 +4,7 @@ The design goal is to emulate PM5 communication sufficiently for EXR, ErgZone, K
 
 This is based on the description in Concept 2's design documentation, as well based on recorded traces of bluetooth communication with current PM5's.
 
-## Structural deifferences
+## Structural differences
 
 ### Workout Hierarchy
 
