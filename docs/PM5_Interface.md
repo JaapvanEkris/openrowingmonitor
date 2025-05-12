@@ -38,23 +38,27 @@ The recorded Bluetooth trace shows that:
 
 ## Messages
 
-### 0x0031 "General Status"
+### Time based status messages
+
+#### 0x0031 "General Status"
 
 [0x0031 "General Status"](../app/peripherals/ble/pm5/rowing-service/status-characteristics/GeneralStatusCharacteristic.js),
 
-### 0x0032 "Additional Status"
+#### 0x0032 "Additional Status"
 
 [0x0032 "Additional Status"](../app/peripherals/ble/pm5/rowing-service/status-characteristics/AdditionalStatusCharacteristic.js),
 
-### 0x0033  "Additional Status 2"
+#### 0x0033  "Additional Status 2"
 
 [0x0033  "Additional Status 2"](../app/peripherals/ble/pm5/rowing-service/status-characteristics/AdditionalStatus2Characteristic.js),
 
-### 0x0035 "Stroke Data"
+### Interupt driven stroke state messages
+
+#### 0x0035 "Stroke Data"
 
 [0x0035 "Stroke Data"](../app/peripherals/ble/pm5/rowing-service/other-characteristics/StrokeDataCharacteristic.js),
 
-### 0x0036 "Additional Stroke Data"
+#### 0x0036 "Additional Stroke Data"
 
 [0x0036 "Additional Stroke Data"](../app/peripherals/ble/pm5/rowing-service/other-characteristics/AdditionalStrokeDataCharacteristic.js)
 
