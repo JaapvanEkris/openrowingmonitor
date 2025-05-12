@@ -23,7 +23,7 @@ OpenRowingMonitor treats rest intervals similar to normal time based intervals, 
 
 ### Message grouping and timing
 
-| Elapsed Time | Distance | [0x0031 General Status](#0x0031-general-status) | [0x0032 Additional Status](#0x0032-additional-status) | [0x0033 Additional Status 2](#0x0033--additional-status-2) | 0x003e Additional Status 3 | [0x0035 Stroke Data](#0x0035-stroke-data) | [0x0036 Additional Stroke Data](#0x0036-additional-stroke-data) | [0x003d Force Curve data](0x003d-force-curve-data) | 0x0037 Split Data | 0x0038 Additional Split Data | 0x0039 Workout Summery | 0x003a Additional Workout Summary | 0x003f Logged Workout |
+| Elapsed Time | Distance | [0x0031 General Status](#0x0031-general-status) | [0x0032 Additional Status](#0x0032-additional-status) | [0x0033 Additional Status 2](#0x0033--additional-status-2) | 0x003e Additional Status 3 | [0x0035 Stroke Data](#0x0035-stroke-data) | [0x0036 Additional Stroke Data](#0x0036-additional-stroke-data) | [0x003d Force Curve data](#0x003d-force-curve-data) | [0x0037 Split Data](#0x0037-split-data) | [0x0038 Additional Split Data](#0x0038-additional-split-data) | 0x0039 Workout Summery | 0x003a Additional Workout Summary | 0x003f Logged Workout |
 | ----------- | -------- | -------------- | ----------------- | ------------------- | ------------------- | ----------- | ---------------------- | ---------------- | ---------- | --------------------- | --------------- | -------------------------- | -------------- |
 | 155,21      | 0        | 1              | 1                 | 1                   | 1                   |             |                        |                  |            |                       |                 |                            |                |
 | 155,71      | 0        | 1              | 1                 | 1                   | 1                   |             |                        |                  |            |                       |                 |                            |                |
@@ -357,7 +357,7 @@ Time is stopped
 
 ### Elapsed time
 
-According to the documentation ([[1]](#1) and [[2]](#2)), messages [0x0031 "General Status"](#0x0031-general-status), [0x0032 "Additional Status"](#0x0032-additional-status), [0x0033  "Additional Status 2"](#0x0033--additional-status-2), [0x0035 "Stroke Data"](#0x0035-stroke-data), [0x0036 "Additional Stroke Data"](#0x0036-additional-stroke-data) all contain the 24 bit element "Elapsed Time", with a 0.01 second precission. 
+According to the documentation ([[1]](#1) and [[2]](#2)), messages [0x0031 "General Status"](#0x0031-general-status), [0x0032 "Additional Status"](#0x0032-additional-status), [0x0033  "Additional Status 2"](#0x0033--additional-status-2), [0x0035 "Stroke Data"](#0x0035-stroke-data), [0x0036 "Additional Stroke Data"](#0x0036-additional-stroke-data), [0x0037 "Split Data"](#0x0037-split-data) and [0x0038 "Additional Split Data"](#0x0038-additional-split-data) all contain the 24 bit element "Elapsed Time", with a 0.01 second precission. 
 
 The recorded Bluetooth trace shows that:
 
