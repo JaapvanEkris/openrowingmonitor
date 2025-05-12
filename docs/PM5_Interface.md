@@ -56,11 +56,11 @@ The recorded Bluetooth trace shows that:
 
 #### 0x0035 "Stroke Data"
 
-[0x0035 "Stroke Data"](../app/peripherals/ble/pm5/rowing-service/other-characteristics/StrokeDataCharacteristic.js),
+[0x0035 "Stroke Data"](../app/peripherals/ble/pm5/rowing-service/other-characteristics/StrokeDataCharacteristic.js) is sent at the end of both the drive and the recovery
 
 #### 0x0036 "Additional Stroke Data"
 
-[0x0036 "Additional Stroke Data"](../app/peripherals/ble/pm5/rowing-service/other-characteristics/AdditionalStrokeDataCharacteristic.js)
+[0x0036 "Additional Stroke Data"](../app/peripherals/ble/pm5/rowing-service/other-characteristics/AdditionalStrokeDataCharacteristic.js) is only sent at the end of the drive
 
 
 ## References
