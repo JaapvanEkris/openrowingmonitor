@@ -15,7 +15,7 @@ The [CsafeManagerService.js](../app/peripherals/ble/pm5/csafe-service/CsafeManag
 * a fixed time/distance PM5 workout to a single OpenRowingMonitor Interval, and add the specified splits as OpenRowingMonitor splits if specified.
 * A PM5 workout with multiple intervals to multiple OpenRowingMonitor Intervals, without any splits specified (as they can't be specified by the PM5).
 
-[workoutSegment.js](../app/engine/utils/workoutSegment.js)'s default behaviour with missing split information is to 'inherit' the split parameters of the above interval (in essence making the split boundaries identical to the interval), making the splits always contain the most granular division of the workout regardless of how the PM5 has administrated the workout. In reporting back to the app, the splits are thus the basis for reporting.
+[workoutSegment.js](../app/engine/utils/workoutSegment.js)'s default behaviour with missing split information is to 'inherit' the split parameters of the above interval (in essence making the split boundaries identical to the interval). This makes the splits always contain the most granular division of the workout regardless of how the PM5 has communicated the workout. In reporting back to the app, the splits are thus the basis for reporting in the PM5 emulated reporting.
 
 ### Positioning rest intervals
 
