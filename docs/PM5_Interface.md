@@ -8,7 +8,7 @@ This is based on the description in Concept 2's design documentation, as well ba
 
 ### Workout Hierarchy
 
-OpenRowingMonitor recognizes three levels in a workout: the Session, the underlying Intervals and the Splits in these Intervals. A PM5 recognizes either a workout with one or more Intervals of varying length, or a single interval with several underlying Splits.
+OpenRowingMonitor recognizes three levels in a workout: the Session, the underlying Intervals and the Splits in these Intervals. A PM5 recognizes either a workout with one or more Intervals of varying length, or a single workout with several underlying splits.
 
 The [CsafeManagerService.js](../app/peripherals/ble/pm5/csafe-service/CsafeManagerService.js) therefore will map:
 
