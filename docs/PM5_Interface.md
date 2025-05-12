@@ -10,7 +10,12 @@ This is based on the description in Concept 2's design documentation, as well ba
 
 OpenRowingMonitor recognizes three levels in a workout: the Session, the underlying Intervals and the Splits in these Intervals. A PM5 recognizes either a workout with one or more Intervals of varying length, or a single interval with several underlying Splits.
 
-The [CsafeManagerService.js](../app/peripherals/ble/pm5/csafe-service/CsafeManagerService.js) therefore will map a fixed distance PM5 workout to a single OpenRowingMonitor Interval, and add the specified splits as OpenRowingMonitor splits if specified. A PM5 workout with multiple intervals will be mapped to multiple OpenRowingMonitor Intervals, without any splits specified (as they can't be specified by the PM5). [workoutSegment.js](../app/engine/utils/workoutSegment.js)'s default behaviour with missing split information is to 'inherit' the parameters of the above interval, making the splits always contain the most granular division of the workout. 
+The [CsafeManagerService.js](../app/peripherals/ble/pm5/csafe-service/CsafeManagerService.js) therefore will map:
+
+* a fixed time/distance PM5 workout to a single OpenRowingMonitor Interval, and add the specified splits as OpenRowingMonitor splits if specified.
+* A PM5 workout with multiple intervals to multiple OpenRowingMonitor Intervals, without any splits specified (as they can't be specified by the PM5).
+
+[workoutSegment.js](../app/engine/utils/workoutSegment.js)'s default behaviour with missing split information is to 'inherit' the split parameters of the above interval (in essence making the split boundaries identical to the interval), making the splits always contain the most granular division of the workout regardless of how the PM5 has administrated the workout. In reporting back to the app, the splits are thus the basis for reporting.
 
 ### Positioning rest intervals
 
