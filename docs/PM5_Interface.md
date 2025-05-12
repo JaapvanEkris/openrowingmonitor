@@ -36,6 +36,29 @@ The recorded Bluetooth trace shows that:
 * The timer is stopped as soon as it is paused
 * at an interval change, this timer is reset to zero
 
+## Messages
+
+### 0x0031 "General Status"
+
+[0x0031 "General Status"](../app/peripherals/ble/pm5/rowing-service/status-characteristics/GeneralStatusCharacteristic.js),
+
+### 0x0032 "Additional Status"
+
+[0x0032 "Additional Status"](../app/peripherals/ble/pm5/rowing-service/status-characteristics/AdditionalStatusCharacteristic.js),
+
+### 0x0033  "Additional Status 2"
+
+[0x0033  "Additional Status 2"](../app/peripherals/ble/pm5/rowing-service/status-characteristics/AdditionalStatus2Characteristic.js),
+
+### 0x0035 "Stroke Data"
+
+[0x0035 "Stroke Data"](../app/peripherals/ble/pm5/rowing-service/other-characteristics/StrokeDataCharacteristic.js),
+
+### 0x0036 "Additional Stroke Data"
+
+[0x0036 "Additional Stroke Data"](../app/peripherals/ble/pm5/rowing-service/other-characteristics/AdditionalStrokeDataCharacteristic.js)
+
+
 ## References
 
 <a id="1">[1]</a> Concept 2 PM5 Bluetooth Smart Interface Specification, Revision 1.30, 3/2/2022 <https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf>
