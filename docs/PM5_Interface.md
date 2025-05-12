@@ -8,11 +8,13 @@ This is based on the description in Concept 2's design documentation, as well ba
 
 ### Workout Hierarchy
 
-OpenRowingMonitor recognizes three levels in a workout: the Session, the underlying Intervals and the Splits in these Intervals. A PM5 recognizes either a workout with one or more Intervals of varying length, or a single interval with several underlying Splits. 
+OpenRowingMonitor recognizes three levels in a workout: the Session, the underlying Intervals and the Splits in these Intervals. A PM5 recognizes either a workout with one or more Intervals of varying length, or a single interval with several underlying Splits.
+
+The [CsafeManagerService.js](../app/peripherals/ble/pm5/csafe-service/CsafeManagerService.js) therefore will map a fixed distance PM5 workout to a single OpenRowingMonitor Interval, and add the specified splits as OpenRowingMonitor splits if specified. A PM5 workout with multiple intervals will be mapped to multiple OpenRowingMonitor Intervals, without any splits specified (as they can't be specified by the PM5). [workoutSegment.js](../app/engine/utils/workoutSegment.js)'s default behaviour with missing split information is to 'inherit' the parameters of the above interval, making the splits always contain the most granular division of the workout. 
 
 ### Positioning rest intervals
 
-OpenRowingMonitor treats rest intervals similar to normal time based intervals, with the exception that the rowing engine is forced to stop collecting metrics. A PM5 considers a rest interval an attribute of a normal interval.
+OpenRowingMonitor treats rest intervals similar to normal time based intervals, with the exception that the rowing engine is forced to stop collecting metrics during that interval. A PM5 considers a rest interval an attribute of a normal interval, and it isn't an independent entity. In [CsafeManagerService.js](../app/peripherals/ble/pm5/csafe-service/CsafeManagerService.js) this is managed by adding a rest interval to OpenRowingMonitor's workout schedule. In reporting, this pause will be reported as an interval with only a rest specified.
 
 ### Message grouping and timing
 
@@ -21,7 +23,16 @@ OpenRowingMonitor treats rest intervals similar to normal time based intervals, 
 
 ### Elapsed time
 
+According to the documentation ([[1]](#1) and [[2]](#2)), messages [0x0031 "General Status"](../app/peripherals/ble/pm5/rowing-service/status-characteristics/GeneralStatusCharacteristic.js), [0x0032 "Additional Status"](../app/peripherals/ble/pm5/rowing-service/status-characteristics/AdditionalStatusCharacteristic.js), [0x0033  "Additional Status 2"](../app/peripherals/ble/pm5/rowing-service/status-characteristics/AdditionalStatus2Characteristic.js), [0x0035 "Stroke Data"](../app/peripherals/ble/pm5/rowing-service/other-characteristics/StrokeDataCharacteristic.js), [0x0036 "Additional Stroke Data"](../app/peripherals/ble/pm5/rowing-service/other-characteristics/AdditionalStrokeDataCharacteristic.js) all contain the 24 bit element "Elapsed Time", with a 0.01 second precission. 
+
+The recorded Bluetooth trace shows that:
+
+* the timer is already active before any movement
+* The timer is stopped as soon as it is paused
+* at an interval change, this timer is reset to zero
+
 ## References
 
-https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
-https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf
+<a id="1">[1]</a> Concept 2 PM5 Bluetooth Smart Interface Specification, Revision 1.30, 3/2/2022 <https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf>
+
+<a id="2">[2]</a> Concept2 PM CSAFE Communication Definition, Revision 0.27, 8/8/2023 <https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf>
