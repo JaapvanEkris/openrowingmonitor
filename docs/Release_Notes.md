@@ -3,7 +3,7 @@
 ## Version 0.9.6 (May 2025)
 
 Main contributors: [Abasz](https://github.com/Abasz) and [Jaap van Ekris](https://github.com/JaapvanEkris)
-Beta testers: [jryd2000](https://github.com/jryd2000] and [carlito1979](https://github.com/carlito1979)
+Beta testers: [jryd2000](https://github.com/jryd2000) and [carlito1979](https://github.com/carlito1979)
 
 ### New functionality in 0.9.6
 
