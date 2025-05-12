@@ -343,6 +343,8 @@ OpenRowingMonitor treats rest intervals similar to normal time based intervals, 
 
 ### Grouped messages
 
+Based on the above table we can group the messages as well as identify their trigger. This grouping is implemented in the [Pm5RowingService.js](../app/peripherals/ble/pm5/rowing-service/Pm5RowingService.js).
+
 #### Time driven status updates
 
 #### End of the drive
