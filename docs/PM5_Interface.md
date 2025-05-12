@@ -399,6 +399,16 @@ Similar to Elapsed time, we see distance reset upon crossing the interval bounda
 
 The force curve is in pounds (lbs).
 
+### Interupt driven split messages
+
+#### 0x0037 "Split Data"
+
+
+
+#### 0x0038 "Additional Split Data"
+
+
+
 ## References
 
 <a id="1">[1]</a> Concept 2 PM5 Bluetooth Smart Interface Specification, Revision 1.30, 3/2/2022 <https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf>
