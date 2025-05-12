@@ -214,11 +214,10 @@ if $INIT_GUI; then
     print "sudo systemctl status webbrowserkiosk"
     sudo systemctl status webbrowserkiosk --no-pager
   else
-    # This currently is a copy of the bullseye install, as Bookworm's Wayland install is twice as big as it still includes the X11 server
-    # When we can install Wayland in a normal way, this will change as Wayland has a better kiosk mode
-    sudo apt-get -y install --no-install-recommends xserver-xorg xserver-xorg-legacy x11-xserver-utils xinit openbox chromium-browser
+    # This installs Wayland as Wayland has a better kiosk mode
+    sudo apt-get -y install --no-install-recommends wayfire firefox
     sudo gpasswd -a pi tty
-    sudo sed -i 's/allowed_users=console/allowed_users=anybody\nneeds_root_rights=yes/' /etc/X11/Xwrapper.config
+    sudo chown -R pi:pi ~/.cache
     sudo cp install/webbrowserkiosk.service /lib/systemd/system/
     sudo systemctl daemon-reload
     sudo systemctl enable webbrowserkiosk
