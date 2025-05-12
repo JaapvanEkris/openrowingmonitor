@@ -361,13 +361,15 @@ According to the documentation ([[1]](#1) and [[2]](#2)), messages [0x0031 "Gene
 
 The recorded Bluetooth trace shows that:
 
-* the timer is already active before any movement
-* The timer is stopped as soon as it is paused
+* the timer is already active before any movement has commenced, although tests suggests that it can be left to zero until rowing commences for all apps.
+* The timer is stopped as soon as the session is paused
 * at an interval change, this timer is reset to zero
+
+Thus, this is best mapped to metrics.interval.timeSpent.moving
 
 ### Distance
 
-Similar to Elapsed time, we see distance reset upon crossing the interval boundary.
+Similar to Elapsed time, messages [0x0031 "General Status"](#0x0031-general-status), [0x0035 "Stroke Data"](#0x0035-stroke-data) contain the 24 bit element "Distance", with a 0.1 meter precission. We also see distance being fixed in a pause and reset upon crossing the interval boundary. Thus, this is similar to metrics.interval.distance.fromStart.
 
 ## Messages
 
