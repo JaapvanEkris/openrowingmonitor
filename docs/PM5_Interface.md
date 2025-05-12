@@ -341,18 +341,31 @@ OpenRowingMonitor treats rest intervals similar to normal time based intervals, 
 | 54,93       | 218,7    | 125            | 125               | 125                 | 125                 |             |                        |                  | 1          | 1                     |                 |                            |                |
 |             |          |                |                   |                     |                     |             |                        |                  |            |                       | 1               | 1                          | 1              |
 
+### Grouped messages
 
-## Interpretation of fields
+#### Time driven status updates
+
+#### End of the drive
+
+#### End of the recovery
+
+### Pause behaviour
+
+Time is stopped
 
 ### Elapsed time
 
-According to the documentation ([[1]](#1) and [[2]](#2)), messages [0x0031 "General Status"](../app/peripherals/ble/pm5/rowing-service/status-characteristics/GeneralStatusCharacteristic.js), [0x0032 "Additional Status"](../app/peripherals/ble/pm5/rowing-service/status-characteristics/AdditionalStatusCharacteristic.js), [0x0033  "Additional Status 2"](../app/peripherals/ble/pm5/rowing-service/status-characteristics/AdditionalStatus2Characteristic.js), [0x0035 "Stroke Data"](../app/peripherals/ble/pm5/rowing-service/other-characteristics/StrokeDataCharacteristic.js), [0x0036 "Additional Stroke Data"](../app/peripherals/ble/pm5/rowing-service/other-characteristics/AdditionalStrokeDataCharacteristic.js) all contain the 24 bit element "Elapsed Time", with a 0.01 second precission. 
+According to the documentation ([[1]](#1) and [[2]](#2)), messages [0x0031 "General Status"](#0x0031-general-status), [0x0032 "Additional Status"](#0x0032-additional-status), [0x0033  "Additional Status 2"](#0x0033--additional-status-2), [0x0035 "Stroke Data"](#0x0035-stroke-data), [0x0036 "Additional Stroke Data"](#0x0036-additional-stroke-data) all contain the 24 bit element "Elapsed Time", with a 0.01 second precission. 
 
 The recorded Bluetooth trace shows that:
 
 * the timer is already active before any movement
 * The timer is stopped as soon as it is paused
 * at an interval change, this timer is reset to zero
+
+### Distance
+
+Similar to Elapsed time, we see distance reset upon crossing the interval boundary.
 
 ## Messages
 
@@ -380,6 +393,9 @@ The recorded Bluetooth trace shows that:
 
 [0x0036 "Additional Stroke Data"](../app/peripherals/ble/pm5/rowing-service/other-characteristics/AdditionalStrokeDataCharacteristic.js) is only sent at the end of the drive
 
+#### 0x003d "Force Curve data"
+
+The force curve is in pounds (lbs).
 
 ## References
 
