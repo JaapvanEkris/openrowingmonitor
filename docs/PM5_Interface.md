@@ -2,7 +2,7 @@
 
 The design goal is to emulate PM5 communication sufficiently for EXR, ErgZone, KinoMap, Aviron, Ergatta, Peleton, FIT, MyRow, Hydrow, Armada, ErgWorld, ErgDude, BoatCoach and Ergometer space. It is *NOT* to completely emulate a full-blown PM5 with racing features or logbook verification.
 
-This is based on the description in Concept 2's design documentation, as well based on recorded traces of bluetooth communication with current PM5's.
+This is partially based on the description in Concept 2's API documentation ([[1]](#1) and [[2]](#2)). As this documentation is inconclusive about the timing/triggers for messages, as well as the exact definition of the values used, a large part is also based on analysis of the communication via recorded bluetooth traces with current PM5's.
 
 ## Structural differences
 
@@ -23,7 +23,7 @@ OpenRowingMonitor treats rest intervals similar to normal time based intervals, 
 
 ### Message grouping and timing
 
-| Elapsed Time | Distance | [0x0031 General Status](#0x0031-general-status) | [0x0032 Additional Status](#0x0032-additional-status) | [0x0033 Additional Status 2](#0x0033--additional-status-2) | 0x003e Additional Status 3 | [0x0035 Stroke Data](#0x0035-stroke-data) | [0x0036 Additional Stroke Data](#0x0036-additional-stroke-data) | 0x003d Force Curve data | 0x0037 Split Data | 0x0038 Additional Split Data | 0x0039 Workout Summery | 0x003a Additional Workout Summary | 0x003f Logged Workout |
+| Elapsed Time | Distance | [0x0031 General Status](#0x0031-general-status) | [0x0032 Additional Status](#0x0032-additional-status) | [0x0033 Additional Status 2](#0x0033--additional-status-2) | 0x003e Additional Status 3 | [0x0035 Stroke Data](#0x0035-stroke-data) | [0x0036 Additional Stroke Data](#0x0036-additional-stroke-data) | [0x003d Force Curve data](0x003d-force-curve-data) | 0x0037 Split Data | 0x0038 Additional Split Data | 0x0039 Workout Summery | 0x003a Additional Workout Summary | 0x003f Logged Workout |
 | ----------- | -------- | -------------- | ----------------- | ------------------- | ------------------- | ----------- | ---------------------- | ---------------- | ---------- | --------------------- | --------------- | -------------------------- | -------------- |
 | 155,21      | 0        | 1              | 1                 | 1                   | 1                   |             |                        |                  |            |                       |                 |                            |                |
 | 155,71      | 0        | 1              | 1                 | 1                   | 1                   |             |                        |                  |            |                       |                 |                            |                |
