@@ -176,7 +176,13 @@ fi
 
 print
 print "Setting up GPIO 17 as input and enable the pull-up resistor..."
-echo -e "\n# configure GPIO 17 as input and enable the pull-up resistor for Open Rowing Monitor\ngpio=17=pu,ip" | sudo tee -a /boot/config.txt > /dev/null
+print "Setting up GPIO 17 as input and enable the pull-up resistor..."
+if [[ $VERSION == "10 (buster)" ]] || [[ $VERSION == "11 (bullseye)" ]]; then
+  echo -e "\n# configure GPIO 17 as input and enable the pull-up resistor for Open Rowing Monitor\ngpio=17=pu,ip" | sudo tee -a /boot/config.txt > /dev/null
+else
+  # In Bookworm, this file has moved
+  echo -e "\n# configure GPIO 17 as input and enable the pull-up resistor for Open Rowing Monitor\ngpio=17=pu,ip" | sudo tee -a /boot/firmware/config.txt > /dev/null
+fi
 
 print
 print "Setting up Open Rowing Monitor as autostarting system service..."
@@ -214,10 +220,10 @@ if $INIT_GUI; then
     print "sudo systemctl status webbrowserkiosk"
     sudo systemctl status webbrowserkiosk --no-pager
   else
-    # This installs Wayland as Wayland has a better kiosk mode
-    sudo apt-get -y install --no-install-recommends wayfire firefox
+    # ToDo: We aim to installs Wayland on Bookworm as Wayland has a better kiosk mode, as soon as we know how to do a decent Kiosk mode
+    sudo apt-get -y install --no-install-recommends xserver-xorg xserver-xorg-legacy x11-xserver-utils xinit openbox firefox
     sudo gpasswd -a pi tty
-    sudo chown -R pi:pi ~/.cache
+    sudo sed -i 's/allowed_users=console/allowed_users=anybody\nneeds_root_rights=yes/' /etc/X11/Xwrapper.config
     sudo cp install/webbrowserkiosk.service /lib/systemd/system/
     sudo systemctl daemon-reload
     sudo systemctl enable webbrowserkiosk
@@ -241,3 +247,4 @@ print
 print "Please reboot the device for all features and settings to take effect."
 
 cd $CURRENT_DIR
+sudo chown -R pi:pi ~/.cache
