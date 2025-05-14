@@ -210,6 +210,7 @@ if $INIT_GUI; then
   print "Installing Graphical User Interface..."
   if [[ $VERSION == "10 (buster)" ]] || [[ $VERSION == "11 (bullseye)" ]]; then
     sudo apt-get -y install --no-install-recommends xserver-xorg xserver-xorg-legacy x11-xserver-utils xinit openbox firefox
+    sudo mkdir /home/pi/.cache
     sudo chown -R pi:pi /home/pi/.cache
     sudo gpasswd -a pi tty
     sudo sed -i 's/allowed_users=console/allowed_users=anybody\nneeds_root_rights=yes/' /etc/X11/Xwrapper.config
@@ -222,6 +223,7 @@ if $INIT_GUI; then
   else
     # ToDo: We aim to installs Wayland on Bookworm as Wayland has a better kiosk mode, as soon as we know how to do a decent Kiosk mode
     sudo apt-get -y install --no-install-recommends xserver-xorg xserver-xorg-legacy x11-xserver-utils xinit openbox firefox
+    sudo mkdir /home/pi/.cache
     sudo chown -R pi:pi /home/pi/.cache
     sudo gpasswd -a pi tty
     sudo sed -i 's/allowed_users=console/allowed_users=anybody\nneeds_root_rights=yes/' /etc/X11/Xwrapper.config
