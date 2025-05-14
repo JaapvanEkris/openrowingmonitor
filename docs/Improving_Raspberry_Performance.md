@@ -20,7 +20,7 @@ When installing Open Rowing Monitor, please use a low latency or real time kerne
 
 Aside from selecting the right OS and kernel, there are some settings that can be set at startup that reduce the latency of the kernel.
 
-One of these options is to turn off CPU exploit protection. This is a huge security risk as it removes security mitigations in the kernel, but it reduces latency. Given your specific network layout, this could be worth the effort. Add to `/boot/cmdline.txt` the following option, if you consider it responsible in your situation (this introduces a security risk):
+One of these options is to turn off CPU exploit protection. This is a huge security risk as it removes security mitigations in the kernel, but it reduces latency. Given your specific network layout, this could be worth the effort. Add the following option to `/boot/cmdline.txt` (Buster or Bullseye) or `/boot/firmware/cmdline.txt` (Bookworm), if you consider it responsible in your situation (this introduces a security risk):
 
 ```zsh
 mitigations=off
@@ -31,12 +31,6 @@ Another option is to dedicate a CPU to Open Rowing Monitor and run the CPU's in 
 ### CPU Scaling
 
 Typically, Raspbian is configured to reduce energy consumption, using the *ondemand* CPU governor. For low latency applications, this isn't sufficient. To get the most out of the CPU, we need to use the *performance* governor.
-
-First, Raspbian will interfere with settings, so we need to kill that functionality:
-
-```zsh
-sudo systemctl disable raspi-config
-```
 
 Next, we need to istall cpufrequtils to allow control over the CPU governor:
 
