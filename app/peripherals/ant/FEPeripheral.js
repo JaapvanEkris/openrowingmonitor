@@ -178,7 +178,7 @@ function createFEPeripheral (antManager) {
    * @param {Metrics} data
    */
   function notifyData (data) {
-    accumulatedTime = Math.Max(data.workout.timeSpent, sessionData.accumulatedTime)
+    accumulatedTime = Math.max(data.workout.timeSpent, sessionData.accumulatedTime)
     accumulatedDistance = Math.max(data.workout.distance.fromStart, accumulatedDistance)
     accumulatedStrokes = Math.max(data.workout.numberOfStrokes, accumulatedStrokes)
     sessionData = {
