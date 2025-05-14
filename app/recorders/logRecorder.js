@@ -9,7 +9,10 @@ import { secondsToTimeString } from '../tools/Helper.js'
 
 export function createLogRecorder () {
   let heartRate = 0
-  let lastMetrics
+  let lastMetrics = {
+    totalMovingTime: 0,
+    totalLinearDistance: 0
+  }
 
   // This function handles all incomming commands. Here, the recordingmanager will have filtered
   // all unneccessary commands for us, so we only need to react to 'updateIntervalSettings', 'reset' and 'shutdown'
