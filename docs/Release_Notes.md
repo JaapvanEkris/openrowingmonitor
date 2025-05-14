@@ -20,7 +20,7 @@ Beta testers: [jryd2000](https://github.com/jryd2000) and [carlito1979](https://
 - **Fixed a bug in pause behaviour** for magnetic rowers (fixes [this bug](https://github.com/JaapvanEkris/openrowingmonitor/discussions/96)).
 - **Fixed a bug in the metrics presentation**, which caused some metrics presented/recorded to be averaged too much.
 - **Fixed a bug in restart behaviour** that made the recorders crash (fixes [this bug](https://github.com/JaapvanEkris/openrowingmonitor/discussions/100)).
-- **Upgrade of the entire technology stack**: we cleaned house and upgraded all used NPM packages, removed a lot of clutter from these packages as well, upgraded Node.js to a newer version to increase support, moved from Chromium to Firefox (greatly reducing the CPU load), and switched from Xorg to Wayland (staying in line with Raspberry OS). This makes our stack current again. Please make sure you install the required packages via apt-get. 
+- **Upgrade of the entire technology stack**: we cleaned house and upgraded all used NPM packages, removed a lot of clutter from these packages as well, upgraded Node.js to a newer version to increase support and moved from Chromium to Firefox (greatly reducing the CPU load, practically freeing up a complete CPU core). This makes our stack current again. Please make sure you install the required packages via apt-get.
 - **Upgraded ESLint and its configuration**, now code is inspected beyond the use of spaces.
 - **Introducing JSDoc** in our code, to make our code easier to understand ([see also](https://github.com/JaapvanEkris/openrowingmonitor/issues/90)).
 
