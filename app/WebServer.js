@@ -21,13 +21,29 @@ export function createWebServer (config) {
     strokeState: 'WaitingForDrive',
     sessionState: 'WaitingForStart',
     totalMovingTime: 0,
+    pauseCountdownTime: 0,
     totalNumberOfStrokes: 0,
     totalLinearDistance: 0,
     cyclePace: Infinity,
     cyclePower: 0,
+    cycleStrokeRate: 0,
     driveLength: 0,
+    driveDuration: 0,
+    driveHandleForceCurve: [],
     driveDistance: 0,
-    dragFactor: undefined
+    recoveryDuration: 0,
+    dragFactor: undefined,
+    interval: {
+      type: 'justrow',
+      movingTime: {
+        sinceStart: 0,
+        toEnd: 0
+      },
+      distance: {
+        fromStart: 0,
+        toEnd: 0
+      }
+    }
   }
   let heartRate
   let heartRateBatteryLevel
