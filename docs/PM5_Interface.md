@@ -1,8 +1,8 @@
 # Description of the PM5 interface
 
-The design goal is to emulate PM5 communication sufficiently for EXR, ErgZone, KinoMap, Aviron, Ergatta, Peleton, FIT, MyRow, Hydrow, Armada, ErgWorld, ErgDude, BoatCoach and Ergometer space. It is *NOT* to completely emulate a full-blown PM5 with racing features or logbook verification.
+The design goal is to emulate PM5 communication sufficiently for EXR, ErgZone, KinoMap, Aviron, Ergatta, Peleton, FIT, MyRow, Hydrow, Armada, ErgWorld, ErgDude, BoatCoach and Ergometer space. It explicitly is **NOT** to completely emulate a full-blown PM5 with racing features or logbook verification. Also features that might lead to cheating or uploading results to the Concept2 logbook are explicitly excluded. We aim to have maximum compatibility with beformentioned apps. We do test on ErgData, as that is the definitive source how Concept2's data is to be interpreted, excluding interpretation errors by independent software developers.
 
-This is partially based on the description in Concept 2's API documentation ([[1]](#1) and [[2]](#2)). As this documentation is inconclusive about the timing/triggers for messages, as well as the exact definition of the values used, a large part is also based on analysis of the communication via recorded bluetooth traces with current PM5's.
+This interface emulation is partially based on the description in Concept 2's API documentation ([[1]](#1) and [[2]](#2)). As this documentation is inconclusive about the timing/triggers for messages, as well as the exact definition of the values used, a large part is also based on analysis of the communication via recorded bluetooth traces with current PM5's.
 
 ## Structural differences
 
@@ -377,7 +377,10 @@ Similar to Elapsed time, messages [0x0031 "General Status"](#0x0031-general-stat
 
 #### 0x0031 "General Status"
 
-[0x0031 "General Status"](../app/peripherals/ble/pm5/rowing-service/status-characteristics/GeneralStatusCharacteristic.js),
+Messsage 0x0031 "General Status" is implemented in [GeneralStatusCharacteristic.js](../app/peripherals/ble/pm5/rowing-service/status-characteristics/GeneralStatusCharacteristic.js). Some notes:
+
+* Testing shows that at an interval change, the time and distance are reset (see [elapsed time](#elapsed-time) and [distance](#distance)). In a pause/rest, both time and distance are stopped and maintain the end position of the interval (see [pause behaviour](#pause-behaviour)).
+* When the interval type is 'time' the difference between "workout duration" and "elapsed time" is shown on ErgData as a countdown timer on most screens. When the interval type is 'distance' the difference between "workout duration" and "distance" is shown on ErgData as a countdown timer. So, typically, these fields must have the same frame of reference (i.e. time/distance in interval and interval target)
 
 #### 0x0032 "Additional Status"
 
