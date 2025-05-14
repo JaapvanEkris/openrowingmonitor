@@ -33,7 +33,7 @@ export const DASHBOARD_METRICS = {
     }
   },
 
-  pace: { displayName: 'Pace/500', size: 1, template: (metrics, config) => simpleMetricFactory(secondsToTimeString(500 / metrics?.cycleLinearVelocity), '/500m', config.guiConfigs.showIcons ? iconStopwatch : '') },
+  pace: { displayName: 'Pace/500', size: 1, template: (metrics, config) => simpleMetricFactory(secondsToTimeString(metrics?.cyclePace), '/500m', config.guiConfigs.showIcons ? iconStopwatch : '') },
 
   power: { displayName: 'Power', size: 1, template: (metrics, config) => simpleMetricFactory(formatNumber(metrics?.cyclePower), 'watt', config.guiConfigs.showIcons ? iconBolt : '') },
 
@@ -94,7 +94,7 @@ export const DASHBOARD_METRICS = {
 
   recoveryDuration: { displayName: 'Recovery duration', size: 1, template: (metrics, config) => simpleMetricFactory(formatNumber(metrics?.recoveryDuration, 2), 'sec', config.guiConfigs.showIcons ? 'Recovery' : '') },
 
-  forceCurve: { displayName: 'Force curve', size: 2, template: (metrics) => html`<dashboard-force-curve .value=${metrics.driveHandleForceCurve} style="grid-column: span 2"></dashboard-force-curve>` },
+  forceCurve: { displayName: 'Force curve', size: 2, template: (metrics) => html`<dashboard-force-curve .value=${metrics?.driveHandleForceCurve} style="grid-column: span 2"></dashboard-force-curve>` },
 
   actions: { displayName: 'Actions', size: 1, template: (_, config) => html`<dashboard-actions .config=${config}></dashboard-actions>` }
 }
