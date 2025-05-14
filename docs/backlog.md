@@ -4,15 +4,10 @@ This is currently is a very minimalistic Backlog for further development of this
 
 If you would like to contribute to this project, you are more than welcome, but please read the [Contributing Guidelines](CONTRIBUTING.md) first to get the most out of your valuable time.
 
-## In progress
-
-* Switch to a working Bluetooth library that allows dynamic switching (see [issue 69](https://github.com/JaapvanEkris/openrowingmonitor/issues/69))
-* Introduce training plans (i.e. a distance/time to row):
-  * add user friendly possibility for user to define training interval timers via the peripherals (`server.js`, `SessionManager.js` and the recorders can already handle this)
-
 ## Soon
 
 * Improve the user interface (We really need help on this!)
+* Move to the Wayland window manager, to keep in step with Raspberry Pi OS
 * Introduce training plans (i.e. a distance/time to row):
   * Integrate with rowsandall.com to retrieve training planning
   * Integrate with intervals.icu to retrieve training planning
