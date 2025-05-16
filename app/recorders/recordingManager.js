@@ -144,9 +144,13 @@ export function createRecordingManager (config) {
   }
 
   async function nameFilesAndCreateDirectory () {
+    // Determine the filename, directoryname and base filename to be used by all recorders
     startTime = new Date()
-    // Calculate the directory name and create it if needed
+    const stringifiedStartTime = startTime.toISOString().replace(/T/, '_').replace(/:/g, '-').replace(/\..+/, '')
     const directory = `${config.dataDirectory}/recordings/${startTime.getFullYear()}/${(startTime.getMonth() + 1).toString().padStart(2, '0')}`
+    const fileBaseName = `${directory}/${stringifiedStartTime}`
+    
+    // Create the directory if needed
     try {
       await fs.mkdir(directory, { recursive: true })
     } catch (error) {
@@ -155,9 +159,7 @@ export function createRecordingManager (config) {
       }
     }
 
-    // Determine the base filename to be used by all recorders
-    const stringifiedStartTime = startTime.toISOString().replace(/T/, '_').replace(/:/g, '-').replace(/\..+/, '')
-    const fileBaseName = `${directory}/${stringifiedStartTime}`
+    // Set the base filename for all writers an uploaders
     fileWriter.setBaseFileName(fileBaseName)
     rowsAndAllInterface.setBaseFileName(fileBaseName)
     stravaInterface.setBaseFileName(fileBaseName)
