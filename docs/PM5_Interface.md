@@ -421,7 +421,7 @@ Messsage 0x0031 "General Status" is implemented in [GeneralStatusCharacteristic.
 
 [0x0033  "Additional Status 2"](../app/peripherals/ble/pm5/rowing-service/status-characteristics/AdditionalStatus2Characteristic.js),
 
-The specifications ([[1]](#1) and [[2]](#2)) contain an error. The "Last Split Time" element has an accuracy of 0.01 seconds, similar to the "Elapsed Time" data element.
+The specifications ([[1]](#1) and [[2]](#2)) contain an error. The "Last Split Time" element has an accuracy of 0.01 seconds, similar to the "Elapsed Time" data element, instead of the described 0.1 sec accuracy.
 
 ### Interupt driven stroke state messages
 
