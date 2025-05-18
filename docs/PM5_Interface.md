@@ -369,8 +369,8 @@ When antering a rest interval, no specific messages are sent
 
 When exiting a rest interval, a lot of messages are sent:
 
-* [0x0035 "Stroke Data"](#0x0035-stroke-data)
-* [0x0036 "Additional Stroke Data"](#0x0036-additional-stroke-data)
+* [0x0035 "Stroke Data"](#0x0035-stroke-data), with essentially all values set to 0
+* [0x0036 "Additional Stroke Data"](#0x0036-additional-stroke-data), with essentially all values set to 0
 * [0x0031 "General Status"](#0x0031-general-status)
 * [0x0032 "Additional Status"](#0x0032-additional-status)
 * [0x0033 "Additional Status 2"](#0x0033--additional-status-2)
@@ -397,6 +397,10 @@ Similar to Elapsed time, messages [0x0031 "General Status"](#0x0031-general-stat
 ### Interval numbering
 
 Interval numbering changes when the split/interval changes. However, our trace shows it starts with 3.
+
+### Stroke numbering
+
+Stroke numbering restarts at the end of an interval
 
 ## Messages
 
