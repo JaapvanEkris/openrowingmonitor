@@ -54,8 +54,8 @@ export class AdditionalStatus2Characteristic extends GattNotifyCharacteristic {
     bufferBuilder.writeUInt16LE(data.split.power.average > 0 && data.split.power.average < 65534 ? Math.round(data.split.power.average) : 0)
     // splitAverageCalories
     bufferBuilder.writeUInt16LE(data.split.calories.averagePerHour > 0 && data.split.calories.averagePerHour < 65534 ? Math.round(data.split.calories.averagePerHour) : 0)
-    // lastSplitTime in 0.1 sec
-    bufferBuilder.writeUInt24LE(previousSplitData.totalMovingTime > 0 ? Math.round(previousSplitData.totalMovingTime * 10) : 0)
+    // lastSplitTime in 0.01 sec (spec says 0.1 sec, but the trace shows 0.01 sec)
+    bufferBuilder.writeUInt24LE(previousSplitData.totalMovingTime > 0 ? Math.round(previousSplitData.totalMovingTime * 100) : 0)
     // lastSplitDistance in 1 m
     bufferBuilder.writeUInt24LE(previousSplitData.totalLinearDistance > 0 ? Math.round(previousSplitData.totalLinearDistance) : 0)
 
