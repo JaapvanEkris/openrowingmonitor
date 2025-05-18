@@ -423,9 +423,11 @@ Messsage 0x0031 "General Status" is implemented in [GeneralStatusCharacteristic.
 
 The specifications ([[1]](#1) and [[2]](#2)) contain an error. The "Last Split Time" element has an accuracy of 0.01 seconds, similar to the "Elapsed Time" data element, instead of the described 0.1 sec accuracy.
 
-### Interupt driven stroke state messages
-
 #### 0x003e "Additional Status 3"
+
+
+
+### Interupt driven stroke state messages
 
 #### 0x0035 "Stroke Data"
 
