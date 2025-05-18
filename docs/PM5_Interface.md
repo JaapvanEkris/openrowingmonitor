@@ -353,9 +353,31 @@ Based on the above table we can group the messages as well as identify their tri
 
 ### Pause behaviour
 
-Despite being entered on apps as an attribute, it is reported by the PM5 as an independent interval. As soon as the rest interval starts, the interval number is increased and the previous split time and distance are transferred to their respected fields.
+#### Time behaviour during rest interval
 
-Time is stopped
+The "Elapsed Time" is stopped counting.
+
+#### Interval numbering during rest interval
+
+Despite being entered on apps as an attribute of an interval, the PM5 reports a rest period as an independent interval. As soon as the rest interval starts, the interval number is increased and the previous split time and distance are transferred to their respected fields.
+
+#### Entering a rest interval
+
+When antering a rest interval, no specific messages are sent
+
+#### Exiting a rest interval
+
+When exiting a rest interval, a lot of messages are sent:
+
+* [0x0035 "Stroke Data"](#0x0035-stroke-data)
+* [0x0036 "Additional Stroke Data"](#0x0036-additional-stroke-data)
+* [0x0031 "General Status"](#0x0031-general-status)
+* [0x0032 "Additional Status"](#0x0032-additional-status)
+* [0x0033  "Additional Status 2"](#0x0033--additional-status-2)
+* Additional Status 3
+* [0x0037 "Split Data"](#0x0037-split-data)
+* [0x0038 "Additional Split Data"](#0x0038-additional-split-data)
+
 
 ### Elapsed time
 
@@ -393,6 +415,8 @@ Messsage 0x0031 "General Status" is implemented in [GeneralStatusCharacteristic.
 [0x0033  "Additional Status 2"](../app/peripherals/ble/pm5/rowing-service/status-characteristics/AdditionalStatus2Characteristic.js),
 
 ### Interupt driven stroke state messages
+
+#### 0x003e "Additional Status 3"
 
 #### 0x0035 "Stroke Data"
 
