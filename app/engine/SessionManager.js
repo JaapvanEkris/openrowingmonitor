@@ -74,7 +74,7 @@ export function createSessionManager (config) {
           lastBroadcastedMetrics.metricsContext.isPauseEnd = true
           if (interval.type() === 'rest') { lastBroadcastedMetrics.metricsContext.isIntervalEnd = true }
           emitMetrics(lastBroadcastedMetrics)
-          if (interval.type() === 'rest') {
+          if (interval.type() === 'rest' && isNextIntervalActive()) {
             // We are leaving a rest interval
             activateNextIntervalParameters(lastBroadcastedMetrics)
           } else {
