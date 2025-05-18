@@ -204,21 +204,9 @@ export class Pm5RowingService extends GattService {
       case (metrics.metricsContext.isSessionStop):
         this.#splitHR.push(this.#lastKnownMetrics.heartrate)
         this.#workoutHR.push(this.#lastKnownMetrics.heartrate)
-        this.#splitDataNotifies(this.#lastKnownMetrics, this.#splitHR)
         this.#genericStatusDataNotifies(this.#lastKnownMetrics, this.#previousSplitMetrics)
+        this.#splitDataNotifies(this.#lastKnownMetrics, this.#splitHR)
         this.#workoutEndDataNotifies(this.#lastKnownMetrics, this.#workoutHR)
-        break
-      case (metrics.metricsContext.isSplitEnd):
-        this.#splitHR.push(this.#lastKnownMetrics.heartrate)
-        this.#workoutHR.push(this.#lastKnownMetrics.heartrate)
-        this.#genericStatusDataNotifies(this.#lastKnownMetrics, this.#previousSplitMetrics)
-        this.#splitDataNotifies(this.#lastKnownMetrics, this.#splitHR)
-        this.#previousSplitMetrics = {
-          totalMovingTime: this.#lastKnownMetrics.split.timeSpent.moving,
-          totalLinearDistance: this.#lastKnownMetrics.split.distancefromStart
-        }
-        this.#splitHR.reset()
-        this.#splitHR.push(this.#lastKnownMetrics.heartrate)
         break
       case (metrics.metricsContext.isPauseStart):
         this.#splitHR.push(this.#lastKnownMetrics.heartrate)
@@ -232,7 +220,27 @@ export class Pm5RowingService extends GattService {
         this.#splitHR.reset()
         this.#splitHR.push(this.#lastKnownMetrics.heartrate)
         break
-      // ToDo: isPauseEnd
+      case (metrics.metricsContext.isPauseEnd):
+        this.#splitHR.push(this.#lastKnownMetrics.heartrate)
+        this.#workoutHR.push(this.#lastKnownMetrics.heartrate)
+        this.#recoveryStartDataNotifies(this.#lastKnownMetrics)
+        this.#genericStatusDataNotifies(this.#lastKnownMetrics, this.#previousSplitMetrics)
+        this.#splitDataNotifies(this.#lastKnownMetrics, this.#splitHR)
+        this.#splitHR.reset()
+        this.#splitHR.push(this.#lastKnownMetrics.heartrate)
+        break
+      case (metrics.metricsContext.isSplitEnd):
+        this.#splitHR.push(this.#lastKnownMetrics.heartrate)
+        this.#workoutHR.push(this.#lastKnownMetrics.heartrate)
+        this.#genericStatusDataNotifies(this.#lastKnownMetrics, this.#previousSplitMetrics)
+        this.#splitDataNotifies(this.#lastKnownMetrics, this.#splitHR)
+        this.#previousSplitMetrics = {
+          totalMovingTime: this.#lastKnownMetrics.split.timeSpent.moving,
+          totalLinearDistance: this.#lastKnownMetrics.split.distancefromStart
+        }
+        this.#splitHR.reset()
+        this.#splitHR.push(this.#lastKnownMetrics.heartrate)
+        break
       case (metrics.metricsContext.isDriveStart):
         this.#splitHR.push(this.#lastKnownMetrics.heartrate)
         this.#workoutHR.push(this.#lastKnownMetrics.heartrate)
