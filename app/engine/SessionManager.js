@@ -67,11 +67,20 @@ export function createSessionManager (config) {
         }
         break
       case ('startOrResume'):
-        if (sessionState !== 'Rowing') {
+        if (sessionState !== 'Rowing' && sessionState !== 'WaitingForStart') {
           clearTimeout(pauseTimer)
           StartOrResumeTraining()
           sessionState = 'WaitingForStart'
+          lastBroadcastedMetrics.metricsContext.isPauseEnd = true
+          if (interval.type() === 'rest') { lastBroadcastedMetrics.metricsContext.isIntervalEnd = true }
           emitMetrics(lastBroadcastedMetrics)
+          if (interval.type() === 'rest') {
+            // We are leaving a rest interval
+            activateNextIntervalParameters(lastBroadcastedMetrics)
+          } else {
+            // It was a spontanuous pause
+            activateNextSplitParameters(lastBroadcastedMetrics)
+          }
         }
         break
       case ('pause'):
