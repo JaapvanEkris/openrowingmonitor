@@ -21,7 +21,6 @@ export function createWebServer (config) {
   let heartRate
   let heartRateBatteryLevel
   resetLastKnownMetrics()
-  notifyClients('metrics', lastKnownMetrics)
 
   const server = http.createServer((req, res) => {
     serve(req, res, finalhandler(req, res))
@@ -37,6 +36,7 @@ export function createWebServer (config) {
   wss.on('connection', function connection (client) {
     log.debug('websocket client connected')
     notifyClient(client, 'config', getConfig())
+    notifyClient(client, 'metrics', lastKnownMetrics)
     client.on('message', function incoming (data) {
       try {
         const message = JSON.parse(data)
