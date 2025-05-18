@@ -353,6 +353,8 @@ Based on the above table we can group the messages as well as identify their tri
 
 ### Pause behaviour
 
+Despite being entered on apps as an attribute, it is reported by the PM5 as an independent interval. As soon as the rest interval starts, the interval number is increased and the previous split time and distance are transferred to their respected fields.
+
 Time is stopped
 
 ### Elapsed time
@@ -369,7 +371,7 @@ Thus, this is best mapped to metrics.interval.timeSpent.moving
 
 ### Distance
 
-Similar to Elapsed time, messages [0x0031 "General Status"](#0x0031-general-status), [0x0035 "Stroke Data"](#0x0035-stroke-data) contain the 24 bit element "Distance", with a 0.1 meter precission. We also see distance being fixed in a pause and reset upon crossing the interval boundary. Thus, this is similar to metrics.interval.distance.fromStart.
+Similar to Elapsed time, messages [0x0031 "General Status"](#0x0031-general-status), [0x0035 "Stroke Data"](#0x0035-stroke-data) and contain [0x0037 "Split Data"](#0x0037-split-data) the 24 bit element "Distance", with a 0.1 meter precission. We also see distance being fixed in a pause and reset upon crossing the interval boundary. Thus, this is similar to metrics.interval.distance.fromStart.
 
 ## Messages
 
