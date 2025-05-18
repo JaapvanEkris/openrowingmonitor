@@ -17,36 +17,11 @@ export function createWebServer (config) {
   const port = process.env.PORT || 80
   const serve = serveStatic('./build', { index: ['index.html'] })
   let timer = setTimeout(timeBasedPresenter, config.webUpdateInterval)
-  let lastKnownMetrics = {
-    strokeState: 'WaitingForDrive',
-    sessionState: 'WaitingForStart',
-    totalMovingTime: 0,
-    pauseCountdownTime: 0,
-    totalNumberOfStrokes: 0,
-    totalLinearDistance: 0,
-    cyclePace: Infinity,
-    cyclePower: 0,
-    cycleStrokeRate: 0,
-    driveLength: 0,
-    driveDuration: 0,
-    driveHandleForceCurve: [],
-    driveDistance: 0,
-    recoveryDuration: 0,
-    dragFactor: undefined,
-    interval: {
-      type: 'justrow',
-      movingTime: {
-        sinceStart: 0,
-        toEnd: 0
-      },
-      distance: {
-        fromStart: 0,
-        toEnd: 0
-      }
-    }
-  }
+  let lastKnownMetrics
   let heartRate
   let heartRateBatteryLevel
+  resetLastKnownMetrics()
+  notifyClients('metrics', lastKnownMetrics)
 
   const server = http.createServer((req, res) => {
     serve(req, res, finalhandler(req, res))
@@ -96,6 +71,8 @@ export function createWebServer (config) {
       case ('stop'):
         break
       case ('reset'):
+        resetLastKnownMetrics()
+        notifyClients('metrics', lastKnownMetrics)
         break
       case 'switchBlePeripheralMode':
         break
@@ -201,6 +178,37 @@ export function createWebServer (config) {
       hrmPeripheralMode: config.heartRateMode,
       uploadEnabled: ((config.userSettings.strava.allowUpload && !config.userSettings.strava.autoUpload) || (config.userSettings.intervals.allowUpload && !config.userSettings.intervals.autoUpload) || (config.userSettings.rowsAndAll.allowUpload && !config.userSettings.rowsAndAll.autoUpload)),
       shutdownEnabled: !!config.shutdownCommand
+    }
+  }
+
+  function resetLastKnownMetrics () {
+    lastKnownMetrics = {
+      strokeState: 'WaitingForDrive',
+      sessionState: 'WaitingForStart',
+      totalMovingTime: 0,
+      pauseCountdownTime: 0,
+      totalNumberOfStrokes: 0,
+      totalLinearDistance: 0,
+      cyclePace: Infinity,
+      cyclePower: 0,
+      cycleStrokeRate: 0,
+      driveLength: 0,
+      driveDuration: 0,
+      driveHandleForceCurve: [],
+      driveDistance: 0,
+      recoveryDuration: 0,
+      dragFactor: undefined,
+      interval: {
+        type: 'justrow',
+        movingTime: {
+          sinceStart: 0,
+          toEnd: 0
+        },
+        distance: {
+          fromStart: 0,
+          toEnd: 0
+        }
+      }
     }
   }
 
