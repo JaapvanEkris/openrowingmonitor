@@ -120,13 +120,13 @@ export function createMQTTPeripheral (config) {
       case (metrics.metricsContext.isIntervalEnd):
         publishMetrics(metrics)
         break
-      case (metrics.metricsContext.isSplitEnd):
-        publishMetrics(metrics)
-        break
       case (metrics.metricsContext.isPauseStart):
         publishMetrics(metrics)
         break
       case (metrics.metricsContext.isPauseEnd):
+        publishMetrics(metrics)
+        break
+      case (metrics.metricsContext.isSplitEnd):
         publishMetrics(metrics)
         break
       case (metrics.metricsContext.isDriveStart):
