@@ -378,7 +378,6 @@ When exiting a rest interval, a lot of messages are sent:
 * [0x0037 "Split Data"](#0x0037-split-data)
 * [0x0038 "Additional Split Data"](#0x0038-additional-split-data)
 
-
 ### Elapsed time
 
 According to the documentation ([[1]](#1) and [[2]](#2)), messages [0x0031 "General Status"](#0x0031-general-status), [0x0032 "Additional Status"](#0x0032-additional-status), [0x0033  "Additional Status 2"](#0x0033--additional-status-2), [0x0035 "Stroke Data"](#0x0035-stroke-data), [0x0036 "Additional Stroke Data"](#0x0036-additional-stroke-data), [0x0037 "Split Data"](#0x0037-split-data) and [0x0038 "Additional Split Data"](#0x0038-additional-split-data) all contain the 24 bit element "Elapsed Time", with a 0.01 second precission. 
@@ -394,6 +393,10 @@ Thus, this is best mapped to metrics.interval.timeSpent.moving
 ### Distance
 
 Similar to Elapsed time, messages [0x0031 "General Status"](#0x0031-general-status), [0x0035 "Stroke Data"](#0x0035-stroke-data) and contain [0x0037 "Split Data"](#0x0037-split-data) the 24 bit element "Distance", with a 0.1 meter precission. We also see distance being fixed in a pause and reset upon crossing the interval boundary. Thus, this is similar to metrics.interval.distance.fromStart.
+
+### Interval numbering
+
+Interval numbering changes when the split/interval changes. However, our trace shows it starts with 3.
 
 ## Messages
 
