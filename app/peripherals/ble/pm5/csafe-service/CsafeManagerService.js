@@ -181,7 +181,7 @@ export class CsafeManagerService {
                 }
                 this.#controlPointCallback({ req: { name: 'start', data: {} } })
                 break
-              case (ScreenValue:SCREENVALUEWORKOUT_VIRTUALKEY_D)
+              case (ScreenValue.SCREENVALUEWORKOUT_VIRTUALKEY_D)
                 this.#controlPointCallback({ req: { name: 'startOrResume', data: {} } })
                 break
               // no default
