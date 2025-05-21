@@ -19,7 +19,9 @@ The [CsafeManagerService.js](../app/peripherals/ble/pm5/csafe-service/CsafeManag
 
 ### Positioning rest intervals
 
-OpenRowingMonitor treats rest intervals similar to normal time based intervals, with the exception that the rowing engine is forced to stop collecting metrics during that interval. A PM5 considers a rest interval an attribute of a normal interval, and it isn't an independent entity. In [CsafeManagerService.js](../app/peripherals/ble/pm5/csafe-service/CsafeManagerService.js) this is managed by adding a rest interval to OpenRowingMonitor's workout schedule. In reporting, this pause will be reported as an interval with only a rest specified.
+OpenRowingMonitor treats rest intervals similar to normal time based intervals, with the exception that the rowing engine is forced to stop collecting metrics during that interval. A PM5 considers a rest interval an attribute of a normal interval, and it isn't an independent entity. In [CsafeManagerService.js](../app/peripherals/ble/pm5/csafe-service/CsafeManagerService.js) this is managed by adding a rest interval to OpenRowingMonitor's workout schedule.
+
+In reporting, we indeed see the PM5 skipping the split/interval reporting when the pause starts, and including the rest data with the split reporting after the pause has ended. In OpenRowingMonitor this behaviour is replicated by not reporting the start of a pause as a split, and combining the data from the active split and the rest split.
 
 ### Message grouping and timing
 
