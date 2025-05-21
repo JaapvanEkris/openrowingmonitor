@@ -21,7 +21,7 @@ The [CsafeManagerService.js](../app/peripherals/ble/pm5/csafe-service/CsafeManag
 
 OpenRowingMonitor treats rest intervals similar to normal time based intervals, with the exception that the rowing engine is forced to stop collecting metrics during that interval. A PM5 considers a rest interval an attribute of a normal interval, and it isn't an independent entity. In [CsafeManagerService.js](../app/peripherals/ble/pm5/csafe-service/CsafeManagerService.js) this is managed by adding a rest interval to OpenRowingMonitor's workout schedule.
 
-In reporting, we indeed see the PM5 skipping the split/interval reporting when the pause starts, and including the rest data with the split reporting after the pause has ended. In OpenRowingMonitor this behaviour is replicated by not reporting the start of a pause as a split, and combining the data from the active split and the rest split.
+In reporting, we indeed see the PM5 skipping the split/interval reporting when the pause starts, and including the rest data with the split reporting after the pause has ended. In OpenRowingMonitor this behaviour is replicated by not reporting the start of a pause as a split, and combining the data from the active split and the rest split. Although the underlying datasets are largely disjunct (as rest intervals have little data associated with them), a key issue is the reporting of the intervalType and workoutDurationType in [0x0031 General Status](#0x0031-general-status), and the intervalType [0x0037 "Split Data"](#0x0037-split-data). Where the intervaltype in 0x0037 "Split Data" should indicate 'Time' or 'Distance', the intervalType in 0x0037 should idicate 'Rest'????
 
 ### Message grouping and timing
 
