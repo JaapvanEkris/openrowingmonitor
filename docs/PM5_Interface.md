@@ -357,14 +357,6 @@ Based on the above table we can group the messages as well as identify their tri
 
 ### Pause behaviour
 
-#### Time behaviour during rest interval
-
-The "Elapsed Time" is stopped counting.
-
-#### Interval numbering during rest interval
-
-Despite being entered on apps as an attribute of an interval, the PM5 reports a rest period as an independent interval. As soon as the rest interval starts, the interval number is increased and the previous split time and distance are transferred to their respected fields.
-
 #### Entering a rest interval
 
 When antering a rest interval, no specific messages are sent. However, our trace shows that:
@@ -373,6 +365,14 @@ When antering a rest interval, no specific messages are sent. However, our trace
 * message [0x0031 General Status](#0x0031-general-status)'s 'WorkoutState' is set from `WorkoutState.WORKOUTSTATE_INTERVALWORKDISTANCE` to `WorkoutState.WORKOUTSTATE_INTERVALREST`.
 * message [0x0031 General Status](#0x0031-general-status)'s 'totalWorkDistance' is increased with the total linear distanceof the ative interval. This suggests that the totalWorkDistance is the absolute startpoint that is maintained in the WorkoutSegment.
 * message [0x0032 "Additional Status"](#0x0032-additional-status)'s 'Rest Time' will start counting down from its starting point to 0. 
+
+#### Time behaviour during rest interval
+
+The "Elapsed Time" is stopped counting.
+
+#### Interval numbering during rest interval
+
+Despite being entered on apps as an attribute of an interval, the PM5 reports a rest period as an independent interval. As soon as the rest interval starts, the interval number is increased and the previous split time and distance are transferred to their respected fields.
 
 #### Exiting a rest interval
 
