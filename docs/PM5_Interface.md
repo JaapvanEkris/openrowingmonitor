@@ -21,7 +21,9 @@ The [CsafeManagerService.js](../app/peripherals/ble/pm5/csafe-service/CsafeManag
 
 OpenRowingMonitor treats rest intervals similar to normal time based intervals, with the exception that the rowing engine is forced to stop collecting metrics during that interval. A PM5 considers a rest interval an attribute of a normal interval, and it isn't an independent entity. In [CsafeManagerService.js](../app/peripherals/ble/pm5/csafe-service/CsafeManagerService.js) this is managed by adding a rest interval to OpenRowingMonitor's workout schedule.
 
-In reporting, we indeed see the PM5 skipping the split/interval reporting when the pause starts, and including the rest data with the split reporting after the pause has ended. In OpenRowingMonitor this behaviour is replicated by not reporting the start of a pause as a split, and combining the data from the active split and the rest split. Although the underlying datasets are largely disjunct (as rest intervals have little data associated with them), a key issue is the reporting of the intervalType and workoutDurationType in [0x0031 General Status](#0x0031-general-status), and the intervalType [0x0037 "Split Data"](#0x0037-split-data). Where the intervaltype in 0x0037 "Split Data" should indicate 'Time' or 'Distance', the intervalType in 0x0037 should idicate 'Rest'????
+In reporting, we indeed see the PM5 skipping the split/interval reporting when the pause starts, and including the rest data with the split reporting after the pause has ended. This is consistent with the approach that a rest interval only is an extension of an active interval. In OpenRowingMonitor this behaviour is replicated by not reporting the start of a pause as new split, and combining the data from the active split and the rest split. Although the underlying datasets are largely disjunct (as rest intervals have little data associated with them), a key issue is the reporting of the IntervalType, WorkoutState and workoutDurationType in [0x0031 General Status](#0x0031-general-status), and the intervalType [0x0037 "Split Data"](#0x0037-split-data). 
+
+In starting a pause our traces show that message [0x0031 General Status](#0x0031-general-status)'s 'IntervalType' is set from `IntervalTypes.INTERVALTYPE_DIST` to `IntervalTypes.INTERVALTYPE_REST`. [0x0037 "Split Data"](#0x0037-split-data)'s 'IntervalType' reports an `IntervalTypes.INTERVALTYPE_DIST`. For the GeneralStatus message, the workout target clearly contains an element of OpenRowingMonitor's 'sessionState' object (i.e. verify if the sessionState is paused).
 
 ### Message grouping and timing
 
@@ -365,7 +367,12 @@ Despite being entered on apps as an attribute of an interval, the PM5 reports a 
 
 #### Entering a rest interval
 
-When antering a rest interval, no specific messages are sent
+When antering a rest interval, no specific messages are sent. However, our trace shows that:
+
+* message [0x0031 General Status](#0x0031-general-status)'s 'IntervalType' is set from `IntervalTypes.INTERVALTYPE_DIST` to `IntervalTypes.INTERVALTYPE_REST`. This element thus should depend on the OpenRowingMonitor's 'sessionState' object.
+* message [0x0031 General Status](#0x0031-general-status)'s 'WorkoutState' is set from `WorkoutState.WORKOUTSTATE_INTERVALWORKDISTANCE` to `WorkoutState.WORKOUTSTATE_INTERVALREST`.
+* message [0x0031 General Status](#0x0031-general-status)'s 'totalWorkDistance' is increased with the total linear distanceof the ative interval. This suggests that the totalWorkDistance is the absolute startpoint that is maintained in the WorkoutSegment.
+* message [0x0032 "Additional Status"](#0x0032-additional-status)'s 'Rest Time' will start counting down from its starting point to 0. 
 
 #### Exiting a rest interval
 
