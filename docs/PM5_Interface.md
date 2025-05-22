@@ -147,7 +147,8 @@ Interval numbering changes when the split/interval changes, even when moving fro
 Messsage 0x0031 "General Status" is implemented in [GeneralStatusCharacteristic.js](../app/peripherals/ble/pm5/rowing-service/status-characteristics/GeneralStatusCharacteristic.js). Some notes:
 
 * As described in [elapsed time](#elapsed-time), `Elapsed time` will be mapped to `metrics.interval.timeSpent.moving`
-* [distance](#distance)). In a pause/rest, both time and distance are stopped and maintain the end position of the interval (see [pause behaviour](#pause-behaviour)).
+* As described in [distance](#distance)), `distance` will be mapped to `metrics.interval.distance.fromStart`
+* In a pause/rest, both time and distance are stopped and maintain the end position of the interval (see [pause behaviour](#pause-behaviour)).
 * When the interval type is 'time' the difference between "workout duration" and "elapsed time" is shown on ErgData as a countdown timer on most screens. When the interval type is 'distance' the difference between "workout duration" and "distance" is shown on ErgData as a countdown timer. So, typically, these fields must have the same frame of reference (i.e. time/distance in interval and interval target)
 
 #### 0x0032 "Additional Status"
@@ -165,8 +166,6 @@ Messsage 0x0031 "General Status" is implemented in [GeneralStatusCharacteristic.
 
 #### 0x003e "Additional Status 3"
 
-
-
 ### Interupt driven stroke state messages
 
 #### 0x0035 "Stroke Data"
@@ -174,6 +173,7 @@ Messsage 0x0031 "General Status" is implemented in [GeneralStatusCharacteristic.
 [0x0035 "Stroke Data"](../app/peripherals/ble/pm5/rowing-service/other-characteristics/StrokeDataCharacteristic.js) is sent at the end of both the drive and the recovery
 
 * As described in [elapsed time](#elapsed-time), `Elapsed time` will be mapped to `metrics.interval.timeSpent.moving`
+* As described in [distance](#distance)), `distance` will be mapped to `metrics.interval.distance.fromStart`
 
 #### 0x0036 "Additional Stroke Data"
 
@@ -188,6 +188,7 @@ The force curve is in pounds (lbs).
 #### 0x0037 "Split Data"
 
 * As described in [elapsed time](#elapsed-time), `Elapsed time` will be mapped to `metrics.interval.timeSpent.moving`
+* As described in [distance](#distance)), `distance` will be mapped to `metrics.interval.distance.fromStart`
 
 #### 0x0038 "Additional Split Data"
 
