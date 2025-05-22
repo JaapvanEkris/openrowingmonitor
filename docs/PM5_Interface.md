@@ -103,30 +103,40 @@ According to the documentation ([[1]](#1) and [[2]](#2)), messages [0x0031 "Gene
 
 The recorded Bluetooth trace shows that:
 
-* the timer isn't active before any movement has commenced.
+* the timer isn't active before any movement has commenced, defaults and starts at 0
 * The timer is stopped as soon as the session is paused. This suggests that this is based on 'moving time', and not 'absolute time'
 * At an interval rollover, this timer is reset to zero,
 * At a split rollover, the timer is **NOT** reset but continues.
 
-Thus, this is best mapped to metrics.interval.timeSpent.moving
+Thus, this is best mapped to `metrics.interval.timeSpent.moving`.
 
 ### Distance
 
 Similar to Elapsed time, messages [0x0031 "General Status"](#0x0031-general-status), [0x0035 "Stroke Data"](#0x0035-stroke-data) and contain [0x0037 "Split Data"](#0x0037-split-data) the 24 bit element "Distance", with a 0.1 meter precission. We also see
 
+* the distance isn't active before any movement has commenced, defaults and starts at 0
 * distance being fixed in a pause
 * distance is reset upon crossing the interval boundary
 * distance continues when crossing a split boundary
 
-Thus, this is similar to metrics.interval.distance.fromStart.
-
-### Interval numbering
-
-Interval numbering changes when the split/interval changes, even when moving from an active to a rest interval. However, our trace shows it starts with 3.
+Thus, this is best mapped to `metrics.interval.distance.fromStart`.
 
 ### Stroke numbering
 
-Stroke numbering restarts at the end of an interval
+The messages [0x0035 "Stroke Data"](#0x0035-stroke-data) and [0x0036 "Additional Stroke Data"](#0x0036-additional-stroke-data) contain the stroke number, which behaves as follows:
+
+* restarts at the end of an interval
+* continues when crossing a split
+
+Thus, this is best mapped to `metrics.interval.numberOfStrokes`.
+
+### Split numbering
+
+Messages [0x0033 "Additional Status 2"](#0x0033--additional-status-2), [0x0037 "Split Data"](#0x0037-split-data), [0x0038 "Additional Split Data"](#0x0038-additional-split-data)
+
+Message 0x003A "Additional Workout Summary" contains the total number of intervals
+
+Interval numbering changes when the split/interval changes, even when moving from an active to a rest interval. However, our trace shows it starts with 3.
 
 ## Messages
 
