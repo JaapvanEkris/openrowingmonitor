@@ -25,11 +25,11 @@ In reporting, we indeed see the PM5 skipping the split/interval reporting when t
 
 In starting a pause our traces show that message [0x0031 General Status](#0x0031-general-status)'s 'IntervalType' is set from `IntervalTypes.INTERVALTYPE_DIST` to `IntervalTypes.INTERVALTYPE_REST`. [0x0037 "Split Data"](#0x0037-split-data)'s 'IntervalType' reports an `IntervalTypes.INTERVALTYPE_DIST`. For the GeneralStatus message, the workout target clearly contains an element of OpenRowingMonitor's 'sessionState' object (i.e. verify if the sessionState is paused).
 
-### Message grouping and timing
+## Message grouping and timing
 
 Based on the Bluetooth trace we can group the messages as well as identify their trigger. This grouping is implemented in the [Pm5RowingService.js](../app/peripherals/ble/pm5/rowing-service/Pm5RowingService.js).
 
-#### Time driven status updates
+### Time driven status updates
 
 On every broadcast interval, the following messages are sent:
 
@@ -38,26 +38,26 @@ On every broadcast interval, the following messages are sent:
 * [0x0033 "Additional Status 2"](#0x0033--additional-status-2)
 * [0x003e "Additional Status 3"](#0x003e-additional-status-3)
 
-#### Event Driven messages
+### Event Driven messages
 
-##### End of the drive
-
-* [0x0035 "Stroke Data"](#0x0035-stroke-data)
-* [0x0036 "Additional Stroke Data"](#0x0036-additional-stroke-data)
-* [0x003d "Force Curve data"](#0x003d-force-curve-data)
-
-##### End of the recovery
+#### End of the drive
 
 * [0x0035 "Stroke Data"](#0x0035-stroke-data)
 * [0x0036 "Additional Stroke Data"](#0x0036-additional-stroke-data)
 * [0x003d "Force Curve data"](#0x003d-force-curve-data)
 
-##### End of Split
+#### End of the recovery
+
+* [0x0035 "Stroke Data"](#0x0035-stroke-data)
+* [0x0036 "Additional Stroke Data"](#0x0036-additional-stroke-data)
+* [0x003d "Force Curve data"](#0x003d-force-curve-data)
+
+#### End of Split
 
 * [0x0037 Split Data](#0x0037-split-data)
 * [0x0038 Additional Split Data](#0x0038-additional-split-data)
 
-##### End of Workout
+#### End of Workout
 
 * 0x0039 Workout Summery
 * 0x003a Additional Workout Summary
@@ -95,9 +95,9 @@ When exiting a rest interval, a lot of messages are sent:
 * [0x0037 "Split Data"](#0x0037-split-data)
 * [0x0038 "Additional Split Data"](#0x0038-additional-split-data)
 
-### Specific field behaviour
+## Specific field behaviour
 
-#### Elapsed time
+### Elapsed time
 
 According to the documentation ([[1]](#1) and [[2]](#2)), messages [0x0031 "General Status"](#0x0031-general-status), [0x0032 "Additional Status"](#0x0032-additional-status), [0x0033  "Additional Status 2"](#0x0033--additional-status-2), [0x0035 "Stroke Data"](#0x0035-stroke-data), [0x0036 "Additional Stroke Data"](#0x0036-additional-stroke-data), [0x0037 "Split Data"](#0x0037-split-data) and [0x0038 "Additional Split Data"](#0x0038-additional-split-data) all contain the 24 bit element "Elapsed Time", with a 0.01 second precission. 
 
