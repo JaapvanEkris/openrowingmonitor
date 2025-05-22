@@ -132,11 +132,13 @@ Thus, this is best mapped to `metrics.interval.numberOfStrokes`.
 
 ### Split numbering
 
-Messages [0x0033 "Additional Status 2"](#0x0033--additional-status-2), [0x0037 "Split Data"](#0x0037-split-data), [0x0038 "Additional Split Data"](#0x0038-additional-split-data)
+Messages [0x0033 "Additional Status 2"](#0x0033--additional-status-2), [0x0037 "Split Data"](#0x0037-split-data), [0x0038 "Additional Split Data"](#0x0038-additional-split-data) contain the `interval count`. It:
+
+* initializes at 0,
+* is increased when either the split/interval changes,
+* is increased when moving from an active to a rest interval
 
 Message 0x003A "Additional Workout Summary" contains the total number of intervals
-
-Interval numbering changes when the split/interval changes, even when moving from an active to a rest interval. However, our trace shows it starts with 3.
 
 ## Messages
 
@@ -148,8 +150,16 @@ Messsage 0x0031 "General Status" is implemented in [GeneralStatusCharacteristic.
 
 * As described in [elapsed time](#elapsed-time), `Elapsed time` will be mapped to `metrics.interval.timeSpent.moving`
 * As described in [distance](#distance)), `distance` will be mapped to `metrics.interval.distance.fromStart`
-* In a pause/rest, both time and distance are stopped and maintain the end position of the interval (see [pause behaviour](#pause-behaviour)).
-* When the interval type is 'time' the difference between "workout duration" and "elapsed time" is shown on ErgData as a countdown timer on most screens. When the interval type is 'distance' the difference between "workout duration" and "distance" is shown on ErgData as a countdown timer. So, typically, these fields must have the same frame of reference (i.e. time/distance in interval and interval target)
+* The `Workout state` starts at `WorkoutState.WORKOUTSTATE_WAITTOBEGIN`, and changes to
+  * `WorkoutState.WORKOUTSTATE_WORKOUTROW` for a fixed time/distance workout with splits,
+  * `WorkoutState.WORKOUTSTATE_INTERVALWORKDISTANCE` for a distance based interval that is part of a multi-interval session
+  * `WorkoutState.WORKOUTSTATE_INTERVALWORKDISTANCETOREST` for marking the transition from an active interval to a rest interval
+  * `WorkoutState.WORKOUTSTATE_INTERVALREST` for a rest split/interval
+  * `WorkoutState.WORKOUTSTATE_WORKOUTEND` for marking the end of the workout
+* The `Total work distance` is initialized at 0, and only increased at the end of the interval to reflect the total linear distance travelled so far.
+* The `Workout Duration` is set to the length of the interval (ignoring underlying split lengths).
+* When the `interval type` is 'time', the difference between `workout duration` and `elapsed time` is shown on ErgData as a countdown timer on most screens. When the `interval type` is 'distance' the difference between `workout duration` and `distance` is shown on ErgData as a countdown timer. So, typically, these fields must have the same frame of reference (i.e. time/distance in interval and interval target)
+* Dragfactor is reset per interval
 
 #### 0x0032 "Additional Status"
 
@@ -162,7 +172,8 @@ Messsage 0x0031 "General Status" is implemented in [GeneralStatusCharacteristic.
 [0x0033  "Additional Status 2"](../app/peripherals/ble/pm5/rowing-service/status-characteristics/AdditionalStatus2Characteristic.js),
 
 * As described in [elapsed time](#elapsed-time), `Elapsed time` will be mapped to `metrics.interval.timeSpent.moving`
-* The specifications ([[1]](#1) and [[2]](#2)) contain an error. The "Last Split Time" element has an accuracy of 0.01 seconds, similar to the "Elapsed Time" data element, instead of the described 0.1 sec accuracy.
+* The `interval count` initializes at 0, 
+* The specifications ([[1]](#1) and [[2]](#2)) contain an error. The `Last Split Time` element has an accuracy of 0.01 seconds, similar to the `Elapsed Time` data element, instead of the described 0.1 sec accuracy.
 
 #### 0x003e "Additional Status 3"
 
