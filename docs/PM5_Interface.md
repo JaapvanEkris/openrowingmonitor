@@ -146,18 +146,22 @@ Interval numbering changes when the split/interval changes, even when moving fro
 
 Messsage 0x0031 "General Status" is implemented in [GeneralStatusCharacteristic.js](../app/peripherals/ble/pm5/rowing-service/status-characteristics/GeneralStatusCharacteristic.js). Some notes:
 
-* Testing shows that at an interval change, the time and distance are reset (see [elapsed time](#elapsed-time) and [distance](#distance)). In a pause/rest, both time and distance are stopped and maintain the end position of the interval (see [pause behaviour](#pause-behaviour)).
+* As described in [elapsed time](#elapsed-time), `Elapsed time` will be mapped to `metrics.interval.timeSpent.moving`
+* [distance](#distance)). In a pause/rest, both time and distance are stopped and maintain the end position of the interval (see [pause behaviour](#pause-behaviour)).
 * When the interval type is 'time' the difference between "workout duration" and "elapsed time" is shown on ErgData as a countdown timer on most screens. When the interval type is 'distance' the difference between "workout duration" and "distance" is shown on ErgData as a countdown timer. So, typically, these fields must have the same frame of reference (i.e. time/distance in interval and interval target)
 
 #### 0x0032 "Additional Status"
 
 [0x0032 "Additional Status"](../app/peripherals/ble/pm5/rowing-service/status-characteristics/AdditionalStatusCharacteristic.js),
 
+* As described in [elapsed time](#elapsed-time), `Elapsed time` will be mapped to `metrics.interval.timeSpent.moving`
+
 #### 0x0033  "Additional Status 2"
 
 [0x0033  "Additional Status 2"](../app/peripherals/ble/pm5/rowing-service/status-characteristics/AdditionalStatus2Characteristic.js),
 
-The specifications ([[1]](#1) and [[2]](#2)) contain an error. The "Last Split Time" element has an accuracy of 0.01 seconds, similar to the "Elapsed Time" data element, instead of the described 0.1 sec accuracy.
+* As described in [elapsed time](#elapsed-time), `Elapsed time` will be mapped to `metrics.interval.timeSpent.moving`
+* The specifications ([[1]](#1) and [[2]](#2)) contain an error. The "Last Split Time" element has an accuracy of 0.01 seconds, similar to the "Elapsed Time" data element, instead of the described 0.1 sec accuracy.
 
 #### 0x003e "Additional Status 3"
 
@@ -168,6 +172,8 @@ The specifications ([[1]](#1) and [[2]](#2)) contain an error. The "Last Split T
 #### 0x0035 "Stroke Data"
 
 [0x0035 "Stroke Data"](../app/peripherals/ble/pm5/rowing-service/other-characteristics/StrokeDataCharacteristic.js) is sent at the end of both the drive and the recovery
+
+* As described in [elapsed time](#elapsed-time), `Elapsed time` will be mapped to `metrics.interval.timeSpent.moving`
 
 #### 0x0036 "Additional Stroke Data"
 
@@ -181,11 +187,17 @@ The force curve is in pounds (lbs).
 
 #### 0x0037 "Split Data"
 
-
+* As described in [elapsed time](#elapsed-time), `Elapsed time` will be mapped to `metrics.interval.timeSpent.moving`
 
 #### 0x0038 "Additional Split Data"
 
+* As described in [elapsed time](#elapsed-time), `Elapsed time` will be mapped to `metrics.interval.timeSpent.moving`
 
+#### 0x0039 "Workout Summery"
+
+#### 0x003A "Additional Workout Summary"
+
+#### 0x003f "Logged Workout"
 
 ## References
 
