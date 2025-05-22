@@ -15,7 +15,7 @@ The [CsafeManagerService.js](../app/peripherals/ble/pm5/csafe-service/CsafeManag
 * a fixed time/distance PM5 workout to a single OpenRowingMonitor Interval, and add the specified splits as OpenRowingMonitor splits if specified.
 * A PM5 workout with multiple intervals to multiple OpenRowingMonitor Intervals, without any splits specified (as they can't be specified by the PM5).
 
-[workoutSegment.js](../app/engine/utils/workoutSegment.js)'s default behaviour with missing split information is to 'inherit' the split parameters of the above interval (in essence making the split boundaries identical to the interval). This makes the splits always contain the most granular division of the workout regardless of how the PM5 has communicated the workout. In reporting back to the app, the splits are thus the basis for reporting in the PM5 emulated reporting.
+This makes scoping of variables challenging (and this is not helped by the ambiguous description of most variables in [[1]](#1) and [[2]](#2)). [workoutSegment.js](../app/engine/utils/workoutSegment.js)'s default behaviour with missing split information is to 'inherit' the split parameters of the above interval (in essence making the split boundaries identical to the interval). This makes the splits always contain the most granular division of the workout regardless of how the PM5 has communicated the workout. In reporting back to the app, the splits are thus the most likely basis for reporting in the PM5 emulated reporting. However, some variables seem to be scoped to the interval or workout level. A key reason for conducting the traces is to understand the scoping of each variable.
 
 ### Positioning rest intervals
 
@@ -103,15 +103,22 @@ According to the documentation ([[1]](#1) and [[2]](#2)), messages [0x0031 "Gene
 
 The recorded Bluetooth trace shows that:
 
-* the timer is already active before any movement has commenced, although tests suggests that it can be left to zero until rowing commences for all apps.
-* The timer is stopped as soon as the session is paused
-* at an interval change, this timer is reset to zero
+* the timer isn't active before any movement has commenced.
+* The timer is stopped as soon as the session is paused. This suggests that this is based on 'moving time', and not 'absolute time'
+* At an interval rollover, this timer is reset to zero,
+* At a split rollover, the timer is **NOT** reset but continues.
 
 Thus, this is best mapped to metrics.interval.timeSpent.moving
 
 ### Distance
 
-Similar to Elapsed time, messages [0x0031 "General Status"](#0x0031-general-status), [0x0035 "Stroke Data"](#0x0035-stroke-data) and contain [0x0037 "Split Data"](#0x0037-split-data) the 24 bit element "Distance", with a 0.1 meter precission. We also see distance being fixed in a pause and reset upon crossing the interval boundary. Thus, this is similar to metrics.interval.distance.fromStart.
+Similar to Elapsed time, messages [0x0031 "General Status"](#0x0031-general-status), [0x0035 "Stroke Data"](#0x0035-stroke-data) and contain [0x0037 "Split Data"](#0x0037-split-data) the 24 bit element "Distance", with a 0.1 meter precission. We also see
+
+* distance being fixed in a pause
+* distance is reset upon crossing the interval boundary
+* distance continues when crossing a split boundary
+
+Thus, this is similar to metrics.interval.distance.fromStart.
 
 ### Interval numbering
 
