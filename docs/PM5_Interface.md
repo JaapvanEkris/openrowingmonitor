@@ -8,14 +8,16 @@ This interface emulation is partially based on the description in Concept 2's AP
 
 ### Workout Hierarchy
 
-OpenRowingMonitor recognizes three levels in a workout: the Session, the underlying Intervals and the Splits in these Intervals. A PM5 recognizes either a workout with one or more Intervals of varying length, or a single workout with several underlying splits with identical length. Some apps (ErgZone) even optimize workouts with multiple identical intervals to a workout with splits.
+OpenRowingMonitor recognizes three levels in a workout: the Session, the underlying Intervals and the Splits in these Intervals (see (the architecture document)[./Architecture.md#session-interval-and-split-boundaries-in-sessionmanagerjs] for a more detailed description). A PM5 recognizes either a workout with one or more Intervals of varying length, or a single workout with several underlying splits with identical length. Some apps (ErgZone) even optimize workouts with multiple identical intervals to a workout with splits.
 
 The [CsafeManagerService.js](../app/peripherals/ble/pm5/csafe-service/CsafeManagerService.js) therefore will map:
 
 * a fixed time/distance PM5 workout to a single OpenRowingMonitor Interval, and add the specified splits as OpenRowingMonitor splits if specified.
 * A PM5 workout with multiple intervals to multiple OpenRowingMonitor Intervals, without any splits specified (as they can't be specified by the PM5).
 
-This makes scoping of variables challenging (and this is not helped by the ambiguous description of most variables in [[1]](#1) and [[2]](#2)). [workoutSegment.js](../app/engine/utils/workoutSegment.js)'s default behaviour with missing split information is to 'inherit' the split parameters of the above interval (in essence making the split boundaries identical to the interval). This makes the splits always contain the most granular division of the workout regardless of how the PM5 has communicated the workout. In reporting back to the app, the splits are thus the most likely basis for reporting in the PM5 emulated reporting. However, some variables seem to be scoped to the interval or workout level. A key reason for conducting the traces is to understand the scoping of each variable.
+This makes scoping of many variables challenging as it is unclear whether a variable is intended to capture a split or the interval. Concept2's ambiguous description of most variables in [[1]](#1) and [[2]](#2) does not provide any clarification here.
+
+[workoutSegment.js](../app/engine/utils/workoutSegment.js)'s default behaviour with missing split information helps here to overcome the structural issues. When split nformation is mising, it 'inherits' the split parameters of the above interval (in essence making the split boundaries identical to the interval). This makes the splits always contain the most granular division of the workout regardless of how the PM5 has communicated the workout. In reporting back to the app, the splits are thus the most likely basis for reporting in the PM5 emulated reporting. However, some variables seem to be scoped to the interval or workout level. A key reason for conducting the traces is to understand the scoping of each variable.
 
 ### Positioning rest intervals
 
@@ -49,8 +51,6 @@ On every broadcast interval, the following messages are sent:
 #### End of the recovery
 
 * [0x0035 "Stroke Data"](#0x0035-stroke-data)
-* [0x0036 "Additional Stroke Data"](#0x0036-additional-stroke-data)
-* [0x003d "Force Curve data"](#0x003d-force-curve-data)
 
 #### End of Split
 
@@ -150,12 +150,13 @@ Messsage 0x0031 "General Status" is implemented in [GeneralStatusCharacteristic.
 
 * As described in [elapsed time](#elapsed-time), `Elapsed time` will be mapped to `metrics.interval.timeSpent.moving`
 * As described in [distance](#distance)), `distance` will be mapped to `metrics.interval.distance.fromStart`
-* The `Workout state` starts at `WorkoutState.WORKOUTSTATE_WAITTOBEGIN`, and changes to
-  * `WorkoutState.WORKOUTSTATE_WORKOUTROW` for a fixed time/distance workout with splits,
-  * `WorkoutState.WORKOUTSTATE_INTERVALWORKDISTANCE` for a distance based interval that is part of a multi-interval session
-  * `WorkoutState.WORKOUTSTATE_INTERVALWORKDISTANCETOREST` for marking the transition from an active interval to a rest interval
-  * `WorkoutState.WORKOUTSTATE_INTERVALREST` for a rest split/interval
-  * `WorkoutState.WORKOUTSTATE_WORKOUTEND` for marking the end of the workout
+* The `Workout state`
+  * starts at `WorkoutState.WORKOUTSTATE_WAITTOBEGIN`,
+  * changes to `WorkoutState.WORKOUTSTATE_WORKOUTROW` for an active fixed time/distance workout with splits,
+  * changes to `WorkoutState.WORKOUTSTATE_INTERVALWORKDISTANCE` for an active distance based interval that is part of a multi-interval session
+  * changes to `WorkoutState.WORKOUTSTATE_INTERVALWORKDISTANCETOREST` for marking the transition from an active interval to a rest interval
+  * changes to `WorkoutState.WORKOUTSTATE_INTERVALREST` for a rest split/interval
+  * changes to `WorkoutState.WORKOUTSTATE_WORKOUTEND` for marking the end of the workout
 * The `Total work distance` is initialized at 0, and only increased at the end of the interval to reflect the total linear distance travelled so far.
 * The `Workout Duration` is set to the length of the interval (ignoring underlying split lengths).
 * When the `interval type` is 'time', the difference between `workout duration` and `elapsed time` is shown on ErgData as a countdown timer on most screens. When the `interval type` is 'distance' the difference between `workout duration` and `distance` is shown on ErgData as a countdown timer. So, typically, these fields must have the same frame of reference (i.e. time/distance in interval and interval target)
@@ -169,11 +170,14 @@ Messsage 0x0031 "General Status" is implemented in [GeneralStatusCharacteristic.
 
 #### 0x0033  "Additional Status 2"
 
-[0x0033  "Additional Status 2"](../app/peripherals/ble/pm5/rowing-service/status-characteristics/AdditionalStatus2Characteristic.js),
+See the implementation here: [0x0033  "Additional Status 2"](../app/peripherals/ble/pm5/rowing-service/status-characteristics/AdditionalStatus2Characteristic.js),
 
 * As described in [elapsed time](#elapsed-time), `Elapsed time` will be mapped to `metrics.interval.timeSpent.moving`
-* The `interval count` initializes at 0, 
-* The specifications ([[1]](#1) and [[2]](#2)) contain an error. The `Last Split Time` element has an accuracy of 0.01 seconds, similar to the `Elapsed Time` data element, instead of the described 0.1 sec accuracy.
+* As descibed in [Interval count](#split-numbering), the `interval count` will be mapped to `metrics.split.number`
+* `Split average power` is initialized at 0
+* `Total calories` is initialized at 0, and increases across splits, but is reset to 0 at interval rollovers, this suggests it is scoped at the interval.
+* The specifications ([[1]](#1) and [[2]](#2)) contain an error. The `Last Split Time` element has an accuracy of 0.01 seconds, similar to the `Elapsed Time` data element, instead of the described 0.1 sec accuracy. `Last Split Time` will be initialised at 0, and after each split transition is updated to contain the final time of the last split for 'distance' based splits.
+* The `Last split distance` is initialized at 0, and remains 0 for distance based splits.
 
 #### 0x003e "Additional Status 3"
 
