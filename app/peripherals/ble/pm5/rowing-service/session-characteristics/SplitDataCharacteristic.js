@@ -1,10 +1,12 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  Implementation of the StrokeData as defined in:
-  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
-  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf
+*/
+/**
+ * Implementation of the StrokeData as defined in:
+ * - https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
+ * - https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf
+ * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/PM5_Interface.md#0x0037-split-data|the description of desired behaviour}
 */
 import { BufferBuilder } from '../../../BufferBuilder.js'
 import { GattNotifyCharacteristic } from '../../../BleManager.js'
@@ -35,11 +37,11 @@ export class SplitDataCharacteristic extends GattNotifyCharacteristic {
     // Data bytes packed as follows: (18bytes)
 
     // Elapsed Time (0.01 sec),
-    bufferBuilder.writeUInt24LE(data.workout.timeSpent.total > 0 ? Math.round(data.workout.timeSpent.total * 100) : 0)
+    bufferBuilder.writeUInt24LE(data.interval.timeSpent.moving > 0 ? Math.round(data.interval.timeSpent.moving * 100) : 0)
     // Distance in split (0.1 m), based on experiments with the intervals screen
-    bufferBuilder.writeUInt24LE(data.split.distance.fromStart > 0 ? Math.round(data.workout.distance.fromStart * 10) : 0)
+    bufferBuilder.writeUInt24LE(data.split.distance.fromStart > 0 ? Math.round(data.split.distance.fromStart * 10) : 0)
     // Split/Interval Time (0.1 sec)
-    bufferBuilder.writeUInt24LE(data.split.timeSpent.total > 0 ? Math.round(data.split.timeSpent.total * 10) : 0)
+    bufferBuilder.writeUInt24LE(data.split.timeSpent.moving > 0 ? Math.round(data.split.timeSpent.moving * 10) : 0)
     // Split/Interval Distance (1m accurate)
     bufferBuilder.writeUInt24LE(data.split.distance.fromStart > 0 ? Math.round(data.split.distance.fromStart) : 0)
     // Interval Rest Time (1 sec accurate)
@@ -48,8 +50,8 @@ export class SplitDataCharacteristic extends GattNotifyCharacteristic {
     bufferBuilder.writeUInt16LE(Math.round(0))
     // intervalType: UInt8, see OBJ_INTERVALTYPE_T enum
     bufferBuilder.writeUInt8(toC2IntervalType(data))
-    // Split/Interval Number, needs to start with 1 for ErgZone to work well
-    bufferBuilder.writeUInt8(data.split.number > 0 ? data.split.number + 1 : 0)
+    // Split/Interval Number
+    bufferBuilder.writeUInt8(data.split.number > 0 ? data.split.number : 0)
 
     if (this.isSubscribed) {
       super.notify(bufferBuilder.getBuffer())
