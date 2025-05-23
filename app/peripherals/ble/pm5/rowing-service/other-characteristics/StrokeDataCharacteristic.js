@@ -1,10 +1,12 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  Implementation of the StrokeData as defined in:
-  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
-  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf
+*/
+/**
+ * Implementation of the StrokeData as defined in:
+ * - https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
+ * - https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf
+ * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/PM5_Interface.md#0x0035-stroke-data|the description of desired behaviour}
 */
 import { BufferBuilder } from '../../../BufferBuilder.js'
 import { GattNotifyCharacteristic } from '../../../BleManager.js'
@@ -33,9 +35,9 @@ export class StrokeDataCharacteristic extends GattNotifyCharacteristic {
   notify (data) {
     const bufferBuilder = new BufferBuilder()
     // elapsedTime: UInt24LE in 0.01 sec
-    bufferBuilder.writeUInt24LE(data.workout.timeSpent.total > 0 ? Math.round(data.workout.timeSpent.total * 100) : 0)
+    bufferBuilder.writeUInt24LE(data.interval.timeSpent.moving > 0 ? Math.round(data.interval.timeSpent.moving * 100) : 0)
     // distance: UInt24LE in 0.1 m
-    bufferBuilder.writeUInt24LE(data.workout.distance.fromStart > 0 ? Math.round(data.workout.distance.fromStart * 10) : 0)
+    bufferBuilder.writeUInt24LE(data.interval.distance.fromStart > 0 ? Math.round(data.interval.distance.fromStart * 10) : 0)
     // driveLength: UInt8 in 0.01 m
     bufferBuilder.writeUInt8(data.driveLength > 0 ? Math.round(data.driveLength * 100) : 0)
     // driveTime: UInt8 in 0.01 s
@@ -54,7 +56,7 @@ export class StrokeDataCharacteristic extends GattNotifyCharacteristic {
       bufferBuilder.writeUInt16LE(data.strokeWork > 0 ? Math.round(data.strokeWork * 10) : 0)
     }
     // strokeCount: UInt16LE
-    bufferBuilder.writeUInt16LE(data.totalNumberOfStrokes > 0 ? Math.round(data.totalNumberOfStrokes) : 0)
+    bufferBuilder.writeUInt16LE(data.interval.numberOfStrokes > 0 ? Math.round(data.interval.numberOfStrokes) : 0)
 
     if (this.isSubscribed) {
       super.notify(bufferBuilder.getBuffer())
