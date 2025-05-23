@@ -6,7 +6,8 @@
  * Implementation of the AdditionalStatus2 as defined in:
  * - https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
  * - https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf
- */
+ * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/PM5_Interface.md#0x0033--additional-status-2|the description of desired behaviour}
+*/
 import { BufferBuilder } from '../../../BufferBuilder.js'
 import { GattNotifyCharacteristic } from '../../../BleManager.js'
 
@@ -37,9 +38,9 @@ export class AdditionalStatus2Characteristic extends GattNotifyCharacteristic {
   notify (data, previousSplitData) {
     const bufferBuilder = new BufferBuilder()
     // elapsedTime: UInt24LE in 0.01 sec
-    bufferBuilder.writeUInt24LE(data.workout.timeSpent.total > 0 ? Math.round(data.workout.timeSpent.total * 100) : 0)
+    bufferBuilder.writeUInt24LE(data.interval.timeSpent.moving > 0 ? Math.round(data.interval.timeSpent.moving * 100) : 0)
     // intervalCount: UInt8
-    bufferBuilder.writeUInt8(data.split.number > 0 && data.sessionState !== 'WaitingForStart' ? data.split.number + 1 : 0)
+    bufferBuilder.writeUInt8(data.split.number > 0 ? data.split.number : 0)
     if (this.isSubscribed) {
       // the multiplexer uses a slightly different format for the AdditionalStatus2
       // it skips averagePower before totalCalories

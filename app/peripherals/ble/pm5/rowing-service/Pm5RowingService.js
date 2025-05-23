@@ -60,6 +60,7 @@ export class Pm5RowingService extends GattService {
   #splitHR
   #workoutHR
   #previousSplitMetrics
+  #lastActiveSplitMetrics
   #timer
 
   /**
@@ -92,7 +93,7 @@ export class Pm5RowingService extends GattService {
         // C2 rowing additional status 2
         additionalStatus2.characteristic,
         // C2 rowing additional status 3
-        additionalStatus3.characteristic, // TODO: disabled for now as otherwise ErgData connection does not seem to be stable
+        additionalStatus3.characteristic,
         // C2 rowing general status and additional status sample rate (0 - for 1000 ms)
         new SampleRateCharacteristic(config).characteristic,
         // C2 rowing stroke data
@@ -157,6 +158,9 @@ export class Pm5RowingService extends GattService {
         movingTime: {
           target: 0
         },
+        timeSpent: {
+          moving: 0
+        },
         distance: {
           target: 0
         },
@@ -191,10 +195,12 @@ export class Pm5RowingService extends GattService {
 
   /**
   * @param {Metrics} metrics
+  * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/PM5_Interface.md#message-grouping-and-timing|the message timing and grouping analysis}
   */
   notifyData (metrics) {
     if (metrics.metricsContext === undefined) { return }
     if (!(metrics.sessionState === 'Stopped' && !metrics.metricsContext.isSessionStop)) { this.#lastKnownMetrics = metrics }
+    if ((metrics.sessionState === 'Paused' && !metrics.metricsContext.isPauseStart) || metrics.metricsContext.isPauseEnd) { this.#lastKnownMetrics = this.#mergeMetrics(this.#lastActiveSplitMetrics, metrics) }
     switch (true) {
       case (metrics.metricsContext.isSessionStart):
         this.#splitHR.push(this.#lastKnownMetrics.heartrate)
@@ -209,14 +215,10 @@ export class Pm5RowingService extends GattService {
         this.#workoutEndDataNotifies(this.#lastKnownMetrics, this.#workoutHR)
         break
       case (metrics.metricsContext.isPauseStart):
+        this.#lastActiveSplitMetrics = this.#lastKnownMetrics
         this.#splitHR.push(this.#lastKnownMetrics.heartrate)
         this.#workoutHR.push(this.#lastKnownMetrics.heartrate)
         this.#genericStatusDataNotifies(this.#lastKnownMetrics, this.#previousSplitMetrics)
-        this.#splitDataNotifies(this.#lastKnownMetrics, this.#splitHR)
-        this.#previousSplitMetrics = {
-          totalMovingTime: this.#lastKnownMetrics.split.timeSpent.moving,
-          totalLinearDistance: this.#lastKnownMetrics.split.distancefromStart
-        }
         this.#splitHR.reset()
         this.#splitHR.push(this.#lastKnownMetrics.heartrate)
         break
@@ -226,6 +228,10 @@ export class Pm5RowingService extends GattService {
         this.#recoveryStartDataNotifies(this.#lastKnownMetrics)
         this.#genericStatusDataNotifies(this.#lastKnownMetrics, this.#previousSplitMetrics)
         this.#splitDataNotifies(this.#lastKnownMetrics, this.#splitHR)
+        this.#previousSplitMetrics = {
+          totalMovingTime: this.#lastKnownMetrics.split.timeSpent.moving,
+          totalLinearDistance: this.#lastKnownMetrics.split.distancefromStart
+        }
         this.#splitHR.reset()
         this.#splitHR.push(this.#lastKnownMetrics.heartrate)
         break
@@ -316,5 +322,18 @@ export class Pm5RowingService extends GattService {
     this.#additionalWorkoutSummary2.notify(metrics)
     this.#loggedWorkout.notify(metrics, workoutHRMetrics)
     this.#timer = setTimeout(() => { this.#onBroadcastInterval() }, this.#config.pm5UpdateInterval)
+  }
+
+  #mergeMetrics (activeMetrics, pauseMetrics) {
+    const result = { ...pauseMetrics }
+    result.interval = activeMetrics.interval
+    result.interval.workoutStepNumber = pauseMetrics.interval.workoutStepNumber
+    result.interval.timeSpent.rest = pauseMetrics.interval.timeSpent.rest
+    result.interval.timeSpent.total = activeMetrics.interval.timeSpent.moving + pauseMetrics.interval.timeSpent.rest
+    result.split = activeMetrics.split
+    result.split.number = pauseMetrics.split.number
+    result.split.timeSpent.rest = pauseMetrics.split.timeSpent.rest
+    result.split.timeSpent.total = activeMetrics.split.timeSpent.moving + pauseMetrics.split.timeSpent.rest
+    return result
   }
 }

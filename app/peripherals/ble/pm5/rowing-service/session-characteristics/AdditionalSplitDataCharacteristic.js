@@ -3,9 +3,10 @@
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 */
 /**
- * Implementation of the StrokeData as defined in:
+ * Implementation of the AdditionalStrokeData as defined in:
  * - https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
  * - https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf
+ * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/PM5_Interface.md#0x0038-additional-split-data|the description of desired behaviour}
  */
 import { BufferBuilder } from '../../../BufferBuilder.js'
 import { GattNotifyCharacteristic } from '../../../BleManager.js'
@@ -37,7 +38,7 @@ export class AdditionalSplitDataCharacteristic extends GattNotifyCharacteristic 
     // Data bytes packed as follows: (19bytes) - Multiplex as per spec 18bytes, but actually the list show 19. need to verify from the PM5
 
     // Elapsed Time in 0.01 sec
-    bufferBuilder.writeUInt24LE(data.workout.timeSpent.total > 0 ? Math.round(data.workout.timeSpent.total * 100) : 0)
+    bufferBuilder.writeUInt24LE(data.interval.timeSpent.moving > 0 ? Math.round(data.interval.timeSpent.moving * 100) : 0)
     // Split/Interval Avg Stroke Rate
     bufferBuilder.writeUInt8(data.split.strokerate.average > 0 ? Math.round(data.split.strokerate.average) : 0)
     // Split/Interval Work Heartrate,
@@ -57,7 +58,7 @@ export class AdditionalSplitDataCharacteristic extends GattNotifyCharacteristic 
     // Split Avg Drag Factor,
     bufferBuilder.writeUInt8(data.split.dragfactor.average > 0 && data.split.dragfactor.average < 255 ? Math.round(data.split.dragfactor.average) : 255)
     // Split/Interval Number, needs to start with 1 for ErgZone to work well
-    bufferBuilder.writeUInt8(data.split.number > 0 ? data.split.number + 1 : 0)
+    bufferBuilder.writeUInt8(data.split.number > 0 ? data.split.number : 0)
     // Erg Machine Type
     bufferBuilder.writeUInt8(pm5Constants.ergMachineType)
 

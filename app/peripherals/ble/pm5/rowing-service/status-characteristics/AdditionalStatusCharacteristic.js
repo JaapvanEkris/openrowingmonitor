@@ -1,10 +1,12 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  Implementation of the AdditionalStatus as defined in:
-  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
-  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf
+*/
+/**
+ * Implementation of the Additional Status as defined in:
+ * - https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
+ * - https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf
+ * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/PM5_Interface.md#0x0032-additional-status|the description of desired behaviour}
 */
 import { BufferBuilder } from '../../../BufferBuilder.js'
 import { GattNotifyCharacteristic } from '../../../BleManager.js'
@@ -34,7 +36,7 @@ export class AdditionalStatusCharacteristic extends GattNotifyCharacteristic {
   notify (data) {
     const bufferBuilder = new BufferBuilder()
     // elapsedTime: UInt24LE in 0.01 sec
-    bufferBuilder.writeUInt24LE(data.workout.timeSpent.total > 0 ? Math.round(data.workout.timeSpent.total * 100) : 0)
+    bufferBuilder.writeUInt24LE(data.interval.timeSpent.moving > 0 ? Math.round(data.interval.timeSpent.moving * 100) : 0)
     // speed: UInt16LE in 0.001 m/sec
     bufferBuilder.writeUInt16LE(data.cycleLinearVelocity > 0 ? Math.round(data.cycleLinearVelocity * 1000) : 0)
     // strokeRate: UInt8 in strokes/min
@@ -48,7 +50,7 @@ export class AdditionalStatusCharacteristic extends GattNotifyCharacteristic {
     // restDistance: UInt16LE
     bufferBuilder.writeUInt16LE(0)
     // restTime: UInt24LE in 0.01 sec
-    bufferBuilder.writeUInt24LE(data.workout.timeSpent.rest > 0 ? Math.round(data.workout.timeSpent.rest * 100) : 0)
+    bufferBuilder.writeUInt24LE(data.pauseCountdownTime > 0 ? Math.round(data.pauseCountdownTime * 100) : 0)
     if (!this.isSubscribed) {
       // the multiplexer uses a slightly different format for the AdditionalStatus
       // it adds averagePower before the ergMachineType

@@ -1,9 +1,11 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  Contains all mapping functions needed to map the internal ORM state to the externally communicated Concept2 PM5 states
 */
+/**
+ * Contains all mapping functions needed to map the internal ORM state to the externally communicated Concept2 PM5 states
+ * @see @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/PM5_Interface.md|for the entire interface description}
+ */
 /* eslint-disable no-unreachable -- the breaks after the returns trigger this, but there is a lot to say for being systematic about this */
 /* eslint-disable complexity -- There are a lot of decission tables needed to thread this needle */
 import { DurationTypes, IntervalTypes, OperationalStates, RowingState, StrokeState, WorkoutState, WorkoutTypes } from './../csafe-service/CsafeCommandsMapping.js'
@@ -16,10 +18,11 @@ export function toC2128BitUUID (uuid) {
   return `CE06${uuid}-43E5-11E4-916C-0800200C9A66`
 }
 
-// Converts the internal workout/interval/split structure to C2's OBJ_WORKOUTTYPE_T
-// Is used by characteristics:
-// * status-characteristics/GeneralStatusCharacteristic.js (0x0031)
-// * session-characteristics/WorkoutSummaryCharacteristic.js (0x0039)
+/** Converts the internal workout/interval/split structure to C2's OBJ_WORKOUTTYPE_T
+ * Is used by characteristics:
+ * - status-characteristics/GeneralStatusCharacteristic.js (0x0031)
+ * - session-characteristics/WorkoutSummaryCharacteristic.js (0x0039)
+ */
 export function toC2WorkoutType (baseMetrics) {
   const splitPresent = (baseMetrics.split.type === 'distance' || baseMetrics.split.type === 'time' || baseMetrics.split.type === 'calories')
   switch (true) {
@@ -60,11 +63,35 @@ export function toC2WorkoutType (baseMetrics) {
   }
 }
 
-// Converts the internal workout/interval/split structure to C2's OBJ_INTERVALTYPE_T
-// Is used by characteristics:
-// * status-characteristics/GeneralStatusCharacteristic.js (0x0031)
-// * session-characteristics/SplitDataCharacteristic.js (0x0037)
-// * session-characteristics/AdditionalWorkoutSummaryCharacteristic.js (0x003A)
+/** Converts the internal workout/interval/split structure to C2's OBJ_INTERVALTYPE_T
+ * Is used by characteristics:
+ * - status-characteristics/GeneralStatusCharacteristic.js (0x0031)
+ */
+export function toC2IntervalTypeGeneralStatus (baseMetrics) {
+  // ToDo: this is a simplification, as ORM allows to mix different interval types and C2 does not. We might need to adress this based on the overall workout-type (which is a s>
+  switch (true) {
+    case (baseMetrics.sessionState === 'Paused'):
+      return IntervalTypes.INTERVALTYPE_REST
+      break
+    case (baseMetrics.interval.type === 'distance'):
+      return IntervalTypes.INTERVALTYPE_DIST
+      break
+    case (baseMetrics.interval.type === 'time'):
+      return IntervalTypes.INTERVALTYPE_TIME
+      break
+    case (baseMetrics.interval.type === 'calories'):
+      return IntervalTypes.INTERVALTYPE_CALORIE
+      break
+    default:
+      return IntervalTypes.INTERVALTYPE_NONE
+  }
+}
+
+/** Converts the internal workout/interval/split structure to C2's OBJ_INTERVALTYPE_T
+ * Is used by characteristics:
+ * - session-characteristics/SplitDataCharacteristic.js (0x0037)
+ * - session-characteristics/AdditionalWorkoutSummaryCharacteristic.js (0x003A)
+ */
 export function toC2IntervalType (baseMetrics) {
   // ToDo: this is a simplification, as ORM allows to mix different interval types and C2 does not. We might need to adress this based on the overall workout-type (which is a summary of all intervals)
   switch (true) {
@@ -88,20 +115,38 @@ export function toC2IntervalType (baseMetrics) {
   }
 }
 
-// Converts the internal workout state to C2's OBJ_WORKOUTSTATE_T
-// Is used by characteristics:
-// * status-characteristics/GeneralStatusCharacteristic.js (0031)
+/** Converts the internal workout state to C2's OBJ_WORKOUTSTATE_T
+ * Is used by characteristics:
+ * - status-characteristics/GeneralStatusCharacteristic.js (0031)
+ * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/PM5_Interface.md#0x0031-general-status|the description of desired behaviour}
+ */
 export function toC2WorkoutState (baseMetrics) {
   // ToDo: this is a simplification, as there are some interval transitions in this state which can be identified based on the state. But we first have to see how intervals behave
   switch (true) {
     case (baseMetrics.sessionState === 'WaitingForStart'):
       return WorkoutState.WORKOUTSTATE_WAITTOBEGIN
       break
-    case (baseMetrics.sessionState === 'Rowing' && baseMetrics.metricsContext.isPauseEnd && baseMetrics.split.type === 'distance'):
+    case (baseMetrics.metricsContext.isPauseEnd && baseMetrics.split.type === 'distance'):
       return WorkoutState.WORKOUTSTATE_INTERVALRESTENDTOWORKDISTANCE
       break
-    case (baseMetrics.sessionState === 'Rowing' && baseMetrics.metricsContext.isPauseEnd && baseMetrics.split.type === 'time'):
+    case (baseMetrics.metricsContext.isPauseEnd && baseMetrics.split.type === 'time'):
       return WorkoutState.WORKOUTSTATE_INTERVALRESTENDTOWORKTIME
+      break
+    case (baseMetrics.sessionState === 'Rowing' && baseMetrics.workout.numberOfIntervals === 1 && baseMetrics.workout.type === 'distance' && baseMetrics.split.type === 'distance'):
+      // Session with a single distance interval with multiple splits
+      return WorkoutState.WORKOUTSTATE_WORKOUTROW
+      break
+    case (baseMetrics.sessionState === 'Rowing' && baseMetrics.split.type === 'distance'):
+      // Session containing multiple intervals
+      return WorkoutState.WORKOUTSTATE_INTERVALWORKDISTANCE
+      break
+    case (baseMetrics.sessionState === 'Rowing' &&  baseMetrics.workout.numberOfIntervals === 1 && baseMetrics.workout.type === 'time' && baseMetrics.split.type === 'time'):
+      // Session with a single time interval with multiple splits
+      return WorkoutState.WORKOUTSTATE_WORKOUTROW
+      break
+    case (baseMetrics.sessionState === 'Rowing' && baseMetrics.split.type === 'time'):
+      // Session containing multiple intervals
+      return WorkoutState.WORKOUTSTATE_INTERVALWORKTIME
       break
     case (baseMetrics.sessionState === 'Rowing'):
       return WorkoutState.WORKOUTSTATE_WORKOUTROW
@@ -120,9 +165,10 @@ export function toC2WorkoutState (baseMetrics) {
   }
 }
 
-// Converts the internal rowing state to C2's OBJ_ROWINGSTATE_T
-// Is used by characteristics:
-// * status-characteristics/GeneralStatusCharacteristic.js (0031)
+/** Converts the internal rowing state to C2's OBJ_ROWINGSTATE_T
+ * Is used by characteristics:
+ * - status-characteristics/GeneralStatusCharacteristic.js (0031)
+ */
 export function toC2RowingState (baseMetrics) {
   switch (true) {
     case (baseMetrics.sessionState === 'WaitingForStart'):
@@ -142,9 +188,10 @@ export function toC2RowingState (baseMetrics) {
   }
 }
 
-// Converts the internal stroke state to C2's OBJ_STROKESTATE_T
-// Is used by characteristics:
-// * status-characteristics/GeneralStatusCharacteristic.js (0031)
+/** Converts the internal stroke state to C2's OBJ_STROKESTATE_T
+ * Is used by characteristics:
+ * - status-characteristics/GeneralStatusCharacteristic.js (0031)
+ */
 export function toC2StrokeState (baseMetrics) {
   switch (true) {
     case (baseMetrics.strokeState === 'WaitingForDrive'):
@@ -170,9 +217,10 @@ export function toC2StrokeState (baseMetrics) {
   }
 }
 
-// Converts the internal rowing state to C2's DurationType
-// Is used by characteristics:
-// * status-characteristics/GeneralStatusCharacteristic.js (0031)
+/** Converts the internal rowing state to C2's DurationType
+ * Is used by characteristics:
+ * - status-characteristics/GeneralStatusCharacteristic.js (0031)
+ */
 export function toC2DurationType (baseMetrics) {
   switch (true) {
     case (baseMetrics.workout.type === 'justrow'):
@@ -187,15 +235,15 @@ export function toC2DurationType (baseMetrics) {
     case (baseMetrics.workout.type === 'calories'):
       return DurationTypes.CSAFE_CALORIES_DURATION
       break
-      break
     default:
       return DurationTypes.CSAFE_TIME_DURATION
   }
 }
 
-// Converts the internal rowing state to C2's OBJ_OPERATIONALSTATE_T
-// Is used by characteristics:
-// * status-characteristics/AdditionalStatus3Characteristic.js (003E)
+/** Converts the internal rowing state to C2's OBJ_OPERATIONALSTATE_T
+ * Is used by characteristics:
+ * status-characteristics/AdditionalStatus3Characteristic.js (003E)
+ */
 export function toC2OperationalState (baseMetrics) {
   switch (true) {
     case (baseMetrics.sessionState === 'WaitingForStart'):
