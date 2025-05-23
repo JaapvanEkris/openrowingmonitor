@@ -1,10 +1,12 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  Implementation of the AdditionalStrokeData as defined in:
-  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
-  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf
+*/
+/**
+ * Implementation of the AdditionalStrokeData as defined in:
+ * - https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
+ * - https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf
+ * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/PM5_Interface.md#0x0036-additional-stroke-data|the description of desired behaviour}
 */
 import { BufferBuilder } from '../../../BufferBuilder.js'
 import { GattNotifyCharacteristic } from '../../../BleManager.js'
@@ -33,13 +35,13 @@ export class AdditionalStrokeDataCharacteristic extends GattNotifyCharacteristic
   notify (data) {
     const bufferBuilder = new BufferBuilder()
     // elapsedTime: UInt24LE in 0.01 sec
-    bufferBuilder.writeUInt24LE(data.workout.timeSpent.total > 0 ? Math.round(data.workout.timeSpent.total * 100) : 0)
+    bufferBuilder.writeUInt24LE(data.interval.timeSpent.moving > 0 ? Math.round(data.interval.timeSpent.moving * 100) : 0)
     // strokePower: UInt16LE in watts
     bufferBuilder.writeUInt16LE(data.cyclePower > 0 ? Math.round(data.cyclePower) : 0)
     // strokeCalories: UInt16LE in cal
     bufferBuilder.writeUInt16LE(data.strokeCalories > 0 ? Math.round(data.strokeCalories * 1000) : 0)
     // strokeCount: UInt16LE
-    bufferBuilder.writeUInt16LE(data.totalNumberOfStrokes > 0 ? Math.round(data.totalNumberOfStrokes) : 0)
+    bufferBuilder.writeUInt16LE(data.interval.numberOfStrokes > 0 ? Math.round(data.interval.numberOfStrokes) : 0)
     // projectedWorkTime: UInt24LE in 1 sec
     bufferBuilder.writeUInt24LE(data.interval.movingTime.projectedEnd > 0 ? Math.round(data.interval.movingTime.projectedEnd) : 0)
     // projectedWorkDistance: UInt24LE in 1 m
