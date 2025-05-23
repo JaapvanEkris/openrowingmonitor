@@ -1,9 +1,11 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  This Module supports the creation and use of workoutSegment
 */
+/**
+ * This Module supports the creation and use of workoutSegment
+ * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Architecture.md#session-interval-and-split-boundaries-in-sessionmanagerjs|the description of the concepts used}
+ */
 /* eslint-disable max-lines -- This contains a lot of defensive programming, so it is long */
 import { createOLSLinearSeries } from './OLSLinearSeries.js'
 import { createSeries } from './Series.js'
@@ -416,27 +418,10 @@ export function createWorkoutSegment (config) {
     }
   }
 
-  function absoluteEndDistance () {
-    if (_type === 'distance' && _endLinearDistance > 0) {
-      return _endLinearDistance
-    } else {
-      return undefined
-    }
-  }
-
   function targetTime () {
     if (_type === 'time' && _endMovingTime > 0) {
       // We have a distance boundary
       return _targetTime
-    } else {
-      return undefined
-    }
-  }
-
-  function absoluteEndTime () {
-    if (_type === 'time' && _endMovingTime > 0) {
-      // We have a distance boundary
-      return _endMovingTime
     } else {
       return undefined
     }
@@ -452,16 +437,16 @@ export function createWorkoutSegment (config) {
       ...(_totalNumberIntervals > 0 ? { numberOfIntervals: _totalNumberIntervals } : {}),
       numberOfStrokes: numberOfStrokes(baseMetrics),
       distance: {
+        absoluteStart: _startLinearDistance,
         fromStart: distanceFromStart(baseMetrics),
         target: targetDistance(),
-        absoluteTarget: absoluteEndDistance(),
         toEnd: distanceToEnd(baseMetrics),
         projectedEnd: projectedEndDistance()
       },
       movingTime: {
+        absoluteStart: _startMovingTime,
         sinceStart: timeSinceStart(baseMetrics),
         target: targetTime(),
-        absoluteTarget: absoluteEndTime(),
         toEnd: timeToEnd(baseMetrics),
         projectedEnd: projectedEndTime()
       },
