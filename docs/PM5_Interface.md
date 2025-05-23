@@ -157,7 +157,7 @@ Messsage 0x0031 "General Status" is implemented in [GeneralStatusCharacteristic.
   * changes to `WorkoutState.WORKOUTSTATE_INTERVALWORKDISTANCETOREST` for marking the transition from an active interval to a rest interval
   * changes to `WorkoutState.WORKOUTSTATE_INTERVALREST` for a rest split/interval
   * changes to `WorkoutState.WORKOUTSTATE_WORKOUTEND` for marking the end of the workout
-* The `Total work distance` is initialized at 0, and only increased at the end of the interval to reflect the total linear distance travelled so far by the previous splits. This is best represented by `metrics.interval.distance.absoluteStart`
+* The `Total work distance` is initialized at 0, and only increased at the end of the interval to reflect the total linear distance travelled so far by the previous intervals. This is best represented by `metrics.interval.distance.absoluteStart`
 * The `Workout Duration` is set to the intended length of the current interval (thus ignoring previous interval lengths). When it is a 'distance' based interval, it is the length in meters, captured by `metrics.interval.distance.target`. On a 'time' based interval, it is a time in 0.01sec precission, best reflected by `metrics.interval.movingTime.target`.
 * When the `interval type` is 'time', the difference between `workout duration` and `elapsed time` is shown on ErgData as a countdown timer on most screens. When the `interval type` is 'distance' the difference between `workout duration` and `distance` is shown on ErgData as a countdown timer. So, typically, these fields must have the same frame of reference (i.e. time/distance in interval and interval target)
 * Dragfactor is reset per interval
