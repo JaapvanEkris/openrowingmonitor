@@ -49,6 +49,7 @@ export function createSessionManager (config) {
    * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Architecture.md#command-flow|The command flow documentation}
   */
   function handleCommand (commandName, data) {
+    resetMetricsSessionContext(lastBroadcastedMetrics)
     switch (commandName) {
       case ('updateIntervalSettings'):
         if (sessionState !== 'Rowing') {
@@ -71,6 +72,8 @@ export function createSessionManager (config) {
           clearTimeout(pauseTimer)
           StartOrResumeTraining()
           sessionState = 'Paused'
+          lastBroadcastedMetrics.metricsContext.isPauseStart = true
+          emitMetrics(lastBroadcastedMetrics)
         }
         break
       case ('pause'):
