@@ -182,6 +182,7 @@ export class CsafeManagerService {
                 this.#controlPointCallback({ req: { name: 'start', data: {} } })
                 break
               case (ScreenValue.SCREENVALUEWORKOUT_VIRTUALKEY_D):
+                // The 'Resume' button is pressed
                 this.#controlPointCallback({ req: { name: 'startOrResume', data: {} } })
                 break
               // no default
