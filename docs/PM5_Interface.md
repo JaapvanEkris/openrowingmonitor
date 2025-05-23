@@ -8,7 +8,7 @@ This interface emulation is partially based on the description in Concept 2's AP
 
 ### Workout Hierarchy
 
-OpenRowingMonitor recognizes three levels in a workout: the Session, the underlying Intervals and the Splits in these Intervals (see (the architecture document)[./Architecture.md#session-interval-and-split-boundaries-in-sessionmanagerjs] for a more detailed description). A PM5 recognizes either a workout with one or more Intervals of varying length, or a single workout with several underlying splits with identical length. Some apps (ErgZone) even optimize workouts with multiple identical intervals to a workout with splits.
+OpenRowingMonitor recognizes three levels in a workout: the Session, the underlying Intervals and the Splits in these Intervals (see [the architecture document](./Architecture.md#session-interval-and-split-boundaries-in-sessionmanagerjs) for a more detailed description). A PM5 recognizes either a workout with one or more Intervals of varying length, or a single workout with several underlying splits with identical length. Some apps (ErgZone) even optimize workouts with multiple identical intervals to a workout with splits.
 
 The [CsafeManagerService.js](../app/peripherals/ble/pm5/csafe-service/CsafeManagerService.js) therefore will map:
 
@@ -23,7 +23,7 @@ This makes scoping of many variables challenging as it is unclear whether a vari
 
 OpenRowingMonitor treats rest intervals similar to normal time based intervals, with the exception that the rowing engine is forced to stop collecting metrics during that interval. A PM5 considers a rest interval an attribute of a normal interval, and it isn't an independent entity. In [CsafeManagerService.js](../app/peripherals/ble/pm5/csafe-service/CsafeManagerService.js) this is managed by adding a rest interval to OpenRowingMonitor's workout schedule.
 
-In reporting, we indeed see the PM5 skipping the split/interval reporting when the pause starts, and including the rest data with the split reporting after the pause has ended. This is consistent with the approach that a rest interval only is an extension of an active interval. In OpenRowingMonitor this behaviour is replicated by not reporting the start of a pause as new split, and combining the data from the active split and the rest split. Although the underlying datasets are largely disjunct (as rest intervals have little data associated with them), a key issue is the reporting of the IntervalType, WorkoutState and workoutDurationType in [0x0031 General Status](#0x0031-general-status), and the intervalType [0x0037 "Split Data"](#0x0037-split-data). 
+In reporting, we indeed see the PM5 skipping the split/interval reporting when the pause starts, and including the rest data with the split reporting after the pause has ended. This is consistent with the approach that a rest interval only is an extension of an active interval. In OpenRowingMonitor this behaviour is replicated by not reporting the start of a pause as new split, and combining the data from the active split and the rest split. Although the underlying datasets are largely disjunct (as rest intervals have little data associated with them), a key issue is the reporting of the IntervalType, WorkoutState and workoutDurationType in [0x0031 General Status](#0x0031-general-status), and the intervalType [0x0037 "Split Data"](#0x0037-split-data).
 
 In starting a pause our traces show that message [0x0031 General Status](#0x0031-general-status)'s 'IntervalType' is set from `IntervalTypes.INTERVALTYPE_DIST` to `IntervalTypes.INTERVALTYPE_REST`. [0x0037 "Split Data"](#0x0037-split-data)'s 'IntervalType' reports an `IntervalTypes.INTERVALTYPE_DIST`. For the GeneralStatus message, the workout target clearly contains an element of OpenRowingMonitor's 'sessionState' object (i.e. verify if the sessionState is paused).
 
@@ -72,7 +72,7 @@ When antering a rest interval, no specific messages are sent. However, our trace
 * message [0x0031 General Status](#0x0031-general-status)'s 'IntervalType' is set from `IntervalTypes.INTERVALTYPE_DIST` to `IntervalTypes.INTERVALTYPE_REST`. This element thus should depend on the OpenRowingMonitor's 'sessionState' object.
 * message [0x0031 General Status](#0x0031-general-status)'s 'WorkoutState' is set from `WorkoutState.WORKOUTSTATE_INTERVALWORKDISTANCE` to `WorkoutState.WORKOUTSTATE_INTERVALREST`.
 * message [0x0031 General Status](#0x0031-general-status)'s 'totalWorkDistance' is increased with the total linear distanceof the ative interval. This suggests that the totalWorkDistance is the absolute startpoint that is maintained in the WorkoutSegment.
-* message [0x0032 "Additional Status"](#0x0032-additional-status)'s 'Rest Time' will start counting down from its starting point to 0. 
+* message [0x0032 "Additional Status"](#0x0032-additional-status)'s 'Rest Time' will start counting down from its starting point to 0.
 
 #### Time behaviour during rest interval
 
@@ -99,7 +99,7 @@ When exiting a rest interval, a lot of messages are sent:
 
 ### Elapsed time
 
-According to the documentation ([[1]](#1) and [[2]](#2)), messages [0x0031 "General Status"](#0x0031-general-status), [0x0032 "Additional Status"](#0x0032-additional-status), [0x0033  "Additional Status 2"](#0x0033--additional-status-2), [0x0035 "Stroke Data"](#0x0035-stroke-data), [0x0036 "Additional Stroke Data"](#0x0036-additional-stroke-data), [0x0037 "Split Data"](#0x0037-split-data) and [0x0038 "Additional Split Data"](#0x0038-additional-split-data) all contain the 24 bit element "Elapsed Time", with a 0.01 second precission. 
+According to the documentation ([[1]](#1) and [[2]](#2)), messages [0x0031 "General Status"](#0x0031-general-status), [0x0032 "Additional Status"](#0x0032-additional-status), [0x0033  "Additional Status 2"](#0x0033--additional-status-2), [0x0035 "Stroke Data"](#0x0035-stroke-data), [0x0036 "Additional Stroke Data"](#0x0036-additional-stroke-data), [0x0037 "Split Data"](#0x0037-split-data) and [0x0038 "Additional Split Data"](#0x0038-additional-split-data) all contain the 24 bit element "Elapsed Time", with a 0.01 second precission.
 
 The recorded Bluetooth trace shows that:
 
@@ -216,7 +216,7 @@ The force curve is in pounds (lbs).
 #### 0x003f "Logged Workout"
 
 ## References
-
+<!-- markdownlint-disable no-inline-html -->
 <a id="1">[1]</a> Concept 2 PM5 Bluetooth Smart Interface Specification, Revision 1.30, 3/2/2022 <https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf>
 
 <a id="2">[2]</a> Concept2 PM CSAFE Communication Definition, Revision 0.27, 8/8/2023 <https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf>
