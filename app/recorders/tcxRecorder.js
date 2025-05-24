@@ -63,7 +63,7 @@ export function createTCXRecorder (config) {
         postExerciseHR = []
         measureRecoveryHR()
         break
-      case (metrics.metricsContext.isPauseStart):
+      case (metrics.metricsContext.isPauseStart && lastMetrics.sessionState === 'Rowing'):
         addMetricsToStrokesArray(metrics)
         calculateLapMetrics(metrics)
         resetLapMetrics()
