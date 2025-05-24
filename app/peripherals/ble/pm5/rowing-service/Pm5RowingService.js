@@ -230,7 +230,7 @@ export class Pm5RowingService extends GattService {
         this.#splitDataNotifies(this.#lastKnownMetrics, this.#splitHR)
         this.#previousSplitMetrics = {
           totalMovingTime: this.#lastKnownMetrics.split.timeSpent.moving,
-          totalLinearDistance: this.#lastKnownMetrics.split.distancefromStart
+          totalLinearDistance: this.#lastKnownMetrics.split.distance.fromStart
         }
         this.#splitHR.reset()
         this.#splitHR.push(this.#lastKnownMetrics.heartrate)
@@ -242,7 +242,7 @@ export class Pm5RowingService extends GattService {
         this.#splitDataNotifies(this.#lastKnownMetrics, this.#splitHR)
         this.#previousSplitMetrics = {
           totalMovingTime: this.#lastKnownMetrics.split.timeSpent.moving,
-          totalLinearDistance: this.#lastKnownMetrics.split.distancefromStart
+          totalLinearDistance: this.#lastKnownMetrics.split.distance.fromStart
         }
         this.#splitHR.reset()
         this.#splitHR.push(this.#lastKnownMetrics.heartrate)
