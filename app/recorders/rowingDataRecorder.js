@@ -67,7 +67,7 @@ export function createRowingDataRecorder (config) {
         addMetricsToStrokesArray(metrics)
         splitNumber++
         break
-      case (metrics.metricsContext.isPauseStart):
+      case (metrics.metricsContext.isPauseStart && lastMetrics.sessionState === 'Rowing'):
         addMetricsToStrokesArray(metrics)
         postExerciseHR = null
         postExerciseHR = []
