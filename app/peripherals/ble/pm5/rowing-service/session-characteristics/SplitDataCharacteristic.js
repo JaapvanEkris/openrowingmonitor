@@ -50,8 +50,8 @@ export class SplitDataCharacteristic extends GattNotifyCharacteristic {
     bufferBuilder.writeUInt16LE(Math.round(0))
     // intervalType: UInt8, see OBJ_INTERVALTYPE_T enum
     bufferBuilder.writeUInt8(toC2IntervalType(data))
-    // Split/Interval Number
-    bufferBuilder.writeUInt8(data.split.number > 0 ? data.split.number : 0)
+    // Split/Interval Number, based on BLE traces, split data messages' split number always starts at 1
+    bufferBuilder.writeUInt8(data.split.number >= 0 ? data.split.number + 1 : 0)
 
     if (this.isSubscribed) {
       super.notify(bufferBuilder.getBuffer())
