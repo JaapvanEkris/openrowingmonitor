@@ -39,7 +39,7 @@ export class SplitDataCharacteristic extends GattNotifyCharacteristic {
     // Elapsed Time (0.01 sec),
     bufferBuilder.writeUInt24LE(data.interval.timeSpent.moving > 0 ? Math.round(data.interval.timeSpent.moving * 100) : 0)
     // Distance in split (0.1 m), based on experiments with the intervals screen
-    bufferBuilder.writeUInt24LE(data.split.distance.fromStart > 0 ? Math.round(data.split.distance.fromStart * 10) : 0)
+    bufferBuilder.writeUInt24LE(data.split.interval.fromStart > 0 ? Math.round(data.interval.distance.fromStart * 10) : 0)
     // Split/Interval Time (0.1 sec)
     bufferBuilder.writeUInt24LE(data.split.timeSpent.moving > 0 ? Math.round(data.split.timeSpent.moving * 10) : 0)
     // Split/Interval Distance (1m accurate)
@@ -50,8 +50,8 @@ export class SplitDataCharacteristic extends GattNotifyCharacteristic {
     bufferBuilder.writeUInt16LE(Math.round(0))
     // intervalType: UInt8, see OBJ_INTERVALTYPE_T enum
     bufferBuilder.writeUInt8(toC2IntervalType(data))
-    // Split/Interval Number
-    bufferBuilder.writeUInt8(data.split.number > 0 ? data.split.number : 0)
+    // Split/Interval Number, based on BLE traces, split data messages' split number always starts at 1
+    bufferBuilder.writeUInt8(data.split.number >= 0 ? data.split.number + 1 : 0)
 
     if (this.isSubscribed) {
       super.notify(bufferBuilder.getBuffer())

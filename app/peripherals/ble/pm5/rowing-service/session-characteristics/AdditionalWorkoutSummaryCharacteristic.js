@@ -48,8 +48,8 @@ export class AdditionalWorkoutSummaryCharacteristic extends GattNotifyCharacteri
     } else {
       bufferBuilder.writeUInt16LE(data.split.timeSpent.moving > 0 ? Math.round(data.split.timeSpent.moving) : 0)
     }
-    // Split/Interval Count
-    bufferBuilder.writeUInt8(data.split.number > 0 ? data.split.number : 0)
+    // Split/Interval Number, based on BLE traces, split data messages' split number always starts at 1
+    bufferBuilder.writeUInt8(data.split.number >= 0 ? data.split.number + 1 : 0)
     // Total Calories
     bufferBuilder.writeUInt16LE(data.workout.calories.totalSpent > 0 && data.workout.calories.totalSpent < 65534 ? Math.round(data.workout.calories.totalSpent) : 0)
     // Power (Watts)

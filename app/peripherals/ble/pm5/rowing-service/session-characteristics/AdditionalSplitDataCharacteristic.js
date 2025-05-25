@@ -57,8 +57,8 @@ export class AdditionalSplitDataCharacteristic extends GattNotifyCharacteristic 
     bufferBuilder.writeUInt16LE(data.split.power.average > 0 && data.split.power.average < 65534 ? Math.round(data.split.power.average) : 0)
     // Split Avg Drag Factor,
     bufferBuilder.writeUInt8(data.split.dragfactor.average > 0 && data.split.dragfactor.average < 255 ? Math.round(data.split.dragfactor.average) : 255)
-    // Split/Interval Number, needs to start with 1 for ErgZone to work well
-    bufferBuilder.writeUInt8(data.split.number > 0 ? data.split.number : 0)
+    // Split/Interval Number, based on BLE traces, split data messages' split number always starts at 1
+    bufferBuilder.writeUInt8(data.split.number >= 0 ? data.split.number + 1 : 0)
     // Erg Machine Type
     bufferBuilder.writeUInt8(pm5Constants.ergMachineType)
 
