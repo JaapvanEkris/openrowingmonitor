@@ -1,6 +1,6 @@
 # OpenRowingMonitor Release Notes
 
-## Version 0.9.6 (May 2025)
+## Version 0.9.6 (June 2025)
 
 Main contributors: [Abasz](https://github.com/Abasz) and [Jaap van Ekris](https://github.com/JaapvanEkris)
 
@@ -23,6 +23,11 @@ Beta testers: [fkh-bims](https://github.com/fkh-bims), [jryd2000](https://github
 - **Upgrade of the entire technology stack**: we cleaned house and upgraded all used NPM packages, removed a lot of clutter from these packages as well, upgraded Node.js to a newer version to increase support and moved from Chromium to Firefox (greatly reducing the CPU load, practically freeing up a complete CPU core). This makes our stack current again. Please make sure you install the required packages via apt-get.
 - **Upgraded ESLint and its configuration**, now code is inspected beyond the use of spaces.
 - **Introducing JSDoc** in our code, to make our code easier to understand ([see also](https://github.com/JaapvanEkris/openrowingmonitor/issues/90)).
+
+### Known issues in 0.9.6
+
+- When using more sophisticated apps like ErgZone on the new PM5 emulation, having an unplanned pause in a workout will throw off the workout registration on their end.
+- ErgData can program a workout on OpenRowingMonitor but will not work well with the PM5 emulator, and it will not save your workout. It can also not close the communication. As this behaviour is propriatary, it is doubtfullbwe can resolve this.
 
 ## Version 0.9.5 (February 2025)
 
