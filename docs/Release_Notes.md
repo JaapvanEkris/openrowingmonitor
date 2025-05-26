@@ -27,7 +27,7 @@ Beta testers: [fkh-bims](https://github.com/fkh-bims), [jryd2000](https://github
 ### Known issues in 0.9.6
 
 - When using more sophisticated apps like ErgZone on the new PM5 emulation, having an unplanned pause in a workout will throw off the workout registration on their end.
-- ErgData can program a workout on OpenRowingMonitor, but it will not work well with our PM5 emulator. And it will **not** save your workout. It can also not close the communication, hanging bith ends. As this behaviour is propriatary, it is doubtfull we can resolve this.
+- ErgData can program a workout on OpenRowingMonitor, but it will not work well with our PM5 emulator. And it will **not** save your workout. It can also not close the communication, causing a deadlock that hangs communication at both ends (kill the ErgData app to resolve this). As ErgData's behaviour is propriatary, it is doubtfull we can resolve this.
 
 ## Version 0.9.5 (February 2025)
 
