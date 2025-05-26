@@ -136,14 +136,15 @@ Thus, this is best mapped to `metrics.interval.numberOfStrokes`.
 
 ### Split numbering
 
-This is sementically an extremely challenged parameter. The messages [0x0033 "Additional Status 2"](#0x0033--additional-status-2), [0x0037 "Split Data"](#0x0037-split-data), [0x0038 "Additional Split Data"](#0x0038-additional-split-data) all contain the `interval count`. Its use is far from consistent:
+This is sementically a challenged parameter. The messages [0x0033 "Additional Status 2"](#0x0033--additional-status-2), [0x0037 "Split Data"](#0x0037-split-data), [0x0038 "Additional Split Data"](#0x0038-additional-split-data) all contain the `interval count`. Its use is far from consistent:
 
 In message [0x0033 "Additional Status 2"](#0x0033--additional-status-2):
-* it initializes it at 0,
+
+* `interval count` initializes it at 0,
 * is increased when either the split/interval changes,
 * is increased when moving from an active to a rest interval
 
-However, [0x0037 "Split Data"](#0x0037-split-data), [0x0038 "Additional Split Data"](#0x0038-additional-split-data) are sent **after** the split rollover but reports about the previous split, still the `interval count` is increased (i.e. it starts reporting about split 1, instead of split 0).
+However, [0x0037 "Split Data"](#0x0037-split-data), [0x0038 "Additional Split Data"](#0x0038-additional-split-data) are sent **after** the split rollover and report about the metrics of the previous split, but uses the `interval count` of the **current interval** (i.e. it is increased and starts reporting about split 1, skipping split 0 in its reporting structure).
 
 Message [0x003a "Additional Workout Summary"](#0x003a-additional-workout-summary) contains the total number of intervals, which is similar to the number reported in [0x0037 "Split Data"](#0x0037-split-data), [0x0038 "Additional Split Data"](#0x0038-additional-split-data).
 
