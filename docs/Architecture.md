@@ -274,10 +274,10 @@ Schematically, a session is constructed as follows:
 </tbody>
 </table>
 
-OpenRowingMonitor will always report the ending of a split, interval and session, and the last message in the split/interval/session will be flagged with a isSplitEnd/isIntervalEnd/isSessionStop flag. Ending an interval will also end the split, raising both flags.
+OpenRowingMonitor will always report the ending of a split, interval and session, and the last message in the split/interval/session will be flagged with a isSplitEnd/isIntervalEnd/isSessionStop flag. Ending an interval will also end the split, raising both flags. Please note that the [PM5 peripheral](./PM5_Interface.md) has a different approach and that difference is handled by the PM5 peripheral itself.
 
 > [!NOTE]
-> The state transitions for the end of an interval and the end of a session (i.e. no next interval) are handled individually as the resulting metrics updates differ slightly, and the expected behaviour of all other managers is different.
+> The state transitions for the end of an interval and the end of a session (i.e. no next interval) are flagged individually as the resulting metrics updates differ slightly, and the expected behaviour of all other managers is different (especially as recorders and peripherals will stop the workout).
 
 ##### sessionStates in SessionManager.js
 
@@ -409,7 +409,15 @@ Along with the introduction of Raspberry Pi 5, a new GPIO hardware architecture 
 
 An alternative is the `onoff` library, which was used in OpenRowingMonitor up to version 0.8.2, which does work with the new RPi5 architecture. Although the latter benefits could be moved to `GpioTimerService.js`, the two former benefits can't. Therefore, we decided to wait with moving to onoff until a decent alternative for `pigpio` emerges.
 
-### Intertwined relation FLywheel.js and Rower.js regarding stroke state
+### Race conditions between commands and metrics
+
+In specific situations (especially the 'reset' command), the command triggers an update of the metrics by the `SessionManager.js` to close the current sesssion, as well trigger a new metrics update for the new session. As all other managers get the same command around the same time, this is a root cause for race conditions where the 'reset' causes a recorder to complete a session and write the file, and the metrics update will modify it.
+
+### Structural issues with the PM5 interface and the interal OpenRowingMonitor workout structure
+
+OpenRowingMonitor's workout structure is similar to Garmin's and many output formats (like the tcx, fit and RowingData formats). However, this approach is different from the PM5 workout structure, leading to a complex interface which statefully has to manage the discrepencies. Key issue is that the concepts of Interval and Split are badly defined in the PM5, and rest periods are not considered independent entities. A key issue is handling unscheduled breaks in a split/interval: the PM5 seems to expect that an interval with a pause still behaves as a single interval. See also the [description of the PM5 interface](./PM5_Interface.md) for more information.
+
+### Intertwined relation `Flywheel.js` and `Rower.js` regarding stroke state
 
 `Rower.js` and `Flywheel.js` have an odd intertwined relation: `Flywheel.js` determines the dragfactor, but in order to do that, it needs to know whether it is in a recovery phase, which is determined by `Rower.js`. This technically breaks the dataflow, as processing of the data in `Flywheel.js` becomes dependent on the stroke state determined in `Rower.js` as a resonse to the flywheel state determined in `Flywheel.js`. At its core, dragfactor is a flywheel property, and thus concepually should be positioned in `Flywheel.js`. But from a physics perspective, one can only determine the dragfactor when the stroke state is in recovery. The case can be made that it should be positioned in `Rower.js`, making `Flywheel.js` a conduit only providing angular velocity and angular acceleration. As a side-effect, many calculations that depend on dragfactor (i.e. flywheel torque, etc.) and decissions based upon that (i.e. `isPowered()` and `isUnpowered()`) are also moved to `Rower.js`. This would make `Rower.js` an even stronger concentration of decission logic, without the aid of the current abstractions of `Flywheel.js` to keep the code readable. therefore, it was agreed against it.
 
