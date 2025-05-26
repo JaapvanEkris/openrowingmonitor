@@ -8,7 +8,7 @@ Beta testers: [fkh-bims](https://github.com/fkh-bims), [jryd2000](https://github
 
 ### New functionality in 0.9.6
 
-- **Major upgrade of our PM5 emulation**: [ErgZone](https://Erg.Zone) now works in PM5 mode, as well as many other apps. This allows you to set up a training with ease, and record the data (adresses [this request](https://github.com/JaapvanEkris/openrowingmonitor/discussions/78)).
+- **Major upgrade of our PM5 emulation**: [ErgZone](https://Erg.Zone) now works in PM5 mode in many scenarios (see [the known limitations](#known-issues-in-096)), as well as many other apps. This allows you to set up a training with ease, and record the data (adresses [this request](https://github.com/JaapvanEkris/openrowingmonitor/discussions/78)).
 - **Added [RowsAndAll.com](https://rowsandall.com) integration** for workout reporting (i.e. automatic uploading of a result).
 - **Added [intervals.icu](https://intervals.icu) integration** for workout reporting (i.e. automatic uploading a result).
 - **Added a MQTT peripheral**. This reports metrics live to MQTT brokers and control home automation, etc. (see [this discussion](https://github.com/laberning/openrowingmonitor/discussions/43), [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/80) and [this request](https://github.com/JaapvanEkris/openrowingmonitor/discussions/98)). The MQTT listener you to push workout plans to OpenRowingMonitor from home automation systems (see [the integrations page](Integrations.md) for more information).
@@ -27,7 +27,7 @@ Beta testers: [fkh-bims](https://github.com/fkh-bims), [jryd2000](https://github
 ### Known issues in 0.9.6
 
 - When using more sophisticated apps like ErgZone on the new PM5 emulation, having an unplanned pause in a workout will throw off the workout registration on their end.
-- ErgData can program a workout on OpenRowingMonitor but will not work well with the PM5 emulator, and it will not save your workout. It can also not close the communication. As this behaviour is propriatary, it is doubtfullbwe can resolve this.
+- ErgData can program a workout on OpenRowingMonitor, but it will not work well with our PM5 emulator. And it will **not** save your workout. It can also not close the communication, hanging bith ends. As this behaviour is propriatary, it is doubtfull we can resolve this.
 
 ## Version 0.9.5 (February 2025)
 
