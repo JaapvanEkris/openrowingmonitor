@@ -19,6 +19,10 @@ This makes scoping of many variables challenging as it is unclear whether a vari
 
 [workoutSegment.js](../app/engine/utils/workoutSegment.js)'s default behaviour with missing split information helps here to overcome the structural issues. When split nformation is mising, it 'inherits' the split parameters of the above interval (in essence making the split boundaries identical to the interval). This makes the splits always contain the most granular division of the workout regardless of how the PM5 has communicated the workout. In reporting back to the app, the splits are thus the most likely basis for reporting in the PM5 emulated reporting. However, some variables seem to be scoped to the interval or workout level. A key reason for conducting the traces is to understand the scoping of each variable.
 
+### Positioning split/interval reporting
+
+OpenRowingMonitor will always report on the end-of-split boundary, including a summary of the split it just completed. A PM5 will report this **after** the split has concluded (i.e. in tje mew split), reporting about the split it has completed.
+
 ### Positioning rest intervals
 
 OpenRowingMonitor treats rest intervals similar to normal time based intervals, with the exception that the rowing engine is forced to stop collecting metrics during that interval. A PM5 considers a rest interval an attribute of a normal interval, and it isn't an independent entity. In [CsafeManagerService.js](../app/peripherals/ble/pm5/csafe-service/CsafeManagerService.js) this is managed by adding a rest interval to OpenRowingMonitor's workout schedule.
@@ -59,9 +63,9 @@ On every broadcast interval, the following messages are sent:
 
 #### End of Workout
 
-* 0x0039 Workout Summery
-* 0x003a Additional Workout Summary
-* 0x003f Logged Workout
+* [0x0039 "Workout Summery"](#0x0039-workout-summery)
+* [0x003a "Additional Workout Summary"](#0x003a-additional-workout-summary)
+* [0x003f "Logged Workout"](#0x003f-logged-workout)
 
 ### Pause behaviour
 
@@ -132,13 +136,16 @@ Thus, this is best mapped to `metrics.interval.numberOfStrokes`.
 
 ### Split numbering
 
-Messages [0x0033 "Additional Status 2"](#0x0033--additional-status-2), [0x0037 "Split Data"](#0x0037-split-data), [0x0038 "Additional Split Data"](#0x0038-additional-split-data) contain the `interval count`. It:
+This is sementically an extremely challenged parameter. The messages [0x0033 "Additional Status 2"](#0x0033--additional-status-2), [0x0037 "Split Data"](#0x0037-split-data), [0x0038 "Additional Split Data"](#0x0038-additional-split-data) all contain the `interval count`. Its use is far from consistent:
 
-* initializes at 0,
+In message [0x0033 "Additional Status 2"](#0x0033--additional-status-2):
+* it initializes it at 0,
 * is increased when either the split/interval changes,
 * is increased when moving from an active to a rest interval
 
-Message 0x003A "Additional Workout Summary" contains the total number of intervals
+However, [0x0037 "Split Data"](#0x0037-split-data), [0x0038 "Additional Split Data"](#0x0038-additional-split-data) are sent **after** the split rollover but reports about the previous split, still the `interval count` is increased (i.e. it starts reporting about split 1, instead of split 0).
+
+Message [0x003a "Additional Workout Summary"](#0x003a-additional-workout-summary) contains the total number of intervals, which is similar to the number reported in [0x0037 "Split Data"](#0x0037-split-data), [0x0038 "Additional Split Data"](#0x0038-additional-split-data).
 
 ## Messages
 
