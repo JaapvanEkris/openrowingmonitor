@@ -26,7 +26,7 @@ Beta testers: [fkh-bims](https://github.com/fkh-bims), [jryd2000](https://github
 
 ### Known issues in 0.9.6
 
-- When using more sophisticated apps like ErgZone on the new PM5 emulation, an unplanned pause in a workout will throw off the workout registration on their end due to our handling of splits. Replicating a PM5's behaviour here is difficult, and we are looking for a solution that is usefull (see [issue 115](https://github.com/JaapvanEkris/openrowingmonitor/issues/115).
+- When using more sophisticated apps like ErgZone on the new PM5 emulation, an unplanned pause in a workout will throw off the workout registration on their end due to our handling of splits. Replicating a PM5's behaviour here is difficult, and we are looking for a solution that is usefull (see [issue 115](https://github.com/JaapvanEkris/openrowingmonitor/issues/115)).
 - ErgData can program a workout on OpenRowingMonitor, but it will not work well with our PM5 emulator. And it will **not** save your workout. And we can't create the cryptographic hash to certify the workout results. It can also not close the communication, causing a deadlock that hangs communication at both ends (kill the ErgData app to resolve this). As ErgData is propriatary to Concept2, we will not put in any effort to resolve this (see [issue 117](https://github.com/JaapvanEkris/openrowingmonitor/issues/117)).
 
 ## Version 0.9.5 (February 2025)
