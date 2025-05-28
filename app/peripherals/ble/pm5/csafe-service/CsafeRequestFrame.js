@@ -65,7 +65,7 @@ export class CsafeRequestFrame {
    * @param {Array<number>} buffer
    */
   constructor (buffer) {
-    this.#frameContent = buffer
+    this.#frameContent = CsafeFrameBase.unStuffByte(buffer)
 
     if (!this.#validateChecksum()) {
       throw new InvalidFrameError(`Checksum does not match. ${toHexString(buffer)}`)
@@ -109,22 +109,7 @@ export class CsafeRequestFrame {
 
     this.#commandWrapperFlag = CsafeFrameBase.isProprietary(this.#frameContent[frameContentStartPos]) ? this.#frameContent[frameContentStartPos] : undefined
 
-    const unStuffedFrameBuffer = this.#frameContent
-      // Do byte-un-stuffing
-      .reduce((buffer, byte, index, array) => {
-        if (byte === UniqueFrameFlags.StuffFlag) {
-          return buffer
-        }
-
-        buffer.push(
-          index > 0 && CsafeFrameBase.shouldUnStuffByte(array[index - 1], byte) ?
-            CsafeFrameBase.unStuffByte(byte) :
-            byte
-        )
-
-        return buffer
-      }, /** @type {Array<number>} */([]))
-    const content = unStuffedFrameBuffer.slice(this.#commandWrapperFlag === undefined ? frameContentStartPos : frameContentStartPos + 2, unStuffedFrameBuffer.length - 2)
+    const content = this.#frameContent.slice(this.#commandWrapperFlag === undefined ? frameContentStartPos : frameContentStartPos + 2, this.#frameContent.length - 2)
 
     for (let i = 0; i < content.length;) {
       const command = content[i]

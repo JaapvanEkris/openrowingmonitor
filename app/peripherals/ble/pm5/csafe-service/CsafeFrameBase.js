@@ -22,14 +22,6 @@ export class CsafeFrameBase {
   }
 
   /**
-   * @param {number} flag
-   * @param {number} byte
-   */
-  static shouldUnStuffByte (flag, byte) {
-    return flag === UniqueFrameFlags.StuffFlag && (byte & 0xFC) === 0
-  }
-
-  /**
    * Returns the offset byte value for byte stuffing.
    * @param {number} byte
    */
@@ -38,11 +30,25 @@ export class CsafeFrameBase {
   }
 
   /**
-   * Returns the real byte value for a stuffed byte.
-   * @param {number} byte
-   */
-  static unStuffByte (byte) {
-    return byte + 0xF0
+  * Returns the real byte values for a frame.
+  * @param {Array<number>} frame
+  */
+  static unStuffByte (frame) {
+    return frame
+      // Do byte-un-stuffing
+      .reduce((buffer, byte, index, array) => {
+        if (byte === UniqueFrameFlags.StuffFlag) {
+          return buffer
+        }
+
+        buffer.push(
+          index > 0 && array[index - 1] === UniqueFrameFlags.StuffFlag && (byte & 0xFC) === 0 ?
+            byte + 0xF0 :
+            byte
+        )
+
+        return buffer
+      }, /** @type {Array<number>} */([]))
   }
 
   /**
