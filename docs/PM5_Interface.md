@@ -41,7 +41,7 @@ A workout is a combination of one or more strings of 'CSAFE_PM_SET_WORKOUTINTERV
 
 | Concept2 Workout Type | General idea | Interval | Splits |
 | --- | --- | --- | --- |
-| WORKOUTTYPE_JUSTROW_NOSPLITS | A simple unlimited session | single interval, type = 'JustRow' | Undefined | 
+| WORKOUTTYPE_JUSTROW_NOSPLITS | A simple unlimited session | single interval, type = 'JustRow' | Undefined |
 | WORKOUTTYPE_JUSTROW_SPLITS | A simple unlimited session with splits | single interval, type = 'JustRow' | Fixed 'time' or 'distance' |
 | WORKOUTTYPE_FIXEDDIST_NOSPLITS | A simple distance session | single interval, type = 'distance' | Undefined[^1] |
 | WORKOUTTYPE_FIXEDDIST_SPLITS | A simple distance session with splits | single interval, type = 'distance' | Fixed 'distance' |
