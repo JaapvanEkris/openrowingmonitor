@@ -43,19 +43,20 @@ A workout is a combination of one or more strings of 'CSAFE_PM_SET_WORKOUTINTERV
 | --- | --- | --- | --- |
 | WORKOUTTYPE_JUSTROW_NOSPLITS | A simple unlimited session | single interval, type = 'JustRow' | Undefined | 
 | WORKOUTTYPE_JUSTROW_SPLITS | A simple unlimited session with splits | single interval, type = 'JustRow' | Fixed 'time' or 'distance' |
-| WORKOUTTYPE_FIXEDDIST_NOSPLITS | A simple distance session | single interval, type = 'distance' | Undefined |
+| WORKOUTTYPE_FIXEDDIST_NOSPLITS | A simple distance session | single interval, type = 'distance' | Undefined[^1] |
 | WORKOUTTYPE_FIXEDDIST_SPLITS | A simple distance session with splits | single interval, type = 'distance' | Fixed 'distance' |
-| WORKOUTTYPE_FIXEDTIME_NOSPLITS | A simple time limited session | single interval, type = 'time' | Undefined |
+| WORKOUTTYPE_FIXEDTIME_NOSPLITS | A simple time limited session | single interval, type = 'time' | Undefined[^1] |
 | WORKOUTTYPE_FIXEDTIME_SPLITS | A simple time limited session with splits | single interval, type = 'time' | Fixed 'time' |
-| WORKOUTTYPE_FIXEDTIME_INTERVAL | An unlimited repeating time based interval | single interval, type = 'JustRow'* | Fixed 'time' |
-| WORKOUTTYPE_FIXEDDIST_INTERVAL | An unlimited repeating distance based interval | single interval, type = 'JustRow'* | Fixed 'distance' |
+| WORKOUTTYPE_FIXEDTIME_INTERVAL | An unlimited repeating time based interval | single interval, type = 'JustRow'[^2] | Fixed 'time' |
+| WORKOUTTYPE_FIXEDDIST_INTERVAL | An unlimited repeating distance based interval | single interval, type = 'JustRow'[^2] | Fixed 'distance' |
 | WORKOUTTYPE_VARIABLE_INTERVAL | A series of different variable intervals | multiple intervals | Fixed 'time' or 'distance' per interval |
 | WORKOUTTYPE_VARIABLE_UNDEFINEDREST_INTERVAL | Not implemented | Not implemented | Not implemented |
 | WORKOUTTYPE_FIXEDCALORIE_SPLITS | Not implemented | Not implemented | Not implemented |
 | WORKOUTTYPE_FIXEDWATTMINUTE_SPLITS | Not implemented | Not implemented | Not implemented |
 | WORKOUTTYPE_FIXEDCALS_INTERVAL | Not implemented | Not implemented | Not implemented |
 
-* Due to the beforementioned structural issues, any programmed rest periodes in between will be ignored.
+[^1]: Due to default behaviour of the WorkoutSegments object, the split defaults to the interval type and length
+[^2]: Due to the beforementioned structural issues, any programmed rest periodes in between will be ignored.
 
 ## Message grouping and timing
 
