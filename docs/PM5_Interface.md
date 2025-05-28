@@ -31,6 +31,32 @@ In reporting, we indeed see the PM5 skipping the split/interval reporting when t
 
 In starting a pause our traces show that message [0x0031 General Status](#0x0031-general-status)'s 'IntervalType' is set from `IntervalTypes.INTERVALTYPE_DIST` to `IntervalTypes.INTERVALTYPE_REST`. [0x0037 "Split Data"](#0x0037-split-data)'s 'IntervalType' reports an `IntervalTypes.INTERVALTYPE_DIST`. For the GeneralStatus message, the workout target clearly contains an element of OpenRowingMonitor's 'sessionState' object (i.e. verify if the sessionState is paused).
 
+## CSAFE Commands
+
+Most CSAFE Commands implemented in [CsafeManagerService.js](../app/peripherals/ble/pm5/csafe-service/CsafeManagerService.js) in conjunction with the [C2toORMMapper.js](../app/peripherals/ble/pm5/utils/C2toORMMapper.js). OpenRowingMonitor essentially only implements the commands it needs to recieve workouts.
+
+### Workout Mapping
+
+A workout is a combination of one or more strings of 'CSAFE_PM_SET_WORKOUTINTERVALCOUNT', 'CSAFE_PM_SET_WORKOUTTYPE', 'CSAFE_PM_SET_INTERVALTYPE', 'CSAFE_PM_SET_WORKOUTDURATION', 'CSAFE_PM_SET_RESTDURATION' and 'CSAFE_PM_CONFIGURE_WORKOUT' commands. Each string of commands represents an interval. It is always closed with 'CSAFE_PM_SET_SCREENSTATE', followed by 'SCREENVALUEWORKOUT_PREPARETOROWWORKOUT'.
+
+| Concept2 Workout Type | General idea | Interval | Splits |
+| --- | --- | --- | --- |
+| WORKOUTTYPE_JUSTROW_NOSPLITS | A simple unlimited session | single interval, type = 'JustRow' | Undefined | 
+| WORKOUTTYPE_JUSTROW_SPLITS | A simple unlimited session with splits | single interval, type = 'JustRow' | Fixed 'time' or 'distance' |
+| WORKOUTTYPE_FIXEDDIST_NOSPLITS | A simple distance session | single interval, type = 'distance' | Undefined |
+| WORKOUTTYPE_FIXEDDIST_SPLITS | A simple distance session with splits | single interval, type = 'distance' | Fixed 'distance' |
+| WORKOUTTYPE_FIXEDTIME_NOSPLITS | A simple time limited session | single interval, type = 'time' | Undefined |
+| WORKOUTTYPE_FIXEDTIME_SPLITS | A simple time limited session with splits | single interval, type = 'time' | Fixed 'time' |
+| WORKOUTTYPE_FIXEDTIME_INTERVAL | An unlimited repeating time based interval | single interval, type = 'JustRow'* | Fixed 'time' |
+| WORKOUTTYPE_FIXEDDIST_INTERVAL | An unlimited repeating distance based interval | single interval, type = 'JustRow'* | Fixed 'distance' |
+| WORKOUTTYPE_VARIABLE_INTERVAL | A series of different variable intervals | multiple intervals | Fixed 'time' or 'distance' per interval |
+| WORKOUTTYPE_VARIABLE_UNDEFINEDREST_INTERVAL | Not implemented | Not implemented | Not implemented |
+| WORKOUTTYPE_FIXEDCALORIE_SPLITS | Not implemented | Not implemented | Not implemented |
+| WORKOUTTYPE_FIXEDWATTMINUTE_SPLITS | Not implemented | Not implemented | Not implemented |
+| WORKOUTTYPE_FIXEDCALS_INTERVAL | Not implemented | Not implemented | Not implemented |
+
+* Due to the beforementioned structural issues, any programmed rest periodes in between will be ignored.
+
 ## Message grouping and timing
 
 Based on the Bluetooth trace we can group the messages as well as identify their trigger. This grouping is implemented in the [Pm5RowingService.js](../app/peripherals/ble/pm5/rowing-service/Pm5RowingService.js).
