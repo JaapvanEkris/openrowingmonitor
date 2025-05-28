@@ -1,19 +1,11 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  Contains all mapping functions needed to map the internal ORM state to the externally communicated Concept2 PM5 states
 */
-/* eslint-disable no-unreachable -- the breaks after the returns trigger this, but there is a lot to say for being systematic about this */
+/**
+ * @file Contains all supporting functions needed to map Concept2 PM5 states to the internal ORM states
+ */
 import { DurationTypes, IntervalTypes, WorkoutTypes } from './../csafe-service/CsafeCommandsMapping.js'
-
-export function readUInt16 (msb, lsb) {
-  return (msb * 256) + lsb
-}
-
-export function readUInt32 (msb, byte2, byte3, lsb) {
-  return (msb * 16777216) + (byte2 * 65536) + (byte3 * 256) + lsb
-}
 
 export function createWorkoutPlan () {
   let workoutplan = []
@@ -150,89 +142,12 @@ export function createWorkoutPlan () {
   }
 }
 
-/*******************************************************************************************************************************************/
-// Converts the internal workout/interval/split structure to C2's OBJ_WORKOUTTYPE_T
-// Is used by characteristics:
-// * status-characteristics/GeneralStatusCharacteristic.js (0x0031)
-// * session-characteristics/WorkoutSummaryCharacteristic.js (0x0039)
-export function toC2WorkoutType (baseMetrics) {
-  const splitPresent = (baseMetrics.split.type === 'distance' || baseMetrics.split.type === 'time' || baseMetrics.split.type === 'calories')
-  switch (true) {
-    case (baseMetrics.workout.type === 'justrow' && baseMetrics.split.type === 'justrow'):
-      return WorkoutTypes.WORKOUTTYPE_JUSTROW_NOSPLITS
-      break
-    case (baseMetrics.workout.type === 'justrow' && splitPresent):
-      return WorkoutTypes.WORKOUTTYPE_JUSTROW_SPLITS
-      break
-    case (baseMetrics.workout.type === 'distance' && baseMetrics.split.type === 'justrow'):
-      return WorkoutTypes.WORKOUTTYPE_FIXEDDIST_NOSPLITS
-      break
-    case (baseMetrics.workout.type === 'distance' && splitPresent):
-      return WorkoutTypes.WORKOUTTYPE_FIXEDDIST_SPLITS
-      break
-    case (baseMetrics.workout.type === 'time' && baseMetrics.split.type === 'justrow'):
-      return WorkoutTypes.WORKOUTTYPE_FIXEDTIME_NOSPLITS
-      break
-    case (baseMetrics.workout.type === 'time' && splitPresent):
-      return WorkoutTypes.WORKOUTTYPE_FIXEDTIME_SPLITS
-      break
-    case (baseMetrics.workout.type === 'calories' && splitPresent):
-      return WorkoutTypes.WORKOUTTYPE_FIXEDCALORIE_SPLITS
-      break
-    default:
-      return WorkoutTypes.WORKOUTTYPE_JUSTROW_NOSPLITS
-  }
+export function readUInt16 (msb, lsb) {
+  return (msb * 256) + lsb
 }
 
-// Converts the internal workout/interval/split structure to C2's OBJ_INTERVALTYPE_T
-// Is used by characteristics:
-// * status-characteristics/GeneralStatusCharacteristic.js (0x0031)
-// * session-characteristics/SplitDataCharacteristic.js (0x0037)
-// * session-characteristics/AdditionalWorkoutSummaryCharacteristic.js (0x003A)
-export function toC2IntervalType (baseMetrics) {
-  // ToDo: this is a simplification, as ORM allows to mix different interval types and C2 does not. We might need to adress this based on the overall workout-type (which is a summary of all intervals)
-  switch (true) {
-    case (baseMetrics.interval.type === 'distance'):
-      return IntervalTypes.INTERVALTYPE_DIST
-      break
-    case (baseMetrics.interval.type === 'time'):
-      return IntervalTypes.INTERVALTYPE_TIME
-      break
-    case (baseMetrics.interval.type === 'calories'):
-      return IntervalTypes.INTERVALTYPE_CALORIE
-      break
-    case (baseMetrics.interval.type === 'rest' && baseMetrics.interval.movingTime.target > 0):
-      return IntervalTypes.INTERVALTYPE_REST
-      break
-    case (baseMetrics.interval.type === 'rest'):
-      return IntervalTypes.INTERVALTYPE_RESTUNDEFINED
-      break
-    default:
-      return IntervalTypes.INTERVALTYPE_NONE
-  }
-}
-
-// Converts the internal rowing state to C2's DurationType
-// Is used by characteristics:
-// * status-characteristics/GeneralStatusCharacteristic.js (0031)
-export function toC2DurationType (baseMetrics) {
-  switch (true) {
-    case (baseMetrics.workout.type === 'justrow'):
-      return DurationTypes.CSAFE_TIME_DURATION
-      break
-    case (baseMetrics.workout.type === 'time'):
-      return DurationTypes.CSAFE_TIME_DURATION
-      break
-    case (baseMetrics.workout.type === 'distance'):
-      return DurationTypes.CSAFE_DISTANCE_DURATION
-      break
-    case (baseMetrics.workout.type === 'calories'):
-      return DurationTypes.CSAFE_CALORIES_DURATION
-      break
-      break
-    default:
-      return DurationTypes.CSAFE_TIME_DURATION
-  }
+function readUInt32 (msb, byte2, byte3, lsb) {
+  return (msb * 16777216) + (byte2 * 65536) + (byte3 * 256) + lsb
 }
 
 export class Concept2Date extends Date {
