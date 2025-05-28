@@ -4,9 +4,8 @@
 */
 /**
  * @file Contains all supporting functions needed to map Concept2 PM5 states to the internal ORM states
+ * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/PM5_Interface.md|for the entire interface description}
  */
-import { DurationTypes, IntervalTypes, WorkoutTypes } from './../csafe-service/CsafeCommandsMapping.js'
-
 export function createWorkoutPlan () {
   let workoutplan = []
 
