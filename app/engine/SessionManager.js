@@ -30,6 +30,7 @@ export function createSessionManager (config) {
   let intervalSettings = []
   let currentIntervalNumber = -1
   let splitNumber = -1
+  let splitRemainder = null
 
   metrics = refreshMetrics()
   // ToDo: replace with activateNextInterval based on justrow, justrow
@@ -72,7 +73,6 @@ export function createSessionManager (config) {
           clearTimeout(pauseTimer)
           StartOrResumeTraining()
           sessionState = 'Paused'
-          lastBroadcastedMetrics.metricsContext.isPauseStart = true
           emitMetrics(lastBroadcastedMetrics)
         }
         break
@@ -174,11 +174,12 @@ export function createSessionManager (config) {
     session.setStart(metrics)
     interval.setStart(metrics)
     split.setStart(metrics)
+    splitRemainder = null
     emitMetrics(metrics)
   }
 
   /**
-   * This function guards the session, interval and split states boundaries
+   * This function processes the currentDt and guards the session, interval and split boundaries
    *
    * @param {float} time between two impulses in seconds
    *
@@ -209,7 +210,7 @@ export function createSessionManager (config) {
       split.push(metrics)
     }
 
-    // This is the core of the finite state machine that defines all state transitions
+    // This is the core of the finite state machine that defines all session state transitions
     switch (true) {
       case (sessionState === 'WaitingForStart' && metrics.metricsContext.isMoving === true):
         StartOrResumeTraining()
@@ -258,10 +259,11 @@ export function createSessionManager (config) {
         emitMetrics(metrics)
         break
       case (sessionState === 'Rowing' && metrics.strokeState === 'WaitingForDrive'):
+        // This is an unplanned pause
         // We do not need to refetch the metrics as RowingStatistics will already have zero-ed the metrics when strokeState = 'WaitingForDrive'
-        // This is intended behaviour, as the rower/flywheel indicate the rower has paused somehow
         pauseTraining(metrics)
         sessionState = 'Paused'
+        splitRemainder = split.remainder(metrics)
         metrics.metricsContext.isPauseStart = true
         metrics.metricsContext.isSplitEnd = true
         emitMetrics(metrics)
@@ -375,6 +377,7 @@ export function createSessionManager (config) {
     intervalSettings = intervalParameters
     currentIntervalNumber = -1
     splitNumber = -1
+    splitRemainder = null
     if (intervalSettings.length > 0) {
       log.info(`SessionManager: Workout plan recieved with ${intervalSettings.length} interval(s)`)
       metrics = refreshMetrics()
@@ -418,6 +421,7 @@ export function createSessionManager (config) {
       interval.setEnd(intervalSettings[currentIntervalNumber])
 
       // As the interval has changed, we need to reset the split metrics
+      splitRemainder = null
       activateNextSplitParameters(baseMetrics)
     } else {
       log.error('SessionManager: expected a next interval, but did not find one!')
@@ -428,7 +432,13 @@ export function createSessionManager (config) {
     splitNumber++
     log.error(`Activating split settings for split ${splitNumber + 1}`)
     split.setStart(baseMetrics)
-    split.setEnd(interval.getSplit())
+    if (splitRemainder !== null && sessionState === 'Rowing') {
+      // We have a part of the split still have to complete
+      split.setEnd(splitRemainder)
+      splitRemainder = null
+    } else {
+      split.setEnd(interval.getSplit())
+    }
   }
 
   function onPauseTimer () {
