@@ -10,6 +10,11 @@ set -u
 # exit when a command fails
 set -e
 
+RED=$'\e[0;31m'
+YELLOW=$'\e[0;33m'
+PURPLE=$'\e[0;35m'
+NC=$'\e[0m' # No Color
+
 print() {
   echo "$@"
 }
@@ -48,17 +53,35 @@ ask() {
   done
 }
 
+draw_splash() {
+    print "${YELLOW}"
+    cat <<'EOF'
+   ___                              _______                         _                    ____    ____                   _   _
+ .'   `.                           |_   __ \                       (_)                  |_   \  /   _|                 (_) / |_
+/  .-.  \ _ .--.   .---.  _ .--.     | |__) |   .--.   _   _   __  __   _ .--.   .--./)   |   \/   |   .--.   _ .--.   __ `| |-' .--.   _ .--.
+| |   | |[ '/'`\ \/ /__\\[ `.-. |    |  __ /  / .'`\ \[ \ [ \ [  ][  | [ `.-. | / /'`\;   | |\  /| | / .'`\ \[ `.-. | [  | | | / .'`\ \[ `/'`\]
+\  `-'  / | \__/ || \__., | | | |   _| |  \ \_| \__. | \ \/\ \/ /  | |  | | | | \ \._//  _| |_\/_| |_| \__. | | | | |  | | | |,| \__. | | |
+ `.___.'  | ;.__/  '.__.'[___||__] |____| |___|'.__.'   \__/\__/  [___][___||__].',__`  |_____||_____|'.__.' [___||__][___]\__/ '.__.' [___]
+         [__|                                                                  ( ( __))
+EOF
+    print
+    print "${PURPLE}Welcome to the Open Rowing Monitor installer!${NC}"
+    print
+}
+
 CURRENT_DIR=$(pwd)
 INSTALL_DIR="/opt/openrowingmonitor"
 GIT_REMOTE="https://github.com/JaapvanEkris/openrowingmonitor.git"
 BRANCH="main"
+
+draw_splash
 
 print "This script will set up Open Rowing Monitor on one of the following devices"
 print "  Raspberry Pi Zero 2 W or WH"
 print "  Raspberry Pi 3 Model A+, B or B+"
 print "  Raspberry Pi 4 Model B"
 print
-print "A Raspberry Pi 5 is currently NOT compatible"
+print "${RED}A Raspberry Pi 5 is currently NOT compatible${NC}"
 print
 print "You should only run this script on a SD Card that contains Raspberry Pi OS (Lite)"
 print "and does not contain any important data."
