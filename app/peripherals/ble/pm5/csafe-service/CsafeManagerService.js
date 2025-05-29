@@ -75,29 +75,40 @@ export class CsafeManagerService {
           break
         case (ProprietaryLongSetConfigCommands.CSAFE_PM_SET_WORKOUTTYPE):
           log.debug(`command ${i + 1}, CSAFE_PM_SET_WORKOUTTYPE, ${swapObjectPropertyValues(WorkoutTypes)[commandData[0]]}`)
-          if (commandData[0] === WorkoutTypes.WORKOUTTYPE_JUSTROW_NOSPLITS || commandData[0] === WorkoutTypes.WORKOUTTYPE_JUSTROW_SPLITS) {
-            this.#workoutplan.addInterval('justrow', commands[i].data)
-            log.debug('  Added justrow interval')
+          switch (commandData[0]) {
+            case(WorkoutTypes.WORKOUTTYPE_JUSTROW_NOSPLITS):
+              this.#workoutplan.addInterval('justrow', commands[i].data)
+              response.addCommand(commands[i].command)
+              log.debug('  Added justrow interval')
+              break
+            case(WorkoutTypes.WORKOUTTYPE_JUSTROW_SPLITS):
+              this.#workoutplan.addInterval('justrow', commands[i].data)
+              response.addCommand(commands[i].command)
+              log.debug('  Added justrow interval')
+              break
+            case(WorkoutTypes.WORKOUTTYPE_FIXEDTIME_INTERVAL):
+              this.#workoutplan.addInterval('justrow', commands[i].data)
+              response.addCommand(commands[i].command)
+              i++ // Move to the duration
+              this.#workoutplan.addSplit('time', commands[i].data)
+              response.addCommand(commands[i].command)
+              i++ // Move to the rest specification, which will be ignored
+              response.addCommand(commands[i].command)
+              log.error(`PM5 WORKOUTTYPE_FIXEDTIME_INTERVAL is mapped to '${this.#workoutplan.lastInterval().type}' interval with ${this.#workoutplan.lastInterval().split.targetTime} second splits, rest information will be lost`)
+              break
+            case(WorkoutTypes.WORKOUTTYPE_FIXEDDIST_INTERVAL):
+              this.#workoutplan.addInterval('justrow', commands[i].data)
+              response.addCommand(commands[i].command)
+              i++ // Move to the duration
+              this.#workoutplan.addSplit('distance', commands[i].data)
+              response.addCommand(commands[i].command)
+              i++ // Move to the rest specification, which will be ignored
+              response.addCommand(commands[i].command)
+              log.error(`PM5 WORKOUTTYPE_FIXEDDIST_INTERVAL is mapped to '${this.#workoutplan.lastInterval().type}' interval with ${this.#workoutplan.lastInterval().split.targetDistance} meter splits, rest information will be lost`)
+              break
+            default:
+              response.addCommand(commands[i].command)
           }
-          if (commandData[0] === WorkoutTypes.WORKOUTTYPE_FIXEDTIME_INTERVAL) {
-            this.#workoutplan.addInterval('justrow', commands[i].data)
-            response.addCommand(commands[i].command)
-            i++ // Move to the duration
-            this.#workoutplan.addSplit('time', commands[i].data)
-            response.addCommand(commands[i].command)
-            i++ // Move to the rest specification
-            log.error(`PM5 WORKOUTTYPE_FIXEDTIME_INTERVAL is mapped to '${this.#workoutplan.lastInterval().type}' interval with ${this.#workoutplan.lastInterval().split.targetTime} second splits, rest information will be lost`)
-          }
-          if (commandData[0] === WorkoutTypes.WORKOUTTYPE_FIXEDDIST_INTERVAL) {
-            this.#workoutplan.addInterval('justrow', commands[i].data)
-            response.addCommand(commands[i].command)
-            i++ // Move to the duration
-            this.#workoutplan.addSplit('distance', commands[i].data)
-            response.addCommand(commands[i].command)
-            i++ // Move to the rest specification
-            log.error(`PM5 WORKOUTTYPE_FIXEDDIST_INTERVAL is mapped to '${this.#workoutplan.lastInterval().type}' interval with ${this.#workoutplan.lastInterval().split.targetDistance} meter splits, rest information will be lost`)
-          }
-          response.addCommand(commands[i].command)
           break
         case (ProprietaryLongSetConfigCommands.CSAFE_PM_SET_INTERVALTYPE):
           if (commandData[0] === IntervalTypes.INTERVALTYPE_NONE) {
@@ -144,7 +155,6 @@ export class CsafeManagerService {
           }
           break
         case (ProprietaryLongSetConfigCommands.CSAFE_PM_CONFIGURE_WORKOUT):
-          response.addCommand(ProprietaryLongSetConfigCommands.CSAFE_PM_CONFIGURE_WORKOUT)
           response.addCommand(commands[i].command)
           log.debug(`command ${i + 1}, CSAFE_PM_CONFIGURE_WORKOUT Programming Mode: ${commandData[0] === 0 ? 'Disabled' : 'Enabled'}`)
           break
