@@ -55,6 +55,9 @@ export function createWorkoutSegment (config) {
     return _startTimestamp
   }
 
+  /**
+   * This function summarizes a group of intervals into a single workout
+   */
   function summarize (intervals) {
     let intervalNumber = 0
     let totalDistance = 0
@@ -110,10 +113,13 @@ export function createWorkoutSegment (config) {
     }
   }
 
+  /**
+   * This function sets the segment parameters used
+   */
   function setEnd (intervalSettings) {
     // Set the primairy parameters
     switch (true) {
-      case (intervalSettings.type === 'rest' && intervalSettings.targetTime > 0):
+      case (intervalSettings.type === 'rest' && Number(intervalSettings.targetTime) > 0):
         // A target time is set for a rest interval
         _type = 'rest'
         _targetTime = Number(intervalSettings.targetTime)
@@ -131,7 +137,7 @@ export function createWorkoutSegment (config) {
         _endLinearDistance = 0
         log.debug(`  Workout parser, recognised undetermined ${_type} interval`)
         break
-      case (intervalSettings.type === 'distance' && intervalSettings.targetDistance > 0):
+      case (intervalSettings.type === 'distance' && Number(intervalSettings.targetDistance) > 0):
         // A target distance is set
         _type = 'distance'
         _targetTime = 0
@@ -140,7 +146,7 @@ export function createWorkoutSegment (config) {
         _endLinearDistance = _startLinearDistance + Number(intervalSettings.targetDistance)
         log.debug(`  Workout parser, recognised ${_type} interval/split, ${_targetDistance} meters`)
         break
-      case (intervalSettings.type === 'time' && intervalSettings.targetTime > 0):
+      case (intervalSettings.type === 'time' && Number(intervalSettings.targetTime) > 0):
         // A target time is set
         _type = 'time'
         _targetTime = Number(intervalSettings.targetTime)
@@ -176,7 +182,7 @@ export function createWorkoutSegment (config) {
           targetTime: _targetTime
         }
         break
-      case (!!intervalSettings.split && intervalSettings.split !== undefined && intervalSettings.split.type === 'distance' && intervalSettings.split.targetDistance > 0):
+      case (!!intervalSettings.split && intervalSettings.split !== undefined && intervalSettings.split.type === 'distance' && Number(intervalSettings.split.targetDistance) > 0):
         // A target distance is set
         _split = {
           type: 'distance',
@@ -184,7 +190,7 @@ export function createWorkoutSegment (config) {
           targetTime: 0
         }
         break
-      case (!!intervalSettings.split && intervalSettings.split !== undefined && intervalSettings.split.type === 'time' && intervalSettings.split.targetTime > 0):
+      case (!!intervalSettings.split && intervalSettings.split !== undefined && intervalSettings.split.type === 'time' && Number(intervalSettings.split.targetTime) > 0):
         // A target time is set
         _split = {
           type: 'time',
@@ -217,7 +223,9 @@ export function createWorkoutSegment (config) {
     }
   }
 
-  // Updates projectiondata and segment metrics
+  /**
+   * Updates projectiondata and segment metrics
+   */
   function push (baseMetrics) {
     distanceOverTime.push(baseMetrics.totalMovingTime, baseMetrics.totalLinearDistance)
     if (!!baseMetrics.cyclePower && !isNaN(baseMetrics.cyclePower) && baseMetrics.cyclePower > 0) { _power.push(baseMetrics.cyclePower) }
@@ -228,7 +236,9 @@ export function createWorkoutSegment (config) {
     if (!!baseMetrics.dragFactor && !isNaN(baseMetrics.dragFactor) && baseMetrics.dragFactor > 0) { _dragFactor.push(baseMetrics.dragFactor) }
   }
 
-  // Returns the distance from te startpoint
+  /**
+   * @returns {float} the distance from te start of the workoutsegment
+   */
   function distanceFromStart (baseMetrics) {
     if (!isNaN(_startLinearDistance) && _startLinearDistance >= 0 && !isNaN(baseMetrics.totalLinearDistance) && baseMetrics.totalLinearDistance > _startLinearDistance) {
       return baseMetrics.totalLinearDistance - _startLinearDistance
@@ -237,7 +247,9 @@ export function createWorkoutSegment (config) {
     }
   }
 
-  // Returns the distance to the endpoint
+  /**
+   * @returns {float} the remaining distance to the end of the workoutsegment
+   */
   function distanceToEnd (baseMetrics) {
     if (_type === 'distance' && _endLinearDistance > 0) {
       // We have set a distance boundary
@@ -247,7 +259,9 @@ export function createWorkoutSegment (config) {
     }
   }
 
-  // Returns the moving time from the startpoint
+  /**
+   * @returns {float} the moving time since the start of the workoutsegment
+   */
   function timeSinceStart (baseMetrics) {
     if (!isNaN(_startMovingTime) && _startMovingTime >= 0 && !isNaN(baseMetrics.totalMovingTime) && baseMetrics.totalMovingTime > _startMovingTime) {
       return baseMetrics.totalMovingTime - _startMovingTime
@@ -256,7 +270,9 @@ export function createWorkoutSegment (config) {
     }
   }
 
-  // Returns the projected time to the workoutsegment endpoint
+  /**
+   * @returns {float} the projected time to the end of the workoutsegment
+   */
   function projectedEndTime () {
     switch (true) {
       case (_type === 'distance' && _endLinearDistance > 0 && distanceOverTime.reliable()):
@@ -269,7 +285,9 @@ export function createWorkoutSegment (config) {
     }
   }
 
-  // Returns the projected time to the workoutsegment endpoint
+  /**
+   * @returns {float} the projected time to the end of the workoutsegment
+   */
   function projectedEndDistance () {
     switch (true) {
       case (_type === 'distance' && _endLinearDistance > 0):
@@ -282,7 +300,9 @@ export function createWorkoutSegment (config) {
     }
   }
 
-  // Returns the time to the endpoint
+  /**
+   * @returns {float} the remaining time to the end of the workoutsegment
+   */
   function timeToEnd (baseMetrics) {
     if ((_type === 'time' || _type === 'rest') && _endMovingTime > 0) {
       // We are in a time based interval
@@ -292,6 +312,9 @@ export function createWorkoutSegment (config) {
     }
   }
 
+  /**
+   * @returns {float} the total time since start of the workoutsegment
+   */
   function totalTime (baseMetrics) {
     if (!isNaN(_startTimestamp) && _startTimestamp >= 0 && !isNaN(baseMetrics.timestamp) && baseMetrics.timestamp > _startTimestamp) {
       return Math.max((baseMetrics.timestamp.getTime() - _startTimestamp.getTime()) / 1000, (baseMetrics.totalMovingTime - _startMovingTime))
@@ -300,6 +323,9 @@ export function createWorkoutSegment (config) {
     }
   }
 
+  /**
+   * @returns {float} the time spent not moving since start of the workoutsegment
+   */
   function restTime (baseMetrics) {
     if (!isNaN(_startMovingTime) && !isNaN(_startTimestamp) && _startTimestamp >= 0 && !isNaN(baseMetrics.totalMovingTime) && !isNaN(baseMetrics.timestamp) && baseMetrics.timestamp > _startTimestamp) {
       return (Math.max(baseMetrics.timestamp.getTime() - _startTimestamp.getTime(), 0) / 1000) - Math.max(baseMetrics.totalMovingTime - _startMovingTime, 0)
@@ -308,6 +334,9 @@ export function createWorkoutSegment (config) {
     }
   }
 
+  /**
+   * @returns {float} the time spent not moving since the start of the workoutsgment
+   */
   function averageLinearVelocity (baseMetrics) {
     if (!isNaN(_startMovingTime) && _startMovingTime >= 0 && !isNaN(_startLinearDistance) && _startLinearDistance >= 0 && !isNaN(baseMetrics.totalMovingTime) && baseMetrics.totalMovingTime > _startMovingTime && !isNaN(baseMetrics.totalLinearDistance) && baseMetrics.totalLinearDistance > _startLinearDistance) {
       return (baseMetrics.totalLinearDistance - _startLinearDistance) / (baseMetrics.totalMovingTime - _startMovingTime)
@@ -317,7 +346,8 @@ export function createWorkoutSegment (config) {
   }
 
   /**
-   * @param {number} linearVel
+   * @param {float} linear velocity
+   * @returns {float} pace per 500 meters
    */
   function linearVelocityToPace (linearVel) {
     if (!isNaN(linearVel) && linearVel > 0) {
@@ -327,6 +357,9 @@ export function createWorkoutSegment (config) {
     }
   }
 
+  /**
+   * @returns {number} the number of strokes since the start of the segment
+   */
   function numberOfStrokes (baseMetrics) {
     if (!isNaN(_startStrokeNumber) && _startStrokeNumber >= 0 && !isNaN(baseMetrics.totalNumberOfStrokes) && baseMetrics.totalNumberOfStrokes > _startStrokeNumber) {
       return baseMetrics.totalNumberOfStrokes - _startStrokeNumber
@@ -343,7 +376,9 @@ export function createWorkoutSegment (config) {
     }
   }
 
-  // Checks for reaching a boundary condition
+  /**
+   * @returns {boolean} If the boundary of the planned segment has been reached
+   */
   function isEndReached (baseMetrics) {
     if ((_type === 'distance' && _endLinearDistance > 0 && baseMetrics.totalLinearDistance >= _endLinearDistance) || (_type === 'time' && _endMovingTime > 0 && baseMetrics.totalMovingTime >= _endMovingTime)) {
       // We have exceeded the boundary
@@ -431,6 +466,9 @@ export function createWorkoutSegment (config) {
     return _type
   }
 
+  /**
+   * This function returns all the workoutSegment metrics for the current workoutSegment
+   */
   function metrics (baseMetrics) {
     return {
       type: _type,
@@ -492,6 +530,29 @@ export function createWorkoutSegment (config) {
     }
   }
 
+  /**
+   * This function returns the remaining split (used for managing unplanned pausesremainder (baseMetrics)
+   */
+  function remainder (baseMetrics) {
+    switch (_type) {
+      case ('distance'):
+        return {
+          type: _type,
+          targetDistance: distanceToEnd(baseMetrics)
+        }
+      case ('time'):
+        return {
+          type: _type,
+          targetTime: timeToEnd(baseMetrics)
+        }
+      default:
+        return {
+          type: _type,
+          targetTime: 0
+        }
+    }
+  }
+
   function resetSegmentMetrics () {
     _linearVelocity.reset()
     _strokerate.reset()
@@ -535,6 +596,7 @@ export function createWorkoutSegment (config) {
     type,
     push,
     getSplit,
+    remainder,
     reset
   }
 }
