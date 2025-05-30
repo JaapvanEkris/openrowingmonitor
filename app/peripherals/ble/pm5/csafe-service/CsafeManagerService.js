@@ -2,6 +2,10 @@
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 */
+/**
+ * @file The CsafeManagerService maps all CSAFE commands to the relevant actions within OpenRowingMonitor
+ * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/PM5_Interface.md#csafe-commands|the command mapping description}
+ */
 import loglevel from 'loglevel'
 
 import { swapObjectPropertyValues } from '../../../../tools/Helper.js'
@@ -39,6 +43,10 @@ export class CsafeManagerService {
    */
   /* eslint-disable max-statements -- This handles quite a complex mapping, can't do that with less code */
   processCommand (buffer) {
+    let intervalLength
+    let pauseLength
+    let j
+
     const csafeFrame = new CsafeRequestFrame(buffer)
 
     const commands = csafeFrame.commands
@@ -87,24 +95,36 @@ export class CsafeManagerService {
               log.debug('  Added justrow interval')
               break
             case (WorkoutTypes.WORKOUTTYPE_FIXEDTIME_INTERVAL):
-              this.#workoutplan.addInterval('justrow', commands[i].data)
               response.addCommand(commands[i].command)
               i++ // Move to the duration
-              this.#workoutplan.addSplit('time', commands[i].data)
+              intervalLength = commands[i].data
               response.addCommand(commands[i].command)
-              i++ // Move to the rest specification, which will be ignored
+              i++ // Move to the rest specification
+              pauseLength = commands[i].data
               response.addCommand(commands[i].command)
-              log.error(`PM5 WORKOUTTYPE_FIXEDTIME_INTERVAL is mapped to '${this.#workoutplan.lastInterval().type}' interval with ${this.#workoutplan.lastInterval().split.targetTime} second splits, rest information will be lost`)
+              j = 0
+              while (j < 25) {
+                this.#workoutplan.addInterval('time', intervalLength)
+                this.#workoutplan.addInterval('rest', pauseLength)
+                j++
+              }
+              log.debug(`PM5 WORKOUTTYPE_FIXEDTIME_INTERVAL is mapped to 25 '${this.#workoutplan.forelastInterval().type}' intervals of ${this.#workoutplan.forelastInterval().targetTime} seconds, followed by a ${this.#workoutplan.lastInterval().targetTime} seconds '${this.#workoutplan.lastInterval().type}' intervals`)
               break
             case (WorkoutTypes.WORKOUTTYPE_FIXEDDIST_INTERVAL):
-              this.#workoutplan.addInterval('justrow', commands[i].data)
               response.addCommand(commands[i].command)
               i++ // Move to the duration
-              this.#workoutplan.addSplit('distance', commands[i].data)
+              intervalLength = commands[i].data
               response.addCommand(commands[i].command)
-              i++ // Move to the rest specification, which will be ignored
+              i++ // Move to the rest specification
+              pauseLength = commands[i].data
               response.addCommand(commands[i].command)
-              log.error(`PM5 WORKOUTTYPE_FIXEDDIST_INTERVAL is mapped to '${this.#workoutplan.lastInterval().type}' interval with ${this.#workoutplan.lastInterval().split.targetDistance} meter splits, rest information will be lost`)
+              j = 0
+              while (j < 25) {
+                this.#workoutplan.addInterval('distance', intervalLength)
+                this.#workoutplan.addInterval('rest', pauseLength)
+                j++
+              }
+              log.debug(`PM5 WORKOUTTYPE_FIXEDDIST_INTERVAL is mapped to 25 '${this.#workoutplan.forelastInterval().type}' intervals with ${this.#workoutplan.forelastInterval().targetDistance} meters length, followed by a ${this.#workoutplan.lastInterval().targetTime} seconds '${this.#workoutplan.lastInterval().type}' intervals`)
               break
             default:
               response.addCommand(commands[i].command)
