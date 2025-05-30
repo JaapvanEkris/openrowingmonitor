@@ -138,11 +138,11 @@ The "Elapsed Time" continues.
 
 #### Interval numbering during an unplanned rest
 
-The interval number wil **NOT** change at all.
+The interval number wil **NOT** change during or after the rest period.
 
 #### Exiting an unplanned rest
 
-No specific messages are sent, apart from the obvious ['End of the recovery' messages](#end-of-the-recovery). There are no markings of the end of a split.
+No specific messages are sent, apart from the obvious ['End of the recovery' messages](#end-of-the-recovery). There are no markings of the end of a split. On the subsequent split boundary, the * [0x0037 "Split Data"](#0x0037-split-data) message registers the extra time as part of the "Elapsed time", **not** as "Rest time" which is part of the same message (stays 0). In message [0x0038 "Additional Split Data"](#0x0038-additional-split-data), Average split strokerate, Average split power, Average split speed and average split pace also include the rest period.
 
 ## Specific field behaviour
 
