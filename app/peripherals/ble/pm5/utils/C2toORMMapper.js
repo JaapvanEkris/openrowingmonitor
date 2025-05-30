@@ -3,7 +3,7 @@
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 */
 /**
- * @file Contains all supporting functions needed to map Concept2 PM5 states to the internal ORM states
+ * @file Contains all supporting functions needed to process Concept2 PM5 workouts commands to the internal ORM workouts
  * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/PM5_Interface.md|for the entire interface description}
  */
 export function createWorkoutPlan () {
@@ -117,7 +117,19 @@ export function createWorkoutPlan () {
   }
 
   function lastInterval () {
-    return workoutplan[workoutplan.length - 1]
+    if (workoutplan.length > 0) {
+      return workoutplan[workoutplan.length - 1]
+    } else {
+      return undefined
+    }
+  }
+
+  function forelastInterval () {
+    if (workoutplan.length > 1) {
+      return workoutplan[workoutplan.length - 2]
+    } else {
+      return undefined
+    }
   }
 
   function result () {
@@ -137,6 +149,7 @@ export function createWorkoutPlan () {
     addPaceTarget,
     length,
     lastInterval,
+    forelastInterval,
     result
   }
 }
