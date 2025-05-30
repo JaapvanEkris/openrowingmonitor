@@ -10,4 +10,4 @@ xset -dpms
 openbox-session &
 
 # Start Firefox in kiosk mode
-firefox --display=:0 --kiosk-monitor 0 --kiosk http://127.0.0.1/?mode=kiosk
+nice -n 5 firefox --display=:0 --kiosk-monitor 0 --kiosk http://127.0.0.1/?mode=kiosk
