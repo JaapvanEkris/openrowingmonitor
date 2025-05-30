@@ -37,26 +37,26 @@ Most CSAFE Commands implemented in [CsafeManagerService.js](../app/peripherals/b
 
 ### Workout Mapping
 
-A workout is a combination of one or more strings of 'CSAFE_PM_SET_WORKOUTINTERVALCOUNT', 'CSAFE_PM_SET_WORKOUTTYPE', 'CSAFE_PM_SET_INTERVALTYPE', 'CSAFE_PM_SET_WORKOUTDURATION', 'CSAFE_PM_SET_RESTDURATION' and 'CSAFE_PM_CONFIGURE_WORKOUT' commands. Each string of commands represents an interval. It is always closed with 'CSAFE_PM_SET_SCREENSTATE', followed by 'SCREENVALUEWORKOUT_PREPARETOROWWORKOUT'.
+A workout is typically a combination of one or more strings of 'CSAFE_PM_SET_WORKOUTINTERVALCOUNT', 'CSAFE_PM_SET_WORKOUTTYPE', 'CSAFE_PM_SET_INTERVALTYPE', 'CSAFE_PM_SET_WORKOUTDURATION', 'CSAFE_PM_SET_RESTDURATION' and 'CSAFE_PM_CONFIGURE_WORKOUT' commands. Each string of commands represents an interval. It is always closed with 'CSAFE_PM_SET_SCREENSTATE', followed by 'SCREENVALUEWORKOUT_PREPARETOROWWORKOUT'.
 
 | Concept2 Workout Type | General idea | Interval | Splits |
 | --- | --- | --- | --- |
-| WORKOUTTYPE_JUSTROW_NOSPLITS | A simple unlimited session | single interval, type = 'JustRow' | Undefined |
-| WORKOUTTYPE_JUSTROW_SPLITS | A simple unlimited session with splits | single interval, type = 'JustRow' | Fixed 'time' or 'distance' |
+| WORKOUTTYPE_JUSTROW_NOSPLITS | A simple unlimited session | single interval, type = 'justrow' | Undefined[^1] |
+| WORKOUTTYPE_JUSTROW_SPLITS | A simple unlimited session with splits | single interval, type = 'justrow' | Fixed 'time' or 'distance' |
 | WORKOUTTYPE_FIXEDDIST_NOSPLITS | A simple distance session | single interval, type = 'distance' | Undefined[^1] |
 | WORKOUTTYPE_FIXEDDIST_SPLITS | A simple distance session with splits | single interval, type = 'distance' | Fixed 'distance' |
 | WORKOUTTYPE_FIXEDTIME_NOSPLITS | A simple time limited session | single interval, type = 'time' | Undefined[^1] |
 | WORKOUTTYPE_FIXEDTIME_SPLITS | A simple time limited session with splits | single interval, type = 'time' | Fixed 'time' |
-| WORKOUTTYPE_FIXEDTIME_INTERVAL | An unlimited repeating time based interval | single interval, type = 'JustRow'[^2] | Fixed 'time' |
-| WORKOUTTYPE_FIXEDDIST_INTERVAL | An unlimited repeating distance based interval | single interval, type = 'JustRow'[^2] | Fixed 'distance' |
+| WORKOUTTYPE_FIXEDTIME_INTERVAL | An unlimited repeating time based interval | repeating intervals, type = 'time'[^2] | Undefined[^1] |
+| WORKOUTTYPE_FIXEDDIST_INTERVAL | An unlimited repeating distance based interval | repeating intervals, type = 'distance'[^2] | Undefined[^1] |
 | WORKOUTTYPE_VARIABLE_INTERVAL | A series of different variable intervals | multiple intervals | Fixed 'time' or 'distance' per interval |
 | WORKOUTTYPE_VARIABLE_UNDEFINEDREST_INTERVAL | Not implemented | Not implemented | Not implemented |
 | WORKOUTTYPE_FIXEDCALORIE_SPLITS | Not implemented | Not implemented | Not implemented |
 | WORKOUTTYPE_FIXEDWATTMINUTE_SPLITS | Not implemented | Not implemented | Not implemented |
 | WORKOUTTYPE_FIXEDCALS_INTERVAL | Not implemented | Not implemented | Not implemented |
 
-[^1]: Due to default behaviour of the WorkoutSegments object, the split defaults to the interval type and length
-[^2]: Due to the beforementioned structural issues, any programmed rest periodes in between will be ignored.
+[^1]: Due to default behaviour of the WorkoutSegments object, the split defaults to the interval type and length by inheriting its parameters
+[^2]: Due to the beforementioned structural issues, this can only be imitated. As Concept2's PM5 will only allow 50 splits (see [[2]](#2)), we'd expect receiving apps to maintain the same limit. Based on the presence of rest intervals, this will either be 50 working intervals or 25 working intervals interleaved with 25 rest intervals
 
 ## Message grouping and timing
 
@@ -94,7 +94,7 @@ On every broadcast interval, the following messages are sent:
 * [0x003a "Additional Workout Summary"](#0x003a-additional-workout-summary)
 * [0x003f "Logged Workout"](#0x003f-logged-workout)
 
-### Pause behaviour
+### Planned pause behaviour
 
 #### Entering a rest interval
 
@@ -125,6 +125,24 @@ When exiting a rest interval, a lot of messages are sent:
 * [0x003e "Additional Status 3"](#0x003e-additional-status-3)
 * [0x0037 "Split Data"](#0x0037-split-data)
 * [0x0038 "Additional Split Data"](#0x0038-additional-split-data)
+
+### Unplanned pause behaviour
+
+An unplanned rest/pause is essentially ignored. Time continues, but no specific actions are detected.
+
+#### Entering an unplanned rest
+
+#### Time behaviour during an unplanned rest
+
+The "Elapsed Time" continues.
+
+#### Interval numbering during an unplanned rest
+
+The interval number wil **NOT** change at all.
+
+#### Exiting an unplanned rest
+
+No specific messages are sent, apart from the obvious ['End of the recovery' messages](#end-of-the-recovery). There are no markings of the end of a split.
 
 ## Specific field behaviour
 
