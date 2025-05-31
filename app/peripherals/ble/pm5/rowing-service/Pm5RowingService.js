@@ -208,6 +208,7 @@ export class Pm5RowingService extends GattService {
         this.#genericStatusDataNotifies(this.#lastKnownMetrics, this.#previousSplitMetrics)
         break
       case (metrics.metricsContext.isSessionStop):
+        this.#lastActiveSplitMetrics = this.#lastKnownMetrics // Needed just in case the session is activated again
         this.#splitHR.push(this.#lastKnownMetrics.heartrate)
         this.#workoutHR.push(this.#lastKnownMetrics.heartrate)
         this.#genericStatusDataNotifies(this.#lastKnownMetrics, this.#previousSplitMetrics)
