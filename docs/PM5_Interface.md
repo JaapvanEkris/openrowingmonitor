@@ -31,6 +31,10 @@ In reporting, we indeed see the PM5 skipping the split/interval reporting when t
 
 In starting a pause our traces show that message [0x0031 General Status](#0x0031-general-status)'s 'IntervalType' is set from `IntervalTypes.INTERVALTYPE_DIST` to `IntervalTypes.INTERVALTYPE_REST`. [0x0037 "Split Data"](#0x0037-split-data)'s 'IntervalType' reports an `IntervalTypes.INTERVALTYPE_DIST`. For the GeneralStatus message, the workout target clearly contains an element of OpenRowingMonitor's 'sessionState' object (i.e. verify if the sessionState is paused).
 
+### Positioning unplanned rests
+
+People might deviate from their workout plan and take a break mid-session. In OpenRowingMonitor this is treated as a seperate rest split, clearly separating active and passive metrics. The PM55 ignores the pause and lets time continue. Both approaches have their pro's and con's, but the difference has to be bridged.
+
 ## CSAFE Commands
 
 Most CSAFE Commands implemented in [CsafeManagerService.js](../app/peripherals/ble/pm5/csafe-service/CsafeManagerService.js) in conjunction with the [C2toORMMapper.js](../app/peripherals/ble/pm5/utils/C2toORMMapper.js). OpenRowingMonitor essentially only implements the commands it needs to recieve workouts.
@@ -142,7 +146,7 @@ The interval number wil **NOT** change during or after the rest period.
 
 #### Exiting an unplanned rest
 
-No specific messages are sent, apart from the obvious ['End of the recovery' messages](#end-of-the-recovery). There are no markings of the end of a split. On the subsequent split boundary, the * [0x0037 "Split Data"](#0x0037-split-data) message registers the extra time as part of the "Elapsed time", **not** as "Rest time" which is part of the same message (stays 0). In message [0x0038 "Additional Split Data"](#0x0038-additional-split-data), Average split strokerate, Average split power, Average split speed and average split pace also include the rest period.
+No specific messages are sent, apart from the obvious ['End of the recovery' messages](#end-of-the-recovery). There are no markings of the end of a split. On the subsequent split boundary, the [0x0037 "Split Data"](#0x0037-split-data) message registers the extra time as part of the "Elapsed time", **not** as "Rest time" which is part of the same message (stays 0). In message [0x0038 "Additional Split Data"](#0x0038-additional-split-data), Average split strokerate, Average split power, Average split speed and average split pace also include the rest period.
 
 ## Specific field behaviour
 
@@ -153,11 +157,13 @@ According to the documentation ([[1]](#1) and [[2]](#2)), messages [0x0031 "Gene
 The recorded Bluetooth trace shows that:
 
 * the timer isn't active before any movement has commenced, defaults and starts at 0
-* The timer is stopped as soon as the session is paused. This suggests that this is based on 'moving time', and not 'absolute time'
 * At an interval rollover, this timer is reset to zero,
 * At a split rollover, the timer is **NOT** reset but continues.
+* The timer is stopped as soon as the session is paused based on a **planned** pause.
+* The timer continues on an unplanned pause.
 
-Thus, this is best mapped to `metrics.interval.timeSpent.moving`.
+This behaviour seems to between the variables `metrics.interval.timeSpent.moving` and 
+`metrics.interval.timeSpent.total`. The easiest mapping is to `metrics.interval.timeSpent.total`, as it naturally continues during pauses and thus doesn't cause a discontinues change in the timer for a normal split rollover. Stopping the timer during a planned pause can easily be arranged in the present merge function, and a planned pause always ends in an interval rollover, resetting the timer (and thus hiding any discontinuous timer issues).
 
 ### Distance
 
