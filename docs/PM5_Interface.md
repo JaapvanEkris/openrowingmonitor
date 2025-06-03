@@ -162,8 +162,7 @@ The recorded Bluetooth trace shows that:
 * The timer is stopped as soon as the session is paused based on a **planned** pause.
 * The timer continues on an unplanned pause.
 
-This behaviour seems to between the variables `metrics.interval.timeSpent.moving` and 
-`metrics.interval.timeSpent.total`. The easiest mapping is to `metrics.interval.timeSpent.total`, as it naturally continues during pauses and thus doesn't cause a discontinues change in the timer for a normal split rollover. Stopping the timer during a planned pause can easily be arranged in the present merge function, and a planned pause always ends in an interval rollover, resetting the timer (and thus hiding any discontinuous timer issues).
+This behaviour seems to vary between the behaviour of variables `metrics.interval.timeSpent.moving` (especially planned pause behaviour) and `metrics.interval.timeSpent.total` (especially unplanned pause behaviour). The easiest mapping is to `metrics.interval.timeSpent.total`, as it naturally continues during pauses and thus doesn't cause a discontinues change in the timer for a normal split rollover. Stopping the `metrics.interval.timeSpent.total` timer during a planned pause can easily be arranged in the present `mergeMetrics` function which is used in this scenario. As a planned pause always ends in an interval rollover, this resetting the "Elapsed time' timer and thus hiding any discontinuous timer issues.
 
 ### Distance
 
