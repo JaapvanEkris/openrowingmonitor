@@ -33,7 +33,7 @@ In starting a pause our traces show that message [0x0031 General Status](#0x0031
 
 ### Positioning unplanned rests
 
-People might deviate from their workout plan and take a break mid-session. In OpenRowingMonitor this is treated as a seperate rest split, clearly separating active and passive metrics. The PM55 ignores the pause and lets time continue. Both approaches have their pro's and con's, but the difference has to be bridged.
+People might deviate from their workout plan and take a break mid-session. In OpenRowingMonitor this is treated as a seperate rest split, clearly separating active and passive metrics. The PM5 ignores the pause and lets time continue. Both approaches have their pro's and con's, but the difference has to be bridged.
 
 ## CSAFE Commands
 
@@ -117,6 +117,8 @@ The "Elapsed Time" is stopped counting.
 
 Despite being entered on apps as an attribute of an interval, the PM5 reports a rest period as an independent interval. As soon as the rest interval starts, the interval number is increased and the previous split time and distance are transferred to their respected fields.
 
+#### Metrics behaviour during unplanned pauses
+
 #### Exiting a rest interval
 
 When exiting a rest interval, a lot of messages are sent:
@@ -132,7 +134,7 @@ When exiting a rest interval, a lot of messages are sent:
 
 ### Unplanned pause behaviour
 
-An unplanned rest/pause is essentially ignored. Time continues, but no specific actions are detected.
+An unplanned rest/pause is essentially ignored. Time continues, but almost no specific flags are set.
 
 #### Entering an unplanned rest
 
@@ -143,6 +145,12 @@ The "Elapsed Time" continues.
 #### Interval numbering during an unplanned rest
 
 The interval number wil **NOT** change during or after the rest period.
+
+#### Metrics behaviour during unplanned pauses
+
+During an unplanned pause, instant metrics will remain their last known good value. They will not be zero'd, which is OpenRowingMonitor's default behaviour (and the correct representation of the machine state).
+
+It is observed that upon entering the unplanned pause, the lastSlit data from [0x0038 "Additional Split Data"](#0x0038-additional-split-data) will be updated with the last tstate from the active split.
 
 #### Exiting an unplanned rest
 
@@ -162,7 +170,7 @@ The recorded Bluetooth trace shows that:
 * The timer is stopped as soon as the session is paused based on a **planned** pause.
 * The timer continues on an unplanned pause.
 
-This behaviour seems to vary between the behaviour of variables `metrics.interval.timeSpent.moving` (especially planned pause behaviour) and `metrics.interval.timeSpent.total` (especially unplanned pause behaviour). The easiest mapping is to `metrics.interval.timeSpent.total`, as it naturally continues during pauses and thus doesn't cause a discontinues change in the timer for a normal split rollover. Stopping the `metrics.interval.timeSpent.total` timer during a planned pause can easily be arranged in the present `mergeMetrics` function which is used in this scenario. As a planned pause always ends in an interval rollover, this resetting the "Elapsed time' timer and thus hiding any discontinuous timer issues.
+This behaviour seems to vary between the behaviour of variables `metrics.interval.timeSpent.moving` (especially planned pause behaviour) and `metrics.interval.timeSpent.total` (especially unplanned pause behaviour). The easiest mapping is to `metrics.interval.timeSpent.total`, as it naturally continues during pauses and thus doesn't cause a discontinues change in the timer for a normal split rollover. Stopping the `metrics.interval.timeSpent.total` timer during a planned pause can easily be arranged in [ORMtoC2Mapper.js](../app/peripherals/ble/pm5/utils/ORMtoC2Mapper.js)'s `appendPauseIntervalToActiveInterval` function which is used in this scenario. As a planned pause always ends in an interval rollover, the "Elapsed time' timer is always reset and any discontinuous timer issues will not become visible.
 
 ### Distance
 
@@ -204,7 +212,7 @@ Message [0x003a "Additional Workout Summary"](#0x003a-additional-workout-summary
 
 #### 0x0031 "General Status"
 
-Messsage 0x0031 "General Status" is implemented in [GeneralStatusCharacteristic.js](../app/peripherals/ble/pm5/rowing-service/status-characteristics/GeneralStatusCharacteristic.js). Some notes:
+Messsage 0x0031 "General Status" is implemented in [GeneralStatusCharacteristic.js](../app/peripherals/ble/pm5/rowing-service/status-characteristics/GeneralStatusCharacteristic.js), with most flags being set in [ORMtoC2Mapper.js](../app/peripherals/ble/pm5/utils/ORMtoC2Mapper.js). Some notes:
 
 * As described in [elapsed time](#elapsed-time), `Elapsed time` will be mapped to `metrics.interval.timeSpent.moving`
 * As described in [distance](#distance)), `distance` will be mapped to `metrics.interval.distance.fromStart`
@@ -212,9 +220,10 @@ Messsage 0x0031 "General Status" is implemented in [GeneralStatusCharacteristic.
   * starts at `WorkoutState.WORKOUTSTATE_WAITTOBEGIN`,
   * changes to `WorkoutState.WORKOUTSTATE_WORKOUTROW` for an active fixed time/distance workout with splits,
   * changes to `WorkoutState.WORKOUTSTATE_INTERVALWORKDISTANCE` for an active distance based interval that is part of a multi-interval session
-  * changes to `WorkoutState.WORKOUTSTATE_INTERVALWORKDISTANCETOREST` for marking the transition from an active interval to a rest interval
-  * changes to `WorkoutState.WORKOUTSTATE_INTERVALREST` for a rest split/interval
+  * changes to `WorkoutState.WORKOUTSTATE_INTERVALWORKDISTANCETOREST` for marking the transition from an active interval to a planned rest interval
+  * changes to `WorkoutState.WORKOUTSTATE_INTERVALREST` for a planned rest interval
   * changes to `WorkoutState.WORKOUTSTATE_WORKOUTEND` for marking the end of the workout
+  * does **not** change when entering an unplanned rest split.
 * The `Total work distance` is initialized at 0, and only increased at the end of the interval to reflect the total linear distance travelled so far by the previous intervals. This is best represented by `metrics.interval.distance.absoluteStart`
 * The `Workout Duration` is set to the intended length of the current interval (thus ignoring previous interval lengths). When it is a 'distance' based interval, it is the length in meters, captured by `metrics.interval.distance.target`. On a 'time' based interval, it is a time in 0.01sec precission, best reflected by `metrics.interval.movingTime.target`.
 * When the `interval type` is 'time', the difference between `workout duration` and `elapsed time` is shown on ErgData as a countdown timer on most screens. When the `interval type` is 'distance' the difference between `workout duration` and `distance` is shown on ErgData as a countdown timer. So, typically, these fields must have the same frame of reference (i.e. time/distance in interval and interval target)
