@@ -109,15 +109,11 @@ When antering a rest interval, no specific messages are sent. However, our trace
 * message [0x0031 General Status](#0x0031-general-status)'s 'totalWorkDistance' is increased with the total linear distanceof the ative interval. This suggests that the totalWorkDistance is the absolute startpoint that is maintained in the WorkoutSegment.
 * message [0x0032 "Additional Status"](#0x0032-additional-status)'s 'Rest Time' will start counting down from its starting point to 0.
 
-#### Time behaviour during rest interval
+#### Metrics behaviour during a rest interval
 
 The "Elapsed Time" is stopped counting.
 
-#### Interval numbering during rest interval
-
 Despite being entered on apps as an attribute of an interval, the PM5 reports a rest period as an independent interval. As soon as the rest interval starts, the interval number is increased and the previous split time and distance are transferred to their respected fields.
-
-#### Metrics behaviour during unplanned pauses
 
 #### Exiting a rest interval
 
@@ -138,15 +134,11 @@ An unplanned rest/pause is essentially ignored. Time continues, but almost no sp
 
 #### Entering an unplanned rest
 
-#### Time behaviour during an unplanned rest
+#### Metrics behaviour during unplanned pauses
 
 The "Elapsed Time" continues.
 
-#### Interval numbering during an unplanned rest
-
 The interval number wil **NOT** change during or after the rest period.
-
-#### Metrics behaviour during unplanned pauses
 
 During an unplanned pause, instant metrics will remain their last known good value. They will not be zero'd, which is OpenRowingMonitor's default behaviour (and the correct representation of the machine state).
 
