@@ -1,13 +1,40 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  Defines the global state of the app
 */
-
+/**
+ * @file Defines the initial global state of the webclient, before the webserver pushes actual data
+ */
 export const APP_STATE = {
   // contains all the rowing metrics that are delivered from the backend
-  metrics: {},
+  metrics: {
+    strokeState: 'WaitingForDrive',
+    sessionState: 'WaitingForStart',
+    totalMovingTime: 0,
+    pauseCountdownTime: 0,
+    totalNumberOfStrokes: 0,
+    totalLinearDistance: 0,
+    cyclePace: Infinity,
+    cyclePower: 0,
+    cycleStrokeRate: 0,
+    driveLength: 0,
+    driveDuration: 0,
+    driveHandleForceCurve: [],
+    driveDistance: 0,
+    recoveryDuration: 0,
+    dragFactor: undefined,
+    interval: {
+      type: 'justrow',
+      movingTime: {
+        sinceStart: 0,
+        toEnd: 0
+      },
+      distance: {
+        fromStart: 0,
+        toEnd: 0
+      }
+    }
+  },
   config: {
     // currently can be FTMS, FTMSBIKE, PM5, CSC, CPS, OFF
     blePeripheralMode: '',
