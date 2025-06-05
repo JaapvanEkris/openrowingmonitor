@@ -142,7 +142,10 @@ The interval number wil **NOT** change during or after the rest period.
 
 During an unplanned pause, instant metrics will remain their last known good value. They will not be zero'd, which is OpenRowingMonitor's default behaviour (and the correct representation of the machine state).
 
-It is observed that upon entering the unplanned pause, the lastSlit data from [0x0038 "Additional Split Data"](#0x0038-additional-split-data) will be updated with the last tstate from the active split.
+> [!NOTE]
+> As none of the apps (ErgZone, EXR, etc.) act based on these metrics, for example by inserting a pause, we choose to have the metrics reflect the true state of the rowing machine, thus deviating from PM5. We do this because it better reflects the state of the rowing machine to consuming apps (especially towards apps like EXR where visuals will keep going on), and it makes data mappings less complex. 
+
+It is observed that upon entering the unplanned pause, the lastSplit data from [0x0038 "Additional Split Data"](#0x0038-additional-split-data) is in fact updated with the last state from the active split.
 
 #### Exiting an unplanned rest
 
