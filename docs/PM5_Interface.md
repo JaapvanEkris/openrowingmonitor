@@ -23,9 +23,9 @@ This makes scoping of many variables challenging as it is unclear whether a vari
 
 OpenRowingMonitor will always report on the end-of-split boundary, including a summary of the split it just completed. A PM5 will report this **after** the split has concluded (i.e. in tje mew split), reporting about the split it has completed.
 
-### Positioning rest intervals
+### Positioning planned rest intervals
 
-OpenRowingMonitor treats rest intervals similar to normal time based intervals, with the exception that the rowing engine is forced to stop collecting metrics during that interval. A PM5 considers a rest interval an attribute of a normal interval, and it isn't an independent entity. In [CsafeManagerService.js](../app/peripherals/ble/pm5/csafe-service/CsafeManagerService.js) this is managed by adding a rest interval to OpenRowingMonitor's workout schedule.
+OpenRowingMonitor treats planned rest intervals similar to normal time based intervals, with the exception that the rowing engine is forced to stop collecting metrics during that interval. A PM5 considers a rest interval a subordinate attribute of a normal interval, and it isn't an independent entity. In [CsafeManagerService.js](../app/peripherals/ble/pm5/csafe-service/CsafeManagerService.js) this is managed by adding a rest interval to OpenRowingMonitor's workout schedule.
 
 In reporting, we indeed see the PM5 skipping the split/interval reporting when the pause starts, and including the rest data with the split reporting after the pause has ended. This is consistent with the approach that a rest interval only is an extension of an active interval. In OpenRowingMonitor this behaviour is replicated by not reporting the start of a pause as new split, and combining the data from the active split and the rest split. Although the underlying datasets are largely disjunct (as rest intervals have little data associated with them), a key issue is the reporting of the IntervalType, WorkoutState and workoutDurationType in [0x0031 General Status](#0x0031-general-status), and the intervalType [0x0037 "Split Data"](#0x0037-split-data).
 
@@ -33,7 +33,11 @@ In starting a pause our traces show that message [0x0031 General Status](#0x0031
 
 ### Positioning unplanned rests
 
-People might deviate from their workout plan and take a break mid-session. In OpenRowingMonitor this is treated as a seperate rest split, clearly separating active and passive metrics. The PM5 ignores the pause and lets time continue. Both approaches have their pro's and con's, but the difference has to be bridged.
+People might deviate from their workout plan and take a break mid-session. In OpenRowingMonitor this is treated as a seperate rest split, clearly separating active and passive metrics. The PM5 essentially ignores the pause, lets time continue and does not change split/interval upon detection.
+
+### Different definition of moving time and rest time
+
+There is a subtle, but significant, difference in the definitions used for timekeeping. OpenRowingMonitor registers moving time and rest time as it occurs, registering the time spent moving and the time spent resting. A PM5 registers time as it is **intended** to be spent, so it only registers planned pause intervals as rest time, and it actually considers unplanned rest as moving time. The effect is that, despite OpenRowingMonitor internally reporting time spent in unplanned rest splits as rest time, the PM5 considers it moving time. It is the PM5's interface's responsibility to adapt to this definition.
 
 ## CSAFE Commands
 
@@ -142,9 +146,6 @@ The interval number wil **NOT** change during or after the rest period.
 
 During an unplanned pause, instant metrics will remain their last known good value. They will not be zero'd, which is OpenRowingMonitor's default behaviour (and the correct representation of the machine state).
 
-> [!NOTE]
-> As none of the apps (ErgZone, EXR, etc.) act based on these metrics, for example by inserting a pause, we choose to have the metrics reflect the true state of the rowing machine, thus deviating from PM5. We do this because it better reflects the state of the rowing machine to consuming apps (especially towards apps like EXR where visuals will keep going on), and it makes data mappings less complex.
-
 It is observed that upon entering the unplanned pause, the lastSplit data from [0x0038 "Additional Split Data"](#0x0038-additional-split-data) is in fact updated with the last state from the active split.
 
 #### Exiting an unplanned rest
@@ -230,6 +231,9 @@ Messsage 0x0031 "General Status" is implemented in [GeneralStatusCharacteristic.
 [0x0032 "Additional Status"](../app/peripherals/ble/pm5/rowing-service/status-characteristics/AdditionalStatusCharacteristic.js),
 
 * As described in [elapsed time](#elapsed-time), `Elapsed time` will be mapped to `metrics.interval.timeSpent.moving`
+
+> [!NOTE]
+> During unplanned pauses, a PM5 continues to broadcast the last known metrics. As none of the apps (ErgZone, EXR, etc.) act based on these metrics, for example by inserting a pause, we choose to have the metrics reflect the true state of the rowing machine, thus deviating from PM5 behaviour. We do this because it better reflects the state of the rowing machine to consuming apps that might not subscribe to all characteristics (especially towards apps like EXR which use 0x0032 to determine pace and strokerate, and thus where visuals will keep going on), and it makes data mappings less complex.
 
 #### 0x0033  "Additional Status 2"
 
