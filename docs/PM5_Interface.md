@@ -143,7 +143,7 @@ The interval number wil **NOT** change during or after the rest period.
 During an unplanned pause, instant metrics will remain their last known good value. They will not be zero'd, which is OpenRowingMonitor's default behaviour (and the correct representation of the machine state).
 
 > [!NOTE]
-> As none of the apps (ErgZone, EXR, etc.) act based on these metrics, for example by inserting a pause, we choose to have the metrics reflect the true state of the rowing machine, thus deviating from PM5. We do this because it better reflects the state of the rowing machine to consuming apps (especially towards apps like EXR where visuals will keep going on), and it makes data mappings less complex. 
+> As none of the apps (ErgZone, EXR, etc.) act based on these metrics, for example by inserting a pause, we choose to have the metrics reflect the true state of the rowing machine, thus deviating from PM5. We do this because it better reflects the state of the rowing machine to consuming apps (especially towards apps like EXR where visuals will keep going on), and it makes data mappings less complex.
 
 It is observed that upon entering the unplanned pause, the lastSplit data from [0x0038 "Additional Split Data"](#0x0038-additional-split-data) is in fact updated with the last state from the active split.
 
@@ -220,8 +220,12 @@ Messsage 0x0031 "General Status" is implemented in [GeneralStatusCharacteristic.
   * changes to `WorkoutState.WORKOUTSTATE_WORKOUTEND` for marking the end of the workout
   * does **not** change when entering an unplanned rest split.
 * The `Total work distance` is initialized at 0, and only increased at the end of the interval to reflect the total linear distance travelled so far by the previous intervals. This is best represented by `metrics.interval.distance.absoluteStart`
-* The `Workout Duration` is set to the intended length of the current interval (thus ignoring previous interval lengths). When it is a 'distance' based interval, it is the length in meters, captured by `metrics.interval.distance.target`. On a 'time' based interval, it is a time in 0.01sec precission, best reflected by `metrics.interval.movingTime.target`.
-* When the `interval type` is 'time', the difference between `workout duration` and `elapsed time` is shown on ErgData as a countdown timer on most screens. When the `interval type` is 'distance' the difference between `workout duration` and `distance` is shown on ErgData as a countdown timer. So, typically, these fields must have the same frame of reference (i.e. time/distance in interval and interval target)
+* The `Workout Duration` is set to the intended length of the current interval (thus ignoring previous interval lengths):
+  * On a 'distance' based interval, it is the length in meters, captured by `metrics.interval.distance.target`.
+  * On a 'time' based interval, it is a time in 0.01sec precission, best reflected by `metrics.interval.movingTime.target`.
+* The `Workout Duration` is linked to other metrics, thus forcing that these fields must have the same frame of reference (i.e. time/distance in interval and interval target):
+  * When the `interval type` is 'time', the difference between `workout duration` and `elapsed time` is shown on ErgData as a countdown timer on most screens.
+  * When the `interval type` is 'distance' the difference between `workout duration` and `distance` is shown on ErgData as a countdown timer.
 * Dragfactor is reset per interval
 
 #### 0x0032 "Additional Status"
