@@ -3,7 +3,7 @@
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 /*
 /**
- * This Module calculates the workout, interval and split specific metrics, as well as guards their boundaries
+ * @file This Module calculates the workout, interval and split specific metrics, as well as guards their boundaries
  * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Architecture.md#sessionmanagerjs|the description}
  */
 /* eslint-disable max-lines -- This handles quite a complex state machine with three levels of workout segments, not much we can do about it */
@@ -30,6 +30,7 @@ export function createSessionManager (config) {
   let intervalSettings = []
   let currentIntervalNumber = -1
   let splitNumber = -1
+  let isUnplannedPause = false
   let splitRemainder = null
 
   metrics = refreshMetrics()
@@ -48,7 +49,7 @@ export function createSessionManager (config) {
    * @param {unknown} data for executing the command
    *
    * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Architecture.md#command-flow|The command flow documentation}
-  */
+   */
   function handleCommand (commandName, data) {
     resetMetricsSessionContext(lastBroadcastedMetrics)
     switch (commandName) {
@@ -82,6 +83,7 @@ export function createSessionManager (config) {
           lastBroadcastedMetrics = refreshMetrics() // as the pause button is forced, we need to fetch the zero'ed metrics
           lastBroadcastedMetrics.metricsContext.isPauseStart = true
           sessionState = 'Paused'
+          isUnplannedPause = true
           emitMetrics(lastBroadcastedMetrics)
         }
         break
@@ -174,6 +176,7 @@ export function createSessionManager (config) {
     session.setStart(metrics)
     interval.setStart(metrics)
     split.setStart(metrics)
+    isUnplannedPause = false
     splitRemainder = null
     emitMetrics(metrics)
   }
@@ -186,7 +189,7 @@ export function createSessionManager (config) {
    * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Architecture.md#session-interval-and-split-boundaries-in-sessionmanagerjs|The session, interval and split setup}
    * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Architecture.md#sessionstates-in-sessionmanagerjs|The states maintained}
    * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Architecture.md#rowing-metrics-flow|the flags set}
-  */
+   */
   /* eslint-disable max-statements, complexity -- This handles quite a complex state machine with three levels of workout segments, not much we can do about it */
   function handleRotationImpulse (currentDt) {
     let temporaryDatapoint
@@ -227,19 +230,23 @@ export function createSessionManager (config) {
         // We can't change into the "Rowing" state since we are waiting for a drive phase that didn't come
         emitMetrics(metrics)
         break
-      case (sessionState === 'Paused' && metrics.metricsContext.isMoving === true):
+      case (sessionState === 'Paused' && metrics.metricsContext.isMoving === true && isUnplannedPause):
+        // It was a spontanuous pause
         StartOrResumeTraining()
         sessionState = 'Rowing'
         metrics.metricsContext.isPauseEnd = true
-        if (interval.type() === 'rest') { metrics.metricsContext.isIntervalEnd = true }
         emitMetrics(metrics)
-        if (interval.type() === 'rest') {
-          // We are leaving a rest interval
-          activateNextIntervalParameters(metrics)
-        } else {
-          // It was a spontanuous pause
-          activateNextSplitParameters(metrics)
-        }
+        isUnplannedPause = false
+        activateNextSplitParameters(metrics)
+        break
+      case (sessionState === 'Paused' && metrics.metricsContext.isMoving === true):
+        // We are leaving a planned rest interval
+        StartOrResumeTraining()
+        sessionState = 'Rowing'
+        metrics.metricsContext.isPauseEnd = true
+        metrics.metricsContext.isIntervalEnd = true
+        emitMetrics(metrics)
+        activateNextIntervalParameters(metrics)
         break
       case (sessionState === 'Paused'):
         // We are in a paused state, and didn't see a drive, so nothing to do here
@@ -263,6 +270,7 @@ export function createSessionManager (config) {
         // We do not need to refetch the metrics as RowingStatistics will already have zero-ed the metrics when strokeState = 'WaitingForDrive'
         pauseTraining(metrics)
         sessionState = 'Paused'
+        isUnplannedPause = true
         splitRemainder = split.remainder(metrics)
         metrics.metricsContext.isPauseStart = true
         metrics.metricsContext.isSplitEnd = true
@@ -292,6 +300,7 @@ export function createSessionManager (config) {
         // There is a next interval, but it is a rest interval, so we forcefully stop the session
         // As we typically overshoot our interval target, we project the intermediate value
         sessionState = 'Paused'
+        isUnplannedPause = false
         temporaryDatapoint = interval.interpolateEnd(lastBroadcastedMetrics, metrics)
         if (temporaryDatapoint.modified) {
           // The intermediate datapoint is actually different
@@ -466,6 +475,7 @@ export function createSessionManager (config) {
   function enrichMetrics (metricsToEnrich) {
     metricsToEnrich.sessionState = sessionState
     metricsToEnrich.pauseCountdownTime = Math.max(pauseCountdownTimer, 0) // Time left on the countdown timer
+    metricsToEnrich.metricsContext.isUnplannedPause = isUnplannedPause // Indication for the PM5 emulator to distinguish between planned and unplanned pauses
     metricsToEnrich.workout = session.metrics(metricsToEnrich)
     metricsToEnrich.interval = interval.metrics(metricsToEnrich)
     metricsToEnrich.interval.workoutStepNumber = Math.max(currentIntervalNumber, 0) // Interval number, to keep in sync with the workout plan
@@ -478,6 +488,7 @@ export function createSessionManager (config) {
     metrics = refreshMetrics()
     log.error(`Time: ${metrics.totalMovingTime}, Forced a session pause due to unexpeted flywheel stop, exceeding the maximumStrokeTimeBeforePause (i.e. ${watchdogTimout / 1000} seconds) without new datapoints`)
     sessionState = 'Paused'
+    isUnplannedPause = true
     metrics.metricsContext.isPauseStart = true
     metrics.metricsContext.isSplitEnd = true
     session.push(metrics)
