@@ -220,12 +220,9 @@ Messsage 0x0031 "General Status" is implemented in [GeneralStatusCharacteristic.
   * changes to `WorkoutState.WORKOUTSTATE_WORKOUTEND` for marking the end of the workout
   * does **not** change when entering an unplanned rest split.
 * The `Total work distance` is initialized at 0, and only increased at the end of the interval to reflect the total linear distance travelled so far by the previous intervals. This is best represented by `metrics.interval.distance.absoluteStart`
-* The `Workout Duration` is set to the intended length of the current interval (thus ignoring previous interval lengths):
-  * On a 'distance' based interval, it is the length in meters, captured by `metrics.interval.distance.target`.
-  * On a 'time' based interval, it is a time in 0.01sec precission, best reflected by `metrics.interval.movingTime.target`.
-* The `Workout Duration` is linked to other metrics, thus forcing that these fields must have the same frame of reference (i.e. time/distance in interval and interval target):
-  * When the `interval type` is 'time', the difference between `workout duration` and `elapsed time` is shown on ErgData as a countdown timer on most screens.
-  * When the `interval type` is 'distance' the difference between `workout duration` and `distance` is shown on ErgData as a countdown timer.
+* The `Workout Duration` is set to the intended length of the current interval (thus ignoring previous interval lengths). The `Workout Duration` is linked to other metrics, thus forcing that these fields must have the same frame of reference (i.e. time/distance in interval and interval target):
+  * When the `interval type` is 'distance', `Workout Duration` is the length in meters, captured by `metrics.interval.distance.target`. On a 'distance' based interval, the difference between `workout duration` and `distance` is shown on ErgData as a countdown timer.
+  * When the `interval type` is 'time', `Workout Duration` is a time in 0.01sec precission, best reflected by `metrics.interval.movingTime.target` On a 'time' based interval, the difference between `workout duration` and `elapsed time` is shown on ErgData as a countdown timer on most screens.
 * Dragfactor is reset per interval
 
 #### 0x0032 "Additional Status"
