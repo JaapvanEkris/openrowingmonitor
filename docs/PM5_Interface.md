@@ -239,9 +239,11 @@ However, [0x0037 "Split Data"](#0x0037-split-data), [0x0038 "Additional Split Da
 
 Message [0x003a "Additional Workout Summary"](#0x003a-additional-workout-summary) contains the total number of intervals, which is similar to the number reported in [0x0037 "Split Data"](#0x0037-split-data), [0x0038 "Additional Split Data"](#0x0038-additional-split-data).
 
-## Messages
+## Definition of individual messages
 
 ### Time based status messages
+
+Message implementations can be found in the [status-characteristics directory](.../app/peripherals/ble/pm5/rowing-service/status-characteristics).
 
 #### 0x0031 "General Status"
 
@@ -287,6 +289,8 @@ See the implementation here: [0x0033  "Additional Status 2"](../app/peripherals/
 
 ### Interupt driven stroke state messages
 
+Message implementations can be found in the [other characteristics directory](../app/peripherals/ble/pm5/rowing-service/other-characteristics).
+
 #### 0x0035 "Stroke Data"
 
 [0x0035 "Stroke Data"](../app/peripherals/ble/pm5/rowing-service/other-characteristics/StrokeDataCharacteristic.js) is sent at the end of both the drive and the recovery
@@ -302,7 +306,9 @@ See the implementation here: [0x0033  "Additional Status 2"](../app/peripherals/
 
 The force curve is in pounds (lbs).
 
-### Interupt driven split messages
+### Interupt driven session state messages
+
+Message implementations can be found in the [session status characteristics directory](../app/peripherals/ble/pm5/rowing-service/session-characteristics).
 
 #### 0x0037 "Split Data"
 
@@ -321,9 +327,9 @@ The force curve is in pounds (lbs).
 
 ## Known limitations, open Issues
 
-### Time indications on apps and OpenRowingMonitor GUI will deviate
+### Elapsed time indication on apps and OpenRowingMonitor GUI will deviate
 
-Apart from the obvious time delay in data representation, apps (like ErgZone) and OpenRowingMonitor's GUI will not show the same overall time if there is an unplanned pause present. This is because OpenRowingMonitor will always work on `metrics.Interval.timeSpent.moving`, whereas the PM5 will essentially present `metrics.Interval.timeSpent.total`. These two will deviate when an unplanned pause is present, as Concept2's definitions will still consider it part of the moving time and OpenRowingMonitor considers it a pause. Key issue is that we can not make the external apps follow OpenRowingMonitor's approach as that breaks their synchronisation with their workout plan.
+Apart from the obvious time delay in data representation, apps (like ErgZone) and OpenRowingMonitor's GUI will not show the same overall time if there is an unplanned pause present. This is because OpenRowingMonitor will always work on `metrics.Interval.timeSpent.moving`, whereas the PM5 will essentially present `metrics.Interval.timeSpent.total`. These two will deviate when an unplanned pause is present, as Concept2's definitions will still consider it part of the moving time and OpenRowingMonitor considers it a pause (as [mentioned earlier](#different-definition-of-moving-time-and-rest-time). Key issue is that we can not make the external apps follow OpenRowingMonitor's approach as that breaks their synchronisation with their workout plan.
 
 Our approach with inserting an additional split has significant benefits in other area's, like keeping the FIT and RowingData recorders implementation clean. It also allows a far better data analysis as rest periods are clearly and consistently marked, regardless whether they were planned or not, allowing them to be filtered or included easily,
 
