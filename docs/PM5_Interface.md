@@ -6,7 +6,7 @@ This interface emulation is partially based on the description in Concept 2's AP
 
 ## Design target
 
-| App | Required&nbsp;characteristics&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| Remarks |
+| App | Required&nbsp;characteristics&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| Remarks |
 | --- | --------- | ------ |
 | Armada | | |
 | Aviron | | |
