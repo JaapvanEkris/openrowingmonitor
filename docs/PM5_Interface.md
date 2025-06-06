@@ -4,6 +4,25 @@ The design goal is to emulate PM5 communication sufficiently for EXR, ErgZone, K
 
 This interface emulation is partially based on the description in Concept 2's API documentation ([[1]](#1) and [[2]](#2)). As this documentation is inconclusive about the timing/triggers for messages, as well as the exact definition of the values used, a large part is also based on analysis of the communication via recorded bluetooth traces with current PM5's.
 
+## Design target
+
+| App | Required characteristics | Remarks |
+| --- | --- | --- |
+| Armada | | |
+| Aviron | | |
+| BoatCoach | | |
+| Ergatta | | |
+| ErgDude | | |
+| Ergometer space | | |
+| ErgWorld | | |
+| EXR | | |
+| ErgZone | | |
+| FIT | | |
+| Hydrow | | |
+| KinoMap | | |
+| Peleton | | |
+| MyRow | | |
+
 ## Structural differences
 
 ### Workout Hierarchy
@@ -45,7 +64,17 @@ Most CSAFE Commands implemented in [CsafeManagerService.js](../app/peripherals/b
 
 ### Workout Mapping
 
-A workout is typically a combination of one or more strings of 'CSAFE_PM_SET_WORKOUTINTERVALCOUNT', 'CSAFE_PM_SET_WORKOUTTYPE', 'CSAFE_PM_SET_INTERVALTYPE', 'CSAFE_PM_SET_WORKOUTDURATION', 'CSAFE_PM_SET_RESTDURATION' and 'CSAFE_PM_CONFIGURE_WORKOUT' commands. Each string of commands represents an interval. It is always closed with 'CSAFE_PM_SET_SCREENSTATE', followed by 'SCREENVALUEWORKOUT_PREPARETOROWWORKOUT'.
+Out primary goal for supporting CSAFE commands is recieving workout plans. A workout is typically a combination of one or more strings of commands. Typically it follows the following pattern
+
+```js
+CSAFE_PM_SET_WORKOUTINTERVALCOUNT
+CSAFE_PM_SET_WORKOUTTYPE
+CSAFE_PM_SET_INTERVALTYPE
+CSAFE_PM_SET_WORKOUTDURATION
+CSAFE_PM_SET_RESTDURATION
+CSAFE_PM_CONFIGURE_WORKOUT
+```
+Each string of commands represents an interval. It is always closed with `CSAFE_PM_SET_SCREENSTATE`, followed by `SCREENVALUEWORKOUT_PREPARETOROWWORKOUT`.
 
 | Concept2 Workout Type | General idea | Interval | Splits |
 | --- | --- | --- | --- |
@@ -62,6 +91,9 @@ A workout is typically a combination of one or more strings of 'CSAFE_PM_SET_WOR
 | WORKOUTTYPE_FIXEDCALORIE_SPLITS | Not implemented | Not implemented | Not implemented |
 | WORKOUTTYPE_FIXEDWATTMINUTE_SPLITS | Not implemented | Not implemented | Not implemented |
 | WORKOUTTYPE_FIXEDCALS_INTERVAL | Not implemented | Not implemented | Not implemented |
+
+> [!NOTE]
+> Please be aware that apps like ErgData and ErgZone actually do 'optimisations' behind the scene. Three intervals of 8 minutes with 2 minute rests are typically sent as a `WORKOUTTYPE_FIXEDTIME_INTERVAL`, despite this resulting in an endless series. If the planned rests are omited, it will result in a `WORKOUTTYPE_FIXEDTIME_SPLITS` with a single time interval with splits of the length of the intervals. If one would add a single second to any of the individual intervals, it becomes a `WORKOUTTYPE_VARIABLE_INTERVAL`, and all intervals are programmed manually. Obviously, from a user perspective the target displayed in the GUI will vary across these options.
 
 [^1]: Due to default behaviour of the WorkoutSegments object, the split defaults to the interval type and length by inheriting its parameters
 [^2]: Due to the beforementioned structural issues, this can only be imitated. As Concept2's PM5 will only allow 50 splits (see [[2]](#2)), we'd expect receiving apps to maintain the same limit. Based on the presence of rest intervals, this will either be 50 working intervals or 25 working intervals interleaved with 25 rest intervals
