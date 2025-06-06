@@ -1,13 +1,15 @@
 # Description of the PM5 interface
 
-The design goal is to emulate PM5 communication sufficiently for EXR, ErgZone, KinoMap, Aviron, Ergatta, Peleton, FIT, MyRow, Hydrow, Armada, ErgWorld, ErgDude, BoatCoach and Ergometer space. It explicitly is **NOT** to completely emulate a full-blown PM5 with racing features or logbook verification. Also features that might lead to cheating or uploading results to the Concept2 logbook are explicitly excluded. We aim to have maximum compatibility with beformentioned apps. We do test on ErgData, as that is the definitive source how Concept2's data is to be interpreted, excluding interpretation errors by independent software developers.
+The design goal is to emulate PM5 communication sufficiently for users to connect easily to apps. We aim to have maximum compatibility with all these apps, making these apps to intuitively to use with OpenRowingMonitor. However, it explicitly is **NOT** our goal to completely emulate a full-blown PM5 with racing features and logbook verification. Also features that might lead to cheating or uploading results to the Concept2 logbook are explicitly excluded. Some testing is one on ErgData, as that is the definitive source how Concept2's data is to be interpreted, excluding interpretation errors by independent software developers.
 
 This interface emulation is partially based on the description in Concept 2's API documentation ([[1]](#1) and [[2]](#2)). As this documentation is inconclusive about the timing/triggers for messages, as well as the exact definition of the values used, a large part is also based on analysis of the communication via recorded bluetooth traces with current PM5's.
 
-## Design target
+## Design target for interoperability
+
+We aim to be interoperable with the following apps:
 
 <!-- markdownlint-disable no-inline-html -->
-| App | Required&nbsp;characteristics&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| Remarks |
+| App | Required&nbsp;characteristics&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| Remarks |
 | --- | --------- | ------ |
 | Armada | | |
 | Aviron | | |
@@ -19,15 +21,17 @@ This interface emulation is partially based on the description in Concept 2's AP
 | Ergometer space | | |
 | ErgWorld | | |
 | [EXR](https://exrgame.com/) | <ul><li>[CSAFE Commands](#csafe-commands)</li><li>[0x0031 "General Status"](#0x0031-general-status)</li><li>[0x0032 "Additional Status"](#0x0032-additional-status)</li><li>[0x0033 "Additional Status 2"](#0x0033--additional-status-2)</li><li>[0x0035 "Stroke Data"](#0x0035-stroke-data)</li><li>[0x0036 "Additional Stroke Data"](#0x0036-additional-stroke-data)</li><li>[0x003d "Force Curve data"](#0x003d-force-curve-data)</li></ul> | EXR will only create `WORKOUTTYPE_FIXEDDIST_NOSPLITS` and `WORKOUTTYPE_FIXEDTIME_NOSPLITS` workouts via 'verified C2 workouts' |
-| [ErgZone](https://erg.zone/) | | |
+| [ErgZone](https://erg.zone/) | <ul><li>[CSAFE Commands](#csafe-commands)</li><li>[0x0031 "General Status"](#0x0031-general-status)</li><li>[0x0032 "Additional Status"](#0x0032-additional-status)</li><li>[0x0033 "Additional Status 2"](#0x0033--additional-status-2)</li><li>[0x003e "Additional Status 3"](#0x003e-additional-status-3)</li><li>[0x0035 "Stroke Data"](#0x0035-stroke-data)</li><li>[0x0036 "Additional Stroke Data"](#0x0036-additional-stroke-data)</li><li>[0x003d "Force Curve data"](#0x003d-force-curve-data)</li><li>[0x0037 Split Data](#0x0037-split-data)</li><li>[0x0038 Additional Split Data](#0x0038-additional-split-data)</li><li>[0x0039 "Workout Summery"](#0x0039-workout-summery)</li><li>[0x003a "Additional Workout Summary"](#0x003a-additional-workout-summary)</li><li>[0x003f "Logged Workout"](#0x003f-logged-workout)</li></ul> | |
 | FIT | | |
 | Hydrow | | |
-| KinoMap | | |
+| [KinoMap](https://www.kinomap.com) | <ul><li>[0x0031 "General Status"](#0x0031-general-status)</li><li>[0x0032 "Additional Status"](#0x0032-additional-status)</li><li>[0x0033 "Additional Status 2"](#0x0033--additional-status-2)</li><li>[0x003e "Additional Status 3"](#0x003e-additional-status-3)</li><li>[0x0035 "Stroke Data"](#0x0035-stroke-data)</li><li>[0x0036 "Additional Stroke Data"](#0x0036-additional-stroke-data)</li><li>[0x003d "Force Curve data"](#0x003d-force-curve-data)</li><li>[0x0037 Split Data](#0x0037-split-data)</li><li>[0x0038 Additional Split Data](#0x0038-additional-split-data)</li><li>[0x0039 "Workout Summery"](#0x0039-workout-summery)</li><li>[0x003a "Additional Workout Summary"](#0x003a-additional-workout-summary)</li></ul> | |
 | Peleton | | |
 | MyRow | | |
 <!-- markdownlint-enable no-inline-html -->
 
-## Structural differences
+## Structural differences between OpenRowingMonitor and a PM5
+
+As OpenRowingMonitor and PM5 have been independently developed, the design choices that have been made are not consistent. Here we adress these differences, as they are quite essential in the further implementation.
 
 ### Workout Hierarchy
 
