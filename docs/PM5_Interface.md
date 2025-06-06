@@ -18,7 +18,7 @@ This interface emulation is partially based on the description in Concept 2's AP
 | ErgDude | | |
 | Ergometer space | | |
 | ErgWorld | | |
-| [EXR](https://exrgame.com/) | <ul><li>[CSAFE Commands](##csafe-commands)</li><li>[0x0031 "General Status"](#0x0031-general-status)</li><li>[0x0032 "Additional Status"](#0x0032-additional-status)</li><li>[0x0033 "Additional Status 2"](#0x0033--additional-status-2)</li><li>[0x0035 "Stroke Data"](#0x0035-stroke-data)</li><li>[0x0036 "Additional Stroke Data"](#0x0036-additional-stroke-data)</li><li>[0x003d "Force Curve data"](#0x003d-force-curve-data)</li></ul> | EXR will only create `WORKOUTTYPE_FIXEDDIST_NOSPLITS` and `WORKOUTTYPE_FIXEDTIME_NOSPLITS` workouts via 'verified C2 workouts' |
+| [EXR](https://exrgame.com/) | <ul><li>[CSAFE Commands](#csafe-commands)</li><li>[0x0031 "General Status"](#0x0031-general-status)</li><li>[0x0032 "Additional Status"](#0x0032-additional-status)</li><li>[0x0033 "Additional Status 2"](#0x0033--additional-status-2)</li><li>[0x0035 "Stroke Data"](#0x0035-stroke-data)</li><li>[0x0036 "Additional Stroke Data"](#0x0036-additional-stroke-data)</li><li>[0x003d "Force Curve data"](#0x003d-force-curve-data)</li></ul> | EXR will only create `WORKOUTTYPE_FIXEDDIST_NOSPLITS` and `WORKOUTTYPE_FIXEDTIME_NOSPLITS` workouts via 'verified C2 workouts' |
 | [ErgZone](https://erg.zone/) | | |
 | FIT | | |
 | Hydrow | | |
@@ -325,7 +325,7 @@ The force curve is in pounds (lbs).
 
 Apart from the obvious time delay in data representation, apps (like ErgZone) and OpenRowingMonitor's GUI will not show the same overall time if there is an unplanned pause present. This is because OpenRowingMonitor will always work on `metrics.Interval.timeSpent.moving`, whereas the PM5 will essentially present `metrics.Interval.timeSpent.total`. These two will deviate when an unplanned pause is present, as Concept2's definitions will still consider it part of the moving time and OpenRowingMonitor considers it a pause. Key issue is that we can not make the external apps follow OpenRowingMonitor's approach as that breaks their synchronisation with their workout plan.
 
-Our approach with inserting an additional split has significant benefits in other area's, like keeping the FIT and RowingData recorders implementation clean, and allows a far better data analysis as rest periods are clearly marked, regardless whether they were planned or not.
+Our approach with inserting an additional split has significant benefits in other area's, like keeping the FIT and RowingData recorders implementation clean. It also allows a far better data analysis as rest periods are clearly and consistently marked, regardless whether they were planned or not, allowing them to be filtered or included easily,
 
 ## References
 <!-- markdownlint-disable no-inline-html -->
