@@ -6,6 +6,7 @@ This interface emulation is partially based on the description in Concept 2's AP
 
 ## Design target
 
+<!-- markdownlint-disable no-inline-html -->
 | App | Required&nbsp;characteristics&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| Remarks |
 | --- | --------- | ------ |
 | Armada | | |
@@ -24,6 +25,7 @@ This interface emulation is partially based on the description in Concept 2's AP
 | KinoMap | | |
 | Peleton | | |
 | MyRow | | |
+<!-- markdownlint-enable no-inline-html -->
 
 ## Structural differences
 
@@ -316,6 +318,14 @@ The force curve is in pounds (lbs).
 #### 0x003A "Additional Workout Summary"
 
 #### 0x003f "Logged Workout"
+
+## Known limitations, open Issues
+
+### Time indications on apps and OpenRowingMonitor GUI will deviate
+
+Apart from the obvious time delay in data representation, apps (like ErgZone) and OpenRowingMonitor's GUI will not show the same overall time if there is an unplanned pause present. This is because OpenRowingMonitor will always work on `metrics.Interval.timeSpent.moving`, whereas the PM5 will essentially present `metrics.Interval.timeSpent.total`. These two will deviate when an unplanned pause is present, as Concept2's definitions will still consider it part of the moving time and OpenRowingMonitor considers it a pause. Key issue is that we can not make the external apps follow OpenRowingMonitor's approach as that breaks their synchronisation with their workout plan.
+
+Our approach with inserting an additional split has significant benefits in other area's, like keeping the FIT and RowingData recorders implementation clean, and allows a far better data analysis as rest periods are clearly marked, regardless whether they were planned or not.
 
 ## References
 <!-- markdownlint-disable no-inline-html -->
