@@ -11,11 +11,13 @@ This interface emulation is partially based on the description in Concept 2's AP
 | Armada | | |
 | Aviron | | |
 | BoatCoach | | |
+| [ErgArcade cloud simulation](https://ergarcade.github.io/mrdoob-clouds/) | <ul><li>[0x0031 "General Status"](#0x0031-general-status)</li><li>[0x0032 "Additional Status"](#0x0032-additional-status)</li></ul> | |
+| [ErgArcade fluid simulation](https://ergarcade.github.io/WebGL-Fluid-Simulation/) | <ul><li>[0x0031 "General Status"](#0x0031-general-status)</li></ul> | Actually only uses `STROKESTATE_DRIVING` |
 | Ergatta | | |
 | ErgDude | | |
 | Ergometer space | | |
 | ErgWorld | | |
-| EXR | | |
+| [EXR](https://exrgame.com/) | <ul><li>[CSFAE Commands"](##csafe-commands)</li><li>[0x0031 "General Status"](#0x0031-general-status)</li><li>[0x0032 "Additional Status"](#0x0032-additional-status)</li><li>[0x0033 "Additional Status 2"](#0x0033--additional-status-2)</li><li>[0x0035 "Stroke Data"](#0x0035-stroke-data)</li><li>[0x0036 "Additional Stroke Data"](#0x0036-additional-stroke-data)</li><li>[0x003d "Force Curve data"](#0x003d-force-curve-data)</li></ul> | EXR will only create `WORKOUTTYPE_FIXEDDIST_NOSPLITS` and `WORKOUTTYPE_FIXEDTIME_NOSPLITS` workouts via 'verified C2 workouts' |
 | ErgZone | | |
 | FIT | | |
 | Hydrow | | |
@@ -74,6 +76,7 @@ CSAFE_PM_SET_WORKOUTDURATION
 CSAFE_PM_SET_RESTDURATION
 CSAFE_PM_CONFIGURE_WORKOUT
 ```
+
 Each string of commands represents an interval. It is always closed with `CSAFE_PM_SET_SCREENSTATE`, followed by `SCREENVALUEWORKOUT_PREPARETOROWWORKOUT`.
 
 | Concept2 Workout Type | General idea | Interval | Splits |
