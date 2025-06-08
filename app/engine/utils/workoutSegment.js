@@ -317,7 +317,6 @@ export function createWorkoutSegment (config) {
    */
   function totalTime (baseMetrics) {
     if (!isNaN(_startTimestamp) && _startTimestamp >= 0 && !isNaN(baseMetrics.timestamp) && baseMetrics.timestamp > _startTimestamp) {
-      // console.log(`Delta Timestamp ${(baseMetrics.timestamp.getTime() - _startTimestamp.getTime()) / 1000}`)
       return Math.max((baseMetrics.timestamp.getTime() - _startTimestamp.getTime()) / 1000, (baseMetrics.totalMovingTime - _startMovingTime))
     } else {
       return 0
