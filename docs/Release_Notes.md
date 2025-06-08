@@ -26,8 +26,7 @@ Beta testers: [fkh-bims](https://github.com/fkh-bims), [jryd2000](https://github
 
 ### Known issues in 0.9.6
 
-- When using more sophisticated apps like ErgZone on the new PM5 emulation, an unplanned pause in a workout will throw off the workout registration on their end due to our handling of splits. Replicating a PM5's behaviour here is difficult, and we are looking for a solution that is usefull (see [issue 115](https://github.com/JaapvanEkris/openrowingmonitor/issues/115)).
-- ErgData can program a workout on OpenRowingMonitor, but it will not work well with our PM5 emulator. And it will **not** save your workout. And we can't create the cryptographic hash to certify the workout results. It can also not close the communication, causing a deadlock that hangs communication at both ends (kill the ErgData app to resolve this). As ErgData is propriatary to Concept2, we will not put in any effort to resolve this (see [issue 117](https://github.com/JaapvanEkris/openrowingmonitor/issues/117)).
+- ErgData can program a workout on OpenRowingMonitor, but it will not work well with our PM5 emulation: it will **not** save your workout, and we can't create the cryptographic hash to upload the workout results. It can also not close the communication, causing a deadlock that hangs communication at both ends (kill the ErgData app to resolve this). As ErgData is propriatary to Concept2, we will **not** put in any effort to resolve this (see [issue 117](https://github.com/JaapvanEkris/openrowingmonitor/issues/117)).
 
 ## Version 0.9.5 (February 2025)
 
@@ -36,7 +35,7 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz]
 ### New functionality in 0.9.5
 
 - Added **FIT-File support**: you can now automatically generate a FIT-file after a rowing session, which allows for a more detailed reporting than the tcx-format, and is commonly accepted by most platforms
-- **Introduction of the session manager**, which provides support for intervals, splits, rest intervals and spontaneous pauses in the session and also adds these to the FIT, tcx and RowingData recordings. Please note, setting predetermined intervals and splits in a user friendly way (via PM5 and webinterface) is still a ToDo that is intended for 1.0.0.
+- **Introduction of the session manager**, which provides support for intervals, splits, rest intervals and spontaneous pauses in the session and also adds these to the FIT, tcx and RowingData recordings. Please note, setting predetermined intervals and splits in a user friendly way (via PM5 emulator and webinterface) is still a ToDo.
 - **Improvement of Magnetic rower support**: the new session manager makes sure that the session is nicely stopped, even when the flywheel has stopped quite abruptly before pause timeouts have time to kick in. This is the case on some magnetic rowers which have an extreme high drag, resulting in very short spin down times of their flywheel.
 
 ### Bugfixes and robustness improvements in 0.9.5
