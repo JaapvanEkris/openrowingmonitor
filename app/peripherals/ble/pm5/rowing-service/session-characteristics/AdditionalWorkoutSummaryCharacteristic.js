@@ -49,7 +49,7 @@ export class AdditionalWorkoutSummaryCharacteristic extends GattNotifyCharacteri
       bufferBuilder.writeUInt16LE(data.split.timeSpent.moving > 0 ? Math.round(data.split.timeSpent.moving) : 0)
     }
     // Split/Interval Number, based on BLE traces, split data messages' split number always starts at 1
-    bufferBuilder.writeUInt8(data.split.number >= 0 ? data.split.number + 1 : 0)
+    bufferBuilder.writeUInt8(data.split.C2number >= 0 ? data.split.C2number + 1 : 0)
     // Total Calories
     bufferBuilder.writeUInt16LE(data.workout.calories.totalSpent > 0 && data.workout.calories.totalSpent < 65534 ? Math.round(data.workout.calories.totalSpent) : 0)
     // Power (Watts)
@@ -57,7 +57,8 @@ export class AdditionalWorkoutSummaryCharacteristic extends GattNotifyCharacteri
     // Total Rest Distance (1 m lsb)
     bufferBuilder.writeUInt24LE(0)
     // Interval Rest Time (seconds)
-    bufferBuilder.writeUInt16LE(data.workout.timeSpent.rest > 0 ? Math.round(data.workout.timeSpent.rest) : 0)
+    bufferBuilder.writeUInt16LE(data.workout.timeSpent.C2Rest > 0 ? Math.round(data.workout.timeSpent.C2Rest) : 0)
+    console.log(`0x003A, timeSpent.C2Rest = ${Math.round(data.workout.timeSpent.C2Rest)}`)
     // Avg Calories (cals/hr)
     bufferBuilder.writeUInt16LE(data.workout.calories.averagePerHour > 0 && data.workout.calories.averagePerHour < 65534 ? Math.round(data.workout.calories.averagePerHour) : 0)
 
