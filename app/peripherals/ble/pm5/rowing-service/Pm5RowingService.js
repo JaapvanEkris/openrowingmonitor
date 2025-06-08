@@ -256,7 +256,6 @@ export class Pm5RowingService extends GattService {
         this.#splitHR.push(this.#lastKnownMetrics.heartrate)
         this.#workoutHR.push(this.#lastKnownMetrics.heartrate)
         this.#accumulatedC2RestTime = this.#accumulatedC2RestTime + this.#lastKnownMetrics.interval.timeSpent.rest
-        console.log(`RowingService: Acc rest Time: ${this.#accumulatedC2RestTime}, Interval Rest Time: ${this.#lastKnownMetrics.interval.timeSpent.rest}`)
         this.#lastKnownMetrics.workout.timeSpent.C2Rest = this.#accumulatedC2RestTime
         this.#recoveryStartDataNotifies(this.#lastKnownMetrics)
         this.#genericStatusDataNotifies(this.#lastKnownMetrics, this.#previousSplitMetrics)
