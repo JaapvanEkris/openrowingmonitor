@@ -41,7 +41,7 @@ export class CsafeManagerService {
   /**
    * @param {Array<number>} buffer
    */
-  /* eslint-disable max-statements -- This handles quite a complex mapping, can't do that with less code */
+  /* eslint-disable max-statements, max-depth -- This handles quite a complex mapping, can't do that with less code or less complexity */
   processCommand (buffer) {
     let intervalLength
     let pauseLength
@@ -67,9 +67,8 @@ export class CsafeManagerService {
       response.setProprietaryWrapper(csafeFrame.proprietaryCommandWrapper)
     }
 
-    // TODO: the handling of the individual commands should be cleaned up by moving the construction of the workoutplan into a seperate object
     let i = 0
-    let commandData // ToDo: replace commandData[0] with commands[i].data[0]
+    let commandData
     while (i < commands.length) {
       commandData = commands[i].data
       switch (commands[i].command) {
@@ -230,5 +229,5 @@ export class CsafeManagerService {
     }
     this.#controlTransmitCharacteristic.notify(response.build())
   }
-  /* eslint-enable max-statements */
+  /* eslint-enable max-statements, max-depth */
 }
