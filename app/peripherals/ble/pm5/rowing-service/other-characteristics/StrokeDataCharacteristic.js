@@ -35,7 +35,7 @@ export class StrokeDataCharacteristic extends GattNotifyCharacteristic {
   notify (data) {
     const bufferBuilder = new BufferBuilder()
     // elapsedTime: UInt24LE in 0.01 sec
-    bufferBuilder.writeUInt24LE(data.interval.timeSpent.moving > 0 ? Math.round(data.interval.timeSpent.moving * 100) : 0)
+    bufferBuilder.writeUInt24LE(data.interval.timeSpent.total > 0 && data.sessionState !== 'WaitingForStart' ? Math.round(data.interval.timeSpent.total * 100) : 0)
     // distance: UInt24LE in 0.1 m
     bufferBuilder.writeUInt24LE(data.interval.distance.fromStart > 0 ? Math.round(data.interval.distance.fromStart * 10) : 0)
     // driveLength: UInt8 in 0.01 m
