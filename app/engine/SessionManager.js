@@ -34,7 +34,7 @@ export function createSessionManager (config) {
   let splitRemainder = null
 
   metrics = refreshMetrics()
-  setIntervalParameters([{type: 'justrow'}])
+  setIntervalParameters([{ type: 'justrow' }])
   emitMetrics(metrics)
   lastBroadcastedMetrics = { ...metrics }
 
@@ -170,7 +170,7 @@ export function createSessionManager (config) {
     session.reset()
     interval.reset()
     split.reset()
-    setIntervalParameters([{type: 'justrow'}])
+    setIntervalParameters([{ type: 'justrow' }])
     isUnplannedPause = false
     splitRemainder = null
     emitMetrics(metrics)
