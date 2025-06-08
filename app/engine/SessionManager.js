@@ -34,7 +34,6 @@ export function createSessionManager (config) {
   let splitRemainder = null
 
   metrics = refreshMetrics()
-  // ToDo: replace with activateNextInterval based on justrow, justrow
   setIntervalParameters([{type: 'justrow'}])
   emitMetrics(metrics)
   lastBroadcastedMetrics = { ...metrics }
