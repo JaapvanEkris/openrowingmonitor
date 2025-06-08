@@ -6,7 +6,7 @@
  * Merges the different config files and presents the configuration to the application
  * Checks the config for plausibility, fixes the errors when needed
  */
-/* eslint-disable max-statements -- There simply is a lot to check before we activate a config */
+/* eslint-disable max-statements,complexity -- There simply is a lot to check before we activate a config. One of the few cases where more is better */
 import defaultConfig from '../../config/default.config.js'
 import { checkRangeValue, checkIntegerValue, checkBooleanValue, checkFloatValue } from './ConfigValidations.js'
 import { deepMerge } from './Helper.js'
