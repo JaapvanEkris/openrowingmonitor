@@ -40,7 +40,7 @@ export class WorkoutSummaryCharacteristic extends GattNotifyCharacteristic {
     // Log Entry Time (see https://www.c2forum.com/viewtopic.php?t=200769)
     bufferBuilder.writeUInt16LE(new Concept2Date().toC2TimeInt())
     // Elapsed Time (0.01 sec lsb),
-    bufferBuilder.writeUInt24LE(Math.round(data.workout.timeSpent.total * 100))
+    bufferBuilder.writeUInt24LE(Math.round((data.workout.timeSpent.total - data.workout.timeSpent.C2Rest) * 100))
     // Distance (0.1 m)
     bufferBuilder.writeUInt24LE(data.workout.distance.fromStart > 0 ? Math.round(data.workout.distance.fromStart * 10) : 0)
     // Average Stroke Rate,
