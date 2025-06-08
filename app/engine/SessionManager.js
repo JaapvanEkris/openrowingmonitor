@@ -35,9 +35,7 @@ export function createSessionManager (config) {
 
   metrics = refreshMetrics()
   // ToDo: replace with activateNextInterval based on justrow, justrow
-  session.setStart(metrics)
-  interval.setStart(metrics)
-  split.setStart(metrics)
+  setIntervalParameters([{type: 'justrow'}])
   emitMetrics(metrics)
   lastBroadcastedMetrics = { ...metrics }
 
@@ -173,9 +171,7 @@ export function createSessionManager (config) {
     session.reset()
     interval.reset()
     split.reset()
-    session.setStart(metrics)
-    interval.setStart(metrics)
-    split.setStart(metrics)
+    setIntervalParameters([{type: 'justrow'}])
     isUnplannedPause = false
     splitRemainder = null
     emitMetrics(metrics)
