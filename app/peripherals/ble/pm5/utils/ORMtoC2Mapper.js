@@ -293,7 +293,6 @@ export function toC2OperationalState (baseMetrics) {
   }
 }
 
-
 /**
  * Used to manage planned pauses, which are handled at the Interval level. Concept2 essentially glues the planned rest interval to the active interval
  * The active interval (and thus underlying split) can only contain moving time, as Concept2 considers even an unplanned pause as moving time
@@ -319,6 +318,7 @@ export function appendPauseIntervalToActiveInterval (activeMetrics, pauseMetrics
  * It is used in two scenario's: 1. appending the pause split to the first active split 2. Add the first active split and the pause to the second active split
  * In these cases, all time is considered moving time, and NOT rest, so we have to treat it as such
  */
+/* eslint-disable max-statements -- There are a lot of metrics to be be copied */
 export function mergeTwoSplits (firstMetrics, secondMetrics) {
   const result = { ...secondMetrics }
   result.split.C2number = secondMetrics.split.C2number
@@ -328,15 +328,12 @@ export function mergeTwoSplits (firstMetrics, secondMetrics) {
   result.split.distance.fromStart = firstMetrics.split.distance.fromStart + secondMetrics.split.distance.fromStart
   result.split.movingTime.absoluteStart = firstMetrics.split.movingTime.absoluteStart
   result.split.movingTime.sinceStart = firstMetrics.split.movingTime.sinceStart + secondMetrics.split.movingTime.sinceStart
-  // @ToDo: Consider explicitly merging everything into Spent.moving and setting rest at 0, and skip messing with it at a higher lever (using movingtime as reference)
   result.split.timeSpent.total = firstMetrics.split.timeSpent.total + secondMetrics.split.timeSpent.total
-//  result.split.timeSpent.moving = firstMetrics.split.timeSpent.moving + secondMetrics.split.timeSpent.moving
-//  result.split.timeSpent.rest = firstMetrics.split.timeSpent.rest + secondMetrics.split.timeSpent.rest
   result.split.timeSpent.moving = result.split.timeSpent.total // C2's definition of moving time essentially equates it to total time for splits with unplanned pauses
   result.split.timeSpent.rest = 0 // C2's definition of moving time does not allow for rest time due to unplanned pause
   result.split.linearVelocity.average = result.split.timeSpent.moving > 0 ? (result.split.distance.fromStart / result.split.timeSpent.total) : 0
   result.split.linearVelocity.minimum = Math.min(firstMetrics.split.linearVelocity.minimum, secondMetrics.split.linearVelocity.minimum)
-  result.split.linearVelocity.maximum = Math.max(firstMetrics.split.linearVelocity.maximum , secondMetrics.split.linearVelocity.maximum)
+  result.split.linearVelocity.maximum = Math.max(firstMetrics.split.linearVelocity.maximum, secondMetrics.split.linearVelocity.maximum)
   result.split.pace.average = linearVelocityToPace(result.interval.linearVelocity.average)
   result.split.pace.minimum = Math.max(firstMetrics.split.pace.minimum, secondMetrics.split.pace.minimum) // Be aware: largest number is slowest pace
   result.split.pace.maximum = Math.min(firstMetrics.split.pace.maximum, secondMetrics.split.pace.maximum) // Be aware: biggest number is fastest pace
@@ -356,6 +353,7 @@ export function mergeTwoSplits (firstMetrics, secondMetrics) {
   result.split.calories.averagePerHour = result.split.timeSpent.moving > 0 ? ((firstMetrics.split.calories.averagePerHour * firstMetrics.split.timeSpent.total) + (secondMetrics.split.calories.averagePerHour * secondMetrics.split.timeSpent.total)) / result.split.timeSpent.total : 0
   return result
 }
+/* eslint-enable max-statements */
 
 /**
  * @param {float} linear velocity
