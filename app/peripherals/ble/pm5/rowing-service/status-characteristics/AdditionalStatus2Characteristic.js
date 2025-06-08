@@ -38,9 +38,9 @@ export class AdditionalStatus2Characteristic extends GattNotifyCharacteristic {
   notify (data, previousSplitData) {
     const bufferBuilder = new BufferBuilder()
     // elapsedTime: UInt24LE in 0.01 sec
-    bufferBuilder.writeUInt24LE(data.interval.timeSpent.moving > 0 ? Math.round(data.interval.timeSpent.moving * 100) : 0)
+    bufferBuilder.writeUInt24LE(data.interval.timeSpent.total > 0 && data.sessionState !== 'WaitingForStart' ? Math.round(data.interval.timeSpent.total * 100) : 0)
     // intervalCount: UInt8
-    bufferBuilder.writeUInt8(data.split.number > 0 ? data.split.number : 0)
+    bufferBuilder.writeUInt8(data.split.C2number > 0 ? data.split.C2number : 0)
     if (this.isSubscribed) {
       // the multiplexer uses a slightly different format for the AdditionalStatus2
       // it skips averagePower before totalCalories
