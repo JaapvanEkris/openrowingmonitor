@@ -119,10 +119,10 @@ export class FitnessMachineControlPointCharacteristic {
         } else {
           log.error('FTMS: stopOrPause attempted before RequestControl')
         }
-        break        
+        break
       }
-        // TODO: Potentially handle setTargetPower and setDistance, etc. by integrating it into the interval/session manager. Difficulty is that this is a simple justrow like command with one target and no limits.
-        // So far, no apps have been found that actually use this interaction to develop and test against.
+      // TODO: Potentially handle setTargetPower and setDistance, etc. by integrating it into the interval/session manager. Difficulty is that this is a simple justrow like command with one target and no limits.
+      // So far, no apps have been found that actually use this interaction to develop and test against.
       default:
         log.info(`FitnessMachineControlPointCharacteristic: opCode ${swapObjectPropertyValues(ControlPointOpCode)[opCode]} is not supported`)
     }
