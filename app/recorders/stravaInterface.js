@@ -20,6 +20,7 @@ export function createStravaInterface (config) {
     basefilename = name
   }
 
+  /* eslint-disable max-statements -- Setting up and processing strava communication requires a lot of steps */
   async function uploadSessionResults (recorder) {
     // we need enough data
     if (!recorder.minimumDataAvailable()) {
@@ -50,9 +51,8 @@ export function createStravaInterface (config) {
           to: newRefreshToken
         })
         log.debug('Strava interface: replaced refresh token in config file')
-      }
-      catch (error) {
-      log.error('Strava Interface: error replacing refresh token in config file:', error)
+      } catch (error) {
+        log.error('Strava Interface: error replacing refresh token in config file:', error)
       }
     }
 
@@ -89,6 +89,7 @@ export function createStravaInterface (config) {
       log.error(`Strava.com interface error: ${error}`)
     }
   }
+  /* eslint-enable max-statements */
 
   return {
     setBaseFileName,
