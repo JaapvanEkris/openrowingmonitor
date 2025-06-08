@@ -335,7 +335,15 @@ Message implementations can be found in the [session status characteristics dire
 
 Apart from the obvious time delay in data representation, apps (like ErgZone) and OpenRowingMonitor's GUI will not show the same overall time if there is an unplanned pause present. This is because OpenRowingMonitor will always work on `metrics.Interval.timeSpent.moving`, whereas the PM5 will essentially present `metrics.Interval.timeSpent.total`. These two will deviate when an unplanned pause is present, as Concept2's definitions will still consider it part of the moving time and OpenRowingMonitor considers it a pause (as [mentioned earlier](#different-definition-of-moving-time-and-rest-time). Key issue is that we can not make the external apps follow OpenRowingMonitor's approach as that breaks their synchronisation with their workout plan.
 
-Our approach with inserting an additional split has significant benefits in other area's, like keeping the FIT and RowingData recorders implementation clean. It also allows a far better data analysis as rest periods are clearly and consistently marked, regardless whether they were planned or not, allowing them to be filtered or included easily,
+Our approach with inserting an additional split has significant benefits in other area's, like keeping the FIT and RowingData recorders implementation clean. It also allows a far better data analysis as rest periods are clearly and consistently marked, regardless whether they were planned or not, allowing them to be filtered or included easily. This allows for a decent performance analysis even when an unplanned pause was needed, as averages aren't muddled by rest periods.
+
+### Unplanned rest periods muddle metrics
+
+In Concept2's logic, metrics are averaged across the split, including unplanned rest periods. Metrics like average pace, average stroke rate, average power, etc. thus get averaged with periods of inactivity. The benefit is that metrics appear consistent: a split with an unplanned pause looks longer, and thus average pace should be lowered to look consistent.
+
+However, this can have weird effects. For example, the average pace (or average stroke rate or power) can go below the observed minimum pace in that split. As this is a flaw in Concept2's logic, and OpenRowingMonitor emulates this behaviour in this interface, we will not resolve this.
+
+As the FIT-recorder independently records its data, and does respect OpenRowingMonitors' approach of explicitly seperating active from passive periods, these metrics will become inconsistent in their reporting. As the FIT-recorder is much closer to OpenRowingMonitor's native implementation, and the seperation is done based on native flags, the FIT-metrics are considered more accurate.
 
 ## References
 <!-- markdownlint-disable no-inline-html -->
