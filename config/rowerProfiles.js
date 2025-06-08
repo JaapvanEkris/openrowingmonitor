@@ -247,7 +247,7 @@ export default {
     flywheelInertia: 0.72,
     dragFactor: 32000
   },
-  
+
   // Virtufit Magnetic Rowing Machine
   // https://virtufit.nl/wp-content/uploads/2022/01/VirtuFit-Elite-Magnetic-Rowing-Machine-Manual-EN.pdf
   // aka: Obelix - https://pesaschile.cl/categorias/1162-remo-de-aire-magnetico-lite-series-obelix.html
