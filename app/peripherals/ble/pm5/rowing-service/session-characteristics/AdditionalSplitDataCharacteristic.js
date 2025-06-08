@@ -33,6 +33,7 @@ export class AdditionalSplitDataCharacteristic extends GattNotifyCharacteristic 
    * @param {SegmentMetrics} splitData
    */
   // @ts-ignore: Type is not assignable to type
+  /* eslint-disable complexity -- A lot of defensive programming is needed to tame this beast */
   notify (data, splitHRData) {
     const bufferBuilder = new BufferBuilder()
     // Data bytes packed as follows: (19bytes) - Multiplex as per spec 18bytes, but actually the list show 19. need to verify from the PM5
@@ -71,3 +72,4 @@ export class AdditionalSplitDataCharacteristic extends GattNotifyCharacteristic 
     this.#multiplexedCharacteristic.notify(0x38, bufferBuilder.getBuffer())
   }
 }
+/* eslint-enable complexity */
