@@ -32,7 +32,7 @@ function createFEPeripheral (antManager) {
    * @type {NodeJS.Timeout}
    */
   let timer
-  
+
   let sessionData = {
     accumulatedStrokes: 0,
     accumulatedDistance: 0,

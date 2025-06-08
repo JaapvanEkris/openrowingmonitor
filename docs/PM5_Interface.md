@@ -1,10 +1,37 @@
 # Description of the PM5 interface
 
-The design goal is to emulate PM5 communication sufficiently for EXR, ErgZone, KinoMap, Aviron, Ergatta, Peleton, FIT, MyRow, Hydrow, Armada, ErgWorld, ErgDude, BoatCoach and Ergometer space. It explicitly is **NOT** to completely emulate a full-blown PM5 with racing features or logbook verification. Also features that might lead to cheating or uploading results to the Concept2 logbook are explicitly excluded. We aim to have maximum compatibility with beformentioned apps. We do test on ErgData, as that is the definitive source how Concept2's data is to be interpreted, excluding interpretation errors by independent software developers.
+The design goal is to emulate PM5 communication sufficiently for users to connect easily to apps. We aim to have maximum compatibility with all these apps, making these apps to intuitively to use with OpenRowingMonitor. However, it explicitly is **NOT** our goal to completely emulate a full-blown PM5 with racing features and logbook verification. Also features that might lead to cheating or uploading results to the Concept2 logbook are explicitly excluded. Some testing is one on ErgData, as that is the definitive source how Concept2's data is to be interpreted, excluding interpretation errors by independent software developers.
 
 This interface emulation is partially based on the description in Concept 2's API documentation ([[1]](#1) and [[2]](#2)). As this documentation is inconclusive about the timing/triggers for messages, as well as the exact definition of the values used, a large part is also based on analysis of the communication via recorded bluetooth traces with current PM5's.
 
-## Structural differences
+## Design target for interoperability
+
+We aim to be interoperable with the following apps:
+
+<!-- markdownlint-disable no-inline-html -->
+| App | Required&nbsp;characteristics&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| Remarks |
+| --- | --------- | ------ |
+| Armada | | |
+| Aviron | | |
+| BoatCoach | | |
+| [ErgArcade cloud simulation](https://ergarcade.github.io/mrdoob-clouds/) | <ul><li>[0x0031 "General Status"](#0x0031-general-status)</li><li>[0x0032 "Additional Status"](#0x0032-additional-status)</li></ul> | |
+| [ErgArcade fluid simulation](https://ergarcade.github.io/WebGL-Fluid-Simulation/) | <ul><li>[0x0031 "General Status"](#0x0031-general-status)</li></ul> | Actually only uses `STROKESTATE_DRIVING` |
+| Ergatta | | |
+| ErgDude | | |
+| Ergometer space | | |
+| ErgWorld | | |
+| [EXR](https://exrgame.com/) | <ul><li>[CSAFE Commands](#csafe-commands)</li><li>[0x0031 "General Status"](#0x0031-general-status)</li><li>[0x0032 "Additional Status"](#0x0032-additional-status)</li><li>[0x0033 "Additional Status 2"](#0x0033--additional-status-2)</li><li>[0x0035 "Stroke Data"](#0x0035-stroke-data)</li><li>[0x0036 "Additional Stroke Data"](#0x0036-additional-stroke-data)</li><li>[0x003d "Force Curve data"](#0x003d-force-curve-data)</li></ul> | EXR will only create `WORKOUTTYPE_FIXEDDIST_NOSPLITS` and `WORKOUTTYPE_FIXEDTIME_NOSPLITS` workouts via 'verified C2 workouts' |
+| [ErgZone](https://erg.zone/) | <ul><li>[CSAFE Commands](#csafe-commands)</li><li>[0x0031 "General Status"](#0x0031-general-status)</li><li>[0x0032 "Additional Status"](#0x0032-additional-status)</li><li>[0x0033 "Additional Status 2"](#0x0033--additional-status-2)</li><li>[0x003e "Additional Status 3"](#0x003e-additional-status-3)</li><li>[0x0035 "Stroke Data"](#0x0035-stroke-data)</li><li>[0x0036 "Additional Stroke Data"](#0x0036-additional-stroke-data)</li><li>[0x003d "Force Curve data"](#0x003d-force-curve-data)</li><li>[0x0037 Split Data](#0x0037-split-data)</li><li>[0x0038 Additional Split Data](#0x0038-additional-split-data)</li><li>[0x0039 "Workout Summery"](#0x0039-workout-summery)</li><li>[0x003a "Additional Workout Summary"](#0x003a-additional-workout-summary)</li><li>[0x003f "Logged Workout"](#0x003f-logged-workout)</li></ul> | |
+| FIT | | |
+| Hydrow | | |
+| [KinoMap](https://www.kinomap.com) | <ul><li>[0x0031 "General Status"](#0x0031-general-status)</li><li>[0x0032 "Additional Status"](#0x0032-additional-status)</li><li>[0x0033 "Additional Status 2"](#0x0033--additional-status-2)</li><li>[0x003e "Additional Status 3"](#0x003e-additional-status-3)</li><li>[0x0035 "Stroke Data"](#0x0035-stroke-data)</li><li>[0x0036 "Additional Stroke Data"](#0x0036-additional-stroke-data)</li><li>[0x003d "Force Curve data"](#0x003d-force-curve-data)</li><li>[0x0037 Split Data](#0x0037-split-data)</li><li>[0x0038 Additional Split Data](#0x0038-additional-split-data)</li><li>[0x0039 "Workout Summery"](#0x0039-workout-summery)</li><li>[0x003a "Additional Workout Summary"](#0x003a-additional-workout-summary)</li></ul> | |
+| Peleton | | |
+| MyRow | | |
+<!-- markdownlint-enable no-inline-html -->
+
+## Structural differences between OpenRowingMonitor and a PM5
+
+As OpenRowingMonitor and PM5 have been independently developed, the design choices that have been made are not consistent. Here we adress these differences, as they are quite essential in the further implementation.
 
 ### Workout Hierarchy
 
@@ -23,9 +50,9 @@ This makes scoping of many variables challenging as it is unclear whether a vari
 
 OpenRowingMonitor will always report on the end-of-split boundary, including a summary of the split it just completed. A PM5 will report this **after** the split has concluded (i.e. in tje mew split), reporting about the split it has completed.
 
-### Positioning rest intervals
+### Positioning planned rest intervals
 
-OpenRowingMonitor treats rest intervals similar to normal time based intervals, with the exception that the rowing engine is forced to stop collecting metrics during that interval. A PM5 considers a rest interval an attribute of a normal interval, and it isn't an independent entity. In [CsafeManagerService.js](../app/peripherals/ble/pm5/csafe-service/CsafeManagerService.js) this is managed by adding a rest interval to OpenRowingMonitor's workout schedule.
+OpenRowingMonitor treats planned rest intervals similar to normal time based intervals, with the exception that the rowing engine is forced to stop collecting metrics during that interval. A PM5 considers a rest interval a subordinate attribute of a normal interval, and it isn't an independent entity. In [CsafeManagerService.js](../app/peripherals/ble/pm5/csafe-service/CsafeManagerService.js) this is managed by adding a rest interval to OpenRowingMonitor's workout schedule.
 
 In reporting, we indeed see the PM5 skipping the split/interval reporting when the pause starts, and including the rest data with the split reporting after the pause has ended. This is consistent with the approach that a rest interval only is an extension of an active interval. In OpenRowingMonitor this behaviour is replicated by not reporting the start of a pause as new split, and combining the data from the active split and the rest split. Although the underlying datasets are largely disjunct (as rest intervals have little data associated with them), a key issue is the reporting of the IntervalType, WorkoutState and workoutDurationType in [0x0031 General Status](#0x0031-general-status), and the intervalType [0x0037 "Split Data"](#0x0037-split-data).
 
@@ -33,7 +60,11 @@ In starting a pause our traces show that message [0x0031 General Status](#0x0031
 
 ### Positioning unplanned rests
 
-People might deviate from their workout plan and take a break mid-session. In OpenRowingMonitor this is treated as a seperate rest split, clearly separating active and passive metrics. The PM5 ignores the pause and lets time continue. Both approaches have their pro's and con's, but the difference has to be bridged.
+People might deviate from their workout plan and take a break mid-session. In OpenRowingMonitor this is treated as a seperate rest split, clearly separating active and passive metrics. The PM5 essentially ignores the pause, lets time continue and does not change split/interval upon detection.
+
+### Different definition of moving time and rest time
+
+There is a subtle, but significant, difference in the definitions used for timekeeping. OpenRowingMonitor registers moving time and rest time as it occurs, registering the time spent moving and the time spent resting. A PM5 registers time as it is **intended** to be spent, so it only registers planned pause intervals as rest time, and it actually considers unplanned rest as moving time. The effect is that, despite OpenRowingMonitor internally reporting time spent in unplanned rest splits as rest time, the PM5 considers it moving time. It is the PM5's interface's responsibility to adapt to this definition.
 
 ## CSAFE Commands
 
@@ -41,7 +72,18 @@ Most CSAFE Commands implemented in [CsafeManagerService.js](../app/peripherals/b
 
 ### Workout Mapping
 
-A workout is typically a combination of one or more strings of 'CSAFE_PM_SET_WORKOUTINTERVALCOUNT', 'CSAFE_PM_SET_WORKOUTTYPE', 'CSAFE_PM_SET_INTERVALTYPE', 'CSAFE_PM_SET_WORKOUTDURATION', 'CSAFE_PM_SET_RESTDURATION' and 'CSAFE_PM_CONFIGURE_WORKOUT' commands. Each string of commands represents an interval. It is always closed with 'CSAFE_PM_SET_SCREENSTATE', followed by 'SCREENVALUEWORKOUT_PREPARETOROWWORKOUT'.
+Out primary goal for supporting CSAFE commands is recieving workout plans. A workout is typically a combination of one or more strings of commands. Typically it follows the following pattern
+
+```js
+CSAFE_PM_SET_WORKOUTINTERVALCOUNT
+CSAFE_PM_SET_WORKOUTTYPE
+CSAFE_PM_SET_INTERVALTYPE
+CSAFE_PM_SET_WORKOUTDURATION
+CSAFE_PM_SET_RESTDURATION
+CSAFE_PM_CONFIGURE_WORKOUT
+```
+
+Each string of commands represents an interval. It is always closed with `CSAFE_PM_SET_SCREENSTATE`, followed by `SCREENVALUEWORKOUT_PREPARETOROWWORKOUT`.
 
 | Concept2 Workout Type | General idea | Interval | Splits |
 | --- | --- | --- | --- |
@@ -58,6 +100,9 @@ A workout is typically a combination of one or more strings of 'CSAFE_PM_SET_WOR
 | WORKOUTTYPE_FIXEDCALORIE_SPLITS | Not implemented | Not implemented | Not implemented |
 | WORKOUTTYPE_FIXEDWATTMINUTE_SPLITS | Not implemented | Not implemented | Not implemented |
 | WORKOUTTYPE_FIXEDCALS_INTERVAL | Not implemented | Not implemented | Not implemented |
+
+> [!NOTE]
+> Please be aware that apps like ErgData and ErgZone actually do 'optimisations' behind the scene. Three intervals of 8 minutes with 2 minute rests are typically sent as a `WORKOUTTYPE_FIXEDTIME_INTERVAL`, despite this resulting in an endless series. If the planned rests are omited, it will result in a `WORKOUTTYPE_FIXEDTIME_SPLITS` with a single time interval with splits of the length of the intervals. If one would add a single second to any of the individual intervals, it becomes a `WORKOUTTYPE_VARIABLE_INTERVAL`, and all intervals are programmed manually. Obviously, from a user perspective the target displayed in the GUI will vary across these options (see [issue 118](https://github.com/JaapvanEkris/openrowingmonitor/issues/118)).
 
 [^1]: Due to default behaviour of the WorkoutSegments object, the split defaults to the interval type and length by inheriting its parameters
 [^2]: Due to the beforementioned structural issues, this can only be imitated. As Concept2's PM5 will only allow 50 splits (see [[2]](#2)), we'd expect receiving apps to maintain the same limit. Based on the presence of rest intervals, this will either be 50 working intervals or 25 working intervals interleaved with 25 rest intervals
@@ -142,7 +187,7 @@ The interval number wil **NOT** change during or after the rest period.
 
 During an unplanned pause, instant metrics will remain their last known good value. They will not be zero'd, which is OpenRowingMonitor's default behaviour (and the correct representation of the machine state).
 
-It is observed that upon entering the unplanned pause, the lastSlit data from [0x0038 "Additional Split Data"](#0x0038-additional-split-data) will be updated with the last tstate from the active split.
+It is observed that upon entering the unplanned pause, the lastSplit data from [0x0038 "Additional Split Data"](#0x0038-additional-split-data) is in fact updated with the last state from the active split.
 
 #### Exiting an unplanned rest
 
@@ -198,9 +243,11 @@ However, [0x0037 "Split Data"](#0x0037-split-data), [0x0038 "Additional Split Da
 
 Message [0x003a "Additional Workout Summary"](#0x003a-additional-workout-summary) contains the total number of intervals, which is similar to the number reported in [0x0037 "Split Data"](#0x0037-split-data), [0x0038 "Additional Split Data"](#0x0038-additional-split-data).
 
-## Messages
+## Definition of individual messages
 
 ### Time based status messages
+
+Message implementations can be found in the [status-characteristics directory](.../app/peripherals/ble/pm5/rowing-service/status-characteristics).
 
 #### 0x0031 "General Status"
 
@@ -217,8 +264,9 @@ Messsage 0x0031 "General Status" is implemented in [GeneralStatusCharacteristic.
   * changes to `WorkoutState.WORKOUTSTATE_WORKOUTEND` for marking the end of the workout
   * does **not** change when entering an unplanned rest split.
 * The `Total work distance` is initialized at 0, and only increased at the end of the interval to reflect the total linear distance travelled so far by the previous intervals. This is best represented by `metrics.interval.distance.absoluteStart`
-* The `Workout Duration` is set to the intended length of the current interval (thus ignoring previous interval lengths). When it is a 'distance' based interval, it is the length in meters, captured by `metrics.interval.distance.target`. On a 'time' based interval, it is a time in 0.01sec precission, best reflected by `metrics.interval.movingTime.target`.
-* When the `interval type` is 'time', the difference between `workout duration` and `elapsed time` is shown on ErgData as a countdown timer on most screens. When the `interval type` is 'distance' the difference between `workout duration` and `distance` is shown on ErgData as a countdown timer. So, typically, these fields must have the same frame of reference (i.e. time/distance in interval and interval target)
+* The `Workout Duration` is set to the intended length of the current interval (thus ignoring previous interval lengths). The `Workout Duration` is linked to other metrics, thus forcing that these fields must have the same frame of reference (i.e. time/distance in interval and interval target):
+  * When the `interval type` is 'distance', `Workout Duration` is the length in meters, captured by `metrics.interval.distance.target`. On a 'distance' based interval, the difference between `workout duration` and `distance` is shown on ErgData as a countdown timer.
+  * When the `interval type` is 'time', `Workout Duration` is a time in 0.01sec precission, best reflected by `metrics.interval.movingTime.target` On a 'time' based interval, the difference between `workout duration` and `elapsed time` is shown on ErgData as a countdown timer on most screens.
 * Dragfactor is reset per interval
 
 #### 0x0032 "Additional Status"
@@ -226,6 +274,9 @@ Messsage 0x0031 "General Status" is implemented in [GeneralStatusCharacteristic.
 [0x0032 "Additional Status"](../app/peripherals/ble/pm5/rowing-service/status-characteristics/AdditionalStatusCharacteristic.js),
 
 * As described in [elapsed time](#elapsed-time), `Elapsed time` will be mapped to `metrics.interval.timeSpent.moving`
+
+> [!NOTE]
+> During unplanned pauses, a PM5 continues to broadcast the last known metrics. As none of the apps (ErgZone, EXR, etc.) act based on these metrics, for example by inserting a pause, we choose to have the metrics reflect the true state of the rowing machine, thus deviating from PM5 behaviour. We do this because it better reflects the state of the rowing machine to consuming apps that might not subscribe to all characteristics (especially towards apps like EXR which use 0x0032 to determine pace and strokerate, and thus where visuals will keep going on), and it makes data mappings less complex.
 
 #### 0x0033  "Additional Status 2"
 
@@ -242,6 +293,8 @@ See the implementation here: [0x0033  "Additional Status 2"](../app/peripherals/
 
 ### Interupt driven stroke state messages
 
+Message implementations can be found in the [other characteristics directory](../app/peripherals/ble/pm5/rowing-service/other-characteristics).
+
 #### 0x0035 "Stroke Data"
 
 [0x0035 "Stroke Data"](../app/peripherals/ble/pm5/rowing-service/other-characteristics/StrokeDataCharacteristic.js) is sent at the end of both the drive and the recovery
@@ -257,7 +310,9 @@ See the implementation here: [0x0033  "Additional Status 2"](../app/peripherals/
 
 The force curve is in pounds (lbs).
 
-### Interupt driven split messages
+### Interupt driven session state messages
+
+Message implementations can be found in the [session status characteristics directory](../app/peripherals/ble/pm5/rowing-service/session-characteristics).
 
 #### 0x0037 "Split Data"
 
@@ -273,6 +328,22 @@ The force curve is in pounds (lbs).
 #### 0x003A "Additional Workout Summary"
 
 #### 0x003f "Logged Workout"
+
+## Known limitations, open Issues
+
+### Elapsed time indication on apps and OpenRowingMonitor GUI will deviate
+
+Apart from the obvious time delay in data representation, apps (like ErgZone) and OpenRowingMonitor's GUI will not show the same overall time if there is an unplanned pause present. This is because OpenRowingMonitor will always work on `metrics.Interval.timeSpent.moving`, whereas the PM5 will essentially present `metrics.Interval.timeSpent.total`. These two will deviate when an unplanned pause is present, as Concept2's definitions will still consider it part of the moving time and OpenRowingMonitor considers it a pause (as [mentioned earlier](#different-definition-of-moving-time-and-rest-time). Key issue is that we can not make the external apps follow OpenRowingMonitor's approach as that breaks their synchronisation with their workout plan.
+
+Our approach with inserting an additional split has significant benefits in other area's, like keeping the FIT and RowingData recorders implementation clean. It also allows a far better data analysis as rest periods are clearly and consistently marked, regardless whether they were planned or not, allowing them to be filtered or included easily. This allows for a decent performance analysis even when an unplanned pause was needed, as averages aren't muddled by rest periods.
+
+### Unplanned rest periods muddle metrics
+
+In Concept2's logic, metrics are averaged across the split, including unplanned rest periods. Metrics like average pace, average stroke rate, average power, etc. thus get averaged with periods of inactivity. The benefit is that metrics appear consistent: a split with an unplanned pause looks longer, and thus average pace should be lowered to look consistent.
+
+However, this can have weird effects. For example, the average pace (or average stroke rate or power) can go below the observed minimum pace in that split. As this is a flaw in Concept2's logic, and OpenRowingMonitor emulates this behaviour in this interface, we will not resolve this.
+
+As the FIT-recorder independently records its data, and does respect OpenRowingMonitors' approach of explicitly seperating active from passive periods, these metrics will become inconsistent in their reporting. As the FIT-recorder is much closer to OpenRowingMonitor's native implementation, and the seperation is done based on native flags, the FIT-metrics are considered more accurate.
 
 ## References
 <!-- markdownlint-disable no-inline-html -->

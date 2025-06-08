@@ -34,8 +34,10 @@ export function createFITRecorder (config) {
   let fitfileContentIsCurrent = true
   let allDataHasBeenWritten = true
 
-  // This function handles all incomming commands. Here, the recordingmanager will have filtered
-  // all unneccessary commands for us, so we only need to react to 'updateIntervalSettings', 'reset' and 'shutdown'
+  /**
+   * This function handles all incomming commands. Here, the recordingmanager will have filtered
+   * all unneccessary commands for us, so we only need to react to 'updateIntervalSettings', 'reset' and 'shutdown'
+   */
   async function handleCommand (commandName, data) {
     switch (commandName) {
       case ('updateIntervalSettings'):
@@ -64,6 +66,10 @@ export function createFITRecorder (config) {
     }
   }
 
+  /**
+   * This function records the metrics in the structure for he fit-file to be generated
+   * * @param {Metrics} metrics to be recorded
+   */
   function recordRowingMetrics (metrics) {
     switch (true) {
       case (metrics.metricsContext.isSessionStart):
@@ -247,7 +253,9 @@ export function createFITRecorder (config) {
     sessionData.complete = true
   }
 
-  // initiated when a new heart rate value is received from heart rate sensor
+  /*
+   * initiated when a new heart rate value is received from heart rate sensor
+   */
   async function recordHeartRate (value) {
     heartRate = value.heartrate
     if (!isNaN(heartRate) && heartRate > 0) {
@@ -256,6 +264,9 @@ export function createFITRecorder (config) {
     }
   }
 
+  /*
+   * This externally exposed function generates the file contont for the file writer and uploaders
+   */
   async function fileContent () {
     if (Object.keys(lastMetrics).length === 0 || Object.keys(sessionData).length === 0) { return undefined }
 
@@ -587,13 +598,14 @@ export function createFITRecorder (config) {
   async function createWorkoutSteps (writer, workout) {
     // See https://developer.garmin.com/fit/file-types/workout/ for a general description of the workout structure
     // and https://developer.garmin.com/fit/cookbook/encoding-workout-files/ for a detailed description of the workout structure
+    const maxWorkoutStepNumber = workout.lap[workout.lap.length - 1].workoutStepNumber
     writer.writeMessage(
       'workout',
       {
         sport: 'rowing',
         sub_sport: 'indoorRowing',
         capabilities: 'fitnessEquipment',
-        num_valid_steps: workout.workoutplan.length,
+        num_valid_steps: maxWorkoutStepNumber + 1,
         wkt_name: `Indoor rowing ${createName(workout.totalLinearDistance, workout.totalMovingTime)}`
       },
       null,
@@ -601,7 +613,7 @@ export function createFITRecorder (config) {
     )
 
     let i = 0
-    while (i < workout.workoutplan.length) {
+    while (i < workout.workoutplan.length && i <= maxWorkoutStepNumber) {
       switch (true) {
         case (workout.workoutplan[i].type === 'distance' && workout.workoutplan[i].targetDistance > 0):
           // A target distance is set

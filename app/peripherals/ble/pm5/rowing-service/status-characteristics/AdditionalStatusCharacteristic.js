@@ -36,7 +36,7 @@ export class AdditionalStatusCharacteristic extends GattNotifyCharacteristic {
   notify (data) {
     const bufferBuilder = new BufferBuilder()
     // elapsedTime: UInt24LE in 0.01 sec
-    bufferBuilder.writeUInt24LE(data.interval.timeSpent.moving > 0 ? Math.round(data.interval.timeSpent.moving * 100) : 0)
+    bufferBuilder.writeUInt24LE(data.interval.timeSpent.total > 0 && data.sessionState !== 'WaitingForStart' ? Math.round(data.interval.timeSpent.total * 100) : 0)
     // speed: UInt16LE in 0.001 m/sec
     bufferBuilder.writeUInt16LE(data.cycleLinearVelocity > 0 ? Math.round(data.cycleLinearVelocity * 1000) : 0)
     // strokeRate: UInt8 in strokes/min

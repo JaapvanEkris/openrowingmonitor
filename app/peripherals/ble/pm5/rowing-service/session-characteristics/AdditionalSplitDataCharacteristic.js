@@ -33,12 +33,13 @@ export class AdditionalSplitDataCharacteristic extends GattNotifyCharacteristic 
    * @param {SegmentMetrics} splitData
    */
   // @ts-ignore: Type is not assignable to type
+  /* eslint-disable complexity -- A lot of defensive programming is needed to tame this beast */
   notify (data, splitHRData) {
     const bufferBuilder = new BufferBuilder()
     // Data bytes packed as follows: (19bytes) - Multiplex as per spec 18bytes, but actually the list show 19. need to verify from the PM5
 
     // Elapsed Time in 0.01 sec
-    bufferBuilder.writeUInt24LE(data.interval.timeSpent.moving > 0 ? Math.round(data.interval.timeSpent.moving * 100) : 0)
+    bufferBuilder.writeUInt24LE(data.interval.timeSpent.total > 0 && data.sessionState !== 'WaitingForStart' ? Math.round(data.interval.timeSpent.total * 100) : 0)
     // Split/Interval Avg Stroke Rate
     bufferBuilder.writeUInt8(data.split.strokerate.average > 0 ? Math.round(data.split.strokerate.average) : 0)
     // Split/Interval Work Heartrate,
@@ -58,7 +59,7 @@ export class AdditionalSplitDataCharacteristic extends GattNotifyCharacteristic 
     // Split Avg Drag Factor,
     bufferBuilder.writeUInt8(data.split.dragfactor.average > 0 && data.split.dragfactor.average < 255 ? Math.round(data.split.dragfactor.average) : 255)
     // Split/Interval Number, based on BLE traces, split data messages' split number always starts at 1
-    bufferBuilder.writeUInt8(data.split.number >= 0 ? data.split.number + 1 : 0)
+    bufferBuilder.writeUInt8(data.split.C2number >= 0 ? data.split.C2number + 1 : 0)
     // Erg Machine Type
     bufferBuilder.writeUInt8(pm5Constants.ergMachineType)
 
@@ -71,3 +72,4 @@ export class AdditionalSplitDataCharacteristic extends GattNotifyCharacteristic 
     this.#multiplexedCharacteristic.notify(0x38, bufferBuilder.getBuffer())
   }
 }
+/* eslint-enable complexity */

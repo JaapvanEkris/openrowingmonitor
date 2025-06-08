@@ -149,7 +149,7 @@ export function createRecordingManager (config) {
     const stringifiedStartTime = startTime.toISOString().replace(/T/, '_').replace(/:/g, '-').replace(/\..+/, '')
     const directory = `${config.dataDirectory}/recordings/${startTime.getFullYear()}/${(startTime.getMonth() + 1).toString().padStart(2, '0')}`
     const fileBaseName = `${directory}/${stringifiedStartTime}`
-    
+
     // Create the directory if needed
     try {
       await fs.mkdir(directory, { recursive: true })

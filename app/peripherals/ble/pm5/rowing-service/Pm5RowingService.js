@@ -3,16 +3,15 @@
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 */
 /**
- * This is the central service to get information about the workout
- *
- * Critical messages:
- * - fluid simulation uses GeneralStatus STROKESTATE_DRIVING
- * - cloud simulation uses MULTIPLEXER, AdditionalStatus -> currentPace
- * - EXR: subscribes to: 'general status', 'additional status', 'additional status 2', 'additional stroke data' and 'force curve data'
- */
+ * @file This is the central service to get information about the workout. It implementats the BLE message service as defined in:
+ * - https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
+ * - https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf
+ * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/PM5_Interface.md#message-grouping-and-timing|the description of desired behaviour}
+*/
 import { createSeries } from '../../../../engine/utils/Series.js'
 import { GattService } from '../../BleManager.js'
 import { createStaticReadCharacteristic } from '../../common/StaticReadCharacteristic.js'
+import { appendPauseIntervalToActiveInterval, mergeTwoSplits } from '../utils/ORMtoC2Mapper.js'
 
 import { toC2128BitUUID } from '../Pm5Constants.js'
 
@@ -60,7 +59,10 @@ export class Pm5RowingService extends GattService {
   #splitHR
   #workoutHR
   #previousSplitMetrics
-  #lastActiveSplitMetrics
+  #partialC2SplitMetrics
+  #C2SplitNumber
+  #lastActiveIntervalMetrics
+  #accumulatedC2RestTime
   #timer
 
   /**
@@ -185,10 +187,14 @@ export class Pm5RowingService extends GattService {
     this.#splitHR = createSeries()
     this.#workoutHR = createSeries()
     this.#config = config
+    this.#C2SplitNumber = 0
     this.#previousSplitMetrics = {
       totalMovingTime: 0,
       totalLinearDistance: 0
     }
+    this.#partialC2SplitMetrics = null
+    this.#lastActiveIntervalMetrics = null
+    this.#accumulatedC2RestTime = 0
     this.#timer = setTimeout(() => { this.#onBroadcastInterval() }, this.#config.pm5UpdateInterval)
   }
   /* eslint-enable max-statements */
@@ -200,7 +206,10 @@ export class Pm5RowingService extends GattService {
   notifyData (metrics) {
     if (metrics.metricsContext === undefined) { return }
     if (!(metrics.sessionState === 'Stopped' && !metrics.metricsContext.isSessionStop)) { this.#lastKnownMetrics = metrics }
-    if ((metrics.sessionState === 'Paused' && !metrics.metricsContext.isPauseStart) || metrics.metricsContext.isPauseEnd) { this.#lastKnownMetrics = this.#mergeMetrics(this.#lastActiveSplitMetrics, metrics) }
+    if (this.#partialC2SplitMetrics !== null) { this.#lastKnownMetrics = mergeTwoSplits(this.#partialC2SplitMetrics, this.#lastKnownMetrics) }
+    if (this.#lastActiveIntervalMetrics !== null && metrics.sessionState !== 'Stopped') { this.#lastKnownMetrics = appendPauseIntervalToActiveInterval(this.#lastActiveIntervalMetrics, metrics) }
+    this.#lastKnownMetrics.split.C2number = this.#C2SplitNumber
+    this.#lastKnownMetrics.workout.timeSpent.C2Rest = this.#accumulatedC2RestTime
     switch (true) {
       case (metrics.metricsContext.isSessionStart):
         this.#splitHR.push(this.#lastKnownMetrics.heartrate)
@@ -208,43 +217,78 @@ export class Pm5RowingService extends GattService {
         this.#genericStatusDataNotifies(this.#lastKnownMetrics, this.#previousSplitMetrics)
         break
       case (metrics.metricsContext.isSessionStop):
-        this.#lastActiveSplitMetrics = this.#lastKnownMetrics // Needed just in case the session is activated again
+        this.#partialC2SplitMetrics = null
+        this.#lastActiveIntervalMetrics = this.#lastKnownMetrics // Needed just in case the session is activated again
         this.#splitHR.push(this.#lastKnownMetrics.heartrate)
         this.#workoutHR.push(this.#lastKnownMetrics.heartrate)
         this.#genericStatusDataNotifies(this.#lastKnownMetrics, this.#previousSplitMetrics)
         this.#splitDataNotifies(this.#lastKnownMetrics, this.#splitHR)
         this.#workoutEndDataNotifies(this.#lastKnownMetrics, this.#workoutHR)
         break
-      case (metrics.metricsContext.isPauseStart):
-        this.#lastActiveSplitMetrics = this.#lastKnownMetrics
+      case (metrics.metricsContext.isPauseStart && !this.#lastKnownMetrics.metricsContext.isUnplannedPause):
+        // This is the start of a planned pause
+        this.#partialC2SplitMetrics = null
+        this.#lastActiveIntervalMetrics = this.#lastKnownMetrics
         this.#splitHR.push(this.#lastKnownMetrics.heartrate)
         this.#workoutHR.push(this.#lastKnownMetrics.heartrate)
         this.#genericStatusDataNotifies(this.#lastKnownMetrics, this.#previousSplitMetrics)
+        this.#C2SplitNumber++
         this.#splitHR.reset()
         this.#splitHR.push(this.#lastKnownMetrics.heartrate)
         break
-      case (metrics.metricsContext.isPauseEnd):
+      case (metrics.metricsContext.isPauseStart):
+        // This is the start of an unplanned pause
+        this.#partialC2SplitMetrics = this.#lastKnownMetrics
+        /** @ToDo: Think how to handle HR data well */
         this.#splitHR.push(this.#lastKnownMetrics.heartrate)
         this.#workoutHR.push(this.#lastKnownMetrics.heartrate)
+        this.#genericStatusDataNotifies(this.#lastKnownMetrics, this.#previousSplitMetrics)
+        this.#previousSplitMetrics = {
+          totalMovingTime: this.#lastKnownMetrics.split.timeSpent.total,
+          totalLinearDistance: this.#lastKnownMetrics.split.distance.fromStart
+        }
+        this.#splitHR.reset()
+        this.#splitHR.push(this.#lastKnownMetrics.heartrate)
+        break
+      case (metrics.metricsContext.isPauseEnd && !this.#lastKnownMetrics.metricsContext.isUnplannedPause):
+        // End of a planned pause
+        this.#lastActiveIntervalMetrics = null
+        this.#splitHR.push(this.#lastKnownMetrics.heartrate)
+        this.#workoutHR.push(this.#lastKnownMetrics.heartrate)
+        this.#accumulatedC2RestTime = this.#accumulatedC2RestTime + this.#lastKnownMetrics.interval.timeSpent.rest
+        this.#lastKnownMetrics.workout.timeSpent.C2Rest = this.#accumulatedC2RestTime
         this.#recoveryStartDataNotifies(this.#lastKnownMetrics)
         this.#genericStatusDataNotifies(this.#lastKnownMetrics, this.#previousSplitMetrics)
         this.#splitDataNotifies(this.#lastKnownMetrics, this.#splitHR)
         this.#previousSplitMetrics = {
-          totalMovingTime: this.#lastKnownMetrics.split.timeSpent.moving,
+          totalMovingTime: this.#lastKnownMetrics.split.timeSpent.total,
           totalLinearDistance: this.#lastKnownMetrics.split.distance.fromStart
         }
+        this.#C2SplitNumber++
+        this.#splitHR.reset()
+        this.#splitHR.push(this.#lastKnownMetrics.heartrate)
+        break
+      case (metrics.metricsContext.isPauseEnd):
+        // End of an unplanned pause
+        this.#partialC2SplitMetrics = this.#lastKnownMetrics
+        /** @ToDo: Adapt to handle an unplanned pause */
+        this.#splitHR.push(this.#lastKnownMetrics.heartrate)
+        this.#workoutHR.push(this.#lastKnownMetrics.heartrate)
+        this.#genericStatusDataNotifies(this.#lastKnownMetrics, this.#previousSplitMetrics)
         this.#splitHR.reset()
         this.#splitHR.push(this.#lastKnownMetrics.heartrate)
         break
       case (metrics.metricsContext.isSplitEnd):
+        this.#partialC2SplitMetrics = null
         this.#splitHR.push(this.#lastKnownMetrics.heartrate)
         this.#workoutHR.push(this.#lastKnownMetrics.heartrate)
         this.#genericStatusDataNotifies(this.#lastKnownMetrics, this.#previousSplitMetrics)
         this.#splitDataNotifies(this.#lastKnownMetrics, this.#splitHR)
         this.#previousSplitMetrics = {
-          totalMovingTime: this.#lastKnownMetrics.split.timeSpent.moving,
+          totalMovingTime: this.#lastKnownMetrics.split.timeSpent.total,
           totalLinearDistance: this.#lastKnownMetrics.split.distance.fromStart
         }
+        this.#C2SplitNumber++
         this.#splitHR.reset()
         this.#splitHR.push(this.#lastKnownMetrics.heartrate)
         break
@@ -323,18 +367,5 @@ export class Pm5RowingService extends GattService {
     this.#additionalWorkoutSummary2.notify(metrics)
     this.#loggedWorkout.notify(metrics, workoutHRMetrics)
     this.#timer = setTimeout(() => { this.#onBroadcastInterval() }, this.#config.pm5UpdateInterval)
-  }
-
-  #mergeMetrics (activeMetrics, pauseMetrics) {
-    const result = { ...pauseMetrics }
-    result.interval = activeMetrics.interval
-    result.interval.workoutStepNumber = pauseMetrics.interval.workoutStepNumber
-    result.interval.timeSpent.rest = pauseMetrics.interval.timeSpent.rest
-    result.interval.timeSpent.total = activeMetrics.interval.timeSpent.moving + pauseMetrics.interval.timeSpent.rest
-    result.split = activeMetrics.split
-    result.split.number = pauseMetrics.split.number
-    result.split.timeSpent.rest = pauseMetrics.split.timeSpent.rest
-    result.split.timeSpent.total = activeMetrics.split.timeSpent.moving + pauseMetrics.split.timeSpent.rest
-    return result
   }
 }

@@ -277,9 +277,9 @@ export function createWorkoutSegment (config) {
     switch (true) {
       case (_type === 'distance' && _endLinearDistance > 0 && distanceOverTime.reliable()):
         // We are in a distance based interval, so we need to project
-        return distanceOverTime.projectY(_endLinearDistance)
+        return (distanceOverTime.projectY(_endLinearDistance) - _startMovingTime)
       case (_type === 'time' && _endMovingTime > 0):
-        return _endMovingTime
+        return _targetTime
       default:
         return undefined
     }
@@ -291,10 +291,10 @@ export function createWorkoutSegment (config) {
   function projectedEndDistance () {
     switch (true) {
       case (_type === 'distance' && _endLinearDistance > 0):
-        return _endLinearDistance
+        return _targetDistance
       case (_type === 'time' && _endMovingTime > 0 && distanceOverTime.reliable()):
         // We are in a time based interval, so we need to project
-        return distanceOverTime.projectX(_endMovingTime)
+        return (distanceOverTime.projectX(_endMovingTime) - _startLinearDistance)
       default:
         return undefined
     }
@@ -388,6 +388,9 @@ export function createWorkoutSegment (config) {
     }
   }
 
+  /*
+   * This function is used to precisely calculate the end of a workout segment after the sessionManager conlcudes it has passed the workoutSegment's boundary
+   */
   function interpolateEnd (prevMetrics, currMetrics) {
     const projectedMetrics = { ...prevMetrics }
     projectedMetrics.modified = false
@@ -553,6 +556,9 @@ export function createWorkoutSegment (config) {
     }
   }
 
+  /**
+   * This internal function resets the metrics of the segment, this is called after setting a new target
+   */
   function resetSegmentMetrics () {
     _linearVelocity.reset()
     _strokerate.reset()
@@ -577,6 +583,9 @@ export function createWorkoutSegment (config) {
     }
   }
 
+  /**
+   * This externally exposed function resets all data from a workoutsegment, including the regressor used for projections
+   */
   function reset () {
     resetSegmentMetrics()
     distanceOverTime.reset()
