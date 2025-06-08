@@ -58,7 +58,6 @@ export class AdditionalWorkoutSummaryCharacteristic extends GattNotifyCharacteri
     bufferBuilder.writeUInt24LE(0)
     // Interval Rest Time (seconds)
     bufferBuilder.writeUInt16LE(data.workout.timeSpent.C2Rest > 0 ? Math.round(data.workout.timeSpent.C2Rest) : 0)
-    console.log(`0x003A, timeSpent.C2Rest = ${Math.round(data.workout.timeSpent.C2Rest)}`)
     // Avg Calories (cals/hr)
     bufferBuilder.writeUInt16LE(data.workout.calories.averagePerHour > 0 && data.workout.calories.averagePerHour < 65534 ? Math.round(data.workout.calories.averagePerHour) : 0)
 
