@@ -231,8 +231,9 @@ In message [0x0033 "Additional Status 2"](#0x0033--additional-status-2):
 * `interval count` initializes it at 0,
 * is increased when either the split/interval changes,
 * is increased when moving from an active to a rest interval
+* It does not **not** change on an unplanned rest interval
 
-However, [0x0037 "Split Data"](#0x0037-split-data), [0x0038 "Additional Split Data"](#0x0038-additional-split-data) are sent **after** the split rollover and report about the metrics of the previous split, but uses the `interval count` of the **current interval** (i.e. it is increased and starts reporting about split 1, skipping split 0 in its reporting structure).
+However, [0x0037 "Split Data"](#0x0037-split-data), [0x0038 "Additional Split Data"](#0x0038-additional-split-data) are sent **after** the split rollover and report about the metrics of the previous split, but uses the `interval count` of the **current interval** (i.e. it is increased and starts reporting about split 1, skipping split 0 in its reporting structure). To manage this, we introduce the `metrics.split.C2number`, as it can skip the effects of unplanned pauses.
 
 Message [0x003a "Additional Workout Summary"](#0x003a-additional-workout-summary) contains the total number of intervals, which is similar to the number reported in [0x0037 "Split Data"](#0x0037-split-data), [0x0038 "Additional Split Data"](#0x0038-additional-split-data).
 
@@ -267,6 +268,9 @@ Messsage 0x0031 "General Status" is implemented in [GeneralStatusCharacteristic.
 [0x0032 "Additional Status"](../app/peripherals/ble/pm5/rowing-service/status-characteristics/AdditionalStatusCharacteristic.js),
 
 * As described in [elapsed time](#elapsed-time), `Elapsed time` will be mapped to `metrics.interval.timeSpent.moving`
+* As the context suggests that the intention is to produce the actual (i.e. not averaged across a split) metrics, we use `metrics.cycleLinearVelocity`, `metrics.cycleStrokeRate`, `metrics.heartrate`, `metics.cyclePace` and `metrics.cyclePower`.
+* For the 'average' pace, it is unclear whether this is intended at the split or interval level. We choose to use the `metrics.interval.pace.average` as we suspect it is used to show on ErgData's overview of average pace, which is only reset at the interval boundary, not the split boundary. Our data analysis of the broadcaste data seem to support this.
+* The variable 'Rest time' seems to map to `metrics.pauseCountdownTime`, as it seems to be used to display the countdown timer during pauses. Our data analysis of messages supporta that it counts down during a planned pause.
 
 > [!NOTE]
 > During unplanned pauses, a PM5 continues to broadcast the last known metrics. As none of the apps (ErgZone, EXR, etc.) act based on these metrics, for example by inserting a pause, we choose to have the metrics reflect the true state of the rowing machine, thus deviating from PM5 behaviour. We do this because it better reflects the state of the rowing machine to consuming apps that might not subscribe to all characteristics (especially towards apps like EXR which use 0x0032 to determine pace and strokerate, and thus where visuals will keep going on), and it makes data mappings less complex.
