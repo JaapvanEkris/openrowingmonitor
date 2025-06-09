@@ -11,23 +11,16 @@ We aim to be interoperable with the following apps:
 <!-- markdownlint-disable no-inline-html -->
 | App | Required&nbsp;characteristics&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| Remarks |
 | --- | --------- | ------ |
-| Armada | | |
-| Aviron | | |
-| BoatCoach | | |
 | [ErgArcade cloud simulation](https://ergarcade.github.io/mrdoob-clouds/) | <ul><li>[0x0031 "General Status"](#0x0031-general-status)</li><li>[0x0032 "Additional Status"](#0x0032-additional-status)</li></ul> | |
 | [ErgArcade fluid simulation](https://ergarcade.github.io/WebGL-Fluid-Simulation/) | <ul><li>[0x0031 "General Status"](#0x0031-general-status)</li></ul> | Actually only uses `STROKESTATE_DRIVING` |
-| Ergatta | | |
-| ErgDude | | |
-| Ergometer space | | |
-| ErgWorld | | |
+| Ergometer space | Does not subscribe to anything, seems to respond to [0x0031 "General Status"](#0x0031-general-status)</li> | Sends a lot of outdated CSAFE commands which will be ignored by OpenRowingMonitor |
 | [EXR](https://exrgame.com/) | <ul><li>[CSAFE Commands](#csafe-commands)</li><li>[0x0031 "General Status"](#0x0031-general-status)</li><li>[0x0032 "Additional Status"](#0x0032-additional-status)</li><li>[0x0033 "Additional Status 2"](#0x0033--additional-status-2)</li><li>[0x0035 "Stroke Data"](#0x0035-stroke-data)</li><li>[0x0036 "Additional Stroke Data"](#0x0036-additional-stroke-data)</li><li>[0x003d "Force Curve data"](#0x003d-force-curve-data)</li></ul> | EXR will only create `WORKOUTTYPE_FIXEDDIST_NOSPLITS` and `WORKOUTTYPE_FIXEDTIME_NOSPLITS` workouts via 'verified C2 workouts' |
 | [ErgZone](https://erg.zone/) | <ul><li>[CSAFE Commands](#csafe-commands)</li><li>[0x0031 "General Status"](#0x0031-general-status)</li><li>[0x0032 "Additional Status"](#0x0032-additional-status)</li><li>[0x0033 "Additional Status 2"](#0x0033--additional-status-2)</li><li>[0x003e "Additional Status 3"](#0x003e-additional-status-3)</li><li>[0x0035 "Stroke Data"](#0x0035-stroke-data)</li><li>[0x0036 "Additional Stroke Data"](#0x0036-additional-stroke-data)</li><li>[0x003d "Force Curve data"](#0x003d-force-curve-data)</li><li>[0x0037 Split Data](#0x0037-split-data)</li><li>[0x0038 Additional Split Data](#0x0038-additional-split-data)</li><li>[0x0039 "Workout Summery"](#0x0039-workout-summery)</li><li>[0x003a "Additional Workout Summary"](#0x003a-additional-workout-summary)</li><li>[0x003f "Logged Workout"](#0x003f-logged-workout)</li></ul> | |
-| FIT | | |
-| Hydrow | | |
 | [KinoMap](https://www.kinomap.com) | <ul><li>[0x0031 "General Status"](#0x0031-general-status)</li><li>[0x0032 "Additional Status"](#0x0032-additional-status)</li><li>[0x0033 "Additional Status 2"](#0x0033--additional-status-2)</li><li>[0x003e "Additional Status 3"](#0x003e-additional-status-3)</li><li>[0x0035 "Stroke Data"](#0x0035-stroke-data)</li><li>[0x0036 "Additional Stroke Data"](#0x0036-additional-stroke-data)</li><li>[0x003d "Force Curve data"](#0x003d-force-curve-data)</li><li>[0x0037 Split Data](#0x0037-split-data)</li><li>[0x0038 Additional Split Data](#0x0038-additional-split-data)</li><li>[0x0039 "Workout Summery"](#0x0039-workout-summery)</li><li>[0x003a "Additional Workout Summary"](#0x003a-additional-workout-summary)</li></ul> | |
-| Peleton | | |
-| MyRow | | |
+| [Regatta](https://teamregatta.com/) | <ul><li>[0x0031 "General Status"](#0x0031-general-status)</li><li>[0x0032 "Additional Status"](#0x0032-additional-status)</li><li>[0x0033 "Additional Status 2"](#0x0033--additional-status-2)</li></ul> | |
 <!-- markdownlint-enable no-inline-html -->
+
+Some apps, like Aviron, Ergatta, Hydrow, iFIT and Peleton claim compatibility with a PM5, and theoretically should work. As we could not test them ourselves due to regional/device limitations, we do not consider them a design target.
 
 ## Structural differences between OpenRowingMonitor and a PM5
 
