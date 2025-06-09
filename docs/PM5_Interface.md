@@ -280,7 +280,7 @@ Messsage 0x0031 "General Status" is implemented in [GeneralStatusCharacteristic.
 See the implementation here: [0x0033  "Additional Status 2"](../app/peripherals/ble/pm5/rowing-service/status-characteristics/AdditionalStatus2Characteristic.js),
 
 * As described in [elapsed time](#elapsed-time), `Elapsed time` will be mapped to `metrics.interval.timeSpent.moving`
-* As descibed in [Interval count](#split-numbering), the `interval count` will be mapped to `metrics.split.number`
+* As descibed in [Interval count](#split-numbering), the `interval count` will be mapped to `metrics.split.C2number`
 * `Split average power` is initialized at 0
 * `Total calories` is initialized at 0, and increases across splits, but is reset to 0 at interval rollovers, this suggests it is scoped at the interval.
 * The specifications ([[1]](#1) and [[2]](#2)) contain an error. The `Last Split Time` element has an accuracy of 0.01 seconds, similar to the `Elapsed Time` data element, instead of the described 0.1 sec accuracy. `Last Split Time` will be initialised at 0, and after each split transition is updated to contain the final time of the last split for 'distance' based splits.
@@ -314,15 +314,19 @@ Message implementations can be found in the [session status characteristics dire
 #### 0x0037 "Split Data"
 
 * As described in [elapsed time](#elapsed-time), `Elapsed time` will be mapped to `metrics.interval.timeSpent.moving`
-* As described in [distance](#distance)), `distance` will be mapped to `metrics.interval.distance.fromStart`
+* As described in [distance](#distance), `distance` will be mapped to `metrics.interval.distance.fromStart`
+* * As descibed in [Interval count](#split-numbering), the `interval count` will be mapped to `metrics.split.C2number`
 
 #### 0x0038 "Additional Split Data"
 
 * As described in [elapsed time](#elapsed-time), `Elapsed time` will be mapped to `metrics.interval.timeSpent.moving`
+* As descibed in [Interval count](#split-numbering), the `interval count` will be mapped to `metrics.split.C2number`
 
 #### 0x0039 "Workout Summery"
 
 #### 0x003A "Additional Workout Summary"
+
+* As descibed in [Interval count](#split-numbering), the `total number of intervals` will be mapped to `metrics.split.C2number`
 
 #### 0x003f "Logged Workout"
 
