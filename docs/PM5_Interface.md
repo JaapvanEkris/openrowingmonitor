@@ -297,7 +297,7 @@ Message implementations can be found in the [other characteristics directory](..
 [0x0035 "Stroke Data"](../app/peripherals/ble/pm5/rowing-service/other-characteristics/StrokeDataCharacteristic.js) is sent at the end of both the drive and the recovery
 
 * As described in [elapsed time](#elapsed-time), `Elapsed time` will be mapped to `metrics.interval.timeSpent.moving`
-* As described in [distance](#distance)), `distance` will be mapped to `metrics.interval.distance.fromStart`
+* As described in [distance](#distance), `distance` will be mapped to `metrics.interval.distance.fromStart`
 
 #### 0x0036 "Additional Stroke Data"
 
@@ -315,7 +315,7 @@ Message implementations can be found in the [session status characteristics dire
 
 * As described in [elapsed time](#elapsed-time), `Elapsed time` will be mapped to `metrics.interval.timeSpent.moving`
 * As described in [distance](#distance), `distance` will be mapped to `metrics.interval.distance.fromStart`
-* * As descibed in [Interval count](#split-numbering), the `interval count` will be mapped to `metrics.split.C2number`
+* As descibed in [Interval count](#split-numbering), the `interval count` will be mapped to `metrics.split.C2number`
 
 #### 0x0038 "Additional Split Data"
 
