@@ -37,7 +37,7 @@ export const DASHBOARD_METRICS = {
 
   power: { displayName: 'Power', size: 1, template: (metrics, config) => simpleMetricFactory(formatNumber(metrics?.cyclePower), 'watt', config?.guiConfigs?.showIcons ? iconBolt : '') },
 
-  stkRate: { displayName: 'Stroke rate', size: 1, template: (metrics, config) => simpleMetricFactory(formatNumber(metrics?.cycleStrokeRate), '/min', config.guiConfigs.showIcons ? iconPaddle : '') },
+  stkRate: { displayName: 'Stroke rate', size: 1, template: (metrics, config) => simpleMetricFactory(formatNumber(metrics?.cycleStrokeRate), '/min', config?.guiConfigs?.showIcons ? iconPaddle : '') },
   heartRate: {
     displayName: 'Heart rate',
     size: 1,
