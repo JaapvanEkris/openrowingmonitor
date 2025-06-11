@@ -21,7 +21,7 @@ export const DASHBOARD_METRICS = {
         case (metrics?.interval?.type === 'rest' && metrics?.pauseCountdownTime > 0):
           distance = 0
           break
-        case (metrics?.interval.type === 'distance'):
+        case (metrics?.interval?.type === 'distance'):
           distance = Math.max(metrics?.interval?.distance?.toEnd, 0)
           break
         default:
@@ -54,7 +54,7 @@ export const DASHBOARD_METRICS = {
     displayName: 'Calories',
     size: 1,
     template: (metrics, config) => {
-      const calories = metrics?.interval.type === 'Calories' ? Math.max(metrics?.interval?.TargetCalories - metrics?.interval?.Calories, 0) : metrics?.totalCalories
+      const calories = metrics?.interval?.type === 'Calories' ? Math.max(metrics?.interval?.TargetCalories - metrics?.interval?.Calories, 0) : metrics?.totalCalories
 
       return simpleMetricFactory(formatNumber(calories ?? 0), 'kcal', config?.guiConfigs?.showIcons ? iconFire : '')
     }
