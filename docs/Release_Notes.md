@@ -6,6 +6,13 @@ Main contributors: [Abasz](https://github.com/Abasz) and [Jaap van Ekris](https:
 
 Beta testers: [fkh-bims](https://github.com/fkh-bims), [jryd2000](https://github.com/jryd2000) and [carlito1979](https://github.com/carlito1979)
 
+### Upgrade instructions for 0.9.6
+
+When upgrading an existing install, several things have to be done by hand:
+
+- If you use an attached screen, you need to install firefox by `sudo apt-get install firefox`
+- If you use the automated Strava upload, you have to configure your Strava setup in `config.js` again. Please look at the [integrations manual](Integrations.md) for how to do this.
+
 ### New functionality in 0.9.6
 
 - **Major upgrade of our PM5 emulation**: [ErgZone](https://Erg.Zone) now works in PM5 mode in many scenarios (see [the known limitations](#known-issues-in-096)), as well as many other apps. This allows you to set up a training with ease, and record the data (adresses [this request](https://github.com/JaapvanEkris/openrowingmonitor/discussions/78)).
@@ -15,8 +22,8 @@ Beta testers: [fkh-bims](https://github.com/fkh-bims), [jryd2000](https://github
 
 ### Bugfixes and robustness improvements in 0.9.6
 
-- **Simplified Strava integration**, which now is in line with the rest of the integrations (see [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/64)). Please be aware that you configure your Strava setup in `config.js` again (please look at the [integrations manual](Integrations.md) for the new setup.
-- **Rewrite of the entire bluetooth stack**, greatly improving stability, removing limitations and bringing the PM5 interface much closer to the official PM5 interface specification. This also fixes the issue that heartrate device can't be switched dynamically (adresses [this bug](https://github.com/JaapvanEkris/openrowingmonitor/issues/69), [this feature request](https://github.com/JaapvanEkris/openrowingmonitor/discussions/93) and [this bug report](https://github.com/JaapvanEkris/openrowingmonitor/issues/94).
+- **Simplified Strava integration**, which now is in line with the rest of the integrations (see [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/64)) and greatly simplifying the backend-architecture
+- **Rewrite of the entire bluetooth stack**, greatly improving stability, removing limitations and bringing the PM5 interface much closer to the official PM5 interface specification. This also fixes the issue that heartrate device can't be switched dynamically (adresses [the 0.9.5 limitation](#known-issues-in-095), reported in [this bug](https://github.com/JaapvanEkris/openrowingmonitor/issues/69), [this feature request](https://github.com/JaapvanEkris/openrowingmonitor/discussions/93) and [this bug report](https://github.com/JaapvanEkris/openrowingmonitor/issues/94).
 - **Fixed a bug in pause behaviour** for magnetic rowers (fixes [this bug](https://github.com/JaapvanEkris/openrowingmonitor/discussions/96)).
 - **Fixed a bug in the metrics presentation**, which caused some metrics presented/recorded to be averaged too much.
 - **Fixed a bug in restart behaviour** that made the recorders crash (fixes [this bug](https://github.com/JaapvanEkris/openrowingmonitor/discussions/100)).
@@ -26,7 +33,9 @@ Beta testers: [fkh-bims](https://github.com/fkh-bims), [jryd2000](https://github
 
 ### Known issues in 0.9.6
 
-- ErgData can program a workout on OpenRowingMonitor, but it will not work well with our PM5 emulation: it will **not** save your workout, and we can't create the cryptographic hash to upload the workout results. It can also not close the communication, causing a deadlock that hangs communication at both ends (kill the ErgData app to resolve this). As ErgData is propriatary to Concept2, we will **not** put in any effort to resolve this (see [issue 117](https://github.com/JaapvanEkris/openrowingmonitor/issues/117)).
+- Our PM5 emulation still has some minor limitations:
+  - ErgZone and similar apps also recognize the 'Calories' based workout. As this interval type is still on [our backlog](./backlog.md#soon), it currently isn't supported yet. The PM5 interface will **not** send an error message on this.
+  - ErgData can program a workout on OpenRowingMonitor, but it will not work well with our PM5 emulation: it will **not** save your workout, and we can't create the cryptographic hash to upload the workout results. It can also not close the communication, causing a deadlock that hangs communication at both ends (kill the ErgData app to resolve this). As ErgData is propriatary to Concept2, we will **not** put in any effort to resolve this (see [issue 117](https://github.com/JaapvanEkris/openrowingmonitor/issues/117)).
 
 ## Version 0.9.5 (February 2025)
 
