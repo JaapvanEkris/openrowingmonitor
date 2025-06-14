@@ -11,7 +11,7 @@ If you would like to contribute to this project, you are more than welcome, but 
 * Introduce training plans (i.e. a distance/time to row):
   * Integrate with rowsandall.com to retrieve training planning
   * Integrate with intervals.icu to retrieve training planning
-  * add user friendly possibility for user to define training interval timers in the web frontend (`server.js`, `SessionManager.js` and the recorders can already handle this)
+  * add user friendly possibility for user to define training interval timers in the web frontend
 * Introduce workout plans (i.e. intervals with **goals** like a target HR or pace):
   * Update `server.js`, `SessionManager.js` and the recorders to handle a minimum or maximum pace/HR per interval
   * Integrate with intervals.icu to retrieve training targets
