@@ -14,7 +14,7 @@ OpenRowingMonitor runs fine on any rowing machine that uses some kind of damping
 
 ## Features
 
-OpenRowingMonitor can provide you with metrics directly or connect to watches, apps and games via bluetooth, ANT+ and MQTT and allow you to export your data to the analysis tool of your choice. These features have been tested intensily, where most features have survived flawlessly over thousands of kilometers of rowing with different types of rowing machines.
+OpenRowingMonitor can provide you with metrics directly, via watches (ANT+), apps and games (bluetooth) and Home Automation (MQTT). It also allows you to export your data to the analysis tool of your choice. These features have been tested intensily. Most features have survived flawlessly over thousands of kilometers of rowing with different types of rowing machines.
 
 <!-- markdownlint-disable-next-line no-inline-html -->
 <img src="img/openrowingmonitor_frontend.png" alt="Image showing the main OpenRowingMonitor screen" title="The main screen" width="700"><br clear="left">
@@ -59,9 +59,11 @@ If you connect a (optional) physical screen directly to the Raspberry Pi, then t
 
 OpenRowingMonitor can recieve heartrate data via Bluetooth Low Energy (BLE) and ANT+. But you can also share your rowing metrics with different applications and devices. We support most common industry standards to help you connect to your app and game of choice, OpenRowingMonitor currently supports the following protocols:
 
-* **Concept2 PM**: OpenRowingMonitor can simulate a Concept2 PM5, providing compatibility with most rowing apps. This implements the most common parts of the spec, so it might not work with all applications. It is known to work with [EXR](https://www.exrgame.com) (preferred method) and all the samples from [The Erg Arcade](https://ergarcade.com), for example you can [row in the clouds](https://ergarcade.github.io/mrdoob-clouds/).
+* **Concept2 PM**: OpenRowingMonitor can simulate a Concept2 PM5, providing compatibility with most rowing apps. This implements the most common parts of the spec, so it might not work with all applications. It is known to work with [EXR](https://www.exrgame.com) (preferred method), [ErgZone](https://Erg.Zone), [Kinomap](https://www.kinomap.com) and all the samples from [The Erg Arcade](https://ergarcade.com).
 
 * **FTMS Rower**: This is the FTMS profile for rowing machines and supports all rowing specific metrics (such as stroke rate). We've successfully tested it with [EXR](https://www.exrgame.com), [Peleton](https://www.onepeloton.com/app), [MyHomeFit](https://myhomefit.de) and [Kinomap](https://www.kinomap.com).
+
+* **ANT+ FE-C**: OpenRowingMonitor can broadcast rowing metrics via ANT+ FE-C, which can be recieved by several series of Garmin smartwatches like the Epix/Fenix series, which then can calculate metrics like training load etc..
 
 * **FTMS Indoor Bike**: This FTMS profile is used by Smart Bike Trainers and widely adopted by bike training apps. It does not support rowing specific metrics, but it can present metrics such as power and distance to the biking application and use cadence for stroke rate. So why not use your virtual rowing bike to row up a mountain in [Zwift](https://www.zwift.com), [Bkool](https://www.bkool.com), [The Sufferfest](https://thesufferfest.com) or similar :-)
 
@@ -69,16 +71,14 @@ OpenRowingMonitor can recieve heartrate data via Bluetooth Low Energy (BLE) and 
 
 * **BLE Cycling Speed and Cadence Profile**: used for older Garmin Forerunner and Garmin Venu watches and similar types, again simulating a bike activity.
 
-* **ANT+ FE-C**: OpenRowingMonitor can broadcast rowing metrics via ANT+ FE-C, which can be recieved by the more expensive series of Garmin smartwatches like the Epix/Fenix series, which then can calculate metrics like training load etc..
-
-* **MQTT**: this IoT protocol allows you to broadcast metrics for logging or real-time display, but also allows for integration with Home Automation systems like [Home Assistant](https://www.home-assistant.io/) and [Domiticz](https://www.domoticz.com/).
+* **MQTT**: this IoT protocol allows you to broadcast metrics for logging or real-time display, but also allows for integration with Home Automation systems like [Home Assistant](https://www.home-assistant.io/), [Domiticz](https://www.domoticz.com/) and Alexa Voice control via [HABridge](https://github.com/bwssytems/ha-bridge).
 
 > [!NOTE]
 > Use of ANT+ requires adding an ANT+ USB-stick to your Raspberry Pi.
 
 ### Export of Training Sessions
 
-OpenRowingMonitor is based on the idea that metrics should be easily accessible for further analysis on data platforms. Automatic uploading your sessions to [RowsAndAll](https://rowsandall.com/), [Intervals.icu](https://intervals.icu/) and [Strava](https://www.strava.com) is an integrated feature, for all other platforms this is currently a manual step, see [the integration manual](Integrations.md). For these platforms, OpenRowingMonitor can create the following file types:
+OpenRowingMonitor is based on the idea your metrics should be easily accessible for further analysis on data platforms. Automatic uploading your sessions to [RowsAndAll](https://rowsandall.com/), [Intervals.icu](https://intervals.icu/) and [Strava](https://www.strava.com) is an integrated feature, for all other platforms this is currently a manual step, see [the integration manual](Integrations.md). For these platforms, OpenRowingMonitor can create the following file types:
 
 * **RowingData** files, which are comma-seperated files with all metrics OpenRowingMonitor can produce. These can be used with [RowingData](https://pypi.org/project/rowingdata/) to display your results locally, or uploaded to [RowsAndAll](https://rowsandall.com/) for a webbased analysis (including dynamic in-stroke metrics). The csv-files can also be processed manually in Excel, allowing your own custom analysis;
 
