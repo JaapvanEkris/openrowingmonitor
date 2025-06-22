@@ -15,9 +15,8 @@ When upgrading an existing install, several things have to be done by hand:
 
 ### New functionality in 0.9.6
 
-- **Major upgrade of our PM5 emulation**: [ErgZone](https://Erg.Zone) now works in PM5 mode in many scenarios (see [the known limitations](#known-issues-in-096)), as well as many other apps. This allows you to set up a training with ease, and record the data (adresses [this request](https://github.com/JaapvanEkris/openrowingmonitor/discussions/78)).
-- **Added [RowsAndAll.com](https://rowsandall.com) integration** for workout reporting (i.e. automatic uploading of a result).
-- **Added [intervals.icu](https://intervals.icu) integration** for workout reporting (i.e. automatic uploading a result).
+- **Major upgrade of our PM5 emulation**: [ErgZone](https://Erg.Zone) now works in PM5 mode in many scenarios (see [the known limitations](#known-issues-in-096)), as well as many other apps like [ErgZone](https://erg.zone). This allows you to set up a training with ease, and record the data (adresses [this request](https://github.com/JaapvanEkris/openrowingmonitor/discussions/78)).
+- **Added [RowsAndAll.com](https://rowsandall.com) and [intervals.icu](https://intervals.icu) integration** for workout reporting (i.e. automatic uploading of a result).
 - **Added a MQTT peripheral**. This reports metrics live to MQTT brokers and control home automation, etc. (see [this discussion](https://github.com/laberning/openrowingmonitor/discussions/43), [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/80) and [this request](https://github.com/JaapvanEkris/openrowingmonitor/discussions/98)). The MQTT listener you to push workout plans to OpenRowingMonitor from home automation systems (see [the integrations page](Integrations.md) for more information).
 
 ### Bugfixes and robustness improvements in 0.9.6
@@ -36,6 +35,7 @@ When upgrading an existing install, several things have to be done by hand:
 - Our PM5 emulation still has some minor limitations:
   - ErgZone and similar apps also recognize the 'Calories' based workout. As this interval type is still on [our backlog](./backlog.md#soon), it currently isn't supported yet. The PM5 interface will **not** send an error message on this.
   - ErgData can program a workout on OpenRowingMonitor, but it will not work well with our PM5 emulation: it will **not** save your workout, and we can't create the cryptographic hash to upload the workout results. It can also not close the communication, causing a deadlock that hangs communication at both ends (kill the ErgData app to resolve this). As ErgData is propriatary to Concept2, we will **not** put in any effort to resolve this (see [issue 117](https://github.com/JaapvanEkris/openrowingmonitor/issues/117)).
+- Some Garmin watches have issues with our 'Cycling Power' and 'Cycling Speed and Cadence' Bluetooth profiles (see [issue 125](https://github.com/JaapvanEkris/openrowingmonitor/issues/125)). This affects all past versions of OpenRowingMonitor.
 
 ## Version 0.9.5 (February 2025)
 
