@@ -8,7 +8,7 @@ Beta testers: [fkh-bims](https://github.com/fkh-bims), [jryd2000](https://github
 
 ### Upgrade instructions for 0.9.6
 
-> [!IMPORTANT] 
+> [!IMPORTANT]
 > When upgrading an existing install, several things have to be done by hand:
 >
 > - If you use an attached screen, you need to install firefox by `sudo apt-get install firefox`
@@ -16,27 +16,27 @@ Beta testers: [fkh-bims](https://github.com/fkh-bims), [jryd2000](https://github
 
 ### New functionality in 0.9.6
 
-- **Major upgrade of our PM5 emulation**: [ErgZone](https://Erg.Zone) and [EXR](https://exrgame.com) now work in PM5 mode in many scenarios (see [the known limitations](#known-issues-in-096)), as well as many other apps. This allows you to set up a training with ease, and record the data (adresses [this request](https://github.com/JaapvanEkris/openrowingmonitor/discussions/78)).
+- **Major upgrade of our PM5 emulation**, bringing the PM5 interface much closer to the official PM5 interface specification: [ErgZone](https://Erg.Zone) and [EXR](https://exrgame.com) now work in PM5 mode in many scenarios (see [the known limitations](#known-issues-in-096)), as well as many other apps. This allows you to set up a training with ease, and record the data (adresses [this request](https://github.com/JaapvanEkris/openrowingmonitor/discussions/78)).
 - **Added [RowsAndAll.com](https://rowsandall.com) and [intervals.icu](https://intervals.icu) integration** for workout reporting (i.e. automatic uploading of a result).
 - **Added a MQTT peripheral**. This reports metrics live to MQTT brokers and control home automation, etc. (see [this discussion](https://github.com/laberning/openrowingmonitor/discussions/43), [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/80) and [this request](https://github.com/JaapvanEkris/openrowingmonitor/discussions/98)). The MQTT listener you to push workout plans to OpenRowingMonitor from home automation systems (see [the integrations page](Integrations.md) for more information).
 
 ### Bugfixes and robustness improvements in 0.9.6
 
 - **Simplified Strava integration**, which now is in line with the rest of the integrations (see [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/64)) and greatly simplifying the backend-architecture
-- **Rewrite of the entire bluetooth stack**, greatly improving stability, removing limitations and bringing the PM5 interface much closer to the official PM5 interface specification. This also fixes the issue that heartrate device can't be switched dynamically (adresses [the 0.9.5 limitation](#known-issues-in-095), reported in [this bug](https://github.com/JaapvanEkris/openrowingmonitor/issues/69), [this feature request](https://github.com/JaapvanEkris/openrowingmonitor/discussions/93) and [this bug report](https://github.com/JaapvanEkris/openrowingmonitor/issues/94).
+- **Rewrite of the entire bluetooth stack**, greatly improving stability and removing limitations. This also fixes the issue that heartrate device can't be switched dynamically (adresses [the 0.9.5 limitation](#known-issues-in-095), reported in [this bug](https://github.com/JaapvanEkris/openrowingmonitor/issues/69), [this feature request](https://github.com/JaapvanEkris/openrowingmonitor/discussions/93) and [this bug report](https://github.com/JaapvanEkris/openrowingmonitor/issues/94).
 - **Fixed a bug in pause behaviour** for magnetic rowers (fixes [this bug](https://github.com/JaapvanEkris/openrowingmonitor/discussions/96)).
 - **Fixed a bug in the metrics presentation**, which caused some metrics presented/recorded to be averaged too much.
 - **Fixed a bug in restart behaviour** that made the recorders crash (fixes [this bug](https://github.com/JaapvanEkris/openrowingmonitor/discussions/100)).
-- **Upgrade of the entire technology stack**: we cleaned house and upgraded all used NPM packages, removed a lot of clutter from these packages as well, upgraded Node.js to a newer version to increase support and moved from Chromium to Firefox (greatly reducing the CPU load, practically freeing up a complete CPU core). This makes our stack current again. Please make sure you install the required packages via apt-get.
 - **Upgraded ESLint and its configuration**, now code is inspected beyond the use of spaces.
 - **Introducing JSDoc** in our code, to make our code easier to understand ([see also](https://github.com/JaapvanEkris/openrowingmonitor/issues/90)).
+- **Upgrade of the entire technology stack**: we cleaned house and upgraded all used NPM packages, removed a lot of clutter from these packages as well, upgraded Node.js to a 22.0 to increase support and moved from Chromium to Firefox (greatly reducing the CPU load, practically freeing up a complete CPU core). This makes our stack current again. Please make sure you install the required packages via apt-get.
 
 ### Known issues in 0.9.6
 
 - Our PM5 emulation still has some minor limitations:
   - ErgZone and similar apps also recognize the 'Calories' based workout. As this interval type is still on [our backlog](./backlog.md#soon), it currently isn't supported yet. The PM5 interface will **not** send an error message on this.
-  - ErgData can program a workout on OpenRowingMonitor, but it will not work well with our PM5 emulation: it will **not** save your workout, and we can't create the cryptographic hash to upload the workout results. It can also not close the communication, causing a deadlock that hangs communication at both ends (kill the ErgData app to resolve this). As ErgData is propriatary to Concept2, we will **not** put in any effort to resolve this (see [issue 117](https://github.com/JaapvanEkris/openrowingmonitor/issues/117)).
-- Some Garmin watches have issues with our 'Cycling Power' and 'Cycling Speed and Cadence' Bluetooth profiles (see [issue 125](https://github.com/JaapvanEkris/openrowingmonitor/issues/125)). This affects all past versions of OpenRowingMonitor.
+  - ErgData can program a workout on OpenRowingMonitor, but it will not work well with our PM5 emulation: it will **not** save your workout, as we can't create the cryptographic hash to upload the workout results. It can also not close the communication, causing a deadlock that hangs communication at both ends (kill the ErgData app to resolve this). As ErgData is propriatary to Concept2, we will **not** put in any effort to resolve this (see [issue 117](https://github.com/JaapvanEkris/openrowingmonitor/issues/117)).
+- Some Garmin watches have issues with our 'Cycling Power' and 'Cycling Speed and Cadence' Bluetooth profiles. This affects all current and past versions of OpenRowingMonitor, and might be caused by Garmin (see [issue 125](https://github.com/JaapvanEkris/openrowingmonitor/issues/125)).
 
 ## Version 0.9.5 (February 2025)
 
