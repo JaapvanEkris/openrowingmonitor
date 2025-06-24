@@ -14,7 +14,7 @@ export const PeripheralConstants = {
   model: 'PM5',
   name: 'PM5 431099999',
   hardwareRevision: '634',
-  firmwareRevision: `${process.env.npm_package_version || ''}`,
+  firmwareRevision: '8200-000372-176.000',
   manufacturer: `${process.env.npm_package_name || ''}`
 }
 
