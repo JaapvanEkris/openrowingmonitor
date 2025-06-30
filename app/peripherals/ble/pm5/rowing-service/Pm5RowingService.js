@@ -202,12 +202,13 @@ export class Pm5RowingService extends GattService {
   /**
   * @param {Metrics} metrics
   * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/PM5_Interface.md#message-grouping-and-timing|the message timing and grouping analysis}
+  * @remark Always use a deepClone of the metrics to prevent the subsequent merging with other splits (around an unplanned pause) from affecting the data reported in the recorders and other peripherals!
   */
   notifyData (metrics) {
     if (metrics.metricsContext === undefined) { return }
-    if (!(metrics.sessionState === 'Stopped' && !metrics.metricsContext.isSessionStop)) { this.#lastKnownMetrics = metrics }
+    if (!(metrics.sessionState === 'Stopped' && !metrics.metricsContext.isSessionStop)) { this.#lastKnownMetrics = structuredClone(metrics) }
     if (this.#partialC2SplitMetrics !== null) { this.#lastKnownMetrics = mergeTwoSplits(this.#partialC2SplitMetrics, this.#lastKnownMetrics) }
-    if (this.#lastActiveIntervalMetrics !== null && metrics.sessionState !== 'Stopped') { this.#lastKnownMetrics = appendPauseIntervalToActiveInterval(this.#lastActiveIntervalMetrics, metrics) }
+    if (this.#lastActiveIntervalMetrics !== null && metrics.sessionState !== 'Stopped') { this.#lastKnownMetrics = appendPauseIntervalToActiveInterval(this.#lastActiveIntervalMetrics, structuredClone(metrics)) }
     this.#lastKnownMetrics.split.C2number = this.#C2SplitNumber
     this.#lastKnownMetrics.workout.timeSpent.C2Rest = this.#accumulatedC2RestTime
     switch (true) {
