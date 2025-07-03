@@ -28,7 +28,6 @@ flowchart LR
 A(GpioTimerService.js) -->|currentDt| B(server.js)
 B(server.js) -->|currentDt| D(SessionManager.js)
 subgraph RowingEngine
-  direction TD
   D(SessionManager.js) -->|currentDt| N(RowingStatistics.js)
   N(RowingStatistics.js) -->|currentDt| O(Rower.js)
   O(Rower.js) -->|currentDt| P(Flywheel.js)
