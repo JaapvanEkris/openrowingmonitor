@@ -28,6 +28,7 @@ flowchart LR
 A(GpioTimerService.js) -->|currentDt| B(server.js)
 B(server.js) -->|currentDt| D(SessionManager.js)
 subgraph RowingEngine
+  direction TD
   D(SessionManager.js) -->|currentDt| N(RowingStatistics.js)
   N(RowingStatistics.js) -->|currentDt| O(Rower.js)
   O(Rower.js) -->|currentDt| P(Flywheel.js)
@@ -42,6 +43,7 @@ E(PeripheralManager.js) -->|Heart rate data| E(PeripheralManager.js)
 subgraph peripherals
   E(PeripheralManager.js) -->|Rowing metrics + HR Data| F(ANT+ clients)
   E(PeripheralManager.js) -->|Rowing metrics + HR Data| G(BLE clients)
+  E(PeripheralManager.js) -->|Rowing metrics + HR Data| Q(MQTT clients)
 end
 B(server.js) -->|currentDt| H(RecordingManager.js)
 B(server.js) -->|Rowing metrics| H(RecordingManager.js)
