@@ -37,6 +37,8 @@ subgraph RowingEngine
 end
 D(SessionManager.js) -->|Rowing metrics| B(server.js)
 B(server.js) -->|Rowing metrics| E(PeripheralManager.js)
+C(PeripheralManager.js) -->|Workout plan| B(server.js)
+B(server.js) -->|Workout plan| D(SessionManager.js)
 C(PeripheralManager.js) -->|Heart rate data| B(server.js)
 E(PeripheralManager.js) -->|Heart rate data| E(PeripheralManager.js)
 subgraph peripherals
