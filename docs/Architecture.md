@@ -59,7 +59,7 @@ end
 B(server.js) -->|Rowing metrics| M(WebServer.js)
 B(server.js) -->|Heart rate data| M(WebServer.js)
 subgraph clients
-  M(WebServer.js) -->|Rowing metrics + HR Data| Q(Client.js)
+  M(WebServer.js) -->|Rowing metrics + HR Data| R(Client.js)
 end
 ```
 
