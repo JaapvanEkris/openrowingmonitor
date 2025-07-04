@@ -6,15 +6,15 @@
 <!-- markdownlint-disable-next-line no-inline-html -->
 <img width="200" height="200" align="left" src="img/openrowingmonitor_icon.png" alt="OpenRowingMonitor logo" class="dropcap">
 
-OpenRowingMonitor is a free open source monitor for rowing machines. It allows you to upgrade any rowing machine into a smart trainer that can be used with applications and games, making rowing much more fun and affordable!
+OpenRowingMonitor is a reliable, free and open source monitor for rowing machines. It allows you to upgrade any rowing machine into a smart trainer that can be used with applications and games, making rowing much more fun and affordable!
 
 It runs on cheap (Raspberry Pi) hardware to calculate rowing metrics, such as power, split time, speed, stroke rate, distance and calories. As it is your data, you can share these metrics with games and analysis in the way you like.
 
-OpenRowingMonitor runs fine on any rowing machine that uses some kind of damping mechanism, as long as you can add something to measure the speed of the flywheel, like magnets. It already has been retrofitted to many rowing machines like the [DIY Openergo](https://openergo.webs.com) and many [existing machines that lack a decent monitor](Supported_Rowers.md). If your machine isn't listed, don't worry, adjusting the settings is easy following the [settings adjustment help guide](rower_settings.md) yourself. There is no reason to be anxious, in the [GitHub Discussions](https://github.com/JaapvanEkris/openrowingmonitor/discussions) there always are friendly people to help you set up your machine and the settings.
+OpenRowingMonitor runs fine on any rowing machine, as long as you can add something to measure the speed of the flywheel, like magnets. It already has been retrofitted to many rowing machines like the [DIY Openergo](https://openergo.webs.com) and many [existing machines that lack a decent monitor](Supported_Rowers.md), and is used by many on a daily basis. If your machine isn't listed, don't worry, adjusting the settings is easy following the [settings adjustment help guide](rower_settings.md) yourself. And in the [GitHub Discussions](https://github.com/JaapvanEkris/openrowingmonitor/discussions) there always are friendly people to help you set up your machine and the settings.
 
 ## Features
 
-OpenRowingMonitor can provide you with metrics directly, via watches (ANT+), apps and games (bluetooth) and Home Automation (MQTT). It also allows you to export your data to the analysis tool of your choice. These features have been tested intensily. Most features have survived flawlessly over thousands of kilometers of rowing with different types of rowing machines.
+OpenRowingMonitor can provide you with metrics directly, via smartwatches (ANT+), apps and games (bluetooth) and Home Automation (MQTT). It also allows you to export your data to the analysis tool of your choice.
 
 <!-- markdownlint-disable-next-line no-inline-html -->
 <img src="img/openrowingmonitor_frontend.png" alt="Image showing the main OpenRowingMonitor screen" title="The main screen" width="700"><br clear="left">
@@ -78,7 +78,7 @@ OpenRowingMonitor can recieve heartrate data via Bluetooth Low Energy (BLE) and 
 
 ### Export of Training Sessions
 
-OpenRowingMonitor is based on the idea your metrics should be easily accessible for further analysis on data platforms. Automatic uploading your sessions to [RowsAndAll](https://rowsandall.com/), [Intervals.icu](https://intervals.icu/) and [Strava](https://www.strava.com) is an integrated feature, for all other platforms this is currently a manual step, see [the integration manual](Integrations.md). For these platforms, OpenRowingMonitor can create the following file types:
+OpenRowingMonitor is based on the idea your metrics should be easily accessible for further analysis on data platforms. Automatic uploading your sessions to [RowsAndAll](https://rowsandall.com/), [Intervals.icu](https://intervals.icu/) and [Strava](https://www.strava.com) is an integrated feature. For other platforms this is currently a manual step, see [the integration manual](Integrations.md). To allow the data upliad, OpenRowingMonitor can create the following file types:
 
 * **RowingData** files, which are comma-seperated files with all metrics OpenRowingMonitor can produce. These can be used with [RowingData](https://pypi.org/project/rowingdata/) to display your results locally, or uploaded to [RowsAndAll](https://rowsandall.com/) for a webbased analysis (including dynamic in-stroke metrics). The csv-files can also be processed manually in Excel, allowing your own custom analysis;
 
