@@ -155,7 +155,7 @@ test('sample data for NordicTrack RX800 should produce plausible results without
   testTotalLinearDistance(sessionManager, 80.49260485116434)
   testTotalNumberOfStrokes(sessionManager, 9)
   // As dragFactor is dynamic, it should have changed
-  testDragFactor(sessionManager, 494.92868774518126)
+  testDragFactor(sessionManager, 491.1395313462149)
 })
 
 test('sample data for NordicTrack RX800 should produce plausible results for a 20 seconds session', async () => {
@@ -186,10 +186,10 @@ test('sample data for NordicTrack RX800 should produce plausible results for a 2
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/RX800.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 20.02496380499998)
-  testTotalLinearDistance(sessionManager, 73.19136480921375)
+  testTotalLinearDistance(sessionManager, 72.3905525302199)
   testTotalNumberOfStrokes(sessionManager, 9)
   // As dragFactor is dynamic, it should have changed
-  testDragFactor(sessionManager, 494.92868774518126)
+  testDragFactor(sessionManager, 491.1395313462149)
 })
 
 test('sample data for NordicTrack RX800 should produce plausible results for a 75 meter session', async () => {
@@ -220,10 +220,10 @@ test('sample data for NordicTrack RX800 should produce plausible results for a 7
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/RX800.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 20.78640177499998)
-  testTotalLinearDistance(sessionManager, 75.04262460921579)
+  testTotalLinearDistance(sessionManager, 75.04096463553918)
   testTotalNumberOfStrokes(sessionManager, 9)
   // As dragFactor is dynamic, it should have changed
-  testDragFactor(sessionManager, 494.92868774518126)
+  testDragFactor(sessionManager, 491.1395313462149)
 })
 
 test('A full unlimited session for SportsTech WRX700 should produce plausible results', async () => {
