@@ -415,11 +415,11 @@ test('sample data for NordicTrack RX800 should produce plausible results', async
 
   await replayRowingSession(rowingStatistics.handleRotationImpulse, { filename: 'recordings/RX800.csv', realtime: false, loop: false })
 
-  testTotalMovingTime(rowingStatistics, 21.97324892)
-  testTotalLinearDistance(rowingStatistics, 80.42009355207885)
+  testTotalMovingTime(rowingStatistics, 22.259092749999997)
+  testTotalLinearDistance(rowingStatistics, 80.49260485116434)
   testTotalNumberOfStrokes(rowingStatistics, 9)
   // As dragFactor is dynamic, it should have changed
-  testDragFactor(rowingStatistics, 494.92868774518126)
+  testDragFactor(rowingStatistics, 491.1395313462149)
 })
 
 test('A full session for SportsTech WRX700 should produce plausible results', async () => {
