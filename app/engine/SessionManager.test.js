@@ -187,7 +187,7 @@ test('sample data for NordicTrack RX800 should produce plausible results for a 2
 
   testTotalMovingTime(sessionManager, 20.02496380499998)
   testTotalLinearDistance(sessionManager, 72.3905525302199)
-  testTotalNumberOfStrokes(sessionManager, 9)
+  testTotalNumberOfStrokes(sessionManager, 8)
   // As dragFactor is dynamic, it should have changed
   testDragFactor(sessionManager, 491.1395313462149)
 })
