@@ -1,25 +1,27 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  Some PM5 specific constants
 */
+/**
+ * Some PM5 specific constants
+ */
 
 import { PeripheralConstants } from '../../PeripheralConstants.js'
 
-const pm5Constants = {
+import { ErgModelType } from './csafe-service/CsafeCommandsMapping.js'
+
+export const pm5Constants = {
   ...PeripheralConstants,
   // See https://www.concept2.com/service/monitors/pm5/firmware for available versions
   // please note: hardware versions exclude a software version, and thus might confuse the client
-  ergMachineType: [0x05]
+  // ergMachineType: 0 TYPE_STATIC_D
+  ergMachineType: ErgModelType.ERGMODEL_TYPE_D
 }
 
-// PM5 uses 128bit UUIDs that are always prefixed and suffixed the same way
-function getFullUUID (uuid) {
-  return `ce06${uuid}43e511e4916c0800200c9a66`
-}
-
-export {
-  getFullUUID,
-  pm5Constants
+/**
+ * PM5 uses 128bit UUIDs that are always prefixed and suffixed the same way
+ * @param {string} uuid
+ */
+export function toC2128BitUUID (uuid) {
+  return `CE06${uuid}-43E5-11E4-916C-0800200C9A66`
 }

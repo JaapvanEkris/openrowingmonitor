@@ -7,6 +7,16 @@
 */
 import log from 'loglevel'
 
+/**
+ * @param {{[key: string | number | symbol]: any}} parameterSection
+ * @param {string} parameterName
+ * @param {number | null} minimumValue
+ * @param {number | null} maximumvalue
+ * @param {boolean} allowZero
+ * @param {boolean} allowRepair
+ * @param {number | null} defaultValue
+ */
+// eslint-disable-next-line max-params
 export function checkIntegerValue (parameterSection, parameterName, minimumValue, maximumvalue, allowZero, allowRepair, defaultValue) {
   // PLEASE NOTE: the parameterSection, parameterName seperation is needed to force a call by reference, which is needed for the repair action
   let errors = 0
@@ -19,11 +29,11 @@ export function checkIntegerValue (parameterSection, parameterName, minimumValue
       log.error(`Configuration Error: ${parameterSection}.${parameterName} should be an integer value, encountered ${parameterSection[parameterName]}`)
       errors++
       break
-    case (minimumValue != null && parameterSection[parameterName] < minimumValue):
+    case (minimumValue !== null && parameterSection[parameterName] < minimumValue):
       log.error(`Configuration Error: ${parameterSection}.${parameterName} should be at least ${minimumValue}, encountered ${parameterSection[parameterName]}`)
       errors++
       break
-    case (maximumvalue != null && parameterSection[parameterName] > maximumvalue):
+    case (maximumvalue !== null && parameterSection[parameterName] > maximumvalue):
       log.error(`Configuration Error: ${parameterSection}.${parameterName} can't be above ${maximumvalue}, encountered ${parameterSection[parameterName]}`)
       errors++
       break
@@ -46,6 +56,16 @@ export function checkIntegerValue (parameterSection, parameterName, minimumValue
   }
 }
 
+/**
+ * @param {{[key: string | number | symbol]: any}} parameterSection
+ * @param {string} parameterName
+ * @param {number | null} minimumValue
+ * @param {number | null} maximumvalue
+ * @param {boolean} allowZero
+ * @param {boolean} allowRepair
+ * @param {number | null} defaultValue
+ */
+// eslint-disable-next-line max-params
 export function checkFloatValue (parameterSection, parameterName, minimumValue, maximumvalue, allowZero, allowRepair, defaultValue) {
   // PLEASE NOTE: the parameterSection, parameterName seperation is needed to force a call by reference, which is needed for the repair action
   let errors = 0
@@ -58,11 +78,11 @@ export function checkFloatValue (parameterSection, parameterName, minimumValue, 
       log.error(`Configuration Error: ${parameterSection}.${parameterName} should be a numerical value, encountered ${parameterSection[parameterName]}`)
       errors++
       break
-    case (minimumValue != null && parameterSection[parameterName] < minimumValue):
+    case (minimumValue !== null && parameterSection[parameterName] < minimumValue):
       log.error(`Configuration Error: ${parameterSection}.${parameterName} should be at least ${minimumValue}, encountered ${parameterSection[parameterName]}`)
       errors++
       break
-    case (maximumvalue != null && parameterSection[parameterName] > maximumvalue):
+    case (maximumvalue !== null && parameterSection[parameterName] > maximumvalue):
       log.error(`Configuration Error: ${parameterSection}.${parameterName} can't be above ${maximumvalue}, encountered ${parameterSection[parameterName]}`)
       errors++
       break
@@ -85,6 +105,12 @@ export function checkFloatValue (parameterSection, parameterName, minimumValue, 
   }
 }
 
+/**
+ * @param {{[key: string | number | symbol]: any}} parameterSection
+ * @param {string} parameterName
+ * @param {boolean} allowRepair
+ * @param {boolean} defaultValue
+ */
 export function checkBooleanValue (parameterSection, parameterName, allowRepair, defaultValue) {
   // PLEASE NOTE: the parameterSection, parameterName seperation is needed to force a call by reference, which is needed for the repair action
   let errors = 0
@@ -112,6 +138,13 @@ export function checkBooleanValue (parameterSection, parameterName, allowRepair,
   }
 }
 
+/**
+ * @param {{[key: string | number | symbol]: any}} parameterSection
+ * @param {string} parameterName
+ * @param {Array<string | number>} range
+ * @param {boolean} allowRepair
+ * @param {string | number} defaultValue
+ */
 export function checkRangeValue (parameterSection, parameterName, range, allowRepair, defaultValue) {
   // PLEASE NOTE: the parameterSection, parameterName seperation is needed to force a call by reference, which is needed for the repair action
   let errors = 0

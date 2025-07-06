@@ -1,5 +1,4 @@
 'use strict'
-
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
@@ -18,12 +17,11 @@ export function filterObjectByKeys (object, keys) {
 
 /**
   * Pipe for converting seconds to a human readable time format 00:00
-  *
-  * @param {number} seconds The actual time in seconds.
+  * @param {number} timeInSeconds The actual time in seconds.
 */
 export function secondsToTimeString (timeInSeconds) {
-  if (timeInSeconds === undefined || timeInSeconds === null || isNaN(timeInSeconds)) return '--'
-  if (timeInSeconds === Infinity) return '∞'
+  if (timeInSeconds === undefined || timeInSeconds === null || isNaN(timeInSeconds)) { return '--' }
+  if (timeInSeconds === Infinity) { return 'âˆž' }
   const timeInRoundedSeconds = Math.round(timeInSeconds)
   const hours = Math.floor(timeInRoundedSeconds / 3600)
   const minutes = Math.floor(timeInRoundedSeconds / 60) - (hours * 60)
@@ -37,18 +35,16 @@ export function secondsToTimeString (timeInSeconds) {
 
 /**
   * Pipe for formatting distance in meters with units
-  *
   * @param {number} value The distance in meters.
 */
 export function formatDistance (value) {
-  return value >= 99999.5
-    ? { distance: formatNumber((value / 1000), 2), unit: 'km' }
-    : { distance: formatNumber(value), unit: 'm' }
+  return value >= 99999.5 ?
+    { distance: formatNumber((value / 1000), 2), unit: 'km' } :
+    { distance: formatNumber(value), unit: 'm' }
 }
 
 /**
   * Pipe for formatting numbers to specific decimal
-  *
   * @param {number} value The number.
   * @param {number} decimalPlaces The number of decimal places to round to (default: 0).
 */

@@ -1,5 +1,5 @@
 [Unit]
-Description=Open Rowing Monitor
+Description=OpenRowingMonitor
 After=multi-user.target
 StartLimitIntervalSec=60
 StartLimitBurst=5

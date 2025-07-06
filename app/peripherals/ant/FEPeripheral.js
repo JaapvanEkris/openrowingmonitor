@@ -1,15 +1,19 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  Creates a ANT+ Peripheral with all the datapages that are required for
-  an indoor rower
 */
-
+/**
+ * Creates a ANT+ Peripheral with all the datapages that are required for an indoor rower
+ */
 import log from 'loglevel'
-import { Messages } from 'incyclist-ant-plus'
+
 import { PeripheralConstants } from '../PeripheralConstants.js'
 
+import { Messages } from 'incyclist-ant-plus'
+
+/**
+ * @param {import('./AntManager').default} antManager
+ */
 function createFEPeripheral (antManager) {
   const antStick = antManager.getAntStick()
   const deviceType = 0x11 // Ant FE-C device
@@ -21,6 +25,12 @@ function createFEPeripheral (antManager) {
   const rfChannel = 57 // 2457 MHz
   let dataPageCount = 0
   let commonPageCount = 0
+  let accumulatedTime = 0
+  let accumulatedDistance = 0
+  let accumulatedStrokes = 0
+  /**
+   * @type {NodeJS.Timeout}
+   */
   let timer
 
   let sessionData = {
@@ -33,7 +43,7 @@ function createFEPeripheral (antManager) {
     instantaneousPower: 0,
     distancePerStroke: 0,
     fitnessEquipmentState: fitnessEquipmentStates.ready,
-    sessionStatus: 'WaitingForStart'
+    sessionState: 'WaitingForStart'
   }
 
   async function attach () {
@@ -56,7 +66,7 @@ function createFEPeripheral (antManager) {
   }
 
   function destroy () {
-    return new Promise((resolve) => {
+    return new Promise((/** @type {(value: void) => void} */resolve) => {
       clearInterval(timer)
       log.info(`ANT+ FE server stopped [deviceId=${deviceId} channel=${channel}]`)
 
@@ -73,7 +83,7 @@ function createFEPeripheral (antManager) {
 
   function onBroadcastInterval () {
     dataPageCount++
-    let data
+    let /** @type {Array<number>} */data = []
 
     switch (true) {
       case dataPageCount === 65 || dataPageCount === 66:
@@ -116,7 +126,7 @@ function createFEPeripheral (antManager) {
           0x00, // Resistance (DF may be reported if conversion to the % is worked out (value in % with a resolution of 0.5%).
           ...Messages.intToLEHexArray(feCapabilitiesBitField, 1)
         ]
-        if (sessionData.sessionStatus === 'Rowing') {
+        if (sessionData.sessionState === 'Rowing') {
           log.trace(`Page 17 Data Sent. Event=${dataPageCount}. Stroke Length=${sessionData.distancePerStroke}.`)
           log.trace(`Hex Stroke Length=0x${sessionData.distancePerStroke.toString(16)}.`)
         }
@@ -133,7 +143,7 @@ function createFEPeripheral (antManager) {
           ...Messages.intToLEHexArray(sessionData.instantaneousPower, 2), // Instant Power (2 bytes)
           ...Messages.intToLEHexArray((sessionData.fitnessEquipmentState + rowingCapabilitiesBitField), 1)
         ]
-        if (sessionData.sessionStatus === 'Rowing') {
+        if (sessionData.sessionState === 'Rowing') {
           log.trace(`Page 22 Data Sent. Event=${dataPageCount}. Strokes=${sessionData.accumulatedStrokes}. Stroke Rate=${sessionData.strokeRate}. Power=${sessionData.instantaneousPower}`)
           log.trace(`Hex Strokes=0x${sessionData.accumulatedStrokes.toString(16)}. Hex Stroke Rate=0x${sessionData.strokeRate.toString(16)}. Hex Power=0x${Messages.intToLEHexArray(sessionData.instantaneousPower, 2)}.`)
         }
@@ -150,7 +160,7 @@ function createFEPeripheral (antManager) {
           0xFF, // heart rate not being sent
           ...Messages.intToLEHexArray((sessionData.fitnessEquipmentState + feCapabilitiesBitField), 1)
         ]
-        if (sessionData.sessionStatus === 'Rowing') {
+        if (sessionData.sessionState === 'Rowing') {
           log.trace(`Page 16 Data Sent. Event=${dataPageCount}. Time=${sessionData.accumulatedTime}. Distance=${sessionData.accumulatedDistance}. Speed=${sessionData.cycleLinearVelocity}.`)
           log.trace(`Hex Time=0x${sessionData.accumulatedTime.toString(16)}. Hex Distance=0x${sessionData.accumulatedDistance.toString(16)}. Hex Speed=0x${Messages.intToLEHexArray(sessionData.cycleLinearVelocity, 2)}.`)
         }
@@ -162,49 +172,86 @@ function createFEPeripheral (antManager) {
     timer = setTimeout(onBroadcastInterval, broadcastInterval)
   }
 
+  /**
+   * @remark Be aware: time, distance and strokes must always count upwards as small changes trigger a rollover at the watch side. So we must force this
+   * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/discussions/100|this bugreport}
+   * @param {Metrics} data
+   */
   function notifyData (data) {
+    accumulatedTime = Math.max(data.workout.timeSpent, sessionData.accumulatedTime)
+    accumulatedDistance = Math.max(data.workout.distance.fromStart, accumulatedDistance)
+    accumulatedStrokes = Math.max(data.workout.numberOfStrokes, accumulatedStrokes)
     sessionData = {
       ...sessionData,
-      accumulatedDistance: (data.totalLinearDistance > 0 ? data.totalLinearDistance : 0) & 0xFF,
-      accumulatedStrokes: (data.totalNumberOfStrokes > 0 ? data.totalNumberOfStrokes : 0) & 0xFF,
-      accumulatedTime: (data.totalMovingTime > 0 ? Math.trunc(data.totalMovingTime * 4) : 0) & 0xFF,
+      accumulatedTime: (accumulatedTime > 0 ? Math.round(accumulatedTime * 4) : 0) & 0xFF,
+      accumulatedDistance: (accumulatedDistance > 0 ? Math.round(accumulatedDistance) : 0) & 0xFF,
+      accumulatedStrokes: (accumulatedStrokes > 0 ? Math.round(accumulatedStrokes) : 0) & 0xFF,
       cycleLinearVelocity: (data.metricsContext.isMoving && data.cycleLinearVelocity > 0 ? Math.round(data.cycleLinearVelocity * 1000) : 0),
       strokeRate: (data.metricsContext.isMoving && data.cycleStrokeRate > 0 ? Math.round(data.cycleStrokeRate) : 0) & 0xFF,
       instantaneousPower: (data.metricsContext.isMoving && data.cyclePower > 0 ? Math.round(data.cyclePower) : 0) & 0xFFFF,
       distancePerStroke: (data.metricsContext.isMoving && data.cycleDistance > 0 ? Math.round(data.cycleDistance * 100) : 0),
-      sessionStatus: data.sessionStatus
+      sessionState: data.sessionState
     }
 
-    // See https://c2usa.fogbugz.com/default.asp?W119
-    // * when machine is on and radio active, but have not yet begun a session -> status set to "ready", speed, etc. are all 0 (as forced by above requirement for data.metricsContext.isMoving)
-    // * first stroke -> status = 3 (in use)
-    // * end of wokrout -> status = 4 (finished)
-    // * Pause: go to 4 (finished, if data.metricsContext.isMoving = false); back to inUse if rowing starts coming back.
-    // every time move from "ready" to "inUse" it will create a new piece on the watch.
+    /**
+     * @See {@link https://c2usa.fogbugz.com/default.asp?W119| states description}
+     * - when machine is on and radio active, but have not yet begun a session -> status set to "ready", speed, etc. are all 0 (as forced by above requirement for data.metricsContext.isMoving)
+     * - first stroke -> status = 3 (in use)
+     * - end of wokrout -> status = 4 (finished)
+     * - Pause: go to 4 (finished, if data.metricsContext.isMoving = false); back to inUse if rowing starts coming back.
+     * every time move from "ready" to "inUse" it will create a new piece on the watch.
+     */
     // ToDo: if cross split; raise LAP Toggle
     switch (true) {
-      case (data.metricsContext.isSessionStart):
+      case (data.sessionState === 'Rowing'):
         sessionData.fitnessEquipmentState = fitnessEquipmentStates.inUse
         break
-      case (data.metricsContext.isSessionStop):
+      case (data.sessionState === 'Stopped'):
         sessionData.fitnessEquipmentState = fitnessEquipmentStates.finished
         break
-      case (data.metricsContext.isPauseStart):
+      case (data.sessionState === 'Paused'):
         sessionData.fitnessEquipmentState = fitnessEquipmentStates.finished
         break
-      case (data.metricsContext.isPauseEnd):
-        sessionData.fitnessEquipmentState = fitnessEquipmentStates.inUse
-        break
-      case (data.metricsContext.isMoving):
-        sessionData.fitnessEquipmentState = fitnessEquipmentStates.inUse
+      case (data.sessionState === 'WaitingForStart'):
+        sessionData.fitnessEquipmentState = fitnessEquipmentStates.ready
         break
       default:
         sessionData.fitnessEquipmentState = fitnessEquipmentStates.ready
     }
   }
 
-  // FE does not have status characteristic
+  /**
+   * FE does not have status characteristic, but is notified of a reset, which should be handled
+   * @param {{name: string}} status
+   */
   function notifyStatus (status) {
+    switch (status?.name) {
+      case ('reset'):
+        reset()
+        break
+      default:
+        // Do nothing
+    }
+  }
+
+  function reset () {
+    dataPageCount = 0
+    commonPageCount = 0
+    accumulatedTime = 0
+    accumulatedDistance = 0
+    accumulatedStrokes = 0
+    sessionData = {
+      accumulatedStrokes: 0,
+      accumulatedDistance: 0,
+      accumulatedTime: 0,
+      accumulatedPower: 0,
+      cycleLinearVelocity: 0,
+      strokeRate: 0,
+      instantaneousPower: 0,
+      distancePerStroke: 0,
+      fitnessEquipmentState: fitnessEquipmentStates.ready,
+      sessionState: 'WaitingForStart'
+    }
   }
 
   return {

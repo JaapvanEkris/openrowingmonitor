@@ -2,15 +2,16 @@
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
-  The connected Central can remotly control some parameters or our rowing monitor via this Control Point
-
-  So far tested on:
-    - Fulgaz: uses setIndoorBikeSimulationParameters
-    - Zwift: uses startOrResume and setIndoorBikeSimulationParameters
+  The connected Central can remotely control some parameters or our rowing monitor via this Control Point
 */
-import bleno from '@stoprocent/bleno'
-import log from 'loglevel'
+import NodeBleHost from 'ble-host'
+import logevel from 'loglevel'
+
+import { swapObjectPropertyValues } from '../../../tools/Helper.js'
+
 import { ResultOpCode } from '../common/CommonOpCodes.js'
+
+const log = logevel.getLogger('Peripherals')
 
 // see https://www.bluetooth.com/specifications/specs/fitness-machine-service-1-0 for details
 const ControlPointOpCode = {
@@ -38,98 +39,103 @@ const ControlPointOpCode = {
   responseCode: 0x80
 }
 
-export default class FitnessMachineControlPointCharacteristic extends bleno.Characteristic {
-  constructor (controlPointCallback) {
-    super({
-      // Fitness Machine Control Point
-      uuid: '2AD9',
-      value: null,
-      properties: ['write']
-    })
-
-    this.controlled = false
-    if (!controlPointCallback) { throw new Error('controlPointCallback required') }
-    this.controlPointCallback = controlPointCallback
+export class FitnessMachineControlPointCharacteristic {
+  get characteristic () {
+    return this.#characteristic
   }
 
-  // Central sends a command to the Control Point
-  // todo: handle offset and withoutResponse properly
-  onWriteRequest (data, offset, withoutResponse, callback) {
+  #controlled = false
+  /**
+   * @type {GattServerCharacteristicFactory}
+   */
+  #characteristic
+  #controlPointCallback
+
+  /**
+   * @param {ControlPointCallback} controlPointCallback
+   */
+  constructor (controlPointCallback) {
+    if (!controlPointCallback) { throw new Error('controlPointCallback required') }
+    this.#controlPointCallback = controlPointCallback
+
+    this.#characteristic = {
+      name: 'Fitness Machine Control Point',
+      uuid: 0x2AD9,
+      properties: ['write', 'indicate'],
+      onWrite: (connection, _needsResponse, opCode, callback) => {
+        log.debug('FTMS control is called:', opCode)
+        const response = this.#onWriteRequest(opCode)
+
+        if (this.#characteristic.indicate === undefined) {
+          log.debug(`Characteristics ${this.#characteristic.name} has not been initialized`)
+          throw new Error(`Characteristics ${this.#characteristic.name} has not been initialized`)
+        }
+
+        this.#characteristic.indicate(connection, response)
+        callback(NodeBleHost.AttErrors.SUCCESS) // actually only needs to be called when needsResponse is true
+      }
+    }
+  }
+
+  /**
+   * @param {Buffer} data
+   * @returns {Buffer}
+   */
+  #onWriteRequest (data) {
     const opCode = data.readUInt8(0)
     switch (opCode) {
       case ControlPointOpCode.requestControl:
-        if (!this.controlled) {
-          if (this.controlPointCallback({ name: 'requestControl' })) {
-            log.debug('FitnessMachineControlPointCharacteristic: requestControl successful')
-            this.controlled = true
-            callback(this.buildResponse(opCode, ResultOpCode.success))
-          } else {
-            callback(this.buildResponse(opCode, ResultOpCode.operationFailed))
-          }
-        } else {
-          callback(this.buildResponse(opCode, ResultOpCode.controlNotPermitted))
-        }
-        break
-
+        this.#controlled = true
+        return this.#buildResponse(opCode, ResultOpCode.success)
       case ControlPointOpCode.reset:
-        this.handleSimpleCommand(ControlPointOpCode.reset, 'reset', callback)
-        // as per spec the reset command shall also reset the control
-        this.controlled = false
+        // The spec expects that after the reset command also the control shall be reset, but this leads to an error situation
+        // ErgZone will send a reset at the start of communication, without pushing any workoutplan, leading to a loss of information
+        if (this.#controlled) {
+          this.#controlPointCallback({ req: { name: 'reset', data: {} } })
+          return this.#buildResponse(opCode, ResultOpCode.success)
+        } else {
+          log.error('FTMS: Reset attempted before RequestControl')
+        }
         break
-
       case ControlPointOpCode.startOrResume:
-        this.handleSimpleCommand(ControlPointOpCode.startOrResume, 'startOrResume', callback)
+        if (this.#controlled) {
+          this.#controlPointCallback({ req: { name: 'startOrResume', data: {} } })
+          return this.#buildResponse(opCode, ResultOpCode.success)
+        } else {
+          log.error('FTMS: startOrResume attempted before RequestControl')
+        }
         break
-
       case ControlPointOpCode.stopOrPause: {
-        const controlParameter = data.readUInt8(1)
-        if (controlParameter === 1) {
-          this.handleSimpleCommand(ControlPointOpCode.stopOrPause, 'stop', callback)
-        } else if (controlParameter === 2) {
-          this.handleSimpleCommand(ControlPointOpCode.stopOrPause, 'pause', callback)
-        } else {
+        if (this.#controlled) {
+          const controlParameter = data.readUInt8(1)
+          if (controlParameter === 1) {
+            this.#controlPointCallback({ req: { name: 'stop', data: {} } })
+            return this.#buildResponse(opCode, ResultOpCode.success)
+          } else if (controlParameter === 2) {
+            this.#controlPointCallback({ req: { name: 'pause', data: {} } })
+            return this.#buildResponse(opCode, ResultOpCode.success)
+          }
           log.error(`FitnessMachineControlPointCharacteristic: stopOrPause with invalid controlParameter: ${controlParameter}`)
-        }
-        break
-      }
-
-      // todo: Most tested bike apps use these to simulate a bike ride. Not sure how we can use these in our rower
-      // since there is no adjustable resistance on the rowing machine
-      case ControlPointOpCode.setIndoorBikeSimulationParameters: {
-        const windspeed = data.readInt16LE(1) * 0.001
-        const grade = data.readInt16LE(3) * 0.01
-        const crr = data.readUInt8(5) * 0.0001
-        const cw = data.readUInt8(6) * 0.01
-        if (this.controlPointCallback({ name: 'setIndoorBikeSimulationParameters', value: { windspeed, grade, crr, cw } })) {
-          callback(this.buildResponse(opCode, ResultOpCode.success))
         } else {
-          callback(this.buildResponse(opCode, ResultOpCode.operationFailed))
+          log.error('FTMS: stopOrPause attempted before RequestControl')
         }
         break
       }
-
+      // TODO: Potentially handle setTargetPower and setDistance, etc. by integrating it into the interval/session manager. Difficulty is that this is a simple justrow like command with one target and no limits.
+      // So far, no apps have been found that actually use this interaction to develop and test against.
       default:
-        log.info(`FitnessMachineControlPointCharacteristic: opCode ${opCode} is not supported`)
-        callback(this.buildResponse(opCode, ResultOpCode.opCodeNotSupported))
+        log.info(`FitnessMachineControlPointCharacteristic: opCode ${swapObjectPropertyValues(ControlPointOpCode)[opCode]} is not supported`)
     }
+
+    log.info(`FitnessMachineControlPointCharacteristic: opCode ${swapObjectPropertyValues(ControlPointOpCode)[opCode]} is not supported`)
+    return this.#buildResponse(opCode, ResultOpCode.opCodeNotSupported)
   }
 
-  handleSimpleCommand (opCode, opName, callback) {
-    if (this.controlled) {
-      if (this.controlPointCallback({ name: opName })) {
-        const response = this.buildResponse(opCode, ResultOpCode.success)
-        callback(response)
-      } else {
-        callback(this.buildResponse(opCode, ResultOpCode.operationFailed))
-      }
-    } else {
-      log.info(`FitnessMachineControlPointCharacteristic: initating command '${opName}' requires 'requestControl'`)
-      callback(this.buildResponse(opCode, ResultOpCode.controlNotPermitted))
-    }
-  }
-
-  // build the response message as defined by the spec
-  buildResponse (opCode, resultCode) {
+  /**
+   * @param {number} opCode
+   * @param {number} resultCode
+   */
+  #buildResponse (opCode, resultCode) {
     const buffer = Buffer.alloc(3)
     buffer.writeUInt8(0x80, 0)
     buffer.writeUInt8(opCode, 1)

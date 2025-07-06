@@ -4,38 +4,26 @@
 
   Initialization file of the Open Rowing Monitor App
 */
-
+/* eslint-disable no-console -- This runs client side, so I guess we have no logging capabilities? */
 import NoSleep from 'nosleep.js'
 import { filterObjectByKeys } from './helper.js'
 
 export function createApp (app) {
-  const stravaAuthorizationCode = new URLSearchParams(window.location.search).get('code')
-
   let socket
 
   initWebsocket()
   resetFields()
   requestWakeLock()
 
-  function websocketOpened () {
-    if (stravaAuthorizationCode) {
-      handleStravaAuthorization(stravaAuthorizationCode)
-    }
-  }
-
-  function handleStravaAuthorization (stravaAuthorizationCode) {
-    if (socket)socket.send(JSON.stringify({ command: 'stravaAuthorizationCode', data: stravaAuthorizationCode }))
-  }
-
   let initialWebsocketOpenend = true
   function initWebsocket () {
     // use the native websocket implementation of browser to communicate with backend
     socket = new WebSocket(`ws://${location.host}/websocket`)
 
+    /* eslint-disable-next-line no-unused-vars -- Standard construct?? */
     socket.addEventListener('open', (event) => {
       console.log('websocket opened')
       if (initialWebsocketOpenend) {
-        websocketOpened()
         initialWebsocketOpenend = false
       }
     })
@@ -45,6 +33,7 @@ export function createApp (app) {
       socket.close()
     })
 
+    /* eslint-disable-next-line no-unused-vars -- Standard construct?? */
     socket.addEventListener('close', (event) => {
       console.log('websocket closed, attempting reconnect')
       setTimeout(() => {
@@ -70,13 +59,8 @@ export function createApp (app) {
             app.updateState({ ...app.getState(), metrics: data })
             break
           }
-          case 'authorizeStrava': {
-            const currentUrl = encodeURIComponent(window.location.href)
-            window.location.href = `https://www.strava.com/oauth/authorize?client_id=${data.stravaClientId}&response_type=code&redirect_uri=${currentUrl}&approval_prompt=force&scope=activity:write`
-            break
-          }
           default: {
-            console.error(`unknown message type: ${message.type}`, message.data)
+            console.error('unknown message type: %s', message.type, message.data)
           }
         }
       } catch (err) {
@@ -107,30 +91,34 @@ export function createApp (app) {
   }
 
   function handleAction (action) {
+    if (!socket) {
+      console.error('no socket available for communication!')
+      return
+    }
     switch (action.command) {
       case 'switchBlePeripheralMode': {
-        if (socket)socket.send(JSON.stringify({ command: 'switchBlePeripheralMode' }))
+        socket.send(JSON.stringify({ command: 'switchBlePeripheralMode' }))
         break
       }
       case 'switchAntPeripheralMode': {
-        if (socket)socket.send(JSON.stringify({ command: 'switchAntPeripheralMode' }))
+        socket.send(JSON.stringify({ command: 'switchAntPeripheralMode' }))
         break
       }
       case 'switchHrmMode': {
-        if (socket)socket.send(JSON.stringify({ command: 'switchHrmMode' }))
+        socket.send(JSON.stringify({ command: 'switchHrmMode' }))
         break
       }
       case 'reset': {
         resetFields()
-        if (socket)socket.send(JSON.stringify({ command: 'reset' }))
+        socket.send(JSON.stringify({ command: 'reset' }))
         break
       }
-      case 'uploadTraining': {
-        if (socket)socket.send(JSON.stringify({ command: 'uploadTraining' }))
+      case 'upload': {
+        socket.send(JSON.stringify({ command: 'upload' }))
         break
       }
       case 'shutdown': {
-        if (socket)socket.send(JSON.stringify({ command: 'shutdown' }))
+        socket.send(JSON.stringify({ command: 'shutdown' }))
         break
       }
       default: {

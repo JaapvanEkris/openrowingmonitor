@@ -10,7 +10,7 @@
   Physics of Rowing by Anu Dudhia: http://eodg.atm.ox.ac.uk/user/dudhia/rowing/physics
   Also Dave Vernooy has some good explanations here: https://dvernooy.github.io/projects/ergware
 */
-
+/* eslint-disable max-lines -- There is a lot of state machine dependent math going on here. Hard to keep short while maintaining readability */
 import loglevel from 'loglevel'
 import { createFlywheel } from './Flywheel.js'
 import { createCurveMetrics } from './utils/curveMetrics.js'
@@ -211,7 +211,7 @@ export function createRower (rowerSettings) {
     if (baseAngularDisplacement >= 0) {
       return Math.pow((flywheel.dragFactor() / rowerSettings.magicConstant), 1.0 / 3.0) * baseAngularDisplacement
     } else {
-      log.error(`Time: ${flywheel.spinningTime().toFixed(4)} sec: calculateLinearDistance error: baseAngularDisplacement was not credible, baseTime: ${baseAngularDisplacement}`)
+      log.error(`Time: ${flywheel.spinningTime().toFixed(4)} sec: calculateLinearDistance error: Angular Displacement of ${baseAngularDisplacement} was not credible, baseTime = ${baseTime}`)
       return 0
     }
   }

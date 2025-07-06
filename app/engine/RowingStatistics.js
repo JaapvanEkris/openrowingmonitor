@@ -1,9 +1,10 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  This Module creates a persistent, consistent and user presentable set of metrics.
 */
+/**
+ *  This Module creates a persistent, consistent and user presentable set of metrics.
+ */
 import { createRower } from './Rower.js'
 import { createOLSLinearSeries } from './utils/OLSLinearSeries.js'
 import { createStreamFilter } from './utils/StreamFilter.js'
@@ -13,7 +14,8 @@ import loglevel from 'loglevel'
 const log = loglevel.getLogger('RowingEngine')
 
 export function createRowingStatistics (config) {
-  const numOfDataPointsForAveraging = config.numOfPhasesForAveragingScreenData
+  const numOfDataPointsForAveraging = config.numOfPhasesForAveragingScreenData // Used for metrics updated twice per cycle
+  const halfNumOfDataPointsForAveraging = Math.round(numOfDataPointsForAveraging / 2) // Used for metrics updated twice per cycle
   const rower = createRower(config.rowerSettings)
   const minimumStrokeTime = config.rowerSettings.minimumRecoveryTime + config.rowerSettings.minimumDriveTime
   const maximumStrokeTime = config.rowerSettings.maximumStrokeTimeBeforePause
@@ -29,12 +31,12 @@ export function createRowingStatistics (config) {
   let strokeCalories = 0
   let strokeWork = 0
   const calories = createOLSLinearSeries()
-  const driveDuration = createStreamFilter(numOfDataPointsForAveraging, undefined)
-  const driveLength = createStreamFilter(numOfDataPointsForAveraging, undefined)
-  const driveDistance = createStreamFilter(numOfDataPointsForAveraging, undefined)
-  const recoveryDuration = createStreamFilter(numOfDataPointsForAveraging, undefined)
-  const driveAverageHandleForce = createStreamFilter(numOfDataPointsForAveraging, undefined)
-  const drivePeakHandleForce = createStreamFilter(numOfDataPointsForAveraging, undefined)
+  const driveDuration = createStreamFilter(halfNumOfDataPointsForAveraging, undefined)
+  const driveLength = createStreamFilter(halfNumOfDataPointsForAveraging, undefined)
+  const driveDistance = createStreamFilter(halfNumOfDataPointsForAveraging, undefined)
+  const recoveryDuration = createStreamFilter(halfNumOfDataPointsForAveraging, undefined)
+  const driveAverageHandleForce = createStreamFilter(halfNumOfDataPointsForAveraging, undefined)
+  const drivePeakHandleForce = createStreamFilter(halfNumOfDataPointsForAveraging, undefined)
   const driveHandleForceCurve = createCurveAligner(config.rowerSettings.minimumForceBeforeStroke)
   const driveHandleVelocityCurve = createCurveAligner(1.0)
   const driveHandlePowerCurve = createCurveAligner(50)
@@ -92,6 +94,13 @@ export function createRowingStatistics (config) {
     resetMetricsContext()
   }
 
+  /**
+   * Calculates the linear metrics based on a currentDt
+   *
+   * @param {float} time between two impulses in seconds
+   *
+   * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/new-ble-api/docs/Architecture.md#rowingstatisticsjs|the architecture description}
+  */
   function handleRotationImpulse (currentDt) {
     // Provide the rower with new data
     rower.handleRotationImpulse(currentDt)
@@ -221,6 +230,7 @@ export function createRowingStatistics (config) {
     }
   }
 
+  /* eslint-disable complexity -- As this is the central metric being delivered to all consumers, who need to accept this at face value, we need a lot of defensive coding */
   function allMetrics () {
     const cyclePace = cycleLinearVelocity.clean() !== 0 && cycleLinearVelocity.raw() > 0 && metricsContext.isMoving === true ? (500.0 / cycleLinearVelocity.clean()) : Infinity
     return {
@@ -254,6 +264,7 @@ export function createRowingStatistics (config) {
       instantPower: instantPower > 0 && rower.strokeState() === 'Drive' ? instantPower : 0
     }
   }
+  /* eslint-enable complexity */
 
   function caloriesPerPeriod (periodBegin, periodEnd) {
     const beginCalories = calories.projectX(periodBegin)

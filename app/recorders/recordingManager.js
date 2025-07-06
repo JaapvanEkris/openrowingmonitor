@@ -6,27 +6,50 @@
 */
 import log from 'loglevel'
 import fs from 'fs/promises'
+import { createFileWriter } from './fileWriter.js'
 import { createLogRecorder } from './logRecorder.js'
 import { createRawRecorder } from './rawRecorder.js'
 import { createTCXRecorder } from './tcxRecorder.js'
 import { createFITRecorder } from './fitRecorder.js'
 import { createRowingDataRecorder } from './rowingDataRecorder.js'
+import { createRowsAndAllInterface } from './rowsAndAllInterface.js'
+import { createIntervalsInterface } from './intervalsInterface.js'
+import { createStravaInterface } from './stravaInterface.js'
 
 export function createRecordingManager (config) {
   let startTime
-  const logRecorder = createLogRecorder(config)
-  const rawRecorder = createRawRecorder(config)
+  let allRecordingsHaveBeenUploaded = true // ToDo: Make this an uploader responsibility!
+  const fileWriter = createFileWriter()
+  const logRecorder = createLogRecorder()
+  const rawRecorder = createRawRecorder()
   const tcxRecorder = createTCXRecorder(config)
   const fitRecorder = createFITRecorder(config)
   const rowingDataRecorder = createRowingDataRecorder(config)
+  const rowsAndAllInterface = createRowsAndAllInterface(config)
+  const intervalsInterface = createIntervalsInterface(config)
+  const stravaInterface = createStravaInterface(config)
+  const recordRawData = config.createRawDataFiles
+  const recordTcxData = config.createTcxFiles || config.stravaClientId !== ''
+  const recordFitData = config.createFitFiles || config.userSettings.intervals.allowUpload || config.userSettings.strava.allowUpload
+  const recordRowingData = config.createRowingDataFiles || config.userSettings.rowsAndAll.allowUpload
+  let writeTimer
+  let uploadTimer
 
-  // This function handles all incomming commands. As all commands are broadasted to all application parts,
-  // we need to filter here what the WorkoutRecorder will react to and what it will ignore
-  // For the 'start', 'startOrResume', 'pause' and 'stop' commands, we await the official rowingengine reaction
-  async function handleCommand (commandName, data, client) {
+  /**
+   * This function handles all incomming commands. As all commands are broadasted to all managers, we need to filter here what is relevant
+   * for the recorders and what is not
+   *
+   * For the 'start', 'startOrResume', 'pause' and 'stop' commands, we await the official SessionManager reaction
+   *
+   * @param {Command} Name of the command to be executed by the commandhandler
+   * @param {unknown} data for executing the command
+   *
+   * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Architecture.md#command-flow|The command flow documentation}
+  */
+  async function handleCommand (commandName, data) {
     switch (commandName) {
       case ('updateIntervalSettings'):
-        executeCommandsInParralel(commandName, data, client)
+        executeCommandsInParralel(commandName, data)
         break
       case ('start'):
         break
@@ -37,8 +60,13 @@ export function createRecordingManager (config) {
       case ('stop'):
         break
       case ('reset'):
+        clearTimeout(writeTimer)
+        clearTimeout(uploadTimer)
+        await executeCommandsInParralel(commandName, data)
+        await writeRecordings()
+        await uploadRecordings()
         startTime = undefined
-        executeCommandsInParralel(commandName, data, client)
+        resetRecordings()
         break
       case 'switchBlePeripheralMode':
         break
@@ -48,59 +76,81 @@ export function createRecordingManager (config) {
         break
       case 'refreshPeripheralConfig':
         break
-      case 'authorizeStrava':
-        break
-      case 'uploadTraining':
-        break
-      case 'stravaAuthorizationCode':
+      case 'upload':
+        log.debug('RecordingManager: Manual upload requested')
+        if (config.userSettings.rowsAndAll.allowUpload && !config.userSettings.rowsAndAll.autoUpload) { await rowsAndAllInterface.uploadSessionResults(rowingDataRecorder) }
+        if (config.userSettings.intervals.allowUpload && !config.userSettings.intervals.autoUpload) { await intervalsInterface.uploadSessionResults(fitRecorder) }
+        if (config.userSettings.strava.allowUpload && !config.userSettings.strava.autoUpload) { await stravaInterface.uploadSessionResults(fitRecorder) }
         break
       case 'shutdown':
-        await executeCommandsInParralel(commandName, data, client)
+        await executeCommandsInParralel(commandName, data)
+        await writeRecordings()
+        await uploadRecordings()
         break
       default:
-        log.error(`recordingManager: Recieved unknown command: ${commandName}`)
+        log.error(`RecordingManager: Recieved unknown command: ${commandName}`)
     }
   }
 
   async function recordRotationImpulse (impulse) {
-    if (startTime === undefined && (config.createRawDataFiles || config.createTcxFiles || config.createRowingDataFiles || config.createFitFiles)) {
+    if (startTime === undefined && (recordRawData || recordTcxData || recordFitData || recordRowingData)) {
       await nameFilesAndCreateDirectory()
     }
-    if (config.createRawDataFiles) { await rawRecorder.recordRotationImpulse(impulse) }
+    if (recordRawData) { await rawRecorder.recordRotationImpulse(impulse) }
   }
 
   async function recordMetrics (metrics) {
-    if (startTime === undefined && (config.createRawDataFiles || config.createTcxFiles || config.createRowingDataFiles || config.createFitFiles)) {
+    if (startTime === undefined && (recordRawData || recordTcxData || recordFitData || recordRowingData)) {
       await nameFilesAndCreateDirectory()
     }
     logRecorder.recordRowingMetrics(metrics)
-    if (config.createRawDataFiles) { rawRecorder.recordRowingMetrics(metrics) }
-    if (config.createTcxFiles) { tcxRecorder.recordRowingMetrics(metrics) }
-    if (config.createFitFiles) { fitRecorder.recordRowingMetrics(metrics) }
-    if (config.createRowingDataFiles) { rowingDataRecorder.recordRowingMetrics(metrics) }
+    if (recordRawData) { rawRecorder.recordRowingMetrics(metrics) }
+    if (recordTcxData) { tcxRecorder.recordRowingMetrics(metrics) }
+    if (recordFitData) { fitRecorder.recordRowingMetrics(metrics) }
+    if (recordRowingData) { rowingDataRecorder.recordRowingMetrics(metrics) }
+    allRecordingsHaveBeenUploaded = false
+
+    if (metrics.metricsContext.isPauseEnd) {
+      clearTimeout(writeTimer)
+      clearTimeout(uploadTimer)
+    }
+
+    if (metrics.metricsContext.isSessionStop || metrics.metricsContext.isPauseStart) {
+      // Cancel any old timers before setting new ones as it makes them impossible to cancel later on
+      clearTimeout(writeTimer)
+      clearTimeout(uploadTimer)
+      writeRecordings()
+      const delayTime = 1000 * Math.max(metrics.pauseCountdownTime, 180)
+      writeTimer = setTimeout(writeRecordings, (delayTime + 10000))
+      uploadTimer = setTimeout(uploadRecordings, (delayTime + 15000))
+    }
   }
 
   async function recordHeartRate (hrmData) {
     logRecorder.recordHeartRate(hrmData)
-    if (config.createTcxFiles) { tcxRecorder.recordHeartRate(hrmData) }
-    if (config.createFitFiles) { fitRecorder.recordHeartRate(hrmData) }
-    if (config.createRowingDataFiles) { rowingDataRecorder.recordHeartRate(hrmData) }
+    if (recordTcxData) { tcxRecorder.recordHeartRate(hrmData) }
+    if (recordFitData) { fitRecorder.recordHeartRate(hrmData) }
+    if (recordRowingData) { rowingDataRecorder.recordHeartRate(hrmData) }
   }
 
-  async function executeCommandsInParralel (commandName, data, client) {
+  async function executeCommandsInParralel (commandName, data) {
     const parallelCalls = []
-    parallelCalls.push(logRecorder.handleCommand(commandName, data, client))
-    if (config.createRawDataFiles) { parallelCalls.push(rawRecorder.handleCommand(commandName, data, client)) }
-    if (config.createTcxFiles) { parallelCalls.push(tcxRecorder.handleCommand(commandName, data, client)) }
-    if (config.createFitFiles) { parallelCalls.push(fitRecorder.handleCommand(commandName, data, client)) }
-    if (config.createRowingDataFiles) { parallelCalls.push(rowingDataRecorder.handleCommand(commandName, data, client)) }
+    parallelCalls.push(logRecorder.handleCommand(commandName, data))
+    if (recordRawData) { parallelCalls.push(rawRecorder.handleCommand(commandName, data)) }
+    if (recordTcxData) { parallelCalls.push(tcxRecorder.handleCommand(commandName, data)) }
+    if (recordFitData) { parallelCalls.push(fitRecorder.handleCommand(commandName, data)) }
+    if (recordRowingData) { parallelCalls.push(rowingDataRecorder.handleCommand(commandName, data)) }
     await Promise.all(parallelCalls)
   }
 
   async function nameFilesAndCreateDirectory () {
+    // Determine the filename, directoryname and base filename to be used by all recorders
     startTime = new Date()
-    // Calculate the directory name and create it if needed
+    const stringifiedStartTime = startTime.toISOString().replace(/T/, '_').replace(/:/g, '-').replace(/\..+/, '')
     const directory = `${config.dataDirectory}/recordings/${startTime.getFullYear()}/${(startTime.getMonth() + 1).toString().padStart(2, '0')}`
+    const fileBaseName = `${directory}/${stringifiedStartTime}`
+
+    // Create the directory if needed
     try {
       await fs.mkdir(directory, { recursive: true })
     } catch (error) {
@@ -109,24 +159,41 @@ export function createRecordingManager (config) {
       }
     }
 
-    // Determine the base filename to be used by all recorders
-    const stringifiedStartTime = startTime.toISOString().replace(/T/, '_').replace(/:/g, '-').replace(/\..+/, '')
-    const fileBaseName = `${directory}/${stringifiedStartTime}`
-    if (config.createRawDataFiles) { rawRecorder.setBaseFileName(fileBaseName) }
-    if (config.createTcxFiles) { tcxRecorder.setBaseFileName(fileBaseName) }
-    if (config.createFitFiles) { fitRecorder.setBaseFileName(fileBaseName) }
-    if (config.createRowingDataFiles) { rowingDataRecorder.setBaseFileName(fileBaseName) }
+    // Set the base filename for all writers an uploaders
+    fileWriter.setBaseFileName(fileBaseName)
+    rowsAndAllInterface.setBaseFileName(fileBaseName)
+    stravaInterface.setBaseFileName(fileBaseName)
   }
 
-  async function activeWorkoutToTcx () {
-    return await tcxRecorder.fileContent()
+  async function writeRecordings () {
+    // The await is necessary to prevent a 'reset' to occur during the writing process caused by the same reset
+    if (config.createRawDataFiles) { await fileWriter.writeFile(rawRecorder, config.gzipRawDataFiles) }
+    if (config.createRowingDataFiles) { await fileWriter.writeFile(rowingDataRecorder, false) }
+    if (config.createFitFiles) { await fileWriter.writeFile(fitRecorder, config.gzipFitFiles) }
+    if (config.createTcxFiles) { await fileWriter.writeFile(tcxRecorder, config.gzipTcxFiles) }
+  }
+
+  async function uploadRecordings () {
+    // The await is necessary to prevent the 'reset' to execute (and thus clear file content!) before the uploads has been completed
+    if (allRecordingsHaveBeenUploaded === true) { return }
+    if (config.userSettings.rowsAndAll.allowUpload && config.userSettings.rowsAndAll.autoUpload) { await rowsAndAllInterface.uploadSessionResults(rowingDataRecorder) }
+    if (config.userSettings.intervals.allowUpload && config.userSettings.intervals.autoUpload) { await intervalsInterface.uploadSessionResults(fitRecorder) }
+    if (config.userSettings.strava.allowUpload && config.userSettings.strava.autoUpload) { await stravaInterface.uploadSessionResults(fitRecorder) }
+    allRecordingsHaveBeenUploaded = true
+  }
+
+  async function resetRecordings () {
+    // The await is necessary to prevent writes already occuring during a reset
+    if (recordRawData) { await rawRecorder.reset() }
+    if (recordTcxData) { await tcxRecorder.reset() }
+    if (recordFitData) { await fitRecorder.reset() }
+    if (recordRowingData) { await rowingDataRecorder.reset() }
   }
 
   return {
     handleCommand,
     recordHeartRate,
     recordRotationImpulse,
-    recordMetrics,
-    activeWorkoutToTcx
+    recordMetrics
   }
 }

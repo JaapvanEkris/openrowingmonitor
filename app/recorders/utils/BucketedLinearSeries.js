@@ -7,6 +7,11 @@
 
 import { createTSLinearSeries } from '../../engine/utils/FullTSLinearSeries.js'
 
+/**
+ * @param {number} xCutOffInterval
+ * @param {number} yCutOffInterval
+ * @param {number} minimumValuesInBracket
+ */
 export function createBucketedLinearSeries (xCutOffInterval, yCutOffInterval, minimumValuesInBracket) {
   const linearSeries = createTSLinearSeries()
 
@@ -24,6 +29,10 @@ export function createBucketedLinearSeries (xCutOffInterval, yCutOffInterval, mi
   let maxX = 0.0
   let maxY = 0.0
 
+  /**
+   * @param {number} x
+   * @param {number} y
+   */
   function push (x, y) {
     maxX = Math.max(maxX, x)
     maxY = Math.max(maxY, y)
@@ -92,10 +101,16 @@ export function createBucketedLinearSeries (xCutOffInterval, yCutOffInterval, mi
     return linearSeries.goodnessOfFit()
   }
 
+  /**
+   * @param {number} x
+   */
   function projectX (x) {
     return linearSeries.projectX(x)
   }
 
+  /**
+   * @param {number} y
+   */
   function projectY (y) {
     return linearSeries.projectY(y)
   }

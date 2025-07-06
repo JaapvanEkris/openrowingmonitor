@@ -234,6 +234,10 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     }
   }
 
+  function reliable () {
+    return (X.length() >= 3)
+  }
+
   function reset () {
     if (X.length() > 0) {
       // There is something to reset
@@ -262,6 +266,7 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     length,
     goodnessOfFit,
     projectX,
+    reliable,
     reset
   }
 }

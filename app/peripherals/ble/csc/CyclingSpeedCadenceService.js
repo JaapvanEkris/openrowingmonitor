@@ -2,34 +2,44 @@
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 */
-import bleno from '@stoprocent/bleno'
-import BufferBuilder from '../BufferBuilder.js'
 import { SensorLocationAsBuffer } from '../common/SensorLocation.js'
-import StaticReadCharacteristic from '../common/StaticReadCharacteristic.js'
-import CyclingSpeedCadenceControlPointCharacteristic from './CscControlPointCharacteristic.js'
-import CyclingSpeedCadenceMeasurementCharacteristic, { cscFeaturesFlags } from './CscMeasurementCharacteristic.js'
 
-export default class CyclingSpeedCadenceService extends bleno.PrimaryService {
+import { BufferBuilder } from '../BufferBuilder.js'
+import { GattService } from '../BleManager.js'
+
+import { CyclingSpeedCadenceMeasurementCharacteristic, cscFeaturesFlags } from './CscMeasurementCharacteristic.js'
+import { CyclingSpeedCadenceControlPointCharacteristic } from './CscControlPointCharacteristic.js'
+import { createStaticReadCharacteristic } from '../common/StaticReadCharacteristic.js'
+
+export class CyclingSpeedCadenceService extends GattService {
+  #measurementCharacteristic
+
+  /**
+   * @param {ControlPointCallback} controlPointCallback
+   */
   constructor (controlPointCallback) {
     const cscFeatureBuffer = new BufferBuilder()
     cscFeatureBuffer.writeUInt16LE(featuresFlag)
-
     const measurementCharacteristic = new CyclingSpeedCadenceMeasurementCharacteristic()
+
     super({
-      // Cycling Speed and Cadence
-      uuid: '1816',
+      name: 'Cycling Speed and Cadence',
+      uuid: 0x1816,
       characteristics: [
-        new StaticReadCharacteristic('2A5C', 'Cycling Speed and Cadence Feature', cscFeatureBuffer.getBuffer()),
-        measurementCharacteristic,
-        new CyclingSpeedCadenceControlPointCharacteristic(controlPointCallback),
-        new StaticReadCharacteristic('2A5D', 'Sensor Location', SensorLocationAsBuffer())
+        createStaticReadCharacteristic(0x2A5C, cscFeatureBuffer.getBuffer(), 'Cycling Speed and Cadence Feature'),
+        measurementCharacteristic.characteristic,
+        new CyclingSpeedCadenceControlPointCharacteristic(controlPointCallback).characteristic,
+        createStaticReadCharacteristic(0x2A5D, SensorLocationAsBuffer(), 'Sensor Location')
       ]
     })
-    this.measurementCharacteristic = measurementCharacteristic
+    this.#measurementCharacteristic = measurementCharacteristic
   }
 
-  notifyData (event) {
-    this.measurementCharacteristic.notify(event)
+  /**
+   * @param {Metrics} data
+   */
+  notifyData (data) {
+    this.#measurementCharacteristic.notify(data)
   }
 }
 

@@ -1,14 +1,12 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  This test is a test of the Rower object, that tests wether this object fills all fields correctly, given one validated rower, (the
-  Concept2 RowErg) using a validated cycle of strokes. This thoroughly tests the raw physics of the translation of Angular physics
-  to Linear physics. The combination with all possible known rowers is tested when testing the above function RowingStatistics, as
-  these statistics are dependent on these settings as well.
-
-  ToDo: test the effects of smoothing parameters
 */
+/**
+ * This test is a test of the SessionManager, that tests wether this object fills all fields correctly,
+ * and cuts off a session, interval and split decently
+ */
+// ToDo: test the effects of smoothing parameters
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 import rowerProfiles from '../../config/rowerProfiles.js'
@@ -60,7 +58,7 @@ test('sample data for Sportstech WRX700 should produce plausible results for a 1
     targetDistance: 150,
     targetTime: 0
   }
-  sessionManager.handleCommand('updateIntervalSettings', intervalSettings, null)
+  sessionManager.handleCommand('updateIntervalSettings', intervalSettings)
 
   testTotalMovingTime(sessionManager, 0)
   testTotalLinearDistance(sessionManager, 0)
@@ -94,7 +92,7 @@ test('sample data for Sportstech WRX700 should produce plausible results for a 4
     targetDistance: 0,
     targetTime: 45
   }
-  sessionManager.handleCommand('updateIntervalSettings', intervalSettings, null)
+  sessionManager.handleCommand('updateIntervalSettings', intervalSettings)
 
   testTotalMovingTime(sessionManager, 0)
   testTotalLinearDistance(sessionManager, 0)
@@ -178,7 +176,7 @@ test('sample data for NordicTrack RX800 should produce plausible results for a 2
     targetDistance: 0,
     targetTime: 20
   }
-  sessionManager.handleCommand('updateIntervalSettings', intervalSettings, null)
+  sessionManager.handleCommand('updateIntervalSettings', intervalSettings)
 
   testTotalMovingTime(sessionManager, 0)
   testTotalLinearDistance(sessionManager, 0)
@@ -212,7 +210,7 @@ test('sample data for NordicTrack RX800 should produce plausible results for a 7
     targetDistance: 75,
     targetTime: 0
   }
-  sessionManager.handleCommand('updateIntervalSettings', intervalSettings, null)
+  sessionManager.handleCommand('updateIntervalSettings', intervalSettings)
 
   testTotalMovingTime(sessionManager, 0)
   testTotalLinearDistance(sessionManager, 0)
@@ -271,7 +269,7 @@ test('A 8000 meter session for SportsTech WRX700 should produce plausible result
     targetDistance: 8000,
     targetTime: 0
   }
-  sessionManager.handleCommand('updateIntervalSettings', intervalSettings, null)
+  sessionManager.handleCommand('updateIntervalSettings', intervalSettings)
 
   testTotalMovingTime(sessionManager, 0)
   testTotalLinearDistance(sessionManager, 0)
@@ -305,7 +303,7 @@ test('A 2300 sec session for SportsTech WRX700 should produce plausible results'
     targetDistance: 0,
     targetTime: 2300
   }
-  sessionManager.handleCommand('updateIntervalSettings', intervalSettings, null)
+  sessionManager.handleCommand('updateIntervalSettings', intervalSettings)
 
   testTotalMovingTime(sessionManager, 0)
   testTotalLinearDistance(sessionManager, 0)
@@ -339,7 +337,7 @@ test('A 2400 sec session for SportsTech WRX700 should produce plausible results'
     targetDistance: 0,
     targetTime: 2400
   }
-  sessionManager.handleCommand('updateIntervalSettings', intervalSettings, null)
+  sessionManager.handleCommand('updateIntervalSettings', intervalSettings)
 
   testTotalMovingTime(sessionManager, 0)
   testTotalLinearDistance(sessionManager, 0)
@@ -398,7 +396,7 @@ test('A 500 meter session for a Concept2 Model C should produce plausible result
     targetDistance: 500,
     targetTime: 0
   }
-  sessionManager.handleCommand('updateIntervalSettings', intervalSettings, null)
+  sessionManager.handleCommand('updateIntervalSettings', intervalSettings)
 
   testTotalMovingTime(sessionManager, 0)
   testTotalLinearDistance(sessionManager, 0)
@@ -432,7 +430,7 @@ test('A 3 minute session for a Concept2 Model C should produce plausible results
     targetDistance: 0,
     targetTime: 180
   }
-  sessionManager.handleCommand('updateIntervalSettings', intervalSettings, null)
+  sessionManager.handleCommand('updateIntervalSettings', intervalSettings)
 
   testTotalMovingTime(sessionManager, 0)
   testTotalLinearDistance(sessionManager, 0)
@@ -491,7 +489,7 @@ test('A 2000 meter session for a Concept2 RowErg should produce plausible result
     targetDistance: 2000,
     targetTime: 0
   }
-  sessionManager.handleCommand('updateIntervalSettings', intervalSettings, null)
+  sessionManager.handleCommand('updateIntervalSettings', intervalSettings)
 
   testTotalMovingTime(sessionManager, 0)
   testTotalLinearDistance(sessionManager, 0)
@@ -525,7 +523,7 @@ test('A 580 seconds session for a Concept2 RowErg should produce plausible resul
     targetDistance: 0,
     targetTime: 580
   }
-  sessionManager.handleCommand('updateIntervalSettings', intervalSettings, null)
+  sessionManager.handleCommand('updateIntervalSettings', intervalSettings)
 
   testTotalMovingTime(sessionManager, 0)
   testTotalLinearDistance(sessionManager, 0)

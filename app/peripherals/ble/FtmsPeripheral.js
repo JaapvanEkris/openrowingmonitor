@@ -11,21 +11,51 @@
   The Fitness Machine may instantiate the Device Information Service
   (Manufacturer Name String, Model Number String)
 */
-import bleno from '@stoprocent/bleno'
-import FitnessMachineService from './ftms/FitnessMachineService.js'
-import log from 'loglevel'
-import DeviceInformationService from './common/DeviceInformationService.js'
-import AdvertisingDataBuilder from './common/AdvertisingDataBuilder.js'
+import NodeBleHost from 'ble-host'
+import loglevel from 'loglevel'
 
-export function createFtmsPeripheral (controlCallback, config, simulateIndoorBike) {
+import { DeviceInformationService } from './common/DeviceInformationService.js'
+import { FitnessMachineService } from './ftms/FitnessMachineService.js'
+
+/**
+ * @typedef {import('./ble-host.interface.js').BleManager} BleManager
+ * @typedef {import('./ble-host.interface.js').Connection} Connection
+ */
+
+const log = loglevel.getLogger('Peripherals')
+
+/**
+ * @param {import('./BleManager.js').BleManager} bleManager
+ * @param {ControlPointCallback} controlCallback
+ * @param {Config} config
+ * @param {boolean} simulateIndoorBike
+ */
+export function createFtmsPeripheral (bleManager, controlCallback, config, simulateIndoorBike) {
   const peripheralName = simulateIndoorBike ? config.ftmsBikePeripheralName : config.ftmsRowerPeripheralName
-  const fitnessMachineService = new FitnessMachineService(controlPointCallback, simulateIndoorBike)
+  const fitnessMachineService = new FitnessMachineService(controlCallback, simulateIndoorBike)
   const deviceInformationService = new DeviceInformationService()
+
+  const rowerSupportedDataFlag = simulateIndoorBike ? 0x01 << 5 : 0x01 << 4
+  const fitnessMachineAvailable = 0x01
+
+  const advDataBuffer = new NodeBleHost.AdvertisingDataBuilder()
+    .addFlags(['leGeneralDiscoverableMode', 'brEdrNotSupported'])
+    .addLocalName(/* isComplete */ false, peripheralName.slice(0, 15))
+    .add16BitServiceUUIDs(/* isComplete */ true, [fitnessMachineService.gattService.uuid])
+    .add16BitServiceData(fitnessMachineService.gattService.uuid, Buffer.from([fitnessMachineAvailable, rowerSupportedDataFlag, rowerSupportedDataFlag >> 8]))
+    .build()
+
+  const scanResponseBuffer = new NodeBleHost.AdvertisingDataBuilder()
+    .addLocalName(/* isComplete */ true, peripheralName)
+    .build()
+
   const broadcastInterval = config.ftmsUpdateInterval
+  /**
+   * @type {Metrics}
+   */
   let lastKnownMetrics = {
-    sessiontype: 'JustRow',
-    sessionStatus: 'WaitingForStart',
-    strokeState: 'WaitingForDrive',
+    // This reference is to satisfy type checking while simplifying the initialization of lastKnownMetrics (i.e. allow partial initialization but have the type system consider it as a full Metrics type)
+    .../** @type {Metrics} */({}),
     totalMovingTime: 0,
     totalLinearDistance: 0,
     dragFactor: config.rowerSettings.dragFactor
@@ -33,102 +63,81 @@ export function createFtmsPeripheral (controlCallback, config, simulateIndoorBik
 
   let timer = setTimeout(onBroadcastInterval, broadcastInterval)
 
-  bleno.on('stateChange', (state) => {
-    log.debug(`BLE Peripheral stateChange: ${state}`)
-    if (state === 'poweredOn') {
-      triggerAdvertising(state)
-    }
-  })
+  /**
+  * @type {BleManager | undefined}
+  */
+  let _manager
+  /**
+  * @type {Connection | undefined}
+  */
+  let _connection
 
-  bleno.on('advertisingStart', (error) => {
-    if (!error) {
-      bleno.setServices(
-        [fitnessMachineService, deviceInformationService],
-        (error) => {
-          if (error) log.error(error)
-        })
-    }
-  })
+  setup()
 
-  bleno.on('accept', (clientAddress) => {
-    log.debug(`ble central connected: ${clientAddress}`)
-    bleno.updateRssi()
-  })
+  async function setup () {
+    _manager = await bleManager.getManager()
+    _manager.gattDb.setDeviceName(peripheralName)
+    _manager.gattDb.addServices([fitnessMachineService.gattService, deviceInformationService.gattService])
+    _manager.setAdvertisingData(advDataBuffer)
+    _manager.setScanResponseData(scanResponseBuffer)
 
-  bleno.on('disconnect', (clientAddress) => {
-    log.debug(`ble central disconnected: ${clientAddress}`)
-  })
+    await triggerAdvertising()
+  }
 
-  bleno.on('platform', (event) => {
-    log.debug('platform', event)
-  })
-  bleno.on('addressChange', (event) => {
-    log.debug('addressChange', event)
-  })
-  bleno.on('mtuChange', (event) => {
-    log.debug('mtuChange', event)
-  })
-  bleno.on('advertisingStartError', (event) => {
-    log.debug('advertisingStartError', event)
-  })
-  bleno.on('servicesSetError', (event) => {
-    log.debug('servicesSetError', event)
-  })
-  bleno.on('rssiUpdate', (event) => {
-    log.debug('rssiUpdate', event)
-  })
+  async function triggerAdvertising () {
+    _connection = await new Promise((/** @type {(value: Connection) => void} */resolve) => {
+      /** @type {BleManager} */(_manager).startAdvertising({/* options */}, (_status, connection) => {
+        resolve(connection)
+      })
+    })
+    log.debug(`FTMS Connection established, address: ${_connection.peerAddress}`)
 
-  function controlPointCallback (event) {
-    const obj = {
-      req: event,
-      res: {}
-    }
-    if (controlCallback) controlCallback(obj)
-    return obj.res
+    await new Promise((resolve) => { /** @type {Connection} */(_connection).gatt.exchangeMtu(resolve) })
+
+    _connection.once('disconnect', async () => {
+      log.debug(`FTMS client disconnected (address: ${_connection?.peerAddress}), restarting advertising`)
+      _connection = undefined
+      await triggerAdvertising()
+    }) // restart advertising after disconnect
+  }
+
+  /** Records the last known rowing metrics to FTMS central
+   * @param {Metrics} data
+   */
+  function notifyData (data) {
+    lastKnownMetrics = data
+  }
+
+  /**
+   * Present current rowing status to FTMS central
+   * @param {{name: string}} status
+   */
+  function notifyStatus (status) {
+    fitnessMachineService.notifyStatus(status)
   }
 
   function destroy () {
+    log.debug(`Shutting down FTMS ${simulateIndoorBike ? 'Bike' : 'Rower'} peripheral`)
     clearTimeout(timer)
+    _manager?.gattDb.removeService(fitnessMachineService.gattService)
+    _manager?.gattDb.removeService(deviceInformationService.gattService)
     return new Promise((resolve) => {
-      bleno.disconnect()
-      bleno.removeAllListeners()
-      bleno.stopAdvertising(() => resolve())
+      if (_connection !== undefined) {
+        log.debug(`Terminating current FTMS ${simulateIndoorBike ? 'Bike' : 'Rower'} connection`)
+        _connection.removeAllListeners()
+        _connection.once('disconnect', resolve)
+        _connection.disconnect()
+
+        return
+      }
+      _manager?.stopAdvertising(resolve)
     })
-  }
-
-  function triggerAdvertising (eventState) {
-    const activeState = eventState || bleno.state
-    if (activeState === 'poweredOn') {
-      const advertisingBuilder = new AdvertisingDataBuilder([fitnessMachineService.uuid])
-      advertisingBuilder.setShortName(peripheralName)
-      advertisingBuilder.setLongName(peripheralName)
-
-      bleno.startAdvertisingWithEIRData(
-        advertisingBuilder.buildAppearanceData(),
-        advertisingBuilder.buildScanData(),
-        (error) => {
-          if (error) log.error(error)
-        }
-      )
-    } else {
-      bleno.stopAdvertising()
-    }
   }
 
   // present current rowing metrics to FTMS central
   function onBroadcastInterval () {
     fitnessMachineService.notifyData(lastKnownMetrics)
     timer = setTimeout(onBroadcastInterval, broadcastInterval)
-  }
-
-  // Records the last known rowing metrics to FTMS central
-  function notifyData (data) {
-    lastKnownMetrics = data
-  }
-
-  // present current rowing status to FTMS central
-  function notifyStatus (status) {
-    fitnessMachineService.notifyStatus(status)
   }
 
   return {

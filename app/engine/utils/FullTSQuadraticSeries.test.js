@@ -1,10 +1,11 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  This tests the Quadratic Theil-Senn Regression algorithm. As regression is an estimation and methods have biasses,
-  we need to accept some slack with respect to real-life examples
 */
+/**
+ * This tests the Quadratic Theil-Senn Regression algorithm. As regression is an estimation and methods have biasses,
+ * we need to accept some slack with respect to real-life examples
+ */
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 

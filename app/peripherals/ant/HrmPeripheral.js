@@ -6,19 +6,48 @@
 */
 import EventEmitter from 'node:events'
 import log from 'loglevel'
+
 import { HeartRateSensor } from 'incyclist-ant-plus'
 
+/**
+ * @event createAntHrmPeripheral#heartRateMeasurement
+ * @type {HeartRateMeasurementEvent}
+ */
+/**
+ * @typedef {import('incyclist-ant-plus').IChannel} IChannel
+ */
+
+/**
+ * @param {import('./AntManager.js').default} antManager
+ * @fires createAntHrmPeripheral#heartRateMeasurement
+ */
 function createAntHrmPeripheral (antManager) {
+  /**
+   * @type {EventEmitter<{heartRateMeasurement: Array<HeartRateMeasurementEvent>}>}
+   */
   const emitter = new EventEmitter()
   const antStick = antManager.getAntStick()
   const heartRateSensor = new HeartRateSensor(0)
-  let batteryLevel = 0
+  let lastBeatCount = 0
+  let lastBeatTime = 0
+
+  /**
+   * The RR interval in seconds
+   * @type {Array<number>}
+   */
+  let rrIntervals = []
+  /**
+   * @type {number | undefined}
+   */
+  let batteryLevel
+  /** @type {IChannel & EventEmitter | undefined} */
+  let channel
 
   async function attach () {
     if (!antManager.isStickOpen()) { await antManager.openAntStick() }
-    this.channel = await antStick.getChannel()
+    channel = /** @type {IChannel & EventEmitter} */(antStick.getChannel())
 
-    this.channel.on('data', (profile, deviceID, data) => {
+    channel.on('data', (profile, deviceID, /** @type {import('incyclist-ant-plus').HeartRateSensorState} */data) => {
       switch (data.BatteryStatus) {
         case 'New':
           batteryLevel = 100
@@ -36,27 +65,51 @@ function createAntHrmPeripheral (antManager) {
           batteryLevel = 20
           break
         default:
-          batteryLevel = 0
+          batteryLevel = undefined
       }
 
-      if (data.BatteryLevel > 0) {
+      if (data.BatteryLevel && data.BatteryLevel > 0) {
         batteryLevel = data.BatteryLevel
       }
 
-      emitter.emit('heartRateMeasurement', { heartrate: data.ComputedHeartRate, batteryLevel })
+      if (data.BeatCount !== lastBeatCount) {
+        /**
+         * @type {number | undefined}
+         */
+        let beatTimeDiff
+        if (data.PreviousBeat !== undefined) {
+          // Logic using previousBeatTime and also saving last beat time is seemingly redundant, but the specs prescribes that firstly the previousBeatTime should be used and only if that is not available should be the difference between two successive message be used when the beat count difference is one.
+          beatTimeDiff = data.PreviousBeat > data.BeatTime ? 65535 - (data.PreviousBeat - data.BeatTime) : data.BeatTime - data.PreviousBeat
+        } else if (data.BeatCount - lastBeatCount === 1) {
+          beatTimeDiff = lastBeatTime > data.BeatTime ? 65535 - (lastBeatTime - data.BeatTime) : data.BeatTime - lastBeatTime
+        }
+
+        rrIntervals = beatTimeDiff !== undefined ? [Math.round(beatTimeDiff / 1024 * 1000) / 1000] : []
+
+        lastBeatCount = data.BeatCount
+        lastBeatTime = data.BeatTime
+      }
+
+      emitter.emit('heartRateMeasurement', {
+        heartrate: data.ComputedHeartRate,
+        rrIntervals,
+        batteryLevel,
+        manufacturerId: data.ManId,
+        serialNumber: data.SerialNumber
+      })
     })
 
-    if (!(await this.channel.startSensor(heartRateSensor))) {
+    if (!(await channel.startSensor(heartRateSensor))) {
       log.error('Could not start ANT+ heart rate sensor')
     }
   }
 
   async function destroy () {
-    if (!this.channel) {
+    if (!channel) {
       log.debug('Ant Sensor does not seem to be running')
       return
     }
-    await this.channel.stopSensor(heartRateSensor)
+    await channel.stopSensor(heartRateSensor)
   }
 
   return Object.assign(emitter, {

@@ -4,20 +4,21 @@
 
   todo: Could provide some info on the device here, maybe OS, Node version etc...
 */
-import bleno from '@stoprocent/bleno'
 import { PeripheralConstants } from '../../PeripheralConstants.js'
-import StaticReadCharacteristic from './StaticReadCharacteristic.js'
 
-export default class DeviceInformationService extends bleno.PrimaryService {
+import { GattService } from '../BleManager.js'
+import { createStaticReadCharacteristic } from './StaticReadCharacteristic.js'
+
+export class DeviceInformationService extends GattService {
   constructor () {
     super({
-      // uuid of 'Device Information Service'
-      uuid: '180a',
+      name: 'Device Information Service',
+      uuid: 0x180A,
       characteristics: [
-        new StaticReadCharacteristic('2A24', 'Model Number', PeripheralConstants.model),
-        new StaticReadCharacteristic('2A25', 'Serial Number', PeripheralConstants.serial),
-        new StaticReadCharacteristic('2A28', 'Software Revision', PeripheralConstants.firmwareRevision),
-        new StaticReadCharacteristic('2A29', 'Manufacturer Name', PeripheralConstants.manufacturer)
+        createStaticReadCharacteristic(0x2A24, PeripheralConstants.model, 'Model Number'),
+        createStaticReadCharacteristic(0x2A25, PeripheralConstants.serial, 'Serial Number'),
+        createStaticReadCharacteristic(0x2A28, PeripheralConstants.firmwareRevision, 'Software Revision'),
+        createStaticReadCharacteristic(0x2A29, PeripheralConstants.manufacturer, 'Manufacturer Name')
       ]
     })
   }

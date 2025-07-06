@@ -7,7 +7,7 @@
 
 import { AppElement, html, css } from './AppElement.js'
 import { customElement, property, state } from 'lit/decorators.js'
-import { icon_undo, icon_expand, icon_compress, icon_poweroff, icon_bluetooth, icon_upload, icon_heartbeat, icon_antplus } from '../lib/icons.js'
+import { iconUndo, iconExpand, iconCompress, iconPoweroff, iconBluetooth, iconUpload, iconHeartbeat, iconAntplus } from '../lib/icons.js'
 import './AppDialog.js'
 
 @customElement('dashboard-actions')
@@ -86,19 +86,19 @@ export class DashboardActions extends AppElement {
   render () {
     return html`
     <div class="top-button-group">
-      <button @click=${this.reset}>${icon_undo}</button>
+      <button @click=${this.reset}>${iconUndo}</button>
       ${this.renderOptionalButtons()}
       <button @click=${this.switchHrmPeripheralMode}>
-        ${icon_heartbeat}
+        ${iconHeartbeat}
         <div class="text">${this.config?.hrmPeripheralMode}</div>
       </button>
       <button @click=${this.switchAntPeripheralMode}>
-        ${icon_antplus}
+        ${iconAntplus}
         <div class="text">${this.config?.antPeripheralMode}</div>
       </button>
     </div>
       <div class="text-button">
-      <button @click=${this.switchBlePeripheralMode}>${icon_bluetooth}</button>
+      <button @click=${this.switchBlePeripheralMode}>${iconBluetooth}</button>
         <div class="peripheral-mode">${this.blePeripheralMode()}</div>
     </div>
     ${this._dialog ? this._dialog : ''}
@@ -126,8 +126,8 @@ export class DashboardActions extends AppElement {
     if (this._appMode === 'BROWSER' && document.documentElement.requestFullscreen) {
       buttons.push(html`
       <button @click=${this.toggleFullscreen}>
-        <div id="fullscreen-icon">${icon_expand}</div>
-        <div id="windowed-icon">${icon_compress}</div>
+        <div id="fullscreen-icon">${iconExpand}</div>
+        <div id="windowed-icon">${iconCompress}</div>
       </button>
     `)
     }
@@ -136,13 +136,13 @@ export class DashboardActions extends AppElement {
     // (might also make sence to enable this for all clients but then we would need visual feedback)
     if (this._appMode === 'KIOSK' && this.config?.shutdownEnabled) {
       buttons.push(html`
-      <button @click=${this.shutdown}>${icon_poweroff}</button>
+      <button @click=${this.shutdown}>${iconPoweroff}</button>
     `)
     }
 
-    if (this.config?.stravaUploadEnabled) {
+    if (this.config?.uploadEnabled) {
       buttons.push(html`
-      <button @click=${this.uploadTraining}>${icon_upload}</button>
+      <button @click=${this.uploadTraining}>${iconUpload}</button>
     `)
     }
     return buttons
@@ -196,14 +196,14 @@ export class DashboardActions extends AppElement {
   uploadTraining () {
     this._dialog = html`
       <app-dialog @close=${dialogClosed}>
-        <legend>${icon_upload}<br/>Upload to Strava?</legend>
-        <p>Do you want to finish your workout and upload it to Strava?</p>
+        <legend>${iconUpload}<br/>Upload training?</legend>
+        <p>Do you want to finish your workout and upload it to webservices (Strava, Intervals.icu and RowsAndAll)?</p>
       </app-dialog>
     `
     function dialogClosed (event) {
       this._dialog = undefined
       if (event.detail === 'confirm') {
-        this.sendEvent('triggerAction', { command: 'uploadTraining' })
+        this.sendEvent('triggerAction', { command: 'upload' })
       }
     }
   }
@@ -211,7 +211,7 @@ export class DashboardActions extends AppElement {
   shutdown () {
     this._dialog = html`
       <app-dialog @close=${dialogClosed}>
-        <legend>${icon_poweroff}<br/>Shutdown Open Rowing Monitor?</legend>
+        <legend>${iconPoweroff}<br/>Shutdown Open Rowing Monitor?</legend>
         <p>Do you want to shutdown the device?</p>
       </app-dialog>
     `

@@ -183,6 +183,10 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
     B.reset()
   }
 
+  function reliable () {
+    return (X.length() >= 2)
+  }
+
   function reset () {
     if (X.length() > 0) {
       // There is something to reset
@@ -207,6 +211,7 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
     goodnessOfFit,
     projectX,
     projectY,
+    reliable,
     reset
   }
 }

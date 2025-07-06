@@ -7,13 +7,17 @@
 import log from 'loglevel'
 import { secondsToTimeString } from '../tools/Helper.js'
 
-export function createLogRecorder (config) {
+export function createLogRecorder () {
   let heartRate = 0
-  let lastMetrics
+  let lastMetrics = {
+    totalMovingTime: 0,
+    totalLinearDistance: 0
+  }
 
   // This function handles all incomming commands. Here, the recordingmanager will have filtered
   // all unneccessary commands for us, so we only need to react to 'updateIntervalSettings', 'reset' and 'shutdown'
-  async function handleCommand (commandName, data, client) {
+  // eslint-disable-next-line no-unused-vars
+  async function handleCommand (commandName, data) {
     const currentdate = new Date()
     switch (commandName) {
       case ('updateIntervalSettings'):
@@ -28,9 +32,6 @@ export function createLogRecorder (config) {
       default:
         log.error(`Logecorder: Recieved unknown command: ${commandName}`)
     }
-  }
-
-  function setBaseFileName (baseFileName) {
   }
 
   // initiated when a new heart rate value is received from heart rate sensor
@@ -48,22 +49,27 @@ export function createLogRecorder (config) {
         logMetrics(metrics)
         log.info(`Rowing ended at ${currentdate.getHours()}:${currentdate.getMinutes()}:${currentdate.getSeconds()}, at ${metrics.totalMovingTime.toFixed(5)} seconds,distance ${metrics.totalLinearDistance.toFixed(1)}m`)
         break
-      case (metrics.metricsContext.isIntervalStart):
+      case (metrics.metricsContext.isPauseStart && lastMetrics.sessionState === 'Rowing'):
+        logMetrics(metrics)
+        log.info(`Rowing stopped/paused at ${currentdate.getHours()}:${currentdate.getMinutes()}:${currentdate.getSeconds()}, at ${metrics.totalMovingTime.toFixed(5)} seconds,distance ${metrics.totalLinearDistance.toFixed(1)}m`)
+        break
+      case (metrics.metricsContext.isPauseStart):
+        // We were not rowing, but a pause is triggered. This is the Rowing Engine signaling it is forced into a pause condition
+        log.info(`Rowing engine armed again at ${currentdate.getHours()}:${currentdate.getMinutes()}:${currentdate.getSeconds()}`)
+        break
+      case (metrics.metricsContext.isPauseEnd):
+        log.info(`Rowing resumed at ${currentdate.getHours()}:${currentdate.getMinutes()}:${currentdate.getSeconds()}`)
+        break
+      case (metrics.metricsContext.isIntervalEnd):
         log.info(`New interval started at ${metrics.totalMovingTime.toFixed(5)} seconds, distance ${metrics.totalLinearDistance.toFixed(1)}m`)
         break
       case (metrics.metricsContext.isSplitEnd):
         log.info(`New split started at ${metrics.totalMovingTime.toFixed(5)} seconds, distance ${metrics.totalLinearDistance.toFixed(1)}m`)
         break
-      case (metrics.metricsContext.isPauseStart):
-        logMetrics(metrics)
-        log.info(`Rowing stopped/paused at ${currentdate.getHours()}:${currentdate.getMinutes()}:${currentdate.getSeconds()}, at ${metrics.totalMovingTime.toFixed(5)} seconds,distance ${metrics.totalLinearDistance.toFixed(1)}m`)
-        break
-      case (metrics.metricsContext.isPauseEnd):
-        log.info(`Rowing resumed at ${currentdate.getHours()}:${currentdate.getMinutes()}:${currentdate.getSeconds()}`)
-        break
       case (metrics.metricsContext.isDriveStart):
         logMetrics(metrics)
         break
+      // no default
     }
     lastMetrics = metrics
   }
@@ -82,7 +88,6 @@ export function createLogRecorder (config) {
 
   return {
     handleCommand,
-    setBaseFileName,
     recordRowingMetrics,
     recordHeartRate
   }

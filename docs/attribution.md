@@ -2,7 +2,7 @@
 
 Open Rowing Monitor uses some great work by others. Thank you for all the great resources that helped me to make this project possible. I especially would like to thank:
 
-* Thanks to [Abasz](https://github.com/Abasz) for his great contributions to the GUI, GPIO, BLE and Ant+ implementations, as well as the many constructive feedback that helped improve many areas of OpenRowingMonitor.
+* Many thanks to [Abasz](https://github.com/Abasz) for his great contributions to the GUI, GPIO, BLE and Ant+ implementations, as well as the many constructive feedback that helped improve many areas of OpenRowingMonitor. You pushing the enveloppe really shaped OpenRowingMonitor into what it is today.
 
 * Thank you to [Lars Berning](https://github.com/laberning) for creating the initial version and creating the starting point for what OpenRowingMonitor has become now.
 

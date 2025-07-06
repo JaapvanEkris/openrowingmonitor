@@ -2,37 +2,41 @@
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 */
-import bleno from '@stoprocent/bleno'
-import log from 'loglevel'
+import NodeBleHost from 'ble-host'
+import loglevel from 'loglevel'
 
-export default class StaticReadCharacteristic extends bleno.Characteristic {
-  constructor (uuid, description, value, addNotify = false) {
-    super({
-      uuid,
-      properties: addNotify ? ['read', 'notify'] : ['read'],
-      value: Buffer.isBuffer(value) ? value : Buffer.from(value),
-      descriptors: [
-        new bleno.Descriptor({
-          uuid: '2901',
-          value: description
-        })
-      ]
-    })
-    this._uuid = uuid
-    this._description = description
-    this._value = Buffer.isBuffer(value) ? value : Buffer.from(value)
-    this._updateValueCallback = null
-  }
+const log = loglevel.getLogger('Peripherals')
 
-  onSubscribe (maxValueSize, updateValueCallback) {
-    log.debug(`characteristic ${this._description ? this._description : this._uuid} - central subscribed with maxSize: ${maxValueSize}`)
-    this._updateValueCallback = updateValueCallback
-    return this.RESULT_SUCCESS
-  }
+/**
+ * @param {string | number} uuid
+ * @param {Buffer | string | Array<number>} value
+ * @param {Buffer | string} [description]
+ * @param {boolean} [addNotify = false]
+ * @returns {Partial<import('../ble-host.interface.js').GattServerCharacteristic>}
+ */
+export function createStaticReadCharacteristic (uuid, value, description, addNotify = false) {
+  const descriptors = description !== undefined ?
+    [
+      {
+        uuid: 0x2901,
+        value: description
+      }] :
+    undefined
 
-  onUnsubscribe () {
-    log.debug(`characteristic ${this._description ? this._description : this._uuid} - central unsubscribed`)
-    this._updateValueCallback = null
-    return this.RESULT_UNLIKELY_ERROR
+  const onSubscriptionChange = addNotify ?
+    (connection, notification) => {
+      log.debug(`${description !== undefined ? description : uuid} subscription change: ${connection.peerAddress}, notification: ${notification}`)
+    } :
+    undefined
+
+  return {
+    uuid,
+    properties: addNotify ? ['read', 'notify'] : ['read'],
+    descriptors,
+    onRead: (connection, callback) => {
+      log.debug(`Static read characteristic has been called: ${description}`)
+      callback(NodeBleHost.AttErrors.SUCCESS, Buffer.isBuffer(value) ? value : Buffer.from(value))
+    },
+    onSubscriptionChange
   }
 }

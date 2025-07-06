@@ -4,7 +4,6 @@
 
   Component that renders a html dialog
 */
-
 import { AppElement, html, css } from './AppElement.js'
 import { customElement, property } from 'lit/decorators.js'
 import { ref, createRef } from 'lit/directives/ref.js'

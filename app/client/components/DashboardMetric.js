@@ -45,7 +45,9 @@ export class DashboardMetric extends AppElement {
 
   render () {
     return html`
-      <div class="label"><div class="icon">${this.icon}</div></div>
+      <div class="${this.icon === '' ? '' : 'label'}">
+        <div class=${this.icon === '' ? '' : 'icon'}>${this.icon}</div>
+      </div>
       <div class="content">
         <span class="metric-value" style="${this.icon === '' ? 'font-size: 200%;' : ''}">${this.value !== undefined ? this.value : '--'}</span>
         <span class="metric-unit">${this.unit}</span>

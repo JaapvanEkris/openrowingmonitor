@@ -1,46 +1,70 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  Merges the different config files and presents the configuration to the application
-  Checks the config for plausibility, fixes the errors when needed
 */
+/**
+ * Merges the different config files and presents the configuration to the application
+ * Checks the config for plausibility, fixes the errors when needed
+ */
+/* eslint-disable max-statements,complexity -- There simply is a lot to check before we activate a config. One of the few cases where more is better */
 import defaultConfig from '../../config/default.config.js'
 import { checkRangeValue, checkIntegerValue, checkBooleanValue, checkFloatValue } from './ConfigValidations.js'
 import { deepMerge } from './Helper.js'
 import log from 'loglevel'
 
+/**
+ * @typedef  {{ minumumForceBeforeStroke: number, minumumRecoverySlope: number}} OldRowerProfile
+ * @typedef { Config & { peripheralUpdateInterval:number, antplusMode:AntPlusModes, rowerSettings:OldRowerProfile }} OldConfig
+ */
+
+/**
+ * @returns {Promise<Config | OldConfig>}
+ */
 async function getConfig () {
+  /**
+   * @type {import('../../config/config.js') | undefined}
+   */
   let customConfig
   try {
     customConfig = await import('../../config/config.js')
-  } catch (exception) {}
-  return customConfig !== undefined ? deepMerge(defaultConfig, customConfig.default) : defaultConfig
+  } catch (exception) {
+    log.error('Configuration Error: config.js could not be imported. Reason: ', exception)
+  }
+
+  // ToDo: check if config.js is a valdif JSON object
+
+  return customConfig !== undefined ? deepMerge(defaultConfig, /** @type {Config} */(customConfig.default)) : defaultConfig
 }
 
+/**
+ * @param {Config | OldConfig} configToCheck
+ */
 function runConfigMigration (configToCheck) {
-  if (Object.keys(configToCheck).includes('peripheralUpdateInterval')) {
+  if ('peripheralUpdateInterval' in configToCheck) {
     log.error('WARNING: An old version of the config file was detected, peripheralUpdateInterval is now deprecated please use ftmsUpdateInterval and pm5UpdateInterval')
     configToCheck.ftmsUpdateInterval = configToCheck.peripheralUpdateInterval
     configToCheck.pm5UpdateInterval = configToCheck.peripheralUpdateInterval
   }
 
-  if (Object.keys(configToCheck).includes('antplusMode')) {
+  if ('antplusMode' in configToCheck) {
     log.error('WARNING: An old version of the config file was detected, please update the name of the following setting in the config.js file: antplusMode into antPlusMode')
     configToCheck.antPlusMode = configToCheck.antplusMode
   }
 
-  if (Object.keys(configToCheck.rowerSettings).includes('minumumForceBeforeStroke')) {
+  if ('minumumForceBeforeStroke' in configToCheck.rowerSettings) {
     log.error('WARNING: An old version of the config file was detected, please update the name of the following setting in the config.js file: minumumForceBeforeStroke into minimumForceBeforeStroke')
     configToCheck.rowerSettings.minimumForceBeforeStroke = configToCheck.rowerSettings.minumumForceBeforeStroke
   }
 
-  if (Object.keys(configToCheck.rowerSettings).includes('minumumRecoverySlope')) {
+  if ('minumumRecoverySlope' in configToCheck.rowerSettings) {
     log.error('WARNING: An old version of the config file was detected, please update the name of the following setting in the config.js file: minumumRecoverySlope into minimumRecoverySlope')
     configToCheck.rowerSettings.minimumRecoverySlope = configToCheck.rowerSettings.minumumRecoverySlope
   }
 }
 
+/**
+ * @param {Config | OldConfig} configToCheck
+ */
 function checkConfig (configToCheck) {
   checkRangeValue(configToCheck.loglevel, 'default', ['trace', 'debug', 'info', 'warn', 'error', 'silent'], true, 'error')
   checkRangeValue(configToCheck.loglevel, 'RowingEngine', ['trace', 'debug', 'info', 'warn', 'error', 'silent'], true, 'error')
@@ -88,9 +112,7 @@ function checkConfig (configToCheck) {
     checkFloatValue(configToCheck.rowerSettings, 'minimumDragQuality', 0, 1, true, true, 0)
   }
   checkFloatValue(configToCheck.rowerSettings, 'flywheelInertia', 0, null, false, false, null)
-
   checkFloatValue(configToCheck.rowerSettings, 'minimumForceBeforeStroke', 0, 500, true, true, 0)
-
   checkFloatValue(configToCheck.rowerSettings, 'minimumRecoverySlope', 0, null, true, true, 0)
   checkFloatValue(configToCheck.rowerSettings, 'minimumStrokeQuality', 0, 1, true, true, 0)
   checkBooleanValue(configToCheck.rowerSettings, 'autoAdjustRecoverySlope', true, false)
@@ -104,6 +126,51 @@ function checkConfig (configToCheck) {
   checkFloatValue(configToCheck.rowerSettings, 'minimumRecoveryTime', 0, null, false, true, 0.001)
   checkFloatValue(configToCheck.rowerSettings, 'maximumStrokeTimeBeforePause', 3, 60, false, true, 6)
   checkFloatValue(configToCheck.rowerSettings, 'magicConstant', 0, null, false, true, 2.8)
+  if (!configToCheck.mqtt) {
+    configToCheck.mqtt = {
+      mqttBroker: '',
+      username: '',
+      password: '',
+      machineName: ''
+    }
+    log.error('Configuration Error: MQTT configuration error')
+  }
+  if (!!configToCheck.userSettings.rowsAndAll && !!configToCheck.userSettings.rowsAndAll.allowUpload && configToCheck.userSettings.rowsAndAll.allowUpload === true) {
+    if (!configToCheck.userSettings.rowsAndAll.apiKey || configToCheck.userSettings.rowsAndAll.apiKey === '') {
+      log.error('Configuration Error: RowsAndAll ApiKey error')
+      configToCheck.userSettings.rowsAndAll.allowUpload = false
+    }
+  } else {
+    configToCheck.userSettings.rowsAndAll = { allowUpload: false }
+  }
+  if (!!configToCheck.userSettings.intervals && !!configToCheck.userSettings.intervals.allowUpload && configToCheck.userSettings.intervals.allowUpload === true) {
+    if (!configToCheck.userSettings.intervals.athleteId || configToCheck.userSettings.intervals.athleteId === '') {
+      log.error('Configuration Error: intervals.icu athleteId error')
+      configToCheck.userSettings.intervals.allowUpload = false
+    }
+    if (!configToCheck.userSettings.intervals.apiKey || configToCheck.userSettings.intervals.apiKey === '') {
+      log.error('Configuration Error: intervals.icu apiKey error')
+      configToCheck.userSettings.intervals.allowUpload = false
+    }
+  } else {
+    configToCheck.userSettings.intervals = { allowUpload: false }
+  }
+  if (!!configToCheck.userSettings.strava && !!configToCheck.userSettings.strava.allowUpload && configToCheck.userSettings.strava.allowUpload === true) {
+    if (!configToCheck.userSettings.strava.clientId || configToCheck.userSettings.strava.clientId === '' || isNaN(configToCheck.userSettings.strava.clientId)) {
+      log.error('Configuration Error: strava clientId error')
+      configToCheck.userSettings.strava.allowUpload = false
+    }
+    if (!configToCheck.userSettings.strava.clientSecret || configToCheck.userSettings.strava.clientSecret === '') {
+      log.error('Configuration Error: strava clientSecret error')
+      configToCheck.userSettings.strava.allowUpload = false
+    }
+    if (!configToCheck.userSettings.strava.refreshToken || configToCheck.userSettings.strava.refreshToken === '') {
+      log.error('Configuration Error: strava refreshToken error')
+      configToCheck.userSettings.strava.allowUpload = false
+    }
+  } else {
+    configToCheck.userSettings.strava = { allowUpload: false }
+  }
 }
 
 const config = await getConfig()

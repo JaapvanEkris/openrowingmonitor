@@ -13,13 +13,18 @@
 */
 import rowerProfiles from './rowerProfiles.js'
 
+/**
+ * The default configuration for the Open Rowing Monitor.
+ * @type {Config}
+ */
 export default {
   // Available log levels: trace, debug, info, warn, error, silent
   loglevel: {
     // The default log level
     default: 'info',
     // The log level of of the rowing engine (stroke detection and physics model)
-    RowingEngine: 'warn'
+    RowingEngine: 'warn',
+    Peripherals: 'warn'
   },
 
   // Defines the GPIO Pin that is used to read the sensor data from the rowing machine
@@ -81,9 +86,9 @@ export default {
   // - OFF: Turns Bluetooth advertisement off
   bluetoothMode: 'FTMS',
 
-  // Selects the AN+ that is broadcasted to external peripherals and apps. Supported modes:
+  // Selects the ANT+ that is broadcasted to external peripherals and apps. Supported modes:
   // - FE: ANT+ Fitness Equipment
-  // - OFF: Turns Bluetooth advertisement off
+  // - OFF: Turns ANT+ Fitness Equipment off
   antPlusMode: 'OFF',
 
   // Selects the heart rate monitor mode. Supported modes:
@@ -113,6 +118,14 @@ export default {
 
   // Interval between updates of the clients using PM5 Bluetooth profile (miliseconds)
   pm5UpdateInterval: 1000,
+
+  // MQTT perpipheral configuration settings
+  mqtt: {
+    mqttBroker: '',
+    username: '',
+    password: '',
+    machineName: ''
+  },
 
   // The number of stroke phases (i.e. Drive or Recovery) used to smoothen the data displayed on your
   // screens (i.e. the monitor, but also bluetooth devices, etc.) and recorded data. A nice smooth experience is found at 6
@@ -180,7 +193,31 @@ export default {
     // If you have been rowing regularly for several years, training at least four days per week, doing a variety of workout types
     // and improving your rowing scores, then we suggest selecting "Highly trained" when using the calculator.
     // If you consider yourself a fitness rower and don't push yourself very hard or do any hard pieces, then we suggest selecting "Not highly trained."
-    highlyTrained: false
+    highlyTrained: false,
+
+    // Configuration for the RowsAndAll.com upload
+    rowsAndAll: {
+      allowUpload: false,
+      autoUpload: false,
+      apiKey: ''
+    },
+
+    // Configuration for the intervals.icu upload
+    intervals: {
+      allowUpload: false,
+      autoUpload: false,
+      athleteId: '',
+      apiKey: ''
+    },
+
+    // Configuration for the Strava.com upload
+    strava: {
+      allowUpload: false,
+      autoUpload: false,
+      clientId: '',
+      clientSecret: '',
+      refreshToken: ''
+    }
   },
 
   // The rower specific settings. Either choose a profile from config/rowerProfiles.js or

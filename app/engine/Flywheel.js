@@ -59,6 +59,7 @@ export function createFlywheel (rowerSettings) {
   let currentAngularDistance
   reset()
 
+  /* eslint-disable max-statements -- we need to maintain a lot of metrics in the main loop, nothing we can do about that */
   function pushValue (dataPoint) {
     if (isNaN(dataPoint) || dataPoint < 0 || dataPoint > rowerSettings.maximumStrokeTimeBeforePause) {
       // This typicaly happends after a pause, we need to fix this as it throws off all time calculations
@@ -141,6 +142,7 @@ export function createFlywheel (rowerSettings) {
     // And finally calculate the torque
     _torqueAtBeginFlank = (rowerSettings.flywheelInertia * _angularAccelerationAtBeginFlank + drag.weighedAverage() * Math.pow(_angularVelocityAtBeginFlank, 2))
   }
+  /* eslint-enable max-statements */
 
   function maintainStateOnly () {
     maintainMetrics = false
