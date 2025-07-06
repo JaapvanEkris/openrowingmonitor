@@ -221,7 +221,7 @@ export default {
   NordicTrack_RX800: {
     numOfImpulsesPerRevolution: 4,
     minimumTimeBetweenImpulses: 0.005,
-    maximumTimeBetweenImpulses: 0.030,
+    maximumTimeBetweenImpulses: 0.045,
     sprocketRadius: 3.0,
     autoAdjustDragFactor: true,
     minimumDragQuality: 0.83,
@@ -230,12 +230,12 @@ export default {
     dragFactor: 225,
     flankLength: 11,
     minimumStrokeQuality: 0.34,
-    minimumRecoverySlope: 0.001,
-    autoAdjustRecoverySlope: true,
-    autoAdjustRecoverySlopeMargin: 0.036,
+    minimumRecoverySlope: 0,
+    autoAdjustRecoverySlope: false,
+    autoAdjustRecoverySlopeMargin: 0.1,
     minimumForceBeforeStroke: 80,
     minimumDriveTime: 0.30,
-    minimumRecoveryTime: 0.90
+    minimumRecoveryTime: 0.60
   },
 
   // Sportstech WRX700
