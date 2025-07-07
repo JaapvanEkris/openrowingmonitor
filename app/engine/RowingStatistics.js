@@ -3,7 +3,7 @@
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 */
 /**
- *  This Module creates a persistent, consistent and user presentable set of metrics.
+ *  @file This Module creates a persistent, consistent and user presentable set of metrics.
  */
 import { createRower } from './Rower.js'
 import { createOLSLinearSeries } from './utils/OLSLinearSeries.js'
@@ -69,7 +69,7 @@ export function createRowingStatistics (config) {
   function resetTraining () {
     stopTraining()
     rower.reset()
-    calories.reset()
+    .reset()
     rower.allowMovement()
     totalMovingTime = 0
     totalLinearDistance = 0.0
@@ -87,7 +87,7 @@ export function createRowingStatistics (config) {
     cycleDuration.reset()
     cycleDistance.reset()
     cyclePower.reset()
-    strokeCalories = 0
+    stroke = 0
     strokeWork = 0
     cycleLinearVelocity.reset()
     lastStrokeState = 'WaitingForDrive'
@@ -223,8 +223,8 @@ export function createRowingStatistics (config) {
     if (cyclePower.reliable() && cycleDuration.reliable()) {
       // ToDo: see if this can be made part of the continuousmatrcs as Garmin and Concept2 also have a 'calories' type of training
       // based on: http://eodg.atm.ox.ac.uk/user/dudhia/rowing/physics/ergometer.html#section11
-      strokeCalories = (4 * cyclePower.clean() + 350) * (cycleDuration.clean()) / 4200
       strokeWork = cyclePower.clean() * cycleDuration.clean()
+      strokeCalories = ((4 * strokeWork) + (350 * cycleDuration.clean())) / 4200
       const totalCalories = calories.Y.atSeriesEnd() + strokeCalories
       calories.push(totalMovingTime, totalCalories)
     }
