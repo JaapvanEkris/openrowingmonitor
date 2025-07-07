@@ -1,15 +1,16 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  The Rowing Engine models the physics of a real rowing boat.
-  It takes impulses from the flywheel of a rowing machine and estimates
-  parameters such as energy, stroke rates and movement.
-
-  This implementation uses concepts that are described here:
-  Physics of Rowing by Anu Dudhia: http://eodg.atm.ox.ac.uk/user/dudhia/rowing/physics
-  Also Dave Vernooy has some good explanations here: https://dvernooy.github.io/projects/ergware
 */
+/**
+ * @file The Rowing Engine models the physics of a real rowing boat. It takes impulses from the flywheel of a rowing machine
+ * and calculates parameters such as energy, stroke rates and linear movement.
+ *
+ * This implementation uses concepts that are described here:
+ * - @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/physics_openrowingmonitor.md#relevant-linear-metrics|the description of our underlying physics model}
+ * - @see {@link https://eodg.atm.ox.ac.uk/user/dudhia/rowing/physics/ergometer.html|Physics of Ergometers by Anu Dudhia}
+ * - @see {@link https://dvernooy.github.io/projects/ergware|Dave Vernooy's good explanation of the physics involved}
+ */
 /* eslint-disable max-lines -- There is a lot of state machine dependent math going on here. Hard to keep short while maintaining readability */
 import loglevel from 'loglevel'
 import { createFlywheel } from './Flywheel.js'
