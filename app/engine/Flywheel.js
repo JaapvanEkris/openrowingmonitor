@@ -1,24 +1,25 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  This models the flywheel with all of its attributes, which we can also test for being powered
-
-  All times and distances are defined as being before the beginning of the flank, as RowingEngine's metrics
-  solely depend on times and angular positions before the flank (as they are to be certain to belong to a specific
-  drive or recovery phase).
-
-  Please note: The array contains a buffer of flankLenght measured currentDt's, BEFORE they are actually processed
-
-  Please note2: This implements Linear regression to obtain the drag factor. We deliberatly DO NOT include the flank data
-  as we don't know wether they will belong to a Drive or Recovery phase. So we include things which we know for certain that
-  are part of a specific phase, i.e. dirtyDataPoints[flankLength], which will be eliminated from the flank
-
-  The calculation of angular velocity and acceleration is based on Quadratic Regression, as the second derivative tends to be
-  quite fragile when small errors are thrown in the mix. The math behind this approach can be found in https://physics.info/motion-equations/
-  which is intended for simple linear motion, but the formula are identical when applied to angular distances, velocities and
-  accelerations.
 */
+/**
+ * This models the flywheel with all of its attributes, which we can also test for being powered
+ *
+ * All times and distances are defined as being before the beginning of the flank, as RowingEngine's metrics
+ * solely depend on times and angular positions before the flank (as they are to be certain to belong to a specific
+ * drive or recovery phase).
+ *
+ * The calculation of angular velocity and acceleration is based on Quadratic Regression, as the second derivative tends to be
+ * quite fragile when small errors are thrown in the mix. The math behind this approach can be found in https://physics.info/motion-equations/
+ * which is intended for simple linear motion, but the formula are identical when applied to angular distances, velocities and
+ * accelerations. See also https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/physics_openrowingmonitor.md#determining-the-angular-velocity-and-angular-acceleration-of-the-flywheel
+ *
+ * Please note: The array contains a buffer of flankLenght measured currentDt's, BEFORE they are actually processed
+ *
+ * Please note2: This implements Linear regression to obtain the drag factor. We deliberatly DO NOT include the flank data
+ * as we don't know wether they will belong to a Drive or Recovery phase. So we include things which we know for certain that
+ * are part of a specific phase, i.e. dirtyDataPoints[flankLength], which will be eliminated from the flank
+ */
 
 import loglevel from 'loglevel'
 import { createStreamFilter } from './utils/StreamFilter.js'
@@ -119,8 +120,12 @@ export function createFlywheel (rowerSettings) {
 
     // Let's update the matrix and  calculate the angular velocity and acceleration
     if (_angularVelocityMatrix.length >= flankLength) {
-      // The angularVelocityMatrix has reached its maximum length
+      // The angularVelocityMatrix has reached its maximum length, we need to remove the first element
+      _angularVelocityMatrix[0].reset()
+      _angularVelocityMatrix[0] = null
       _angularVelocityMatrix.shift()
+      _angularAccelerationMatrix[0].reset()
+      _angularAccelerationMatrix[0] = null
       _angularAccelerationMatrix.shift()
     }
 
@@ -195,7 +200,8 @@ export function createFlywheel (rowerSettings) {
 
   function angularPosition () {
     // This function returns the absolute angular position of the flywheel in Radians BEFORE the beginning of the flank
-    return totalNumberOfImpulses * angularDisplacementPerImpulse
+    // Please observe that the first datapoint shouldstart at 0
+    return (Math.max(totalNumberOfImpulses, 0) * angularDisplacementPerImpulse)
   }
 
   function angularVelocity () {
@@ -335,17 +341,33 @@ export function createFlywheel (rowerSettings) {
     recoveryDeltaTime.reset()
     _deltaTime.reset()
     _angularDistance.reset()
-    totalNumberOfImpulses = 0
+    totalNumberOfImpulses = -1
     totalTimeSpinning = 0
     currentCleanTime = 0
     currentRawTime = 0
     currentAngularDistance = 0
+    let i = _angularVelocityMatrix.length
+    while (i > 0) {
+      _angularVelocityMatrix[0].reset()
+      _angularVelocityMatrix[0] = null
+      _angularVelocityMatrix.shift()
+      i--
+    }
     _angularVelocityMatrix = null
     _angularVelocityMatrix = []
+    let j = _angularAccelerationMatrix.length
+    while (j > 0) {
+      _angularAccelerationMatrix[0].reset()
+      _angularAccelerationMatrix[0] = null
+      _angularAccelerationMatrix.shift()
+      j--
+    }
     _angularAccelerationMatrix = null
     _angularAccelerationMatrix = []
     _deltaTime.push(0, 0)
     _angularDistance.push(0, 0)
+    _angularVelocityMatrix[0] = createWeighedSeries(flankLength, 0)
+    _angularAccelerationMatrix[0] = createWeighedSeries(flankLength, 0)
     _deltaTimeBeforeFlank = 0
     _angularVelocityBeforeFlank = 0
     _angularAccelerationBeforeFlank = 0
