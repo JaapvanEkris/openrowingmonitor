@@ -726,7 +726,7 @@ test('Quadratic Approximation on a perfect noisefree function y = 2 * Math.pow(x
   testSecondDerivativeAtPosition(dataSeries, 6, 3.9999999999999467)
   testFirstDerivativeAtPosition(dataSeries, 7, 8.639621685410123) // datapoint 7
   testSecondDerivativeAtPosition(dataSeries, 7, 3.9999999999999467)
-  dataSeries.push(1.277891613924240, 8.377580409572780) // Datapoint 8, currentDt = 0,117986192571703
+  dataSeries.push(1.27789161392424, 8.37758040957278) // Datapoint 8, currentDt = 0,117986192571703
   testLength(dataSeries, 9)
   testIsReliable(dataSeries, true)
   testCoefficientA(dataSeries, 2.000000000000002)
@@ -751,7 +751,7 @@ test('Quadratic Approximation on a perfect noisefree function y = 2 * Math.pow(x
   testSecondDerivativeAtPosition(dataSeries, 7, 4.000000000000004)
   testFirstDerivativeAtPosition(dataSeries, 8, 9.111566455696964) // datapoint 8
   testSecondDerivativeAtPosition(dataSeries, 8, 4.000000000000004)
-  dataSeries.push(1.390060455382810, 9.424777960769380) // Datapoint 9, currentDt = 0,112168841458569
+  dataSeries.push(1.39006045538281, 9.42477796076938) // Datapoint 9, currentDt = 0,112168841458569
   testLength(dataSeries, 10)
   testIsReliable(dataSeries, true)
   testCoefficientA(dataSeries, 2.000000000000008)
@@ -778,7 +778,7 @@ test('Quadratic Approximation on a perfect noisefree function y = 2 * Math.pow(x
   testSecondDerivativeAtPosition(dataSeries, 8, 4.000000000000016)
   testFirstDerivativeAtPosition(dataSeries, 9, 9.560241821531257) // datapoint 9
   testSecondDerivativeAtPosition(dataSeries, 9, 4.000000000000016)
-  dataSeries.push(1.497195978689500, 10.471975511966000) // Datapoint 10, currentDt = 0,107135523306685
+  dataSeries.push(1.4971959786895, 10.471975511966) // Datapoint 10, currentDt = 0,107135523306685
   testLength(dataSeries, 11)
   testIsReliable(dataSeries, true)
   testCoefficientA(dataSeries, 1.9999999999999885)
@@ -807,7 +807,7 @@ test('Quadratic Approximation on a perfect noisefree function y = 2 * Math.pow(x
   testSecondDerivativeAtPosition(dataSeries, 9, 3.999999999999977)
   testFirstDerivativeAtPosition(dataSeries, 10, 9.988783914757974) // datapoint 10
   testSecondDerivativeAtPosition(dataSeries, 10, 3.999999999999977)
-  dataSeries.push(1.599920485626680, 11.519173063162600) // Datapoint 11, currentDt = 0,102724506937187
+  dataSeries.push(1.59992048562668, 11.5191730631626) // Datapoint 11, currentDt = 0,102724506937187
   testLength(dataSeries, 12)
   testIsReliable(dataSeries, true)
   testCoefficientA(dataSeries, 2.000000000000018)
@@ -838,7 +838,7 @@ test('Quadratic Approximation on a perfect noisefree function y = 2 * Math.pow(x
   testSecondDerivativeAtPosition(dataSeries, 10, 4.000000000000036)
   testFirstDerivativeAtPosition(dataSeries, 11, 10.39968194250676) // datapoint 11
   testSecondDerivativeAtPosition(dataSeries, 11, 4.000000000000036)
-  dataSeries.push(1.698737724785350, 12.566370614359200) // Datapoint 12, currentDt = 0,098817239158663
+  dataSeries.push(1.69873772478535, 12.5663706143592) // Datapoint 12, currentDt = 0,098817239158663
   testLength(dataSeries, 12)
   testIsReliable(dataSeries, true)
   testCoefficientA(dataSeries, 2.0000000000000124)
@@ -869,7 +869,7 @@ test('Quadratic Approximation on a perfect noisefree function y = 2 * Math.pow(x
   testSecondDerivativeAtPosition(dataSeries, 10, 4.000000000000025)
   testFirstDerivativeAtPosition(dataSeries, 11, 10.794950899141423) // datapoint 12
   testSecondDerivativeAtPosition(dataSeries, 11, 4.000000000000025)
-  dataSeries.push(1.794062290425520, 13.613568165555800) // Datapoint 13, currentDt = 0,095324565640171
+  dataSeries.push(1.79406229042552, 13.6135681655558) // Datapoint 13, currentDt = 0,095324565640171
   testLength(dataSeries, 12)
   testIsReliable(dataSeries, true)
   testCoefficientA(dataSeries, 2.0000000000000204)
@@ -900,7 +900,7 @@ test('Quadratic Approximation on a perfect noisefree function y = 2 * Math.pow(x
   testSecondDerivativeAtPosition(dataSeries, 10, 4.000000000000041)
   testFirstDerivativeAtPosition(dataSeries, 11, 11.17624916170211) // datapoint 13
   testSecondDerivativeAtPosition(dataSeries, 11, 4.000000000000041)
-  dataSeries.push(1.886240263452820, 14.660765716752400) // Datapoint 14, currentDt = 0,092177973027300
+  dataSeries.push(1.88624026345282, 14.6607657167524) // Datapoint 14, currentDt = 0,092177973027300
   testLength(dataSeries, 12)
   testIsReliable(dataSeries, true)
   testCoefficientA(dataSeries, 1.999999999999996)
@@ -931,7 +931,7 @@ test('Quadratic Approximation on a perfect noisefree function y = 2 * Math.pow(x
   testSecondDerivativeAtPosition(dataSeries, 10, 3.999999999999992)
   testFirstDerivativeAtPosition(dataSeries, 11, 11.54496105381127) // datapoint 14
   testSecondDerivativeAtPosition(dataSeries, 11, 3.999999999999992)
-  dataSeries.push(1.975564086685830, 15.707963267949000) // Datapoint 15, currentDt = 0,089323823233014
+  dataSeries.push(1.97556408668583, 15.707963267949) // Datapoint 15, currentDt = 0,089323823233014
   testLength(dataSeries, 12)
   testIsReliable(dataSeries, true)
   testCoefficientA(dataSeries, 2.000000000000044)
@@ -962,7 +962,7 @@ test('Quadratic Approximation on a perfect noisefree function y = 2 * Math.pow(x
   testSecondDerivativeAtPosition(dataSeries, 10, 4.000000000000088)
   testFirstDerivativeAtPosition(dataSeries, 11, 11.902256346743387) // datapoint 15
   testSecondDerivativeAtPosition(dataSeries, 11, 4.000000000000088)
-  dataSeries.push(2.062283528606190, 16.755160819145600) // Datapoint 16, currentDt = 0,086719441920360
+  dataSeries.push(2.06228352860619, 16.7551608191456) // Datapoint 16, currentDt = 0,086719441920360
   testLength(dataSeries, 12)
   testIsReliable(dataSeries, true)
   testCoefficientA(dataSeries, 2.000000000000065)
@@ -993,7 +993,7 @@ test('Quadratic Approximation on a perfect noisefree function y = 2 * Math.pow(x
   testSecondDerivativeAtPosition(dataSeries, 10, 4.00000000000013)
   testFirstDerivativeAtPosition(dataSeries, 11, 12.249134114424862) // datapoint 16
   testSecondDerivativeAtPosition(dataSeries, 11, 4.00000000000013)
-  dataSeries.push(2.146613923755360, 17.802358370342200) // Datapoint 17, currentDt = 0,084330395149166
+  dataSeries.push(2.14661392375536, 17.8023583703422) // Datapoint 17, currentDt = 0,084330395149166
   testLength(dataSeries, 12)
   testIsReliable(dataSeries, true)
   testCoefficientA(dataSeries, 1.999999999999992)
@@ -1024,7 +1024,7 @@ test('Quadratic Approximation on a perfect noisefree function y = 2 * Math.pow(x
   testSecondDerivativeAtPosition(dataSeries, 10, 3.999999999999984)
   testFirstDerivativeAtPosition(dataSeries, 11, 12.586455695021456) // datapoint 17
   testSecondDerivativeAtPosition(dataSeries, 11, 3.999999999999984)
-  dataSeries.push(2.228742473590820, 18.849555921538800) // Datapoint 18, currentDt = 0,082128549835466
+  dataSeries.push(2.22874247359082, 18.8495559215388) // Datapoint 18, currentDt = 0,082128549835466
   testLength(dataSeries, 12)
   testIsReliable(dataSeries, true)
   testCoefficientA(dataSeries, 2.0000000000001164)
@@ -1055,7 +1055,7 @@ test('Quadratic Approximation on a perfect noisefree function y = 2 * Math.pow(x
   testSecondDerivativeAtPosition(dataSeries, 10, 4.000000000000233)
   testFirstDerivativeAtPosition(dataSeries, 11, 12.914969894363441) // datapoint 18
   testSecondDerivativeAtPosition(dataSeries, 11, 4.000000000000233)
-  dataSeries.push(2.308833138187490, 19.896753472735400) // Datapoint 19, currentDt = 0,080090664596669
+  dataSeries.push(2.30883313818749, 19.8967534727354) // Datapoint 19, currentDt = 0,080090664596669
   testLength(dataSeries, 12)
   testIsReliable(dataSeries, true)
   testCoefficientA(dataSeries, 2.0000000000001563)
@@ -1086,7 +1086,7 @@ test('Quadratic Approximation on a perfect noisefree function y = 2 * Math.pow(x
   testSecondDerivativeAtPosition(dataSeries, 10, 4.000000000000313)
   testFirstDerivativeAtPosition(dataSeries, 11, 13.235332552750155) // datapoint 19
   testSecondDerivativeAtPosition(dataSeries, 11, 4.000000000000313)
-  dataSeries.push(2.387030485833570, 20.943951023932000) // Datapoint 20, currentDt = 0,078197347646078
+  dataSeries.push(2.38703048583357, 20.943951023932) // Datapoint 20, currentDt = 0,078197347646078
   testLength(dataSeries, 12)
   testIsReliable(dataSeries, true)
   testCoefficientA(dataSeries, 2.000000000000047)
@@ -1117,7 +1117,7 @@ test('Quadratic Approximation on a perfect noisefree function y = 2 * Math.pow(x
   testSecondDerivativeAtPosition(dataSeries, 10, 4.000000000000094)
   testFirstDerivativeAtPosition(dataSeries, 11, 13.548121943334367) // datapoint 20
   testSecondDerivativeAtPosition(dataSeries, 11, 4.000000000000094)
-  dataSeries.push(2.463462759661820, 21.991148575128600) // Datapoint 21, currentDt = 0,076432273828253
+  dataSeries.push(2.46346275966182, 21.9911485751286) // Datapoint 21, currentDt = 0,076432273828253
   testLength(dataSeries, 12)
   testIsReliable(dataSeries, true)
   testCoefficientA(dataSeries, 2.000000000000006)
@@ -1148,7 +1148,7 @@ test('Quadratic Approximation on a perfect noisefree function y = 2 * Math.pow(x
   testSecondDerivativeAtPosition(dataSeries, 10, 4.000000000000012)
   testFirstDerivativeAtPosition(dataSeries, 11, 13.853851038647331) // datapoint 21
   testSecondDerivativeAtPosition(dataSeries, 11, 4.000000000000012)
-  dataSeries.push(2.538244347577280, 23.038346126325100) // Datapoint 22, currentDt = 0,074781587915460
+  dataSeries.push(2.53824434757728, 23.0383461263251) // Datapoint 22, currentDt = 0,074781587915460
   testLength(dataSeries, 12)
   testIsReliable(dataSeries, true)
   testCoefficientA(dataSeries, 1.9999999999998974)
@@ -1179,7 +1179,7 @@ test('Quadratic Approximation on a perfect noisefree function y = 2 * Math.pow(x
   testSecondDerivativeAtPosition(dataSeries, 10, 3.999999999999795)
   testFirstDerivativeAtPosition(dataSeries, 11, 14.152977390309033) // datapoint 22
   testSecondDerivativeAtPosition(dataSeries, 11, 3.999999999999795)
-  dataSeries.push(2.611477791536430, 24.085543677521700) // Datapoint 23, currentDt = 0,073233443959153
+  dataSeries.push(2.61147779153643, 24.0855436775217) // Datapoint 23, currentDt = 0,073233443959153
   testLength(dataSeries, 12)
   testIsReliable(dataSeries, true)
   testCoefficientA(dataSeries, 1.9999999999997056)
@@ -1210,7 +1210,7 @@ test('Quadratic Approximation on a perfect noisefree function y = 2 * Math.pow(x
   testSecondDerivativeAtPosition(dataSeries, 10, 3.999999999999411)
   testFirstDerivativeAtPosition(dataSeries, 11, 14.44591116614547) // datapoint 23
   testSecondDerivativeAtPosition(dataSeries, 11, 3.999999999999411)
-  dataSeries.push(2.683255437022960, 25.132741228718300) // Datapoint 24, currentDt = 0,071777645486524
+  dataSeries.push(2.68325543702296, 25.1327412287183) // Datapoint 24, currentDt = 0,071777645486524
   testLength(dataSeries, 12)
   testIsReliable(dataSeries, true)
   testCoefficientA(dataSeries, 1.999999999999476)
@@ -1241,7 +1241,7 @@ test('Quadratic Approximation on a perfect noisefree function y = 2 * Math.pow(x
   testSecondDerivativeAtPosition(dataSeries, 10, 3.999999999998952)
   testFirstDerivativeAtPosition(dataSeries, 11, 14.733021748091309) // datapoint 24
   testSecondDerivativeAtPosition(dataSeries, 11, 3.999999999998952)
-  dataSeries.push(2.753660798468270, 26.179938779914900) // Datapoint 25, currentDt = 0,070405361445316
+  dataSeries.push(2.75366079846827, 26.1799387799149) // Datapoint 25, currentDt = 0,070405361445316
   testLength(dataSeries, 12)
   testIsReliable(dataSeries, true)
   testCoefficientA(dataSeries, 1.999999999999619)
@@ -1272,7 +1272,7 @@ test('Quadratic Approximation on a perfect noisefree function y = 2 * Math.pow(x
   testSecondDerivativeAtPosition(dataSeries, 10, 3.999999999999238)
   testFirstDerivativeAtPosition(dataSeries, 11, 15.014643193872676) // datapoint 25
   testSecondDerivativeAtPosition(dataSeries, 11, 3.999999999999238)
-  dataSeries.push(2.822769698210420, 27.227136331111500) // Datapoint 26, currentDt = 0,069108899742145
+  dataSeries.push(2.82276969821042, 27.2271363311115) // Datapoint 26, currentDt = 0,069108899742145
   testLength(dataSeries, 12)
   testIsReliable(dataSeries, true)
   testCoefficientA(dataSeries, 1.9999999999996692)
@@ -1303,7 +1303,7 @@ test('Quadratic Approximation on a perfect noisefree function y = 2 * Math.pow(x
   testSecondDerivativeAtPosition(dataSeries, 10, 3.9999999999993383)
   testFirstDerivativeAtPosition(dataSeries, 11, 15.291078792841265) // datapoint 26
   testSecondDerivativeAtPosition(dataSeries, 11, 3.9999999999993383)
-  dataSeries.push(2.890651223272790, 28.274333882308100) // Datapoint 27, currentDt = 0,067881525062373
+  dataSeries.push(2.89065122327279, 28.2743338823081) // Datapoint 27, currentDt = 0,067881525062373
   testLength(dataSeries, 12)
   testIsReliable(dataSeries, true)
   testCoefficientA(dataSeries, 1.9999999999999296)
@@ -1334,7 +1334,7 @@ test('Quadratic Approximation on a perfect noisefree function y = 2 * Math.pow(x
   testSecondDerivativeAtPosition(dataSeries, 10, 3.9999999999998592)
   testFirstDerivativeAtPosition(dataSeries, 11, 15.562604893090988) // datapoint 27
   testSecondDerivativeAtPosition(dataSeries, 11, 3.9999999999998592)
-  dataSeries.push(2.957368534361230, 29.321531433504700) // Datapoint 28, currentDt = 0,066717311088441
+  dataSeries.push(2.95736853436123, 29.3215314335047) // Datapoint 28, currentDt = 0,066717311088441
   testLength(dataSeries, 12)
   testIsReliable(dataSeries, true)
   testCoefficientA(dataSeries, 2.0000000000001585)
@@ -1365,7 +1365,7 @@ test('Quadratic Approximation on a perfect noisefree function y = 2 * Math.pow(x
   testSecondDerivativeAtPosition(dataSeries, 10, 4.000000000000317)
   testFirstDerivativeAtPosition(dataSeries, 11, 15.829474137444937) // datapoint 28
   testSecondDerivativeAtPosition(dataSeries, 11, 4.000000000000317)
-  dataSeries.push(3.022979554055760, 30.368728984701300) // Datapoint 29, currentDt = 0,065611019694526
+  dataSeries.push(3.02297955405576, 30.3687289847013) // Datapoint 29, currentDt = 0,065611019694526
   testLength(dataSeries, 12)
   testIsReliable(dataSeries, true)
   testCoefficientA(dataSeries, 2.0000000000002034)
@@ -1396,7 +1396,7 @@ test('Quadratic Approximation on a perfect noisefree function y = 2 * Math.pow(x
   testSecondDerivativeAtPosition(dataSeries, 10, 4.000000000000407)
   testFirstDerivativeAtPosition(dataSeries, 11, 16.091918216223092) // datapoint 29
   testSecondDerivativeAtPosition(dataSeries, 11, 4.000000000000407)
-  dataSeries.push(3.087537555539880, 31.415926535897900) // Datapoint 30, currentDt = 0,064558001484125
+  dataSeries.push(3.08753755553988, 31.4159265358979) // Datapoint 30, currentDt = 0,064558001484125
   testLength(dataSeries, 12)
   testIsReliable(dataSeries, true)
   testCoefficientA(dataSeries, 2.0000000000004476)
@@ -1427,7 +1427,7 @@ test('Quadratic Approximation on a perfect noisefree function y = 2 * Math.pow(x
   testSecondDerivativeAtPosition(dataSeries, 10, 4.000000000000895)
   testFirstDerivativeAtPosition(dataSeries, 11, 16.350150222159773) // datapoint 30
   testSecondDerivativeAtPosition(dataSeries, 11, 4.000000000000895)
-  dataSeries.push(3.151091668892320, 32.463124087094500) // Datapoint 31, currentDt = 0,063554113352442
+  dataSeries.push(3.15109166889232, 32.4631240870945) // Datapoint 31, currentDt = 0,063554113352442
   testLength(dataSeries, 12)
   testIsReliable(dataSeries, true)
   testCoefficientA(dataSeries, 2.0000000000006226)
