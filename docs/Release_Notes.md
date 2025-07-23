@@ -1,18 +1,22 @@
 # OpenRowingMonitor Release Notes
 
+## Version 0.9.7 (January 2026)
+
+Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris)
+
+### New functionality in 0.9.7
+
+- Nothing yet
+
+### Bugfixes and robustness improvements in 0.9.7
+
+- Fixed a bug in the initialisation of the Flywheel.js
+
 ## Version 0.9.6 (June 2025)
 
 Main contributors: [Abasz](https://github.com/Abasz) and [Jaap van Ekris](https://github.com/JaapvanEkris)
 
 Beta testers: [fkh-bims](https://github.com/fkh-bims), [jryd2000](https://github.com/jryd2000) and [carlito1979](https://github.com/carlito1979)
-
-### Upgrade instructions for 0.9.6
-
-> [!IMPORTANT]
-> When upgrading from an existing install, several things have to be done by hand:
->
-> - If you use an attached screen, you need to install firefox by `sudo apt-get install firefox`
-> - If you use the automated Strava upload, you have to configure your Strava setup in `config.js` again. Please look at the [integrations manual](Integrations.md) for how to do this.
 
 ### New functionality in 0.9.6
 
