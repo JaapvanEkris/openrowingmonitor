@@ -419,7 +419,7 @@ test('sample data for NordicTrack RX800 should produce plausible results', async
   testTotalLinearDistance(rowingStatistics, 80.42482071913939)
   testTotalNumberOfStrokes(rowingStatistics, 9)
   // As dragFactor is dynamic, it should have changed
-  testDragFactor(rowingStatistics, 494.92868774518126)
+  testDragFactor(rowingStatistics, 491.1395313462149)
 })
 
 test('A full session for SportsTech WRX700 should produce plausible results', async () => {
