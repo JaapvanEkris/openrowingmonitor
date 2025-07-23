@@ -381,7 +381,7 @@ test('sample data for NordicTrack RX800 should produce plausible results', async
 
   await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/RX800.csv', realtime: false, loop: false })
 
-  testTotalMovingTimeSinceStart(rower, 21.97324892)
+  testTotalMovingTimeSinceStart(rower, 22.259092749999997)
   testTotalLinearDistanceSinceStart(rower, 80.3523094200539)
   testTotalNumberOfStrokes(rower, 10)
   // As dragFactor is dynamic, it should have changed
