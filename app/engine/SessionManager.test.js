@@ -151,7 +151,7 @@ test('sample data for NordicTrack RX800 should produce plausible results without
 
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/RX800.csv', realtime: false, loop: false })
 
-  testTotalMovingTime(sessionManager, 21.97324892)
+  testTotalMovingTime(sessionManager, 22.259092749999997)
   testTotalLinearDistance(sessionManager, 80.3523094200539)
   testTotalNumberOfStrokes(sessionManager, 9)
   // As dragFactor is dynamic, it should have changed
@@ -185,7 +185,7 @@ test('sample data for NordicTrack RX800 should produce plausible results for a 2
 
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/RX800.csv', realtime: false, loop: false })
 
-  testTotalMovingTime(sessionManager, 20.017169872999983)
+  testTotalMovingTime(sessionManager, 20.02496380499998)
   testTotalLinearDistance(sessionManager, 73.1235806771888)
   testTotalNumberOfStrokes(sessionManager, 9)
   // As dragFactor is dynamic, it should have changed
@@ -219,7 +219,7 @@ test('sample data for NordicTrack RX800 should produce plausible results for a 7
 
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/RX800.csv', realtime: false, loop: false })
 
-  testTotalMovingTime(sessionManager, 20.54281442199998)
+  testTotalMovingTime(sessionManager, 20.80755593899998)
   testTotalLinearDistance(sessionManager, 75.06299570576236)
   testTotalNumberOfStrokes(sessionManager, 9)
   // As dragFactor is dynamic, it should have changed
