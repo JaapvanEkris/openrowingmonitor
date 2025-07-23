@@ -11,6 +11,9 @@ import * as assert from 'uvu/assert'
 
 import { createTSQuadraticSeries } from './FullTSQuadraticSeries.js'
 
+/**
+ * This series of tests focusses on testing the reliability of the quadratic estimator algorithm
+ */
 test('Quadratic Approximation startup behaviour', () => {
   const dataSeries = createTSQuadraticSeries(10)
   testCoefficientA(dataSeries, 0)
@@ -594,6 +597,873 @@ test('Quadratic TS Estimation should result in a straight line for function y = 
   testGoodnessOfFitEquals(dataSeries, 1)
 })
 
+/**
+ * This group tests the results of the functions actually used. Please note: these exact same tests are also used in Flywheel.test.js
+ */
+/**
+ * The data of the underlying test is based on y = 2 x^2 + 4 x, where we have a spacing in y of 1/3th pi (i.e. a 6 magnet flywheel)
+ * and a flankLength of 12 (2 * magnets), as this is what Flywheel.test.js will need. CurrentDt's are mentione in the comment behind the line
+ * Do the first derivative should follow y' = 4x + 4, and the second derivative  y'' = 4,
+ */
+test('Quadratic Approximation on a perfect noisefree function y = 2 * Math.pow(x, 2) + 4 * x + 2, 32 datapoints', () => {
+  const dataSeries = createTSQuadraticSeries(12)
+  testLength(dataSeries, 0)
+  testIsReliable(dataSeries, false)
+  testGoodnessOfFitEquals(dataSeries, 0)
+  dataSeries.push(0.000000000000000, 0.000000000000000) // Datapoint 0, no currentDt
+  testLength(dataSeries, 1)
+  testIsReliable(dataSeries, false)
+  testGoodnessOfFitEquals(dataSeries, 0)
+  dataSeries.push(0.234341433963188, 1.047197551196600) // Datapoint 1, currentDt = 0,234341433963188
+  testLength(dataSeries, 2)
+  testIsReliable(dataSeries, false)
+  testGoodnessOfFitEquals(dataSeries, 0)
+  dataSeries.push(0.430803114057485, 2.094395102393200) // Datapoint 2, currentDt = 0,196461680094298
+  testLength(dataSeries, 3)
+  testIsReliable(dataSeries, true)
+  testCoefficientA(dataSeries, 2.000000000000049)
+  testCoefficientB(dataSeries, 3.999999999999996)
+  testCoefficientC(dataSeries, 0)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testFirstDerivativeAtPosition(dataSeries, 0, 3.999999999999996) // datapoint 0
+  testSecondDerivativeAtPosition(dataSeries, 0, 4.000000000000098)
+  testFirstDerivativeAtPosition(dataSeries, 1, 4.9373657358527705) // datapoint 1
+  testSecondDerivativeAtPosition(dataSeries, 1, 4.000000000000098)
+  testFirstDerivativeAtPosition(dataSeries, 2, 5.723212456229978) // datapoint 2
+  testSecondDerivativeAtPosition(dataSeries, 2, 4.000000000000098)
+  dataSeries.push(0.603370302455080, 3.141592653589790) // Datapoint 3, currentDt = 0,172567188397595
+  testLength(dataSeries, 4)
+  testIsReliable(dataSeries, true)
+  testCoefficientA(dataSeries, 1.9999999999999454)
+  testCoefficientB(dataSeries, 4.000000000000037)
+  testCoefficientC(dataSeries, -1.3322676295501878e-15)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testFirstDerivativeAtPosition(dataSeries, 0, 4.000000000000037) // datapoint 0
+  testSecondDerivativeAtPosition(dataSeries, 0, 3.9999999999998908)
+  testFirstDerivativeAtPosition(dataSeries, 1, 4.937365735852763) // datapoint 1
+  testSecondDerivativeAtPosition(dataSeries, 1, 3.9999999999998908)
+  testFirstDerivativeAtPosition(dataSeries, 2, 5.7232124562299305) // datapoint 2
+  testSecondDerivativeAtPosition(dataSeries, 2, 3.9999999999998908)
+  testFirstDerivativeAtPosition(dataSeries, 3, 6.413481209820292) // datapoint 3
+  testSecondDerivativeAtPosition(dataSeries, 3, 3.9999999999998908)
+  dataSeries.push(0.759089282098323, 4.188790204786390) // Datapoint 4, currentDt = 0,155718979643243
+  testLength(dataSeries, 5)
+  testIsReliable(dataSeries, true)
+  testCoefficientA(dataSeries, 1.9999999999999871)
+  testCoefficientB(dataSeries, 4.0000000000000115)
+  testCoefficientC(dataSeries, 0)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testFirstDerivativeAtPosition(dataSeries, 0, 4.0000000000000115) // datapoint 0
+  testSecondDerivativeAtPosition(dataSeries, 0, 3.9999999999999742)
+  testFirstDerivativeAtPosition(dataSeries, 1, 4.937365735852757) // datapoint 1
+  testSecondDerivativeAtPosition(dataSeries, 1, 3.9999999999999742)
+  testFirstDerivativeAtPosition(dataSeries, 2, 5.72321245622994) // datapoint 2
+  testSecondDerivativeAtPosition(dataSeries, 2, 3.9999999999999742)
+  testFirstDerivativeAtPosition(dataSeries, 3, 6.413481209820317) // datapoint 3
+  testSecondDerivativeAtPosition(dataSeries, 3, 3.9999999999999742)
+  testFirstDerivativeAtPosition(dataSeries, 4, 7.036357128393284) // datapoint 4
+  testSecondDerivativeAtPosition(dataSeries, 4, 3.9999999999999742)
+  dataSeries.push(0.902102488824273, 5.235987755982990) // Datapoint 5, currentDt = 0,143013206725950
+  testLength(dataSeries, 6)
+  testIsReliable(dataSeries, true)
+  testCoefficientA(dataSeries, 2)
+  testCoefficientB(dataSeries, 4.000000000000002)
+  testCoefficientC(dataSeries, 1.0547118733938987e-15)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testFirstDerivativeAtPosition(dataSeries, 0, 4.000000000000002) // datapoint 0
+  testSecondDerivativeAtPosition(dataSeries, 0, 4)
+  testFirstDerivativeAtPosition(dataSeries, 1, 4.937365735852754) // datapoint 1
+  testSecondDerivativeAtPosition(dataSeries, 1, 4)
+  testFirstDerivativeAtPosition(dataSeries, 2, 5.723212456229942) // datapoint 2
+  testSecondDerivativeAtPosition(dataSeries, 2, 4)
+  testFirstDerivativeAtPosition(dataSeries, 3, 6.413481209820322) // datapoint 3
+  testSecondDerivativeAtPosition(dataSeries, 3, 4)
+  testFirstDerivativeAtPosition(dataSeries, 4, 7.036357128393294) // datapoint 4
+  testSecondDerivativeAtPosition(dataSeries, 4, 4)
+  testFirstDerivativeAtPosition(dataSeries, 5, 7.608409955297094) // datapoint 5
+  testSecondDerivativeAtPosition(dataSeries, 5, 4)
+  dataSeries.push(1.035090330572530, 6.283185307179590) // Datapoint 6, currentDt = 0,132987841748253
+  testLength(dataSeries, 7)
+  testIsReliable(dataSeries, true)
+  testCoefficientA(dataSeries, 1.9999999999999525)
+  testCoefficientB(dataSeries, 4.000000000000037)
+  testCoefficientC(dataSeries, 0)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testFirstDerivativeAtPosition(dataSeries, 0, 4.000000000000037) // datapoint 0
+  testSecondDerivativeAtPosition(dataSeries, 0, 3.999999999999905)
+  testFirstDerivativeAtPosition(dataSeries, 1, 4.937365735852767) // datapoint 1
+  testSecondDerivativeAtPosition(dataSeries, 1, 3.999999999999905)
+  testFirstDerivativeAtPosition(dataSeries, 2, 5.723212456229937) // datapoint 2
+  testSecondDerivativeAtPosition(dataSeries, 2, 3.999999999999905)
+  testFirstDerivativeAtPosition(dataSeries, 3, 6.413481209820301) // datapoint 3
+  testSecondDerivativeAtPosition(dataSeries, 3, 3.999999999999905)
+  testFirstDerivativeAtPosition(dataSeries, 4, 7.0363571283932576) // datapoint 4
+  testSecondDerivativeAtPosition(dataSeries, 4, 3.999999999999905)
+  testFirstDerivativeAtPosition(dataSeries, 5, 7.608409955297043) // datapoint 5
+  testSecondDerivativeAtPosition(dataSeries, 5, 3.999999999999905)
+  testFirstDerivativeAtPosition(dataSeries, 6, 8.140361322290058) // datapoint 6
+  testSecondDerivativeAtPosition(dataSeries, 6, 3.999999999999905)
+  dataSeries.push(1.159905421352540, 7.330382858376180) // Datapoint 7, currentDt = 0,124815090780014
+  testLength(dataSeries, 8)
+  testIsReliable(dataSeries, true)
+  testCoefficientA(dataSeries, 1.9999999999999734)
+  testCoefficientB(dataSeries, 4.000000000000025)
+  testCoefficientC(dataSeries, -6.661338147750939e-16)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testFirstDerivativeAtPosition(dataSeries, 0, 4.000000000000025) // datapoint 0
+  testSecondDerivativeAtPosition(dataSeries, 0, 3.9999999999999467)
+  testFirstDerivativeAtPosition(dataSeries, 1, 4.937365735852764) // datapoint 1
+  testSecondDerivativeAtPosition(dataSeries, 1, 3.9999999999999467)
+  testFirstDerivativeAtPosition(dataSeries, 2, 5.723212456229942) // datapoint 2
+  testSecondDerivativeAtPosition(dataSeries, 2, 3.9999999999999467)
+  testFirstDerivativeAtPosition(dataSeries, 3, 6.413481209820313) // datapoint 3
+  testSecondDerivativeAtPosition(dataSeries, 3, 3.9999999999999467)
+  testFirstDerivativeAtPosition(dataSeries, 4, 7.036357128393277) // datapoint 4
+  testSecondDerivativeAtPosition(dataSeries, 4, 3.9999999999999467)
+  testFirstDerivativeAtPosition(dataSeries, 5, 7.608409955297069) // datapoint 5
+  testSecondDerivativeAtPosition(dataSeries, 5, 3.9999999999999467)
+  testFirstDerivativeAtPosition(dataSeries, 6, 8.14036132229009) // datapoint 6
+  testSecondDerivativeAtPosition(dataSeries, 6, 3.9999999999999467)
+  testFirstDerivativeAtPosition(dataSeries, 7, 8.639621685410123) // datapoint 7
+  testSecondDerivativeAtPosition(dataSeries, 7, 3.9999999999999467)
+  dataSeries.push(1.277891613924240, 8.377580409572780) // Datapoint 8, currentDt = 0,117986192571703
+  testLength(dataSeries, 9)
+  testIsReliable(dataSeries, true)
+  testCoefficientA(dataSeries, 2.000000000000002)
+  testCoefficientB(dataSeries, 3.999999999999999)
+  testCoefficientC(dataSeries, 1.7763568394002505e-15)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testFirstDerivativeAtPosition(dataSeries, 0, 3.999999999999999) // datapoint 0
+  testSecondDerivativeAtPosition(dataSeries, 0, 4.000000000000004)
+  testFirstDerivativeAtPosition(dataSeries, 1, 4.937365735852752) // datapoint 1
+  testSecondDerivativeAtPosition(dataSeries, 1, 4.000000000000004)
+  testFirstDerivativeAtPosition(dataSeries, 2, 5.723212456229941) // datapoint 2
+  testSecondDerivativeAtPosition(dataSeries, 2, 4.000000000000004)
+  testFirstDerivativeAtPosition(dataSeries, 3, 6.413481209820322) // datapoint 3
+  testSecondDerivativeAtPosition(dataSeries, 3, 4.000000000000004)
+  testFirstDerivativeAtPosition(dataSeries, 4, 7.036357128393295) // datapoint 4
+  testSecondDerivativeAtPosition(dataSeries, 4, 4.000000000000004)
+  testFirstDerivativeAtPosition(dataSeries, 5, 7.608409955297095) // datapoint 5
+  testSecondDerivativeAtPosition(dataSeries, 5, 4.000000000000004)
+  testFirstDerivativeAtPosition(dataSeries, 6, 8.140361322290124) // datapoint 6
+  testSecondDerivativeAtPosition(dataSeries, 6, 4.000000000000004)
+  testFirstDerivativeAtPosition(dataSeries, 7, 8.639621685410164) // datapoint 7
+  testSecondDerivativeAtPosition(dataSeries, 7, 4.000000000000004)
+  testFirstDerivativeAtPosition(dataSeries, 8, 9.111566455696964) // datapoint 8
+  testSecondDerivativeAtPosition(dataSeries, 8, 4.000000000000004)
+  dataSeries.push(1.390060455382810, 9.424777960769380) // Datapoint 9, currentDt = 0,112168841458569
+  testLength(dataSeries, 10)
+  testIsReliable(dataSeries, true)
+  testCoefficientA(dataSeries, 2.000000000000008)
+  testCoefficientB(dataSeries, 3.999999999999994)
+  testCoefficientC(dataSeries, 2.220446049250313e-15)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testFirstDerivativeAtPosition(dataSeries, 0, 3.999999999999994) // datapoint 0
+  testSecondDerivativeAtPosition(dataSeries, 0, 4.000000000000016)
+  testFirstDerivativeAtPosition(dataSeries, 1, 4.937365735852749) // datapoint 1
+  testSecondDerivativeAtPosition(dataSeries, 1, 4.000000000000016)
+  testFirstDerivativeAtPosition(dataSeries, 2, 5.723212456229941) // datapoint 2
+  testSecondDerivativeAtPosition(dataSeries, 2, 4.000000000000016)
+  testFirstDerivativeAtPosition(dataSeries, 3, 6.413481209820324) // datapoint 3
+  testSecondDerivativeAtPosition(dataSeries, 3, 4.000000000000016)
+  testFirstDerivativeAtPosition(dataSeries, 4, 7.036357128393298) // datapoint 4
+  testSecondDerivativeAtPosition(dataSeries, 4, 4.000000000000016)
+  testFirstDerivativeAtPosition(dataSeries, 5, 7.6084099552971) // datapoint 5
+  testSecondDerivativeAtPosition(dataSeries, 5, 4.000000000000016)
+  testFirstDerivativeAtPosition(dataSeries, 6, 8.140361322290131) // datapoint 6
+  testSecondDerivativeAtPosition(dataSeries, 6, 4.000000000000016)
+  testFirstDerivativeAtPosition(dataSeries, 7, 8.639621685410173) // datapoint 7
+  testSecondDerivativeAtPosition(dataSeries, 7, 4.000000000000016)
+  testFirstDerivativeAtPosition(dataSeries, 8, 9.111566455696973) // datapoint 8
+  testSecondDerivativeAtPosition(dataSeries, 8, 4.000000000000016)
+  testFirstDerivativeAtPosition(dataSeries, 9, 9.560241821531257) // datapoint 9
+  testSecondDerivativeAtPosition(dataSeries, 9, 4.000000000000016)
+  dataSeries.push(1.497195978689500, 10.471975511966000) // Datapoint 10, currentDt = 0,107135523306685
+  testLength(dataSeries, 11)
+  testIsReliable(dataSeries, true)
+  testCoefficientA(dataSeries, 1.9999999999999885)
+  testCoefficientB(dataSeries, 4.00000000000001)
+  testCoefficientC(dataSeries, 0)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testFirstDerivativeAtPosition(dataSeries, 0, 4.00000000000001) // datapoint 0
+  testSecondDerivativeAtPosition(dataSeries, 0, 3.999999999999977)
+  testFirstDerivativeAtPosition(dataSeries, 1, 4.937365735852756) // datapoint 1
+  testSecondDerivativeAtPosition(dataSeries, 1, 3.999999999999977)
+  testFirstDerivativeAtPosition(dataSeries, 2, 5.723212456229939) // datapoint 2
+  testSecondDerivativeAtPosition(dataSeries, 2, 3.999999999999977)
+  testFirstDerivativeAtPosition(dataSeries, 3, 6.413481209820317) // datapoint 3
+  testSecondDerivativeAtPosition(dataSeries, 3, 3.999999999999977)
+  testFirstDerivativeAtPosition(dataSeries, 4, 7.036357128393284) // datapoint 4
+  testSecondDerivativeAtPosition(dataSeries, 4, 3.999999999999977)
+  testFirstDerivativeAtPosition(dataSeries, 5, 7.6084099552970805) // datapoint 5
+  testSecondDerivativeAtPosition(dataSeries, 5, 3.999999999999977)
+  testFirstDerivativeAtPosition(dataSeries, 6, 8.140361322290106) // datapoint 6
+  testSecondDerivativeAtPosition(dataSeries, 6, 3.999999999999977)
+  testFirstDerivativeAtPosition(dataSeries, 7, 8.639621685410143) // datapoint 7
+  testSecondDerivativeAtPosition(dataSeries, 7, 3.999999999999977)
+  testFirstDerivativeAtPosition(dataSeries, 8, 9.111566455696941) // datapoint 8
+  testSecondDerivativeAtPosition(dataSeries, 8, 3.999999999999977)
+  testFirstDerivativeAtPosition(dataSeries, 9, 9.560241821531218) // datapoint 9
+  testSecondDerivativeAtPosition(dataSeries, 9, 3.999999999999977)
+  testFirstDerivativeAtPosition(dataSeries, 10, 9.988783914757974) // datapoint 10
+  testSecondDerivativeAtPosition(dataSeries, 10, 3.999999999999977)
+  dataSeries.push(1.599920485626680, 11.519173063162600) // Datapoint 11, currentDt = 0,102724506937187
+  testLength(dataSeries, 12)
+  testIsReliable(dataSeries, true)
+  testCoefficientA(dataSeries, 2.000000000000018)
+  testCoefficientB(dataSeries, 3.9999999999999805)
+  testCoefficientC(dataSeries, 5.329070518200751e-15)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testFirstDerivativeAtPosition(dataSeries, 0, 3.9999999999999805) // datapoint 0
+  testSecondDerivativeAtPosition(dataSeries, 0, 4.000000000000036)
+  testFirstDerivativeAtPosition(dataSeries, 1, 4.937365735852741) // datapoint 1
+  testSecondDerivativeAtPosition(dataSeries, 1, 4.000000000000036)
+  testFirstDerivativeAtPosition(dataSeries, 2, 5.723212456229936) // datapoint 2
+  testSecondDerivativeAtPosition(dataSeries, 2, 4.000000000000036)
+  testFirstDerivativeAtPosition(dataSeries, 3, 6.413481209820322) // datapoint 3
+  testSecondDerivativeAtPosition(dataSeries, 3, 4.000000000000036)
+  testFirstDerivativeAtPosition(dataSeries, 4, 7.0363571283933) // datapoint 4
+  testSecondDerivativeAtPosition(dataSeries, 4, 4.000000000000036)
+  testFirstDerivativeAtPosition(dataSeries, 5, 7.608409955297105) // datapoint 5
+  testSecondDerivativeAtPosition(dataSeries, 5, 4.000000000000036)
+  testFirstDerivativeAtPosition(dataSeries, 6, 8.140361322290138) // datapoint 6
+  testSecondDerivativeAtPosition(dataSeries, 6, 4.000000000000036)
+  testFirstDerivativeAtPosition(dataSeries, 7, 8.639621685410184) // datapoint 7
+  testSecondDerivativeAtPosition(dataSeries, 7, 4.000000000000036)
+  testFirstDerivativeAtPosition(dataSeries, 8, 9.111566455696988) // datapoint 8
+  testSecondDerivativeAtPosition(dataSeries, 8, 4.000000000000036)
+  testFirstDerivativeAtPosition(dataSeries, 9, 9.560241821531271) // datapoint 9
+  testSecondDerivativeAtPosition(dataSeries, 9, 4.000000000000036)
+  testFirstDerivativeAtPosition(dataSeries, 10, 9.988783914758034) // datapoint 10
+  testSecondDerivativeAtPosition(dataSeries, 10, 4.000000000000036)
+  testFirstDerivativeAtPosition(dataSeries, 11, 10.39968194250676) // datapoint 11
+  testSecondDerivativeAtPosition(dataSeries, 11, 4.000000000000036)
+  dataSeries.push(1.698737724785350, 12.566370614359200) // Datapoint 12, currentDt = 0,098817239158663
+  testLength(dataSeries, 12)
+  testIsReliable(dataSeries, true)
+  testCoefficientA(dataSeries, 2.0000000000000124)
+  testCoefficientB(dataSeries, 3.999999999999981)
+  testCoefficientC(dataSeries, 8.215650382226158e-15)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testFirstDerivativeAtPosition(dataSeries, 0, 4.9373657358527385) // datapoint 1, the series had shifted and pushed out datapoint 0
+  testSecondDerivativeAtPosition(dataSeries, 0, 4.000000000000025)
+  testFirstDerivativeAtPosition(dataSeries, 1, 5.723212456229931) // datapoint 2
+  testSecondDerivativeAtPosition(dataSeries, 1, 4.000000000000025)
+  testFirstDerivativeAtPosition(dataSeries, 2, 6.413481209820317) // datapoint 3
+  testSecondDerivativeAtPosition(dataSeries, 2, 4.000000000000025)
+  testFirstDerivativeAtPosition(dataSeries, 3, 7.036357128393292) // datapoint 4
+  testSecondDerivativeAtPosition(dataSeries, 3, 4.000000000000025)
+  testFirstDerivativeAtPosition(dataSeries, 4, 7.608409955297096) // datapoint 5
+  testSecondDerivativeAtPosition(dataSeries, 4, 4.000000000000025)
+  testFirstDerivativeAtPosition(dataSeries, 5, 8.140361322290127) // datapoint 6
+  testSecondDerivativeAtPosition(dataSeries, 5, 4.000000000000025)
+  testFirstDerivativeAtPosition(dataSeries, 6, 8.63962168541017) // datapoint 7
+  testSecondDerivativeAtPosition(dataSeries, 6, 4.000000000000025)
+  testFirstDerivativeAtPosition(dataSeries, 7, 9.111566455696973) // datapoint 8
+  testSecondDerivativeAtPosition(dataSeries, 7, 4.000000000000025)
+  testFirstDerivativeAtPosition(dataSeries, 8, 9.560241821531255) // datapoint 9
+  testSecondDerivativeAtPosition(dataSeries, 8, 4.000000000000025)
+  testFirstDerivativeAtPosition(dataSeries, 9, 9.988783914758018) // datapoint 10
+  testSecondDerivativeAtPosition(dataSeries, 9, 4.000000000000025)
+  testFirstDerivativeAtPosition(dataSeries, 10, 10.39968194250674) // datapoint 11
+  testSecondDerivativeAtPosition(dataSeries, 10, 4.000000000000025)
+  testFirstDerivativeAtPosition(dataSeries, 11, 10.794950899141423) // datapoint 12
+  testSecondDerivativeAtPosition(dataSeries, 11, 4.000000000000025)
+  dataSeries.push(1.794062290425520, 13.613568165555800) // Datapoint 13, currentDt = 0,095324565640171
+  testLength(dataSeries, 12)
+  testIsReliable(dataSeries, true)
+  testCoefficientA(dataSeries, 2.0000000000000204)
+  testCoefficientB(dataSeries, 3.9999999999999565)
+  testCoefficientC(dataSeries, 2.0650148258027912e-14)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testFirstDerivativeAtPosition(dataSeries, 0, 5.7232124562299145) // datapoint 2, as datapoint 1 was pushed out
+  testSecondDerivativeAtPosition(dataSeries, 0, 4.000000000000041)
+  testFirstDerivativeAtPosition(dataSeries, 1, 6.413481209820302) // datapoint 3
+  testSecondDerivativeAtPosition(dataSeries, 1, 4.000000000000041)
+  testFirstDerivativeAtPosition(dataSeries, 2, 7.03635712839328) // datapoint 4
+  testSecondDerivativeAtPosition(dataSeries, 2, 4.000000000000041)
+  testFirstDerivativeAtPosition(dataSeries, 3, 7.608409955297086) // datapoint 5
+  testSecondDerivativeAtPosition(dataSeries, 3, 4.000000000000041)
+  testFirstDerivativeAtPosition(dataSeries, 4, 8.140361322290119) // datapoint 6
+  testSecondDerivativeAtPosition(dataSeries, 4, 4.000000000000041)
+  testFirstDerivativeAtPosition(dataSeries, 5, 8.639621685410162) // datapoint 7
+  testSecondDerivativeAtPosition(dataSeries, 5, 4.000000000000041)
+  testFirstDerivativeAtPosition(dataSeries, 6, 9.11156645569697) // datapoint 8
+  testSecondDerivativeAtPosition(dataSeries, 6, 4.000000000000041)
+  testFirstDerivativeAtPosition(dataSeries, 7, 9.560241821531253) // datapoint 9
+  testSecondDerivativeAtPosition(dataSeries, 7, 4.000000000000041)
+  testFirstDerivativeAtPosition(dataSeries, 8, 9.988783914758017) // datapoint 10
+  testSecondDerivativeAtPosition(dataSeries, 8, 4.000000000000041)
+  testFirstDerivativeAtPosition(dataSeries, 9, 10.399681942506742) // datapoint 11
+  testSecondDerivativeAtPosition(dataSeries, 9, 4.000000000000041)
+  testFirstDerivativeAtPosition(dataSeries, 10, 10.794950899141426) // datapoint 12
+  testSecondDerivativeAtPosition(dataSeries, 10, 4.000000000000041)
+  testFirstDerivativeAtPosition(dataSeries, 11, 11.17624916170211) // datapoint 13
+  testSecondDerivativeAtPosition(dataSeries, 11, 4.000000000000041)
+  dataSeries.push(1.886240263452820, 14.660765716752400) // Datapoint 14, currentDt = 0,092177973027300
+  testLength(dataSeries, 12)
+  testIsReliable(dataSeries, true)
+  testCoefficientA(dataSeries, 1.999999999999996)
+  testCoefficientB(dataSeries, 4.000000000000007)
+  testCoefficientC(dataSeries, -3.9968028886505635e-15)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testFirstDerivativeAtPosition(dataSeries, 0, 6.413481209820322) // datapoint 3, as datapoint 2 was pushed out
+  testSecondDerivativeAtPosition(dataSeries, 0, 3.999999999999992)
+  testFirstDerivativeAtPosition(dataSeries, 1, 7.036357128393293) // datapoint 4
+  testSecondDerivativeAtPosition(dataSeries, 1, 3.999999999999992)
+  testFirstDerivativeAtPosition(dataSeries, 2, 7.608409955297092) // datapoint 5
+  testSecondDerivativeAtPosition(dataSeries, 2, 3.999999999999992)
+  testFirstDerivativeAtPosition(dataSeries, 3, 8.140361322290119) // datapoint 6
+  testSecondDerivativeAtPosition(dataSeries, 3, 3.999999999999992)
+  testFirstDerivativeAtPosition(dataSeries, 4, 8.639621685410159) // datapoint 7
+  testSecondDerivativeAtPosition(dataSeries, 4, 3.999999999999992)
+  testFirstDerivativeAtPosition(dataSeries, 5, 9.111566455696956) // datapoint 8
+  testSecondDerivativeAtPosition(dataSeries, 5, 3.999999999999992)
+  testFirstDerivativeAtPosition(dataSeries, 6, 9.560241821531235) // datapoint 9
+  testSecondDerivativeAtPosition(dataSeries, 6, 3.999999999999992)
+  testFirstDerivativeAtPosition(dataSeries, 7, 9.988783914757995) // datapoint 10
+  testSecondDerivativeAtPosition(dataSeries, 7, 3.999999999999992)
+  testFirstDerivativeAtPosition(dataSeries, 8, 10.399681942506714) // datapoint 11
+  testSecondDerivativeAtPosition(dataSeries, 8, 3.999999999999992)
+  testFirstDerivativeAtPosition(dataSeries, 9, 10.794950899141394) // datapoint 12
+  testSecondDerivativeAtPosition(dataSeries, 9, 3.999999999999992)
+  testFirstDerivativeAtPosition(dataSeries, 10, 11.176249161702072) // datapoint 13
+  testSecondDerivativeAtPosition(dataSeries, 10, 3.999999999999992)
+  testFirstDerivativeAtPosition(dataSeries, 11, 11.54496105381127) // datapoint 14
+  testSecondDerivativeAtPosition(dataSeries, 11, 3.999999999999992)
+  dataSeries.push(1.975564086685830, 15.707963267949000) // Datapoint 15, currentDt = 0,089323823233014
+  testLength(dataSeries, 12)
+  testIsReliable(dataSeries, true)
+  testCoefficientA(dataSeries, 2.000000000000044)
+  testCoefficientB(dataSeries, 3.999999999999893)
+  testCoefficientC(dataSeries, 5.88418203051333e-14)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testFirstDerivativeAtPosition(dataSeries, 0, 7.036357128393252) // datapoint 4, as datapoint 3 was pushed out
+  testSecondDerivativeAtPosition(dataSeries, 0, 4.000000000000088)
+  testFirstDerivativeAtPosition(dataSeries, 1, 7.6084099552970645) // datapoint 5
+  testSecondDerivativeAtPosition(dataSeries, 1, 4.000000000000088)
+  testFirstDerivativeAtPosition(dataSeries, 2, 8.140361322290104) // datapoint 6
+  testSecondDerivativeAtPosition(dataSeries, 2, 4.000000000000088)
+  testFirstDerivativeAtPosition(dataSeries, 3, 8.639621685410155) // datapoint 7
+  testSecondDerivativeAtPosition(dataSeries, 3, 4.000000000000088)
+  testFirstDerivativeAtPosition(dataSeries, 4, 9.111566455696966) // datapoint 8
+  testSecondDerivativeAtPosition(dataSeries, 4, 4.000000000000088)
+  testFirstDerivativeAtPosition(dataSeries, 5, 9.560241821531255) // datapoint 9
+  testSecondDerivativeAtPosition(dataSeries, 5, 4.000000000000088)
+  testFirstDerivativeAtPosition(dataSeries, 6, 9.988783914758024) // datapoint 10
+  testSecondDerivativeAtPosition(dataSeries, 6, 4.000000000000088)
+  testFirstDerivativeAtPosition(dataSeries, 7, 10.399681942506753) // datapoint 11
+  testSecondDerivativeAtPosition(dataSeries, 7, 4.000000000000088)
+  testFirstDerivativeAtPosition(dataSeries, 8, 10.794950899141442) // datapoint 12
+  testSecondDerivativeAtPosition(dataSeries, 8, 4.000000000000088)
+  testFirstDerivativeAtPosition(dataSeries, 9, 11.176249161702131) // datapoint 13
+  testSecondDerivativeAtPosition(dataSeries, 9, 4.000000000000088)
+  testFirstDerivativeAtPosition(dataSeries, 10, 11.544961053811338) // datapoint 14
+  testSecondDerivativeAtPosition(dataSeries, 10, 4.000000000000088)
+  testFirstDerivativeAtPosition(dataSeries, 11, 11.902256346743387) // datapoint 15
+  testSecondDerivativeAtPosition(dataSeries, 11, 4.000000000000088)
+  dataSeries.push(2.062283528606190, 16.755160819145600) // Datapoint 16, currentDt = 0,086719441920360
+  testLength(dataSeries, 12)
+  testIsReliable(dataSeries, true)
+  testCoefficientA(dataSeries, 2.000000000000065)
+  testCoefficientB(dataSeries, 3.9999999999998357)
+  testCoefficientC(dataSeries, 9.769962616701378e-14)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testFirstDerivativeAtPosition(dataSeries, 0, 7.608409955297045) // datapoint 5
+  testSecondDerivativeAtPosition(dataSeries, 0, 4.00000000000013)
+  testFirstDerivativeAtPosition(dataSeries, 1, 8.14036132229009) // datapoint 6
+  testSecondDerivativeAtPosition(dataSeries, 1, 4.00000000000013)
+  testFirstDerivativeAtPosition(dataSeries, 2, 8.639621685410145) // datapoint 7
+  testSecondDerivativeAtPosition(dataSeries, 2, 4.00000000000013)
+  testFirstDerivativeAtPosition(dataSeries, 3, 9.111566455696963) // datapoint 8
+  testSecondDerivativeAtPosition(dataSeries, 3, 4.00000000000013)
+  testFirstDerivativeAtPosition(dataSeries, 4, 9.560241821531257) // datapoint 9
+  testSecondDerivativeAtPosition(dataSeries, 4, 4.00000000000013)
+  testFirstDerivativeAtPosition(dataSeries, 5, 9.98878391475803) // datapoint 10
+  testSecondDerivativeAtPosition(dataSeries, 5, 4.00000000000013)
+  testFirstDerivativeAtPosition(dataSeries, 6, 10.399681942506763) // datapoint 11
+  testSecondDerivativeAtPosition(dataSeries, 6, 4.00000000000013)
+  testFirstDerivativeAtPosition(dataSeries, 7, 10.794950899141455) // datapoint 12
+  testSecondDerivativeAtPosition(dataSeries, 7, 4.00000000000013)
+  testFirstDerivativeAtPosition(dataSeries, 8, 11.176249161702149) // datapoint 13
+  testSecondDerivativeAtPosition(dataSeries, 8, 4.00000000000013)
+  testFirstDerivativeAtPosition(dataSeries, 9, 11.54496105381136) // datapoint 14
+  testSecondDerivativeAtPosition(dataSeries, 9, 4.00000000000013)
+  testFirstDerivativeAtPosition(dataSeries, 10, 11.90225634674341) // datapoint 15
+  testSecondDerivativeAtPosition(dataSeries, 10, 4.00000000000013)
+  testFirstDerivativeAtPosition(dataSeries, 11, 12.249134114424862) // datapoint 16
+  testSecondDerivativeAtPosition(dataSeries, 11, 4.00000000000013)
+  dataSeries.push(2.146613923755360, 17.802358370342200) // Datapoint 17, currentDt = 0,084330395149166
+  testLength(dataSeries, 12)
+  testIsReliable(dataSeries, true)
+  testCoefficientA(dataSeries, 1.999999999999992)
+  testCoefficientB(dataSeries, 4.00000000000005)
+  testCoefficientC(dataSeries, -6.084022174945858e-14)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testFirstDerivativeAtPosition(dataSeries, 0, 8.140361322290154) // datapoint 6
+  testSecondDerivativeAtPosition(dataSeries, 0, 3.999999999999984)
+  testFirstDerivativeAtPosition(dataSeries, 1, 8.63962168541019) // datapoint 7
+  testSecondDerivativeAtPosition(dataSeries, 1, 3.999999999999984)
+  testFirstDerivativeAtPosition(dataSeries, 2, 9.11156645569699) // datapoint 8
+  testSecondDerivativeAtPosition(dataSeries, 2, 3.999999999999984)
+  testFirstDerivativeAtPosition(dataSeries, 3, 9.560241821531267) // datapoint 9
+  testSecondDerivativeAtPosition(dataSeries, 3, 3.999999999999984)
+  testFirstDerivativeAtPosition(dataSeries, 4, 9.988783914758026) // datapoint 10
+  testSecondDerivativeAtPosition(dataSeries, 4, 3.999999999999984)
+  testFirstDerivativeAtPosition(dataSeries, 5, 10.399681942506744) // datapoint 11
+  testSecondDerivativeAtPosition(dataSeries, 5, 3.999999999999984)
+  testFirstDerivativeAtPosition(dataSeries, 6, 10.794950899141423) // datapoint 12
+  testSecondDerivativeAtPosition(dataSeries, 6, 3.999999999999984)
+  testFirstDerivativeAtPosition(dataSeries, 7, 11.176249161702101) // datapoint 13
+  testSecondDerivativeAtPosition(dataSeries, 7, 3.999999999999984)
+  testFirstDerivativeAtPosition(dataSeries, 8, 11.5449610538113) // datapoint 14
+  testSecondDerivativeAtPosition(dataSeries, 8, 3.999999999999984)
+  testFirstDerivativeAtPosition(dataSeries, 9, 11.902256346743338) // datapoint 15
+  testSecondDerivativeAtPosition(dataSeries, 9, 3.999999999999984)
+  testFirstDerivativeAtPosition(dataSeries, 10, 12.249134114424775) // datapoint 16
+  testSecondDerivativeAtPosition(dataSeries, 10, 3.999999999999984)
+  testFirstDerivativeAtPosition(dataSeries, 11, 12.586455695021456) // datapoint 17
+  testSecondDerivativeAtPosition(dataSeries, 11, 3.999999999999984)
+  dataSeries.push(2.228742473590820, 18.849555921538800) // Datapoint 18, currentDt = 0,082128549835466
+  testLength(dataSeries, 12)
+  testIsReliable(dataSeries, true)
+  testCoefficientA(dataSeries, 2.0000000000001164)
+  testCoefficientB(dataSeries, 3.999999999999644)
+  testCoefficientC(dataSeries, 2.686739719592879e-13)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testFirstDerivativeAtPosition(dataSeries, 0, 8.639621685410074) // datapoint 7
+  testSecondDerivativeAtPosition(dataSeries, 0, 4.000000000000233)
+  testFirstDerivativeAtPosition(dataSeries, 1, 9.111566455696902) // datapoint 8
+  testSecondDerivativeAtPosition(dataSeries, 1, 4.000000000000233)
+  testFirstDerivativeAtPosition(dataSeries, 2, 9.560241821531207) // datapoint 9
+  testSecondDerivativeAtPosition(dataSeries, 2, 4.000000000000233)
+  testFirstDerivativeAtPosition(dataSeries, 3, 9.988783914757992) // datapoint 10
+  testSecondDerivativeAtPosition(dataSeries, 3, 4.000000000000233)
+  testFirstDerivativeAtPosition(dataSeries, 4, 10.399681942506735) // datapoint 11
+  testSecondDerivativeAtPosition(dataSeries, 4, 4.000000000000233)
+  testFirstDerivativeAtPosition(dataSeries, 5, 10.794950899141439) // datapoint 12
+  testSecondDerivativeAtPosition(dataSeries, 5, 4.000000000000233)
+  testFirstDerivativeAtPosition(dataSeries, 6, 11.176249161702142) // datapoint 13
+  testSecondDerivativeAtPosition(dataSeries, 6, 4.000000000000233)
+  testFirstDerivativeAtPosition(dataSeries, 7, 11.544961053811363) // datapoint 14
+  testSecondDerivativeAtPosition(dataSeries, 7, 4.000000000000233)
+  testFirstDerivativeAtPosition(dataSeries, 8, 11.902256346743425) // datapoint 15
+  testSecondDerivativeAtPosition(dataSeries, 8, 4.000000000000233)
+  testFirstDerivativeAtPosition(dataSeries, 9, 12.249134114424884) // datapoint 16
+  testSecondDerivativeAtPosition(dataSeries, 9, 4.000000000000233)
+  testFirstDerivativeAtPosition(dataSeries, 10, 12.586455695021584) // datapoint 17
+  testSecondDerivativeAtPosition(dataSeries, 10, 4.000000000000233)
+  testFirstDerivativeAtPosition(dataSeries, 11, 12.914969894363441) // datapoint 18
+  testSecondDerivativeAtPosition(dataSeries, 11, 4.000000000000233)
+  dataSeries.push(2.308833138187490, 19.896753472735400) // Datapoint 19, currentDt = 0,080090664596669
+  testLength(dataSeries, 12)
+  testIsReliable(dataSeries, true)
+  testCoefficientA(dataSeries, 2.0000000000001563)
+  testCoefficientB(dataSeries, 3.999999999999474)
+  testCoefficientC(dataSeries, 4.3787196091216174e-13)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testFirstDerivativeAtPosition(dataSeries, 0, 9.111566455696835) // datapoint 8
+  testSecondDerivativeAtPosition(dataSeries, 0, 4.000000000000313)
+  testFirstDerivativeAtPosition(dataSeries, 1, 9.560241821531148) // datapoint 9
+  testSecondDerivativeAtPosition(dataSeries, 1, 4.000000000000313)
+  testFirstDerivativeAtPosition(dataSeries, 2, 9.988783914757942) // datapoint 10
+  testSecondDerivativeAtPosition(dataSeries, 2, 4.000000000000313)
+  testFirstDerivativeAtPosition(dataSeries, 3, 10.399681942506694) // datapoint 11
+  testSecondDerivativeAtPosition(dataSeries, 3, 4.000000000000313)
+  testFirstDerivativeAtPosition(dataSeries, 4, 10.794950899141405) // datapoint 12
+  testSecondDerivativeAtPosition(dataSeries, 4, 4.000000000000313)
+  testFirstDerivativeAtPosition(dataSeries, 5, 11.176249161702115) // datapoint 13
+  testSecondDerivativeAtPosition(dataSeries, 5, 4.000000000000313)
+  testFirstDerivativeAtPosition(dataSeries, 6, 11.544961053811344) // datapoint 14
+  testSecondDerivativeAtPosition(dataSeries, 6, 4.000000000000313)
+  testFirstDerivativeAtPosition(dataSeries, 7, 11.90225634674341) // datapoint 15
+  testSecondDerivativeAtPosition(dataSeries, 7, 4.000000000000313)
+  testFirstDerivativeAtPosition(dataSeries, 8, 12.249134114424878) // datapoint 16
+  testSecondDerivativeAtPosition(dataSeries, 8, 4.000000000000313)
+  testFirstDerivativeAtPosition(dataSeries, 9, 12.586455695021586) // datapoint 17
+  testSecondDerivativeAtPosition(dataSeries, 9, 4.000000000000313)
+  testFirstDerivativeAtPosition(dataSeries, 10, 12.91496989436345) // datapoint 18
+  testSecondDerivativeAtPosition(dataSeries, 10, 4.000000000000313)
+  testFirstDerivativeAtPosition(dataSeries, 11, 13.235332552750155) // datapoint 19
+  testSecondDerivativeAtPosition(dataSeries, 11, 4.000000000000313)
+  dataSeries.push(2.387030485833570, 20.943951023932000) // Datapoint 20, currentDt = 0,078197347646078
+  testLength(dataSeries, 12)
+  testIsReliable(dataSeries, true)
+  testCoefficientA(dataSeries, 2.000000000000047)
+  testCoefficientB(dataSeries, 3.9999999999998614)
+  testCoefficientC(dataSeries, 1.0125233984581428e-13)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testFirstDerivativeAtPosition(dataSeries, 0, 9.560241821531232) // datapoint 9
+  testSecondDerivativeAtPosition(dataSeries, 0, 4.000000000000094)
+  testFirstDerivativeAtPosition(dataSeries, 1, 9.988783914758002) // datapoint 10
+  testSecondDerivativeAtPosition(dataSeries, 1, 4.000000000000094)
+  testFirstDerivativeAtPosition(dataSeries, 2, 10.399681942506732) // datapoint 11
+  testSecondDerivativeAtPosition(dataSeries, 2, 4.000000000000094)
+  testFirstDerivativeAtPosition(dataSeries, 3, 10.794950899141421) // datapoint 12
+  testSecondDerivativeAtPosition(dataSeries, 3, 4.000000000000094)
+  testFirstDerivativeAtPosition(dataSeries, 4, 11.17624916170211) // datapoint 13
+  testSecondDerivativeAtPosition(dataSeries, 4, 4.000000000000094)
+  testFirstDerivativeAtPosition(dataSeries, 5, 11.544961053811319) // datapoint 14
+  testSecondDerivativeAtPosition(dataSeries, 5, 4.000000000000094)
+  testFirstDerivativeAtPosition(dataSeries, 6, 11.902256346743368) // datapoint 15
+  testSecondDerivativeAtPosition(dataSeries, 6, 4.000000000000094)
+  testFirstDerivativeAtPosition(dataSeries, 7, 12.249134114424814) // datapoint 16
+  testSecondDerivativeAtPosition(dataSeries, 7, 4.000000000000094)
+  testFirstDerivativeAtPosition(dataSeries, 8, 12.586455695021504) // datapoint 17
+  testSecondDerivativeAtPosition(dataSeries, 8, 4.000000000000094)
+  testFirstDerivativeAtPosition(dataSeries, 9, 12.91496989436335) // datapoint 18
+  testSecondDerivativeAtPosition(dataSeries, 9, 4.000000000000094)
+  testFirstDerivativeAtPosition(dataSeries, 10, 13.235332552750037) // datapoint 19
+  testSecondDerivativeAtPosition(dataSeries, 10, 4.000000000000094)
+  testFirstDerivativeAtPosition(dataSeries, 11, 13.548121943334367) // datapoint 20
+  testSecondDerivativeAtPosition(dataSeries, 11, 4.000000000000094)
+  dataSeries.push(2.463462759661820, 21.991148575128600) // Datapoint 21, currentDt = 0,076432273828253
+  testLength(dataSeries, 12)
+  testIsReliable(dataSeries, true)
+  testCoefficientA(dataSeries, 2.000000000000006)
+  testCoefficientB(dataSeries, 4.000000000000021)
+  testCoefficientC(dataSeries, -4.618527782440651e-14)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testFirstDerivativeAtPosition(dataSeries, 0, 9.98878391475804) // datapoint 10
+  testSecondDerivativeAtPosition(dataSeries, 0, 4.000000000000012)
+  testFirstDerivativeAtPosition(dataSeries, 1, 10.39968194250676) // datapoint 11
+  testSecondDerivativeAtPosition(dataSeries, 1, 4.000000000000012)
+  testFirstDerivativeAtPosition(dataSeries, 2, 10.794950899141442) // datapoint 12
+  testSecondDerivativeAtPosition(dataSeries, 2, 4.000000000000012)
+  testFirstDerivativeAtPosition(dataSeries, 3, 11.176249161702124) // datapoint 13
+  testSecondDerivativeAtPosition(dataSeries, 3, 4.000000000000012)
+  testFirstDerivativeAtPosition(dataSeries, 4, 11.544961053811324) // datapoint 14
+  testSecondDerivativeAtPosition(dataSeries, 4, 4.000000000000012)
+  testFirstDerivativeAtPosition(dataSeries, 5, 11.902256346743366) // datapoint 15
+  testSecondDerivativeAtPosition(dataSeries, 5, 4.000000000000012)
+  testFirstDerivativeAtPosition(dataSeries, 6, 12.249134114424805) // datapoint 16
+  testSecondDerivativeAtPosition(dataSeries, 6, 4.000000000000012)
+  testFirstDerivativeAtPosition(dataSeries, 7, 12.586455695021488) // datapoint 17
+  testSecondDerivativeAtPosition(dataSeries, 7, 4.000000000000012)
+  testFirstDerivativeAtPosition(dataSeries, 8, 12.91496989436333) // datapoint 18
+  testSecondDerivativeAtPosition(dataSeries, 8, 4.000000000000012)
+  testFirstDerivativeAtPosition(dataSeries, 9, 13.235332552750009) // datapoint 19
+  testSecondDerivativeAtPosition(dataSeries, 9, 4.000000000000012)
+  testFirstDerivativeAtPosition(dataSeries, 10, 13.548121943334332) // datapoint 20
+  testSecondDerivativeAtPosition(dataSeries, 10, 4.000000000000012)
+  testFirstDerivativeAtPosition(dataSeries, 11, 13.853851038647331) // datapoint 21
+  testSecondDerivativeAtPosition(dataSeries, 11, 4.000000000000012)
+  dataSeries.push(2.538244347577280, 23.038346126325100) // Datapoint 22, currentDt = 0,074781587915460
+  testLength(dataSeries, 12)
+  testIsReliable(dataSeries, true)
+  testCoefficientA(dataSeries, 1.9999999999998974)
+  testCoefficientB(dataSeries, 4.000000000000433)
+  testCoefficientC(dataSeries, -4.1877612488860905e-13)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testFirstDerivativeAtPosition(dataSeries, 0, 10.399681942506824) // datapoint 11
+  testSecondDerivativeAtPosition(dataSeries, 0, 3.999999999999795)
+  testFirstDerivativeAtPosition(dataSeries, 1, 10.794950899141485) // datapoint 12
+  testSecondDerivativeAtPosition(dataSeries, 1, 3.999999999999795)
+  testFirstDerivativeAtPosition(dataSeries, 2, 11.176249161702145) // datapoint 13
+  testSecondDerivativeAtPosition(dataSeries, 2, 3.999999999999795)
+  testFirstDerivativeAtPosition(dataSeries, 3, 11.544961053811326) // datapoint 14
+  testSecondDerivativeAtPosition(dataSeries, 3, 3.999999999999795)
+  testFirstDerivativeAtPosition(dataSeries, 4, 11.902256346743348) // datapoint 15
+  testSecondDerivativeAtPosition(dataSeries, 4, 3.999999999999795)
+  testFirstDerivativeAtPosition(dataSeries, 5, 12.24913411442477) // datapoint 16
+  testSecondDerivativeAtPosition(dataSeries, 5, 3.999999999999795)
+  testFirstDerivativeAtPosition(dataSeries, 6, 12.586455695021433) // datapoint 17
+  testSecondDerivativeAtPosition(dataSeries, 6, 3.999999999999795)
+  testFirstDerivativeAtPosition(dataSeries, 7, 12.914969894363256) // datapoint 18
+  testSecondDerivativeAtPosition(dataSeries, 7, 3.999999999999795)
+  testFirstDerivativeAtPosition(dataSeries, 8, 13.235332552749918) // datapoint 19
+  testSecondDerivativeAtPosition(dataSeries, 8, 3.999999999999795)
+  testFirstDerivativeAtPosition(dataSeries, 9, 13.548121943334223) // datapoint 20
+  testSecondDerivativeAtPosition(dataSeries, 9, 3.999999999999795)
+  testFirstDerivativeAtPosition(dataSeries, 10, 13.853851038647207) // datapoint 21
+  testSecondDerivativeAtPosition(dataSeries, 10, 3.999999999999795)
+  testFirstDerivativeAtPosition(dataSeries, 11, 14.152977390309033) // datapoint 22
+  testSecondDerivativeAtPosition(dataSeries, 11, 3.999999999999795)
+  dataSeries.push(2.611477791536430, 24.085543677521700) // Datapoint 23, currentDt = 0,073233443959153
+  testLength(dataSeries, 12)
+  testIsReliable(dataSeries, true)
+  testCoefficientA(dataSeries, 1.9999999999997056)
+  testCoefficientB(dataSeries, 4.000000000001288)
+  testCoefficientC(dataSeries, -1.3553602684623911e-12)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testFirstDerivativeAtPosition(dataSeries, 0, 10.794950899141687) // datapoint 12
+  testSecondDerivativeAtPosition(dataSeries, 0, 3.999999999999411)
+  testFirstDerivativeAtPosition(dataSeries, 1, 11.176249161702312) // datapoint 13
+  testSecondDerivativeAtPosition(dataSeries, 1, 3.999999999999411)
+  testFirstDerivativeAtPosition(dataSeries, 2, 11.544961053811456) // datapoint 14
+  testSecondDerivativeAtPosition(dataSeries, 2, 3.999999999999411)
+  testFirstDerivativeAtPosition(dataSeries, 3, 11.902256346743444) // datapoint 15
+  testSecondDerivativeAtPosition(dataSeries, 3, 3.999999999999411)
+  testFirstDerivativeAtPosition(dataSeries, 4, 12.249134114424832) // datapoint 16
+  testSecondDerivativeAtPosition(dataSeries, 4, 3.999999999999411)
+  testFirstDerivativeAtPosition(dataSeries, 5, 12.586455695021463) // datapoint 17
+  testSecondDerivativeAtPosition(dataSeries, 5, 3.999999999999411)
+  testFirstDerivativeAtPosition(dataSeries, 6, 12.914969894363255) // datapoint 18
+  testSecondDerivativeAtPosition(dataSeries, 6, 3.999999999999411)
+  testFirstDerivativeAtPosition(dataSeries, 7, 13.235332552749888) // datapoint 19
+  testSecondDerivativeAtPosition(dataSeries, 7, 3.999999999999411)
+  testFirstDerivativeAtPosition(dataSeries, 8, 13.548121943334163) // datapoint 20
+  testSecondDerivativeAtPosition(dataSeries, 8, 3.999999999999411)
+  testFirstDerivativeAtPosition(dataSeries, 9, 13.853851038647116) // datapoint 21
+  testSecondDerivativeAtPosition(dataSeries, 9, 3.999999999999411)
+  testFirstDerivativeAtPosition(dataSeries, 10, 14.152977390308914) // datapoint 22
+  testSecondDerivativeAtPosition(dataSeries, 10, 3.999999999999411)
+  testFirstDerivativeAtPosition(dataSeries, 11, 14.44591116614547) // datapoint 23
+  testSecondDerivativeAtPosition(dataSeries, 11, 3.999999999999411)
+  dataSeries.push(2.683255437022960, 25.132741228718300) // Datapoint 24, currentDt = 0,071777645486524
+  testLength(dataSeries, 12)
+  testIsReliable(dataSeries, true)
+  testCoefficientA(dataSeries, 1.999999999999476)
+  testCoefficientB(dataSeries, 4.000000000002281)
+  testCoefficientC(dataSeries, -2.4211743721025414e-12)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testFirstDerivativeAtPosition(dataSeries, 0, 11.17624916170248) // datapoint 13
+  testSecondDerivativeAtPosition(dataSeries, 0, 3.999999999998952)
+  testFirstDerivativeAtPosition(dataSeries, 1, 11.544961053811583) // datapoint 14
+  testSecondDerivativeAtPosition(dataSeries, 1, 3.999999999998952)
+  testFirstDerivativeAtPosition(dataSeries, 2, 11.902256346743531) // datapoint 15
+  testSecondDerivativeAtPosition(dataSeries, 2, 3.999999999998952)
+  testFirstDerivativeAtPosition(dataSeries, 3, 12.249134114424878) // datapoint 16
+  testSecondDerivativeAtPosition(dataSeries, 3, 3.999999999998952)
+  testFirstDerivativeAtPosition(dataSeries, 4, 12.58645569502147) // datapoint 17
+  testSecondDerivativeAtPosition(dataSeries, 4, 3.999999999998952)
+  testFirstDerivativeAtPosition(dataSeries, 5, 12.914969894363225) // datapoint 18
+  testSecondDerivativeAtPosition(dataSeries, 5, 3.999999999998952)
+  testFirstDerivativeAtPosition(dataSeries, 6, 13.23533255274982) // datapoint 19
+  testSecondDerivativeAtPosition(dataSeries, 6, 3.999999999998952)
+  testFirstDerivativeAtPosition(dataSeries, 7, 13.54812194333406) // datapoint 20
+  testSecondDerivativeAtPosition(dataSeries, 7, 3.999999999998952)
+  testFirstDerivativeAtPosition(dataSeries, 8, 13.85385103864698) // datapoint 21
+  testSecondDerivativeAtPosition(dataSeries, 8, 3.999999999998952)
+  testFirstDerivativeAtPosition(dataSeries, 9, 14.15297739030874) // datapoint 22
+  testSecondDerivativeAtPosition(dataSeries, 9, 3.999999999998952)
+  testFirstDerivativeAtPosition(dataSeries, 10, 14.445911166145263) // datapoint 23
+  testSecondDerivativeAtPosition(dataSeries, 10, 3.999999999998952)
+  testFirstDerivativeAtPosition(dataSeries, 11, 14.733021748091309) // datapoint 24
+  testSecondDerivativeAtPosition(dataSeries, 11, 3.999999999998952)
+  dataSeries.push(2.753660798468270, 26.179938779914900) // Datapoint 25, currentDt = 0,070405361445316
+  testLength(dataSeries, 12)
+  testIsReliable(dataSeries, true)
+  testCoefficientA(dataSeries, 1.999999999999619)
+  testCoefficientB(dataSeries, 4.000000000001693)
+  testCoefficientC(dataSeries, -1.822542117224657e-12)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testFirstDerivativeAtPosition(dataSeries, 0, 11.544961053811535) // datapoint 14
+  testSecondDerivativeAtPosition(dataSeries, 0, 3.999999999999238)
+  testFirstDerivativeAtPosition(dataSeries, 1, 11.902256346743506) // datapoint 15
+  testSecondDerivativeAtPosition(dataSeries, 1, 3.999999999999238)
+  testFirstDerivativeAtPosition(dataSeries, 2, 12.24913411442488) // datapoint 16
+  testSecondDerivativeAtPosition(dataSeries, 2, 3.999999999999238)
+  testFirstDerivativeAtPosition(dataSeries, 3, 12.586455695021497) // datapoint 17
+  testSecondDerivativeAtPosition(dataSeries, 3, 3.999999999999238)
+  testFirstDerivativeAtPosition(dataSeries, 4, 12.914969894363274) // datapoint 18
+  testSecondDerivativeAtPosition(dataSeries, 4, 3.999999999999238)
+  testFirstDerivativeAtPosition(dataSeries, 5, 13.235332552749894) // datapoint 19
+  testSecondDerivativeAtPosition(dataSeries, 5, 3.999999999999238)
+  testFirstDerivativeAtPosition(dataSeries, 6, 13.548121943334154) // datapoint 20
+  testSecondDerivativeAtPosition(dataSeries, 6, 3.999999999999238)
+  testFirstDerivativeAtPosition(dataSeries, 7, 13.853851038647095) // datapoint 21
+  testSecondDerivativeAtPosition(dataSeries, 7, 3.999999999999238)
+  testFirstDerivativeAtPosition(dataSeries, 8, 14.152977390308878) // datapoint 22
+  testSecondDerivativeAtPosition(dataSeries, 8, 3.999999999999238)
+  testFirstDerivativeAtPosition(dataSeries, 9, 14.445911166145423) // datapoint 23
+  testSecondDerivativeAtPosition(dataSeries, 9, 3.999999999999238)
+  testFirstDerivativeAtPosition(dataSeries, 10, 14.733021748091488) // datapoint 24
+  testSecondDerivativeAtPosition(dataSeries, 10, 3.999999999999238)
+  testFirstDerivativeAtPosition(dataSeries, 11, 15.014643193872676) // datapoint 25
+  testSecondDerivativeAtPosition(dataSeries, 11, 3.999999999999238)
+  dataSeries.push(2.822769698210420, 27.227136331111500) // Datapoint 26, currentDt = 0,069108899742145
+  testLength(dataSeries, 12)
+  testIsReliable(dataSeries, true)
+  testCoefficientA(dataSeries, 1.9999999999996692)
+  testCoefficientB(dataSeries, 4.000000000001454)
+  testCoefficientC(dataSeries, -1.538325022920617e-12)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testFirstDerivativeAtPosition(dataSeries, 0, 11.902256346743467) // datapoint 15
+  testSecondDerivativeAtPosition(dataSeries, 0, 3.9999999999993383)
+  testFirstDerivativeAtPosition(dataSeries, 1, 12.249134114424848) // datapoint 16
+  testSecondDerivativeAtPosition(dataSeries, 1, 3.9999999999993383)
+  testFirstDerivativeAtPosition(dataSeries, 2, 12.586455695021474) // datapoint 17
+  testSecondDerivativeAtPosition(dataSeries, 2, 3.9999999999993383)
+  testFirstDerivativeAtPosition(dataSeries, 3, 12.91496989436326) // datapoint 18
+  testSecondDerivativeAtPosition(dataSeries, 3, 3.9999999999993383)
+  testFirstDerivativeAtPosition(dataSeries, 4, 13.235332552749885) // datapoint 19
+  testSecondDerivativeAtPosition(dataSeries, 4, 3.9999999999993383)
+  testFirstDerivativeAtPosition(dataSeries, 5, 13.548121943334156) // datapoint 20
+  testSecondDerivativeAtPosition(dataSeries, 5, 3.9999999999993383)
+  testFirstDerivativeAtPosition(dataSeries, 6, 13.853851038647104) // datapoint 21
+  testSecondDerivativeAtPosition(dataSeries, 6, 3.9999999999993383)
+  testFirstDerivativeAtPosition(dataSeries, 7, 14.152977390308894) // datapoint 22
+  testSecondDerivativeAtPosition(dataSeries, 7, 3.9999999999993383)
+  testFirstDerivativeAtPosition(dataSeries, 8, 14.445911166145446) // datapoint 23
+  testSecondDerivativeAtPosition(dataSeries, 8, 3.9999999999993383)
+  testFirstDerivativeAtPosition(dataSeries, 9, 14.733021748091517) // datapoint 24
+  testSecondDerivativeAtPosition(dataSeries, 9, 3.9999999999993383)
+  testFirstDerivativeAtPosition(dataSeries, 10, 15.014643193872711) // datapoint 25
+  testSecondDerivativeAtPosition(dataSeries, 10, 3.9999999999993383)
+  testFirstDerivativeAtPosition(dataSeries, 11, 15.291078792841265) // datapoint 26
+  testSecondDerivativeAtPosition(dataSeries, 11, 3.9999999999993383)
+  dataSeries.push(2.890651223272790, 28.274333882308100) // Datapoint 27, currentDt = 0,067881525062373
+  testLength(dataSeries, 12)
+  testIsReliable(dataSeries, true)
+  testCoefficientA(dataSeries, 1.9999999999999296)
+  testCoefficientB(dataSeries, 4.0000000000002345)
+  testCoefficientC(dataSeries, -1.341149413747189e-13)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testFirstDerivativeAtPosition(dataSeries, 0, 12.249134114424704) // datapoint 16
+  testSecondDerivativeAtPosition(dataSeries, 0, 3.9999999999998592)
+  testFirstDerivativeAtPosition(dataSeries, 1, 12.586455695021373) // datapoint 17
+  testSecondDerivativeAtPosition(dataSeries, 1, 3.9999999999998592)
+  testFirstDerivativeAtPosition(dataSeries, 2, 12.9149698943632) // datapoint 18
+  testSecondDerivativeAtPosition(dataSeries, 2, 3.9999999999998592)
+  testFirstDerivativeAtPosition(dataSeries, 3, 13.235332552749869) // datapoint 19
+  testSecondDerivativeAtPosition(dataSeries, 3, 3.9999999999998592)
+  testFirstDerivativeAtPosition(dataSeries, 4, 13.548121943334179) // datapoint 20
+  testSecondDerivativeAtPosition(dataSeries, 4, 3.9999999999998592)
+  testFirstDerivativeAtPosition(dataSeries, 5, 13.853851038647168) // datapoint 21
+  testSecondDerivativeAtPosition(dataSeries, 5, 3.9999999999998592)
+  testFirstDerivativeAtPosition(dataSeries, 6, 14.152977390308997) // datapoint 22
+  testSecondDerivativeAtPosition(dataSeries, 6, 3.9999999999998592)
+  testFirstDerivativeAtPosition(dataSeries, 7, 14.445911166145587) // datapoint 23
+  testSecondDerivativeAtPosition(dataSeries, 7, 3.9999999999998592)
+  testFirstDerivativeAtPosition(dataSeries, 8, 14.733021748091696) // datapoint 24
+  testSecondDerivativeAtPosition(dataSeries, 8, 3.9999999999998592)
+  testFirstDerivativeAtPosition(dataSeries, 9, 15.014643193872928) // datapoint 25
+  testSecondDerivativeAtPosition(dataSeries, 9, 3.9999999999998592)
+  testFirstDerivativeAtPosition(dataSeries, 10, 15.291078792841516) // datapoint 26
+  testSecondDerivativeAtPosition(dataSeries, 10, 3.9999999999998592)
+  testFirstDerivativeAtPosition(dataSeries, 11, 15.562604893090988) // datapoint 27
+  testSecondDerivativeAtPosition(dataSeries, 11, 3.9999999999998592)
+  dataSeries.push(2.957368534361230, 29.321531433504700) // Datapoint 28, currentDt = 0,066717311088441
+  testLength(dataSeries, 12)
+  testIsReliable(dataSeries, true)
+  testCoefficientA(dataSeries, 2.0000000000001585)
+  testCoefficientB(dataSeries, 3.999999999999079)
+  testCoefficientC(dataSeries, 1.3224976669334865e-12)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testFirstDerivativeAtPosition(dataSeries, 0, 12.5864556950212) // datapoint 17
+  testSecondDerivativeAtPosition(dataSeries, 0, 4.000000000000317)
+  testFirstDerivativeAtPosition(dataSeries, 1, 12.914969894363065) // datapoint 18
+  testSecondDerivativeAtPosition(dataSeries, 1, 4.000000000000317)
+  testFirstDerivativeAtPosition(dataSeries, 2, 13.235332552749771) // datapoint 19
+  testSecondDerivativeAtPosition(dataSeries, 2, 4.000000000000317)
+  testFirstDerivativeAtPosition(dataSeries, 3, 13.548121943334117) // datapoint 20
+  testSecondDerivativeAtPosition(dataSeries, 3, 4.000000000000317)
+  testFirstDerivativeAtPosition(dataSeries, 4, 13.85385103864714) // datapoint 21
+  testSecondDerivativeAtPosition(dataSeries, 4, 4.000000000000317)
+  testFirstDerivativeAtPosition(dataSeries, 5, 14.152977390309005) // datapoint 22
+  testSecondDerivativeAtPosition(dataSeries, 5, 4.000000000000317)
+  testFirstDerivativeAtPosition(dataSeries, 6, 14.445911166145628) // datapoint 23
+  testSecondDerivativeAtPosition(dataSeries, 6, 4.000000000000317)
+  testFirstDerivativeAtPosition(dataSeries, 7, 14.733021748091769) // datapoint 24
+  testSecondDerivativeAtPosition(dataSeries, 7, 4.000000000000317)
+  testFirstDerivativeAtPosition(dataSeries, 8, 15.014643193873034) // datapoint 25
+  testSecondDerivativeAtPosition(dataSeries, 8, 4.000000000000317)
+  testFirstDerivativeAtPosition(dataSeries, 9, 15.291078792841653) // datapoint 26
+  testSecondDerivativeAtPosition(dataSeries, 9, 4.000000000000317)
+  testFirstDerivativeAtPosition(dataSeries, 10, 15.562604893091155) // datapoint 27
+  testSecondDerivativeAtPosition(dataSeries, 10, 4.000000000000317)
+  testFirstDerivativeAtPosition(dataSeries, 11, 15.829474137444937) // datapoint 28
+  testSecondDerivativeAtPosition(dataSeries, 11, 4.000000000000317)
+  dataSeries.push(3.022979554055760, 30.368728984701300) // Datapoint 29, currentDt = 0,065611019694526
+  testLength(dataSeries, 12)
+  testIsReliable(dataSeries, true)
+  testCoefficientA(dataSeries, 2.0000000000002034)
+  testCoefficientB(dataSeries, 3.9999999999988223)
+  testCoefficientC(dataSeries, 1.6857626405908377e-12)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testFirstDerivativeAtPosition(dataSeries, 0, 12.914969894363008) // datapoint 18
+  testSecondDerivativeAtPosition(dataSeries, 0, 4.000000000000407)
+  testFirstDerivativeAtPosition(dataSeries, 1, 13.235332552749721) // datapoint 19
+  testSecondDerivativeAtPosition(dataSeries, 1, 4.000000000000407)
+  testFirstDerivativeAtPosition(dataSeries, 2, 13.548121943334074) // datapoint 20
+  testSecondDerivativeAtPosition(dataSeries, 2, 4.000000000000407)
+  testFirstDerivativeAtPosition(dataSeries, 3, 13.853851038647104) // datapoint 21
+  testSecondDerivativeAtPosition(dataSeries, 3, 4.000000000000407)
+  testFirstDerivativeAtPosition(dataSeries, 4, 14.152977390308974) // datapoint 22
+  testSecondDerivativeAtPosition(dataSeries, 4, 4.000000000000407)
+  testFirstDerivativeAtPosition(dataSeries, 5, 14.445911166145605) // datapoint 23
+  testSecondDerivativeAtPosition(dataSeries, 5, 4.000000000000407)
+  testFirstDerivativeAtPosition(dataSeries, 6, 14.733021748091753) // datapoint 24
+  testSecondDerivativeAtPosition(dataSeries, 6, 4.000000000000407)
+  testFirstDerivativeAtPosition(dataSeries, 7, 15.014643193873024) // datapoint 25
+  testSecondDerivativeAtPosition(dataSeries, 7, 4.000000000000407)
+  testFirstDerivativeAtPosition(dataSeries, 8, 15.291078792841649) // datapoint 26
+  testSecondDerivativeAtPosition(dataSeries, 8, 4.000000000000407)
+  testFirstDerivativeAtPosition(dataSeries, 9, 15.562604893091159) // datapoint 27
+  testSecondDerivativeAtPosition(dataSeries, 9, 4.000000000000407)
+  testFirstDerivativeAtPosition(dataSeries, 10, 15.829474137444945) // datapoint 28
+  testSecondDerivativeAtPosition(dataSeries, 10, 4.000000000000407)
+  testFirstDerivativeAtPosition(dataSeries, 11, 16.091918216223092) // datapoint 29
+  testSecondDerivativeAtPosition(dataSeries, 11, 4.000000000000407)
+  dataSeries.push(3.087537555539880, 31.415926535897900) // Datapoint 30, currentDt = 0,064558001484125
+  testLength(dataSeries, 12)
+  testIsReliable(dataSeries, true)
+  testCoefficientA(dataSeries, 2.0000000000004476)
+  testCoefficientB(dataSeries, 3.999999999997489)
+  testCoefficientC(dataSeries, 3.4852121189032914e-12)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testFirstDerivativeAtPosition(dataSeries, 0, 13.235332552749515) // datapoint 19
+  testSecondDerivativeAtPosition(dataSeries, 0, 4.000000000000895)
+  testFirstDerivativeAtPosition(dataSeries, 1, 13.548121943333907) // datapoint 20
+  testSecondDerivativeAtPosition(dataSeries, 1, 4.000000000000895)
+  testFirstDerivativeAtPosition(dataSeries, 2, 13.853851038646976) // datapoint 21
+  testSecondDerivativeAtPosition(dataSeries, 2, 4.000000000000895)
+  testFirstDerivativeAtPosition(dataSeries, 3, 14.15297739030888) // datapoint 22
+  testSecondDerivativeAtPosition(dataSeries, 3, 4.000000000000895)
+  testFirstDerivativeAtPosition(dataSeries, 4, 14.445911166145546) // datapoint 23
+  testSecondDerivativeAtPosition(dataSeries, 4, 4.000000000000895)
+  testFirstDerivativeAtPosition(dataSeries, 5, 14.73302174809173) // datapoint 24
+  testSecondDerivativeAtPosition(dataSeries, 5, 4.000000000000895)
+  testFirstDerivativeAtPosition(dataSeries, 6, 15.014643193873034) // datapoint 25
+  testSecondDerivativeAtPosition(dataSeries, 6, 4.000000000000895)
+  testFirstDerivativeAtPosition(dataSeries, 7, 15.291078792841695) // datapoint 26
+  testSecondDerivativeAtPosition(dataSeries, 7, 4.000000000000895)
+  testFirstDerivativeAtPosition(dataSeries, 8, 15.562604893091237) // datapoint 27
+  testSecondDerivativeAtPosition(dataSeries, 8, 4.000000000000895)
+  testFirstDerivativeAtPosition(dataSeries, 9, 15.829474137445057) // datapoint 28
+  testSecondDerivativeAtPosition(dataSeries, 9, 4.000000000000895)
+  testFirstDerivativeAtPosition(dataSeries, 10, 16.091918216223235) // datapoint 29
+  testSecondDerivativeAtPosition(dataSeries, 10, 4.000000000000895)
+  testFirstDerivativeAtPosition(dataSeries, 11, 16.350150222159773) // datapoint 30
+  testSecondDerivativeAtPosition(dataSeries, 11, 4.000000000000895)
+  dataSeries.push(3.151091668892320, 32.463124087094500) // Datapoint 31, currentDt = 0,063554113352442
+  testLength(dataSeries, 12)
+  testIsReliable(dataSeries, true)
+  testCoefficientA(dataSeries, 2.0000000000006226)
+  testCoefficientB(dataSeries, 3.9999999999965214)
+  testCoefficientC(dataSeries, 4.8263615326504805e-12)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testFirstDerivativeAtPosition(dataSeries, 0, 13.548121943333774) // datapoint 20
+  testSecondDerivativeAtPosition(dataSeries, 0, 4.000000000001245)
+  testFirstDerivativeAtPosition(dataSeries, 1, 13.85385103864687) // datapoint 21
+  testSecondDerivativeAtPosition(dataSeries, 1, 4.000000000001245)
+  testFirstDerivativeAtPosition(dataSeries, 2, 14.152977390308802) // datapoint 22
+  testSecondDerivativeAtPosition(dataSeries, 2, 4.000000000001245)
+  testFirstDerivativeAtPosition(dataSeries, 3, 14.445911166145494) // datapoint 23
+  testSecondDerivativeAtPosition(dataSeries, 3, 4.000000000001245)
+  testFirstDerivativeAtPosition(dataSeries, 4, 14.733021748091703) // datapoint 24
+  testSecondDerivativeAtPosition(dataSeries, 4, 4.000000000001245)
+  testFirstDerivativeAtPosition(dataSeries, 5, 15.014643193873031) // datapoint 25
+  testSecondDerivativeAtPosition(dataSeries, 5, 4.000000000001245)
+  testFirstDerivativeAtPosition(dataSeries, 6, 15.291078792841716) // datapoint 26
+  testSecondDerivativeAtPosition(dataSeries, 6, 4.000000000001245)
+  testFirstDerivativeAtPosition(dataSeries, 7, 15.562604893091281) // datapoint 27
+  testSecondDerivativeAtPosition(dataSeries, 7, 4.000000000001245)
+  testFirstDerivativeAtPosition(dataSeries, 8, 15.829474137445125) // datapoint 28
+  testSecondDerivativeAtPosition(dataSeries, 8, 4.000000000001245)
+  testFirstDerivativeAtPosition(dataSeries, 9, 16.091918216223323) // datapoint 29
+  testSecondDerivativeAtPosition(dataSeries, 9, 4.000000000001245)
+  testFirstDerivativeAtPosition(dataSeries, 10, 16.350150222159886) // datapoint 30
+  testSecondDerivativeAtPosition(dataSeries, 10, 4.000000000001245)
+  testFirstDerivativeAtPosition(dataSeries, 11, 16.604366675569725) // datapoint 31
+  testSecondDerivativeAtPosition(dataSeries, 11, 4.000000000001245)
+})
+
+function testLength (series, expectedValue) {
+  assert.ok(series.length() === expectedValue, `Expected value for length at X-position ${series.X.atSeriesEnd()} is ${expectedValue}, encountered a ${series.length()}`)
+}
+
 function testCoefficientA (series, expectedValue) {
   assert.ok(series.coefficientA() === expectedValue, `Expected value for coefficientA at X-position ${series.X.atSeriesEnd()} is ${expectedValue}, encountered a ${series.coefficientA()}`)
 }
@@ -617,6 +1487,18 @@ function testGoodnessOfFitBetween (series, expectedValueAbove, expectedValueBelo
 
 function testSlope (series, position, expectedValue) { // eslint-disable-line no-unused-vars
   assert.ok(series.slope(position) === expectedValue, `Expected value for Slope-${position} at X-position ${series.X.atSeriesEnd()} (slope at X-position ${series.X.atPosition(position)}) is ${expectedValue}, encountered a ${series.slope(position)}`)
+}
+
+function testFirstDerivativeAtPosition (series, position, expectedValue) { // eslint-disable-line no-unused-vars
+  assert.ok(series.firstDerivativeAtPosition(position) === expectedValue, `Expected value for first derivative for position ${position} at X-position ${series.X.atSeriesEnd()} is ${expectedValue}, encountered a ${series.firstDerivativeAtPosition(position)}`)
+}
+
+function testSecondDerivativeAtPosition (series, position, expectedValue) { // eslint-disable-line no-unused-vars
+  assert.ok(series.secondDerivativeAtPosition(position) === expectedValue, `Expected value for second derivative for position ${position} at X-position ${series.X.atSeriesEnd()} is ${expectedValue}, encountered a ${series.secondDerivativeAtPosition(position)}`)
+}
+
+function testIsReliable (series, expectedValue) {
+  assert.ok(series.reliable() === expectedValue, `Expected value for isReliable at X-position ${series.X.atSeriesEnd()} is ${expectedValue}, encountered a ${series.reliable()}`)
 }
 
 function reportAll (series) { // eslint-disable-line no-unused-vars
