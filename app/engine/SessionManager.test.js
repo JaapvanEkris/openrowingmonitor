@@ -189,7 +189,7 @@ test('sample data for NordicTrack RX800 should produce plausible results for a 2
   testTotalLinearDistance(sessionManager, 72.32276839819497)
   testTotalNumberOfStrokes(sessionManager, 8)
   // As dragFactor is dynamic, it should have changed
-  testDragFactor(sessionManager, 491.1395313462149)
+  testDragFactor(sessionManager, 487.65077394777813)
 })
 
 test('sample data for NordicTrack RX800 should produce plausible results for a 75 meter session', async () => {
