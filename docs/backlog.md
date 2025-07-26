@@ -4,6 +4,23 @@ This is currently is a very minimalistic Backlog for further development of this
 
 If you would like to contribute to this project, you are more than welcome, but please read the [Contributing Guidelines](CONTRIBUTING.md) first to get the most out of your valuable time.
 
+## 0.9.7 (currently in development)
+
+* Add a lot of testcases to complete unit/integration testing of all functions used. Especially:
+  * Testing core objects, like the Theil-Senn regression analysis functions (not the algorithm), as well as their integrated behaviour
+  * Testing all the `workoutSegment.js` object metrics and cutting capabilities
+* Add calories as interval type
+  * Describe the physics
+  * Add weight correction factor (see [C2 formula](https://www.concept2.com/training/calorie-calculator))
+  * Add moving uo and down the slide to the work performed definitions where relevant
+  * Make Calories a continuous metric (similar to distance) instead of a cycle based one
+  * Add it as a stop criterium for the session manager
+  * Add 'Calories' to the PM5 CSafe workout definition command set
+  * Add 'Calories' to the MQTT command set
+  * Add it as a workout option to the FIT recorder
+  * Modify the PM5 peripheral to broadcast the right data
+  * Update the GUI to allow selecting it
+
 ## Soon
 
 * Improve the user interface (We really need help on this!)
@@ -17,13 +34,6 @@ If you would like to contribute to this project, you are more than welcome, but 
   * Integrate with intervals.icu to retrieve training targets
   * add user friendly possibility for user to define workouts with targets via the GUI
   * add user friendly possibility for user to define workouts with targets via the PM5
-* Add calories as interval type
-  * Add weight correction factor (see [C2 formula](https://www.concept2.com/training/calorie-calculator))
-  * Make Calories a continuous metric (similar to distance) instead of a cycle based one
-  * Add it as a stop criterium for the session manager
-  * Add it as a workout option to the FIT recorder
-  * Modify the PM5 peripheral to broadcast the right data
-  * Update the GUI to allow selecting it
 
 ## Later
 
