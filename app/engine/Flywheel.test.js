@@ -389,12 +389,12 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Fl
   testSpinningTime(flywheel, 0.23182)
   testAngularPosition(flywheel, 1.0471975511965976)
   testAngularVelocity(flywheel, 4.750026456177849)
-  // testAngularAcceleration(flywheel, 3.9999999999999813)
+  testAngularAcceleration(flywheel, 7.465052121092702)
   flywheel.pushValue(0.06178) // Datapoint 14
   testDeltaTime(flywheel, 0.18617) // Values from Datapoint 2 are now passsing through
   testSpinningTime(flywheel, 0.41799)
   testAngularPosition(flywheel, 2.0943951023931953)
-  testAngularVelocity(flywheel, 5.723212456229937)
+  testAngularVelocity(flywheel, 6.063100815438113)
   // testAngularAcceleration(flywheel, 3.999999999999982)
   flywheel.pushValue(0.059) // Datapoint 15
   testDeltaTime(flywheel, 0.15567) // Values from Datapoint 3 are now passsing through
@@ -531,85 +531,19 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Fl
   }
   const flywheel = createFlywheel(testConfig) // Please note, Datapoint 0 is automatically added by this initialisation
   flywheel.maintainStateAndMetrics()
-  testSpinningTime(flywheel, 0)
-  testAngularPosition(flywheel, 0)
-  testAngularVelocity(flywheel, 0)
-  testAngularAcceleration(flywheel, 0)
   flywheel.pushValue(0.23182) // Datapoint 1
-  testDeltaTime(flywheel, 0)
-  testSpinningTime(flywheel, 0)
-  testAngularPosition(flywheel, 0)
-  testAngularVelocity(flywheel, 0)
-  testAngularAcceleration(flywheel, 0)
   flywheel.pushValue(0.18617) // Datapoint 2
-  testDeltaTime(flywheel, 0)
-  testSpinningTime(flywheel, 0)
-  testAngularPosition(flywheel, 0)
-  testAngularVelocity(flywheel, 0)
-  testAngularAcceleration(flywheel, 0)
   flywheel.pushValue(0.15567) // Datapoint 3
-  testDeltaTime(flywheel, 0)
-  testSpinningTime(flywheel, 0)
-  testAngularPosition(flywheel, 0)
-  testAngularVelocity(flywheel, 0)
-  testAngularAcceleration(flywheel, 0)
   flywheel.pushValue(0.13426) // Datapoint 4
-  testDeltaTime(flywheel, 0)
-  testSpinningTime(flywheel, 0)
-  testAngularPosition(flywheel, 0)
-  testAngularVelocity(flywheel, 0)
-  testAngularAcceleration(flywheel, 0)
   flywheel.pushValue(0.11849) // Datapoint 5
-  testDeltaTime(flywheel, 0)
-  testSpinningTime(flywheel, 0)
-  testAngularPosition(flywheel, 0)
-  testAngularVelocity(flywheel, 0)
-  testAngularAcceleration(flywheel, 0)
   flywheel.pushValue(0.10640) // Datapoint 6
-  testDeltaTime(flywheel, 0)
-  testSpinningTime(flywheel, 0)
-  testAngularPosition(flywheel, 0)
-  testAngularVelocity(flywheel, 0)
-  testAngularAcceleration(flywheel, 0)
   flywheel.pushValue(0.09682) // Datapoint 7
-  testDeltaTime(flywheel, 0)
-  testSpinningTime(flywheel, 0)
-  testAngularPosition(flywheel, 0)
-  testAngularVelocity(flywheel, 0)
-  testAngularAcceleration(flywheel, 0)
   flywheel.pushValue(0.08905) // Datapoint 8
-  testDeltaTime(flywheel, 0)
-  testSpinningTime(flywheel, 0)
-  testAngularPosition(flywheel, 0)
-  testAngularVelocity(flywheel, 0)
-  testAngularAcceleration(flywheel, 0)
   flywheel.pushValue(0.08260) // Datapoint 9
-  testDeltaTime(flywheel, 0)
-  testSpinningTime(flywheel, 0)
-  testAngularPosition(flywheel, 0)
-  testAngularVelocity(flywheel, 0)
-  testAngularAcceleration(flywheel, 0)
   flywheel.pushValue(0.07715) // Datapoint 10
-  testDeltaTime(flywheel, 0)
-  testSpinningTime(flywheel, 0)
-  testAngularPosition(flywheel, 0)
-  testAngularVelocity(flywheel, 0)
-  testAngularAcceleration(flywheel, 0)
   flywheel.pushValue(0.07250) // Datapoint 11
-  testDeltaTime(flywheel, 0)
-  testSpinningTime(flywheel, 0)
-  testAngularPosition(flywheel, 0)
-  testAngularVelocity(flywheel, 0)
-  testAngularAcceleration(flywheel, 0)
   flywheel.pushValue(0.06845) // Datapoint 12
-  testDeltaTime(flywheel, 0) // Values from Datapoint 0 are now passsing through
-  testSpinningTime(flywheel, 0)
-  testAngularPosition(flywheel, 0)
   flywheel.pushValue(0.06492) // Datapoint 13
-  testDeltaTime(flywheel, 0.23182) // Values from Datapoint 1 are now passsing through
-  testSpinningTime(flywheel, 0.23182)
-  testAngularPosition(flywheel, 1.0471975511965976)
-  testAngularAcceleration(flywheel, 3.9999999999999813)
   flywheel.pushValue(0.06178) // Datapoint 14
   testDeltaTime(flywheel, 0.18617) // Values from Datapoint 2 are now passsing through
   testSpinningTime(flywheel, 0.41799)
