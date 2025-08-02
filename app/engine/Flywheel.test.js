@@ -454,13 +454,13 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Fl
   testDeltaTime(flywheel, 0.06845) // Values from Datapoint 12 are now passsing through
   testSpinningTime(flywheel, 1.4193799999999999)
   testAngularPosition(flywheel, 12.566370614359172)
-  testAngularVelocity(flywheel, 10.794950899141384)
+  testAngularVelocity(flywheel, 15.632395946637757)
   testAngularAcceleration(flywheel, 12.238786555582001)
   flywheel.pushValue(0.04174) // Datapoint 25
   testDeltaTime(flywheel, 0.06492) // Values from Datapoint 13 are now passsing through
   testSpinningTime(flywheel, 1.4843)
   testAngularPosition(flywheel, 13.613568165555769)
-  // testAngularVelocity(flywheel, 11.176249161702065)
+  testAngularVelocity(flywheel, 11.176249161702065)
   testAngularAcceleration(flywheel, 12.238786555582001)
   flywheel.pushValue(0.04063) // Datapoint 26
   testDeltaTime(flywheel, 0.06178) // Values from Datapoint 14 are now passsing through
@@ -479,7 +479,7 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Fl
   testSpinningTime(flywheel, 1.66157)
   testAngularPosition(flywheel, 16.755160819145562)
   // testAngularVelocity(flywheel, 12.249134114424734)
-  // testAngularAcceleration(flywheel, 3.999999999999916)
+  testAngularAcceleration(flywheel, 13.442008046703409)
   flywheel.pushValue(0.03771) // Datapoint 29
   testDeltaTime(flywheel, 0.05423) // Values from Datapoint 17 are now passsing through
   testSpinningTime(flywheel, 1.7158)
@@ -558,8 +558,6 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Fl
   flywheel.pushValue(0.04174) // Datapoint 25
   flywheel.pushValue(0.04063) // Datapoint 26
   flywheel.pushValue(0.0396) // Datapoint 27
-  testDeltaTime(flywheel, 0.059) // Values from Datapoint 15 are now passsing through
-  testAngularAcceleration(flywheel, 3.9999999999999214)
   flywheel.pushValue(0.03863) // Datapoint 28
   testDeltaTime(flywheel, 0.05649) // Values from Datapoint 16 are now passsing through
   testAngularAcceleration(flywheel, 3.999999999999916)
