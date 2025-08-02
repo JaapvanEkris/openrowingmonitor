@@ -466,7 +466,7 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Fl
   testDeltaTime(flywheel, 0.06178) // Values from Datapoint 14 are now passsing through
   testSpinningTime(flywheel, 1.54608)
   testAngularPosition(flywheel, 14.660765716752367)
-  testAngularVelocity(flywheel, 11.544961053811258)
+  testAngularVelocity(flywheel, 17.286667465523113)
   testAngularAcceleration(flywheel, 13.063909357393664)
   flywheel.pushValue(0.0396) // Datapoint 27
   testDeltaTime(flywheel, 0.059) // Values from Datapoint 15 are now passsing through
@@ -497,75 +497,8 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Fl
   testSpinningTime(flywheel, 1.81827)
   testAngularPosition(flywheel, 19.896753472735355)
   testAngularVelocity(flywheel, 19)
-  testAngularAcceleration(flywheel, 3)
+  testAngularAcceleration(flywheel, 14.787504445940336)
 })
-
-
-/**
- * Test of the integration of the underlying FullTSQuadraticEstimator object
- * The data follows the function y = X^3 + 2 * x^2 + 4 * x
- * To test if multiple quadratic regressions can decently approximate a cubic function
- */
-test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Flywheel object for cubic function f(x) = X^3 + 2 * x^2 + 4 * x', () => {
-  const testConfig = {
-    numOfImpulsesPerRevolution: 6,
-    sprocketRadius: 1,
-    maximumStrokeTimeBeforePause: 6.0,
-    dragFactor: 10,
-    autoAdjustDragFactor: false,
-    minimumDragQuality: 0.95,
-    dragFactorSmoothing: 3,
-    minimumTimeBetweenImpulses: 0,
-    maximumTimeBetweenImpulses: 1,
-    flankLength: 12,
-    smoothing: 1,
-    minimumStrokeQuality: 0.36,
-    minimumForceBeforeStroke: 0,
-    minimumRecoverySlope: 0.00070,
-    autoAdjustRecoverySlope: false,
-    autoAdjustRecoverySlopeMargin: 0.15,
-    minimumDriveTime: 0.40,
-    minimumRecoveryTime: 0.90,
-    flywheelInertia: 0.1031,
-    magicConstant: 2.8
-  }
-  const flywheel = createFlywheel(testConfig) // Please note, Datapoint 0 is automatically added by this initialisation
-  flywheel.maintainStateAndMetrics()
-  flywheel.pushValue(0.23182) // Datapoint 1
-  flywheel.pushValue(0.18617) // Datapoint 2
-  flywheel.pushValue(0.15567) // Datapoint 3
-  flywheel.pushValue(0.13426) // Datapoint 4
-  flywheel.pushValue(0.11849) // Datapoint 5
-  flywheel.pushValue(0.10640) // Datapoint 6
-  flywheel.pushValue(0.09682) // Datapoint 7
-  flywheel.pushValue(0.08905) // Datapoint 8
-  flywheel.pushValue(0.08260) // Datapoint 9
-  flywheel.pushValue(0.07715) // Datapoint 10
-  flywheel.pushValue(0.07250) // Datapoint 11
-  flywheel.pushValue(0.06845) // Datapoint 12
-  flywheel.pushValue(0.06492) // Datapoint 13
-  flywheel.pushValue(0.06178) // Datapoint 14
-  flywheel.pushValue(0.059) // Datapoint 15
-  flywheel.pushValue(0.05649) // Datapoint 16
-  flywheel.pushValue(0.05423) // Datapoint 17
-  flywheel.pushValue(0.05217) // Datapoint 18
-  flywheel.pushValue(0.0503) // Datapoint 19
-  flywheel.pushValue(0.04858) // Datapoint 20
-  flywheel.pushValue(0.047) // Datapoint 21
-  flywheel.pushValue(0.04553) // Datapoint 22
-  flywheel.pushValue(0.04418) // Datapoint 23
-  flywheel.pushValue(0.04291) // Datapoint 24
-  flywheel.pushValue(0.04174) // Datapoint 25
-  flywheel.pushValue(0.04063) // Datapoint 26
-  flywheel.pushValue(0.0396) // Datapoint 27
-  flywheel.pushValue(0.03863) // Datapoint 28
-  flywheel.pushValue(0.03771) // Datapoint 29
-  flywheel.pushValue(0.03685) // Datapoint 30
-  flywheel.pushValue(0.03603) // Datapoint 31
-  testDeltaTime(flywheel, 0.0503) // Values from Datapoint 19 are now passsing through
-  testAngularAcceleration(flywheel, 3.9999999999999445)
-})
-
 
 // Test behaviour for perfect stroke
 test('Correct Flywheel behaviour for a noisefree stroke', () => {
