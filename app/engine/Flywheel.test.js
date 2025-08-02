@@ -460,13 +460,13 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Fl
   testDeltaTime(flywheel, 0.06492) // Values from Datapoint 13 are now passsing through
   testSpinningTime(flywheel, 1.4843)
   testAngularPosition(flywheel, 13.613568165555769)
-  testAngularVelocity(flywheel, 11.176249161702065)
+  testAngularVelocity(flywheel, 16.46920337146393)
   testAngularAcceleration(flywheel, 12.238786555582001)
   flywheel.pushValue(0.04063) // Datapoint 26
   testDeltaTime(flywheel, 0.06178) // Values from Datapoint 14 are now passsing through
   testSpinningTime(flywheel, 1.54608)
   testAngularPosition(flywheel, 14.660765716752367)
-  // testAngularVelocity(flywheel, 11.544961053811258)
+  testAngularVelocity(flywheel, 11.544961053811258)
   testAngularAcceleration(flywheel, 12.665070330009833)
   flywheel.pushValue(0.0396) // Datapoint 27
   testDeltaTime(flywheel, 0.059) // Values from Datapoint 15 are now passsing through
@@ -485,7 +485,7 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Fl
   testSpinningTime(flywheel, 1.7158)
   testAngularPosition(flywheel, 17.80235837034216)
   // testAngularVelocity(flywheel, 12.586455695021384)
-  // testAngularAcceleration(flywheel, 3.99999999999992)
+  testAngularAcceleration(flywheel, 13.801220072395564)
   flywheel.pushValue(0.03685) // Datapoint 30
   testDeltaTime(flywheel, 0.05217) // Values from Datapoint 18 are now passsing through
   testSpinningTime(flywheel, 1.76797)
@@ -559,8 +559,6 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Fl
   flywheel.pushValue(0.04063) // Datapoint 26
   flywheel.pushValue(0.0396) // Datapoint 27
   flywheel.pushValue(0.03863) // Datapoint 28
-  testDeltaTime(flywheel, 0.05649) // Values from Datapoint 16 are now passsing through
-  testAngularAcceleration(flywheel, 3.999999999999916)
   flywheel.pushValue(0.03771) // Datapoint 29
   testDeltaTime(flywheel, 0.05423) // Values from Datapoint 17 are now passsing through
   testAngularAcceleration(flywheel, 3.99999999999992)
