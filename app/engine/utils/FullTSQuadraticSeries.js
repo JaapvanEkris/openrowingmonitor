@@ -183,7 +183,7 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
       // Force the calculation of the sst
       goodnessOfFit()
     }
-    if (sst > 0 && position < X.length()) {
+    if (sst > 0 && X.length() >= 3 && position < X.length()) {
       const squaredError = Math.pow((Y.get(position) - projectX(X.get(position))), 2)
       return Math.min(Math.max(1 - ((squaredError * X.length()) / sst), 0), 1)
     } else {
