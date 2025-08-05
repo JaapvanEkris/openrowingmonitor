@@ -186,7 +186,7 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
       // eslint-disable-next-line no-console
       console.log(`recalculated GoF, _sst= ${_sst}`)
     }
-    if (X.length() >= 3 && _sst = 0) {
+    if (X.length() >= 3 && _sst === 0) {
         while (i < X.length()) {
           _sst += Math.pow((Y.get(i) - Y.average()), 2)
           i++
