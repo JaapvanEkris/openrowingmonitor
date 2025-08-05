@@ -149,9 +149,9 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     // This function returns the R^2 as a goodness of fit indicator
     let i = 0
     let sse = 0
-    _sst = 0
     if (_goodnessOfFit === null) {
       if (X.length() >= 3) {
+        _sst = 0
         while (i < X.length()) {
           sse += Math.pow((Y.get(i) - projectX(X.get(i))), 2)
           _sst += Math.pow((Y.get(i) - Y.average()), 2)
@@ -183,39 +183,26 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     if (_sst === null) {
       // Force the recalculation of the _sst
       goodnessOfFit()
-      // eslint-disable-next-line no-console
-      console.log(`recalculated GoF, _sst= ${_sst}`)
-    }
-    if (X.length() >= 3 && _sst === 0) {
-        let i = 0
-        while (i < X.length()) {
-          _sst += Math.pow((Y.get(i) - Y.average()), 2)
-          i++
-        }
-      // eslint-disable-next-line no-console
-      console.log(`manually recalculated _sst= ${_sst}`)
     }
     if (X.length() >= 3 && position < X.length()) {
       const squaredError = Math.pow((Y.get(position) - projectX(X.get(position))), 2)
+      /* eslint-disable no-unreachable, rather be systematic and add a break in all case statements */
       switch (true) {
         case (squaredError === 0):
           return 1
-          // break
+          break
         case (squaredError > _sst):
           // This is a pretty bad fit as the error is bigger than just using the line for the average y as intercept
-          // eslint-disable-next-line no-console
-          console.log(`_sst= ${_sst}, X.length() = ${X.length()}, position = ${X.length()}, squaredError = ${squaredError}`)
           return 0
-          // break
+          break
         case (_sst !== 0):
           return Math.min(Math.max(1 - ((squaredError * X.length()) / _sst), 0), 1)
-          // break
+          break
         default:
           // When _SST = 0, normalizedSquareError isn't defined
-          // eslint-disable-next-line no-console
-          console.log(`_sst= ${_sst}, X.length() = ${X.length()}, position = ${X.length()}, squaredError = ${squaredError}`)
           return 0
       }
+      /* eslint-enable no-unreachable */
     } else {
       return 0
     }
