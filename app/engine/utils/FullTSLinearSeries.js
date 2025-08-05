@@ -35,7 +35,7 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
 
   let _A = 0
   let _B = 0
-  let sst = 1
+  let sst = 0
   let _goodnessOfFit = 0
 
   function push (x, y) {
