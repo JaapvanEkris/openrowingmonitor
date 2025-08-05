@@ -192,6 +192,8 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
           // break
         case (squaredError > sst):
           // This is a pretty bad fit as the error is bigger than just using the line for the average y as intercept
+          // eslint-disable-next-line no-console
+          console.log(`sst= ${sst}, X.length() = ${X.length()}, position = ${X.length()}, squaredError = ${squaredError}`)
           return 0
           // break
         case (sst !== 0):
