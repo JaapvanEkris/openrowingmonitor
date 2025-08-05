@@ -39,6 +39,7 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
   let _A = 0
   let _B = 0
   let _C = 0
+  let sst = 0
   let _goodnessOfFit = 0
 
   function push (x, y) {
@@ -77,12 +78,14 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
         linearResidu.reset()
         _B = null
         _C = null
+        sst = null
         _goodnessOfFit = null
         break
       default:
         _A = 0
         _B = 0
         _C = 0
+        sst = 0
         _goodnessOfFit = 0
     }
   }
@@ -145,7 +148,7 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     // This function returns the R^2 as a goodness of fit indicator
     let i = 0
     let sse = 0
-    let sst = 0
+    sst = 0
     if (_goodnessOfFit === null) {
       if (X.length() >= 3) {
         while (i < X.length()) {
@@ -173,6 +176,19 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
       }
     }
     return _goodnessOfFit
+  }
+
+  function normalizedSquareError (position) {
+    if (sst === null) {
+      // Force the calculation of the sst
+      const dummy = goodnessOfFit()
+    }
+    if (sst > 0 && position < X.length()) {
+      const squaredError = Math.pow((Y.get(position) - projectX(X.get(position))), 2)
+      return Math.min(Math.max(1 - ((squaredError * X.length())/sst),0),1)
+    } else {
+      return 0
+    }
   }
 
   function projectX (x) {
@@ -265,6 +281,7 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     intercept,
     length,
     goodnessOfFit,
+    normalizedSquareError,
     projectX,
     reliable,
     reset
