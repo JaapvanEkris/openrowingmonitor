@@ -601,23 +601,27 @@ test('Quadratic TS Estimation should result in a straight line for function y = 
  * This group tests the results of the functions actually used. Please note: these exact same tests are also used in Flywheel.test.js
  */
 /**
- * The data of the underlying test is based on y = 2 x^2 + 4 x, where we have a spacing in y of 1/3th pi (i.e. a 6 magnet flywheel)
- * and a flankLength of 12 (2 * magnets), as this is what Flywheel.test.js will need. CurrentDt's are mentione in the comment behind the line
- * Do the first derivative should follow y' = 4x + 4, and the second derivative  y'' = 4,
+ * The data of the underlying test is based on y = pow(x, 2) + 4 x, where we have a spacing in y of 1/3th pi (i.e. a 6 magnet flywheel)
+ * and a flankLength of 12 (2 * magnets), as this is what Flywheel.test.js will use. CurrentDt's are mentioned in the comment behind the line
+ * So the first derivative should follow y' = 4x + 4, and the second derivative  y'' = 4,
  */
 test('Quadratic Approximation on a perfect noisefree function y = 2 * Math.pow(x, 2) + 4 * x + 2, 32 datapoints', () => {
   const dataSeries = createTSQuadraticSeries(12)
   testLength(dataSeries, 0)
   testIsReliable(dataSeries, false)
   testGoodnessOfFitEquals(dataSeries, 0)
+  testNormalizedSquareError (dataSeries, 0, 0)
   dataSeries.push(0.000000000000000, 0.000000000000000) // Datapoint 0, no currentDt
   testLength(dataSeries, 1)
   testIsReliable(dataSeries, false)
   testGoodnessOfFitEquals(dataSeries, 0)
+  testNormalizedSquareError (dataSeries, 0, 0)
   dataSeries.push(0.234341433963188, 1.047197551196600) // Datapoint 1, currentDt = 0,234341433963188
   testLength(dataSeries, 2)
   testIsReliable(dataSeries, false)
   testGoodnessOfFitEquals(dataSeries, 0)
+  testNormalizedSquareError (dataSeries, 0, 0)
+  testNormalizedSquareError (dataSeries, 1, 0)
   dataSeries.push(0.430803114057485, 2.094395102393200) // Datapoint 2, currentDt = 0,196461680094298
   testLength(dataSeries, 3)
   testIsReliable(dataSeries, true)
@@ -627,10 +631,13 @@ test('Quadratic Approximation on a perfect noisefree function y = 2 * Math.pow(x
   testGoodnessOfFitEquals(dataSeries, 1)
   testFirstDerivativeAtPosition(dataSeries, 0, 3.999999999999996) // datapoint 0
   testSecondDerivativeAtPosition(dataSeries, 0, 4.000000000000098)
+  testNormalizedSquareError (dataSeries, 0, 1)
   testFirstDerivativeAtPosition(dataSeries, 1, 4.9373657358527705) // datapoint 1
   testSecondDerivativeAtPosition(dataSeries, 1, 4.000000000000098)
+  testNormalizedSquareError (dataSeries, 1, 1)
   testFirstDerivativeAtPosition(dataSeries, 2, 5.723212456229978) // datapoint 2
   testSecondDerivativeAtPosition(dataSeries, 2, 4.000000000000098)
+  testNormalizedSquareError (dataSeries, 2, 1)
   dataSeries.push(0.603370302455080, 3.141592653589790) // Datapoint 3, currentDt = 0,172567188397595
   testLength(dataSeries, 4)
   testIsReliable(dataSeries, true)
@@ -1483,6 +1490,10 @@ function testGoodnessOfFitEquals (series, expectedValue) {
 function testGoodnessOfFitBetween (series, expectedValueAbove, expectedValueBelow) { // eslint-disable-line no-unused-vars
   assert.ok(series.goodnessOfFit() > expectedValueAbove, `Expected goodnessOfFit at X-position ${series.X.atSeriesEnd()} above ${expectedValueAbove}, encountered ${series.goodnessOfFit()}`)
   assert.ok(series.goodnessOfFit() < expectedValueBelow, `Expected goodnessOfFit at X-position ${series.X.atSeriesEnd()} below ${expectedValueBelow}, encountered ${series.goodnessOfFit()}`)
+}
+
+function testNormalizedSquareError (series, position, expectedValue) {
+  assert.ok(series.normalizedSquareError(position) === expectedValue, `Expected normalizedSquareError at X-position ${series.X.atSeriesEnd()} for position ${position} to be ${expectedValue}, encountered ${series.normalizedSquareError(position)}`)
 }
 
 function testSlope (series, position, expectedValue) { // eslint-disable-line no-unused-vars
