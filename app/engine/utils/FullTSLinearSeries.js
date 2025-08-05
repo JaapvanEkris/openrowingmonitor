@@ -35,7 +35,7 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
 
   let _A = 0
   let _B = 0
-  let sst = 0
+  let _sst = 0
   let _goodnessOfFit = 0
 
   function push (x, y) {
@@ -108,22 +108,22 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
     let sse = 0
     if (_goodnessOfFit === null) {
       if (X.length() >= 2) {
-        sst = 0
+        _sst = 0
         while (i < X.length()) {
           sse += Math.pow((Y.get(i) - projectX(X.get(i))), 2)
-          sst += Math.pow((Y.get(i) - Y.average()), 2)
+          _sst += Math.pow((Y.get(i) - Y.average()), 2)
           i++
         }
         switch (true) {
           case (sse === 0):
             _goodnessOfFit = 1
             break
-          case (sse > sst):
+          case (sse > _sst):
             // This is a pretty bad fit as the error is bigger than just using the line for the average y as intercept
             _goodnessOfFit = 0
             break
           case (sst !== 0):
-            _goodnessOfFit = 1 - (sse / sst)
+            _goodnessOfFit = 1 - (sse / _sst)
             break
           default:
             // When SST = 0, R2 isn't defined
