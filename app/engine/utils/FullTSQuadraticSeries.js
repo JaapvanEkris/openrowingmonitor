@@ -157,8 +157,6 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
           _sst += Math.pow((Y.get(i) - Y.average()), 2)
           i++
         }
-        // eslint-disable-next-line no-console
-        console.log(`GoF calculated _sst= ${_sst}`)
         switch (true) {
           case (sse === 0):
             _goodnessOfFit = 1
@@ -187,6 +185,14 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
       goodnessOfFit()
       // eslint-disable-next-line no-console
       console.log(`recalculated GoF, _sst= ${_sst}`)
+    }
+    if (X.length() >= 3 && _sst = 0) {
+        while (i < X.length()) {
+          _sst += Math.pow((Y.get(i) - Y.average()), 2)
+          i++
+        }
+      // eslint-disable-next-line no-console
+      console.log(`manually recalculated _sst= ${_sst}`)
     }
     if (X.length() >= 3 && position < X.length()) {
       const squaredError = Math.pow((Y.get(position) - projectX(X.get(position))), 2)
