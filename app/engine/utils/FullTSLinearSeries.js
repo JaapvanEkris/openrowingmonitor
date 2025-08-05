@@ -35,6 +35,7 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
 
   let _A = 0
   let _B = 0
+  let sst = 1
   let _goodnessOfFit = 0
 
   function push (x, y) {
@@ -71,6 +72,7 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
 
     // Invalidate the previously calculated intercept and goodnessOfFit. We'll only calculate them if we need them
     _B = null
+    sst = null
     _goodnessOfFit = null
   }
 
@@ -104,7 +106,7 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
     // This lazy approach is intended to prevent unneccesary calculations
     let i = 0
     let sse = 0
-    let sst = 0
+    sst = 0
     if (_goodnessOfFit === null) {
       if (X.length() >= 2) {
         while (i < X.length()) {
@@ -132,6 +134,19 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
       }
     }
     return _goodnessOfFit
+  }
+
+  function normalizedSquareError (position) {
+    if (sst === null) {
+      // Force the calculation of the sst
+      const dummy = goodnessOfFit()
+    }
+    if (sst > 0 && position < X.length()) {
+      const squaredError = Math.pow((Y.get(position) - projectX(X.get(position))), 2)
+      return Math.min(Math.max(1 - ((squaredError * X.length())/sst),0),1)
+    } else {
+      return 0
+    }
   }
 
   function projectX (x) {
@@ -209,6 +224,7 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
     coefficientB,
     length,
     goodnessOfFit,
+    normalizedSquareError,
     projectX,
     projectY,
     reliable,
