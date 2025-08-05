@@ -620,8 +620,8 @@ test('Quadratic Approximation on a perfect noisefree function y = 2 * Math.pow(x
   testLength(dataSeries, 2)
   testIsReliable(dataSeries, false)
   testGoodnessOfFitEquals(dataSeries, 0)
-  testNormalizedSquareError (dataSeries, 0, 0)
-  testNormalizedSquareError (dataSeries, 1, 0)
+  testNormalizedSquareError(dataSeries, 0, 0)
+  testNormalizedSquareError(dataSeries, 1, 0)
   dataSeries.push(0.430803114057485, 2.094395102393200) // Datapoint 2, currentDt = 0,196461680094298
   testLength(dataSeries, 3)
   testIsReliable(dataSeries, true)
@@ -631,13 +631,13 @@ test('Quadratic Approximation on a perfect noisefree function y = 2 * Math.pow(x
   testGoodnessOfFitEquals(dataSeries, 1)
   testFirstDerivativeAtPosition(dataSeries, 0, 3.999999999999996) // datapoint 0
   testSecondDerivativeAtPosition(dataSeries, 0, 4.000000000000098)
-  testNormalizedSquareError (dataSeries, 0, 1)
+  testNormalizedSquareError(dataSeries, 0, 1)
   testFirstDerivativeAtPosition(dataSeries, 1, 4.9373657358527705) // datapoint 1
   testSecondDerivativeAtPosition(dataSeries, 1, 4.000000000000098)
-  testNormalizedSquareError (dataSeries, 1, 1)
+  testNormalizedSquareError(dataSeries, 1, 1)
   testFirstDerivativeAtPosition(dataSeries, 2, 5.723212456229978) // datapoint 2
   testSecondDerivativeAtPosition(dataSeries, 2, 4.000000000000098)
-  testNormalizedSquareError (dataSeries, 2, 1)
+  testNormalizedSquareError(dataSeries, 2, 1)
   dataSeries.push(0.603370302455080, 3.141592653589790) // Datapoint 3, currentDt = 0,172567188397595
   testLength(dataSeries, 4)
   testIsReliable(dataSeries, true)
