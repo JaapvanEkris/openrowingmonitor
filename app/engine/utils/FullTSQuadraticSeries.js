@@ -40,7 +40,7 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
   let _A = 0
   let _B = 0
   let _C = 0
-  let sst = 0
+  let _sst = 0
   let _goodnessOfFit = 0
 
   function push (x, y) {
@@ -79,14 +79,14 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
         linearResidu.reset()
         _B = null
         _C = null
-        sst = null
+        _sst = null
         _goodnessOfFit = null
         break
       default:
         _A = 0
         _B = 0
         _C = 0
-        sst = 0
+        _sst = 0
         _goodnessOfFit = 0
     }
   }
@@ -149,27 +149,29 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     // This function returns the R^2 as a goodness of fit indicator
     let i = 0
     let sse = 0
-    sst = 0
+    _sst = 0
     if (_goodnessOfFit === null) {
       if (X.length() >= 3) {
         while (i < X.length()) {
           sse += Math.pow((Y.get(i) - projectX(X.get(i))), 2)
-          sst += Math.pow((Y.get(i) - Y.average()), 2)
+          _sst += Math.pow((Y.get(i) - Y.average()), 2)
           i++
         }
+        // eslint-disable-next-line no-console
+        console.log(`GoF calculated _sst= ${_sst}`)
         switch (true) {
           case (sse === 0):
             _goodnessOfFit = 1
             break
-          case (sse > sst):
+          case (sse > _sst):
             // This is a pretty bad fit as the error is bigger than just using the line for the average y as intercept
             _goodnessOfFit = 0
             break
-          case (sst !== 0):
-            _goodnessOfFit = 1 - (sse / sst)
+          case (_sst !== 0):
+            _goodnessOfFit = 1 - (sse / _sst)
             break
           default:
-            // When SST = 0, R2 isn't defined
+            // When _SST = 0, R2 isn't defined
             _goodnessOfFit = 0
         }
       } else {
@@ -180,9 +182,11 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
   }
 
   function normalizedSquareError (position) {
-    if (sst === null) {
-      // Force the recalculation of the sst
+    if (_sst === null) {
+      // Force the recalculation of the _sst
       goodnessOfFit()
+      // eslint-disable-next-line no-console
+      console.log(`recalculated GoF, _sst= ${_sst}`)
     }
     if (X.length() >= 3 && position < X.length()) {
       const squaredError = Math.pow((Y.get(position) - projectX(X.get(position))), 2)
@@ -190,19 +194,19 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
         case (squaredError === 0):
           return 1
           // break
-        case (squaredError > sst):
+        case (squaredError > _sst):
           // This is a pretty bad fit as the error is bigger than just using the line for the average y as intercept
           // eslint-disable-next-line no-console
-          console.log(`sst= ${sst}, X.length() = ${X.length()}, position = ${X.length()}, squaredError = ${squaredError}`)
+          console.log(`_sst= ${_sst}, X.length() = ${X.length()}, position = ${X.length()}, squaredError = ${squaredError}`)
           return 0
           // break
-        case (sst !== 0):
-          return Math.min(Math.max(1 - ((squaredError * X.length()) / sst), 0), 1)
+        case (_sst !== 0):
+          return Math.min(Math.max(1 - ((squaredError * X.length()) / _sst), 0), 1)
           // break
         default:
-          // When SST = 0, normalizedSquareError isn't defined
+          // When _SST = 0, normalizedSquareError isn't defined
           // eslint-disable-next-line no-console
-          console.log(`sst= ${sst}, X.length() = ${X.length()}, position = ${X.length()}, squaredError = ${squaredError}`)
+          console.log(`_sst= ${_sst}, X.length() = ${X.length()}, position = ${X.length()}, squaredError = ${squaredError}`)
           return 0
       }
     } else {
