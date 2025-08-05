@@ -7,8 +7,8 @@
  * values to be retrieved (like a FiFo buffer, or Queue) but it also includes
  * a Theil-Sen Quadratic Regressor to determine the coefficients of this dataseries.
  *
- * At creation its length is determined. After it is filled, the oldest will be pushed
- * out of the queue) automatically.
+ * At creation its maximum length is set. After the buffer is filled, the oldest will be pushed
+ * out of the buffer automatically.
  *
  * A key constraint is to prevent heavy calculations at the end of a stroke (due to large
  * array based curve fitting), which might be performed on a Pi zero or Zero 2W
@@ -180,20 +180,29 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
   }
 
   function normalizedSquareError (position) {
-    if (sst === null || sst === 0) {
+    if (sst === null) {
       // Force the recalculation of the sst
-      // eslint-disable-next-line no-console
-      console.log(`sst is recalculated, as sst = ${sst}`)
       goodnessOfFit()
-      // eslint-disable-next-line no-console
-      console.log(`New sst = ${sst}`)
     }
-    if (sst > 0 && X.length() >= 3 && position < X.length()) {
+    if (X.length() >= 3 && position < X.length()) {
       const squaredError = Math.pow((Y.get(position) - projectX(X.get(position))), 2)
-      return Math.min(Math.max(1 - ((squaredError * X.length()) / sst), 0), 1)
-    } else {
-      // eslint-disable-next-line no-console
-      console.log(`sst= ${sst}, X.length() = ${X.length()}, position = ${X.length()}`)
+      switch (true) {
+        case (squaredError === 0):
+          return 1
+          // break
+        case (squaredError > sst):
+          // This is a pretty bad fit as the error is bigger than just using the line for the average y as intercept
+          return 0
+          // break
+        case (sst !== 0):
+          return Math.min(Math.max(1 - ((squaredError * X.length()) / sst), 0), 1)
+          // break
+        default:
+          // When SST = 0, normalizedSquareError isn't defined
+          // eslint-disable-next-line no-console
+          console.log(`sst= ${sst}, X.length() = ${X.length()}, position = ${X.length()}, squaredError = ${squaredError}`)
+          return 0
+      }      
       return 0
     }
   }
