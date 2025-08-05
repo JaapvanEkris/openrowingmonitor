@@ -186,7 +186,7 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     }
     if (X.length() >= 3 && position < X.length()) {
       const squaredError = Math.pow((Y.get(position) - projectX(X.get(position))), 2)
-      /* eslint-disable no-unreachable, rather be systematic and add a break in all case statements */
+      /* eslint-disable no-unreachable -- rather be systematic and add a break in all case statements */
       switch (true) {
         case (squaredError === 0):
           return 1
