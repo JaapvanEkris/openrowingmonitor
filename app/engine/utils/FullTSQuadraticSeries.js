@@ -187,6 +187,7 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
       const squaredError = Math.pow((Y.get(position) - projectX(X.get(position))), 2)
       return Math.min(Math.max(1 - ((squaredError * X.length()) / sst), 0), 1)
     } else {
+      console.log(`sst= ${sst}, X.length() = ${X.length()}, position = ${X.length()}`)
       return 0
     }
   }
