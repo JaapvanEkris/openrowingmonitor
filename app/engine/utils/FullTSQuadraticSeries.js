@@ -1,28 +1,29 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  The FullTSQuadraticSeries is a datatype that represents a Quadratic Series. It allows
-  values to be retrieved (like a FiFo buffer, or Queue) but it also includes
-  a Theil-Sen Quadratic Regressor to determine the coefficients of this dataseries.
-
-  At creation its length is determined. After it is filled, the oldest will be pushed
-  out of the queue) automatically.
-
-  A key constraint is to prevent heavy calculations at the end of a stroke (due to large
-  array based curve fitting), which might be performed on a Pi zero or Zero 2W
-
-  In order to prevent unneccessary calculations, this implementation uses lazy evaluation,
-  so it will calculate the B, C and goodnessOfFit only when needed, as many uses only
-  (first) need the first and second direvative.
-
-  The Theil-Senn implementation uses concepts that are described here:
-  https://stats.stackexchange.com/questions/317777/theil-sen-estimator-for-polynomial,
-
-  The determination of the coefficients is based on the Lagrange interpolation, which is descirbed here:
-  https://www.quora.com/How-do-I-find-a-quadratic-equation-from-points/answer/Robert-Paxson,
-  https://www.physicsforums.com/threads/quadratic-equation-from-3-points.404174/
 */
+/**
+ * The FullTSQuadraticSeries is a datatype that represents a Quadratic Series. It allows
+ * values to be retrieved (like a FiFo buffer, or Queue) but it also includes
+ * a Theil-Sen Quadratic Regressor to determine the coefficients of this dataseries.
+ *
+ * At creation its length is determined. After it is filled, the oldest will be pushed
+ * out of the queue) automatically.
+ *
+ * A key constraint is to prevent heavy calculations at the end of a stroke (due to large
+ * array based curve fitting), which might be performed on a Pi zero or Zero 2W
+ *
+ * In order to prevent unneccessary calculations, this implementation uses lazy evaluation,
+ * so it will calculate the B, C and goodnessOfFit only when needed, as many uses only
+ * (first) need the first and second direvative.
+ *
+ * The Theil-Senn implementation uses concepts that are described here:
+ * https://stats.stackexchange.com/questions/317777/theil-sen-estimator-for-polynomial,
+ *
+ * The determination of the coefficients is based on the Lagrange interpolation, which is descirbed here:
+ * https://www.quora.com/How-do-I-find-a-quadratic-equation-from-points/answer/Robert-Paxson,
+ * https://www.physicsforums.com/threads/quadratic-equation-from-3-points.404174/
+ */
 
 import { createSeries } from './Series.js'
 import { createTSLinearSeries } from './FullTSLinearSeries.js'
@@ -187,6 +188,7 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
       const squaredError = Math.pow((Y.get(position) - projectX(X.get(position))), 2)
       return Math.min(Math.max(1 - ((squaredError * X.length()) / sst), 0), 1)
     } else {
+      // eslint-disable-next-line no-console
       console.log(`sst= ${sst}, X.length() = ${X.length()}, position = ${X.length()}`)
       return 0
     }
