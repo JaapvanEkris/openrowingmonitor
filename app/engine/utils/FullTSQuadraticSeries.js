@@ -202,7 +202,8 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
           // eslint-disable-next-line no-console
           console.log(`sst= ${sst}, X.length() = ${X.length()}, position = ${X.length()}, squaredError = ${squaredError}`)
           return 0
-      }      
+      }
+    } else {
       return 0
     }
   }
