@@ -647,12 +647,16 @@ test('Quadratic Approximation on a perfect noisefree function y = 2 * Math.pow(x
   testGoodnessOfFitEquals(dataSeries, 1)
   testFirstDerivativeAtPosition(dataSeries, 0, 4.000000000000037) // datapoint 0
   testSecondDerivativeAtPosition(dataSeries, 0, 3.9999999999998908)
+  testNormalizedSquareError(dataSeries, 0, 1)
   testFirstDerivativeAtPosition(dataSeries, 1, 4.937365735852763) // datapoint 1
   testSecondDerivativeAtPosition(dataSeries, 1, 3.9999999999998908)
+  testNormalizedSquareError(dataSeries, 1, 1)
   testFirstDerivativeAtPosition(dataSeries, 2, 5.7232124562299305) // datapoint 2
   testSecondDerivativeAtPosition(dataSeries, 2, 3.9999999999998908)
+  testNormalizedSquareError(dataSeries, 2, 1)
   testFirstDerivativeAtPosition(dataSeries, 3, 6.413481209820292) // datapoint 3
   testSecondDerivativeAtPosition(dataSeries, 3, 3.9999999999998908)
+  testNormalizedSquareError(dataSeries, 3, 1)
   dataSeries.push(0.759089282098323, 4.188790204786390) // Datapoint 4, currentDt = 0,155718979643243
   testLength(dataSeries, 5)
   testIsReliable(dataSeries, true)
