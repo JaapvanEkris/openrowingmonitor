@@ -72,7 +72,7 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
 
     // Invalidate the previously calculated intercept and goodnessOfFit. We'll only calculate them if we need them
     _B = null
-    sst = null
+    _sst = null
     _goodnessOfFit = null
   }
 
@@ -122,7 +122,7 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
             // This is a pretty bad fit as the error is bigger than just using the line for the average y as intercept
             _goodnessOfFit = 0
             break
-          case (sst !== 0):
+          case (_sst !== 0):
             _goodnessOfFit = 1 - (sse / _sst)
             break
           default:
@@ -143,7 +143,7 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
     }
     if (X.length() >= 3 && position < X.length()) {
       const squaredError = Math.pow((Y.get(position) - projectX(X.get(position))), 2)
-      /* eslint-disable no-unreachable, rather be systematic and add a break in all case statements */
+      /* eslint-disable no-unreachable -- rather be systematic and add a break in all case statements */
       switch (true) {
         case (squaredError === 0):
           return 1
