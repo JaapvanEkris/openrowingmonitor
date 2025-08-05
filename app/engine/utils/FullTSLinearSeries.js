@@ -106,9 +106,9 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
     // This lazy approach is intended to prevent unneccesary calculations
     let i = 0
     let sse = 0
-    sst = 0
     if (_goodnessOfFit === null) {
       if (X.length() >= 2) {
+        sst = 0
         while (i < X.length()) {
           sse += Math.pow((Y.get(i) - projectX(X.get(i))), 2)
           sst += Math.pow((Y.get(i) - Y.average()), 2)
@@ -137,13 +137,29 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
   }
 
   function normalizedSquareError (position) {
-    if (sst === null) {
-      // Force the calculation of the sst
+    if (_sst === null) {
+      // Force the recalculation of the _sst
       goodnessOfFit()
     }
-    if (sst > 0 && X.length() >= 2 && position < X.length()) {
+    if (X.length() >= 3 && position < X.length()) {
       const squaredError = Math.pow((Y.get(position) - projectX(X.get(position))), 2)
-      return Math.min(Math.max(1 - ((squaredError * X.length()) / sst), 0), 1)
+      /* eslint-disable no-unreachable, rather be systematic and add a break in all case statements */
+      switch (true) {
+        case (squaredError === 0):
+          return 1
+          break
+        case (squaredError > _sst):
+          // This is a pretty bad fit as the error is bigger than just using the line for the average y as intercept
+          return 0
+          break
+        case (_sst !== 0):
+          return Math.min(Math.max(1 - ((squaredError * X.length()) / _sst), 0), 1)
+          break
+        default:
+          // When _SST = 0, normalizedSquareError isn't defined
+          return 0
+      }
+      /* eslint-enable no-unreachable */
     } else {
       return 0
     }
