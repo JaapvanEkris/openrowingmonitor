@@ -180,9 +180,13 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
   }
 
   function normalizedSquareError (position) {
-    if (sst === null) {
-      // Force the calculation of the sst
+    if (sst === null || sst === 0) {
+      // Force the recalculation of the sst
+      // eslint-disable-next-line no-console
+      console.log(`sst is recalculated, as sst = ${sst}`)
       goodnessOfFit()
+      // eslint-disable-next-line no-console
+      console.log(`New sst = ${sst}`)
     }
     if (sst > 0 && X.length() >= 3 && position < X.length()) {
       const squaredError = Math.pow((Y.get(position) - projectX(X.get(position))), 2)
