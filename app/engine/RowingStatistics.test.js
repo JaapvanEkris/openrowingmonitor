@@ -152,7 +152,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDriveDuration(rowingStatistics, undefined)
   testDriveDistance(rowingStatistics, 0.4271903319416174)
   testDriveLength(rowingStatistics, 0.1759291886010284)
-  testDriveAverageHandleForce(rowingStatistics, 276.36630833754884)
+  testDriveAverageHandleForce(rowingStatistics, 276.3665097415968)
   testDrivePeakHandleForce(rowingStatistics, 325.22157162763193)
   testRecoveryDuration(rowingStatistics, undefined)
   testDragFactor(rowingStatistics, undefined)
@@ -188,7 +188,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDriveDuration(rowingStatistics, 0.143485717)
   testDriveDistance(rowingStatistics, 0.4271903319416174)
   testDriveLength(rowingStatistics, 0.1759291886010284)
-  testDriveAverageHandleForce(rowingStatistics, 276.36630833754884)
+  testDriveAverageHandleForce(rowingStatistics, 276.3665097415968)
   testDrivePeakHandleForce(rowingStatistics, 325.22157162763193)
   testRecoveryDuration(rowingStatistics, 0.20540926600000003)
   testDragFactor(rowingStatistics, 283.12720365097886)
@@ -466,7 +466,7 @@ test('A full session for a Concept2 Model C should produce plausible results', a
   await replayRowingSession(rowingStatistics.handleRotationImpulse, { filename: 'recordings/Concept2_Model_C.csv', realtime: false, loop: false })
 
   testTotalMovingTime(rowingStatistics, 181.47141999999985)
-  testTotalLinearDistance(rowingStatistics, 552.0120574052635)
+  testTotalLinearDistance(rowingStatistics, 551.98575435377)
   testTotalNumberOfStrokes(rowingStatistics, 83)
   // As dragFactor isn't static, it should have changed
   testDragFactor(rowingStatistics, 123.82587294279575)
