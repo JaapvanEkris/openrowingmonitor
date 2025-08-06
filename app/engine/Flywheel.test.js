@@ -460,13 +460,13 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Fl
   testDeltaTime(flywheel, 0.064914611722656) // Values from Datapoint 13 are now passsing through
   testSpinningTime(flywheel, 1.484296667019730)
   testAngularPosition(flywheel, 13.613568165555769)
-  testAngularVelocity(flywheel, 16.469066571731847)
-  // testAngularAcceleration(flywheel, 12.665433491826942)
+  testAngularVelocity(flywheel, 16.469068168112212)
+  testAngularAcceleration(flywheel, 12.665443326567022)
   flywheel.pushValue(0.040632918960300) // Datapoint 26
   testDeltaTime(flywheel, 0.061784830519864) // Values from Datapoint 14 are now passsing through
   testSpinningTime(flywheel, 1.546081497539594)
   testAngularPosition(flywheel, 14.660765716752367)
-  // testAngularVelocity(flywheel, 17.28647201359428)
+  testAngularVelocity(flywheel, 17.28647201359428)
   // testAngularAcceleration(flywheel, 13.064800251611944)
   flywheel.pushValue(0.039599176898486) // Datapoint 27
   testDeltaTime(flywheel, 0.058995265576639) // Values from Datapoint 15 are now passsing through
@@ -555,7 +555,6 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Fl
   flywheel.pushValue(0.044176099545603) // Datapoint 23
   flywheel.pushValue(0.042913348809906) // Datapoint 24
   flywheel.pushValue(0.041735157665124) // Datapoint 25
-  testAngularAcceleration(flywheel, 12.665433491826942)
   flywheel.pushValue(0.040632918960300) // Datapoint 26
   testAngularAcceleration(flywheel, 13.064800251611944)
   flywheel.pushValue(0.039599176898486) // Datapoint 27
