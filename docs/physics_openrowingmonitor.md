@@ -504,17 +504,17 @@ To combine all valid values for &alpha; or &omega; for a specific datapoint to d
 
 * a median of all values. This approach has proven very robust, and can prevent noise from disturbing powercurves, it is very conservative. For example, when compared to Concept 2's results, the forcecurves roughly have the same shape, but the peak values are considerable lower. It also has the downside of producing "blocky" force cuves.
 * Using a weighed averager using Goodness of Fit. The weight is based on the r<sup>2</sup>: better fitting curves will result in a heiger weight in the calculation, thus preferring approximations that are a better general fit with the data. This results in slightly more stable results and smoother force curves. This approach resulted in smoother (less blocky) force curves while retaining the responsiveness of the force curve. Based on testing ((see the test for the cubic function f(x) = x<sup>3</sup> + 2x<sup>2</sup> + 4x in [flywheel.test.js](../app/engine/Flywheel.test.js)), we get the following results:
-* 
+
 | Test | &omega; | &alpha; |
 |---|---|---|
 | Noise free | -0.20% to -0.48% | -0.83% to -1.86% |
 | Systematic noise | @@ | @@ |
 
 * Using a weighed averager using Goodness of Fit and a local goodness of fit indicator. The weight is based on the r<sup>2</sup>: better fitting curves will result in a heiger weight in the calculation, thus preferring approximations that are a better general fit for curve with the data as well as a good local fit (i.e. a proximity of the point to the curve based on Normalized Squared Error). This results in slightly more stable results and smoother force curves. This approach resulted in smoother (less blocky) force curves while retaining the responsiveness of the force curve. Based on testing ((see the test for the cubic function f(x) = x<sup>3</sup> + 2x<sup>2</sup> + 4x in [flywheel.test.js](../app/engine/Flywheel.test.js)), we get the following results:
-* 
+
 | Test | &omega; | &alpha; |
 |---|---|---|
-| Noise free | -0.20% to -0.48% | -0.83% to -1.86% |
+| Noise free | -0.20% to -0.47% | -0.83% to -1.86% |
 | Systematic noise | @@ | @@ |
 
 So we choose the weighed averager as basis for the combination of the multiple approximations into a single one.
