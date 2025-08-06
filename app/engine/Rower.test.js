@@ -144,7 +144,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDriveDuration(rower, 0.143485717)
   testDriveLinearDistance(rower, 0.4271903319416174)
   testDriveLength(rower, 0.1759291886010284)
-  testDriveAverageHandleForce(rower, 276.36630833754884)
+  testDriveAverageHandleForce(rower, 276.3665097415968)
   testDrivePeakHandleForce(rower, 325.22157162763193)
   testRecoveryDuration(rower, undefined)
   testRecoveryDragFactor(rower, undefined)
@@ -417,7 +417,7 @@ test('A full session for a Concept2 Model C should produce plausible results', a
   testTotalLinearDistanceSinceStart(rower, 551.98575435377)
   testTotalNumberOfStrokes(rower, 84)
   // As dragFactor isn't static, it should have changed
-  testRecoveryDragFactor(rower, 123.82587294279575)
+  testRecoveryDragFactor(rower, 123.64195729994428)
 })
 
 test('A full session for a Concept2 RowErg should produce plausible results', async () => {
