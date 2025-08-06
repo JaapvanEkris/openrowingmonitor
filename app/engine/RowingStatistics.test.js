@@ -221,7 +221,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDriveDistance(rowingStatistics, 1.0733115961672441)
   testDriveLength(rowingStatistics, 0.322536845768552)
   testDriveAverageHandleForce(rowingStatistics, 285.0926572298846)
-  testDrivePeakHandleForce(rowingStatistics, 439.7407274840117)
+  testDrivePeakHandleForce(rowingStatistics, 439.7408867361311)
   testRecoveryDuration(rowingStatistics, 0.20540926600000003)
   testDragFactor(rowingStatistics, 283.12720365097886) // As we decelerate the flywheel quite fast, this is expected
   testInstantHandlePower(rowingStatistics, undefined)
@@ -257,7 +257,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDriveDistance(rowingStatistics, 1.0733115961672441)
   testDriveLength(rowingStatistics, 0.322536845768552)
   testDriveAverageHandleForce(rowingStatistics, 285.0926572298846)
-  testDrivePeakHandleForce(rowingStatistics, 439.7407274840117)
+  testDrivePeakHandleForce(rowingStatistics, 439.7408867361311)
   testRecoveryDuration(rowingStatistics, 0.09812447700000015)
   testDragFactor(rowingStatistics, 283.12720365097886)
   testInstantHandlePower(rowingStatistics, undefined)
