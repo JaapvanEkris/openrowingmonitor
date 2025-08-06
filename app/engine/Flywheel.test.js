@@ -394,13 +394,13 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Fl
   testDeltaTime(flywheel, 0.186170118209325) // Values from Datapoint 2 are now passsing through
   testSpinningTime(flywheel, 0.41798587349477)
   testAngularPosition(flywheel, 2.0943951023931953)
-  testAngularVelocity(flywheel, 6.063188596065743)
-  // testAngularAcceleration(flywheel, 7.693320233896035)
+  testAngularVelocity(flywheel, 6.063263352595229)
+  testAngularAcceleration(flywheel, 7.693022384721887)
   flywheel.pushValue(0.058995265576639) // Datapoint 15
   testDeltaTime(flywheel, 0.155673811324399) // Values from Datapoint 3 are now passsing through
   testSpinningTime(flywheel, 0.5736596848191691)
   testAngularPosition(flywheel, 3.141592653589793)
-  // testAngularVelocity(flywheel, 7.224182304390384)
+  testAngularVelocity(flywheel, 7.224182304390384)
   // testAngularAcceleration(flywheel, 8.148501983834047)
   flywheel.pushValue(0.056491331538715) // Datapoint 16
   testDeltaTime(flywheel, 0.134264409859047) // Values from Datapoint 4 are now passsing through
@@ -544,7 +544,6 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Fl
   flywheel.pushValue(0.068454336759262) // Datapoint 12
   flywheel.pushValue(0.064914611722656) // Datapoint 13
   flywheel.pushValue(0.061784830519864) // Datapoint 14
-  testAngularAcceleration(flywheel, 7.693320233896035)
   flywheel.pushValue(0.058995265576639) // Datapoint 15
   testAngularAcceleration(flywheel, 8.148501983834047)
   flywheel.pushValue(0.056491331538715) // Datapoint 16
@@ -642,7 +641,7 @@ test('Correct Flywheel behaviour for a noisefree stroke', () => {
   testDeltaTime(flywheel, 0.010722165)
   testSpinningTime(flywheel, 0.23894732900000007)
   testAngularPosition(flywheel, 23.03834612632515)
-  testAngularVelocity(flywheel, 97.12541571421204)
+  testAngularVelocity(flywheel, 97.12540285666793)
   testAngularAcceleration(flywheel, -29.657604177526746)
   testTorque(flywheel, -2.0200308891605716)
   testDragFactor(flywheel, 0.00011)
