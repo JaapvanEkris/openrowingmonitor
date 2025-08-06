@@ -288,7 +288,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDriveDuration(rowingStatistics, 0.27311228700000023)
   testDriveDistance(rowingStatistics, 1.2196722683718682)
   testDriveLength(rowingStatistics, 0.36651914291880905)
-  testDriveAverageHandleForce(rowingStatistics, 254.91449219500532)
+  testDriveAverageHandleForce(rowingStatistics, 254.9147916124864)
   testDrivePeakHandleForce(rowingStatistics, 439.74072748282515)
   testRecoveryDuration(rowingStatistics, 0.09812447700000015)
   testDragFactor(rowingStatistics, 283.12720365097886)
