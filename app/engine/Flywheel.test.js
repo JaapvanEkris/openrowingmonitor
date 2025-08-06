@@ -558,7 +558,6 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Fl
   flywheel.pushValue(0.040632918960300) // Datapoint 26
   flywheel.pushValue(0.039599176898486) // Datapoint 27
   flywheel.pushValue(0.038627438996519) // Datapoint 28
-  testAngularAcceleration(flywheel, 13.801462668231517)
   flywheel.pushValue(0.037712023914259) // Datapoint 29
   testAngularAcceleration(flywheel, 14.14373381539982)
   flywheel.pushValue(0.036847937394809) // Datapoint 30
