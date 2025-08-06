@@ -400,13 +400,13 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Fl
   testDeltaTime(flywheel, 0.155673811324399) // Values from Datapoint 3 are now passsing through
   testSpinningTime(flywheel, 0.5736596848191691)
   testAngularPosition(flywheel, 3.141592653589793)
-  testAngularVelocity(flywheel, 7.224182304390384)
-  // testAngularAcceleration(flywheel, 8.148501983834047)
+  testAngularVelocity(flywheel, 7.224204382856715)
+  testAngularAcceleration(flywheel, 8.148343508723016)
   flywheel.pushValue(0.056491331538715) // Datapoint 16
   testDeltaTime(flywheel, 0.134264409859047) // Values from Datapoint 4 are now passsing through
   testSpinningTime(flywheel, 0.707924094678216)
   testAngularPosition(flywheel, 4.1887902047863905)
-  // testAngularVelocity(flywheel, 8.300416006732886)
+  testAngularVelocity(flywheel, 8.300416006732886)
   // testAngularAcceleration(flywheel, 8.604306615228971)
   flywheel.pushValue(0.054229670373632) // Datapoint 17
   testDeltaTime(flywheel, 0.118490308292909) // Values from Datapoint 5 are now passsing through
@@ -545,7 +545,6 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Fl
   flywheel.pushValue(0.064914611722656) // Datapoint 13
   flywheel.pushValue(0.061784830519864) // Datapoint 14
   flywheel.pushValue(0.058995265576639) // Datapoint 15
-  testAngularAcceleration(flywheel, 8.148501983834047)
   flywheel.pushValue(0.056491331538715) // Datapoint 16
   testAngularAcceleration(flywheel, 8.604306615228971)
   flywheel.pushValue(0.054229670373632) // Datapoint 17
@@ -642,7 +641,7 @@ test('Correct Flywheel behaviour for a noisefree stroke', () => {
   testSpinningTime(flywheel, 0.23894732900000007)
   testAngularPosition(flywheel, 23.03834612632515)
   testAngularVelocity(flywheel, 97.12540285666793)
-  testAngularAcceleration(flywheel, -29.657604177526746)
+  testAngularAcceleration(flywheel, -29.657837626738605)
   testTorque(flywheel, -2.0200308891605716)
   testDragFactor(flywheel, 0.00011)
   testIsDwelling(flywheel, false)
