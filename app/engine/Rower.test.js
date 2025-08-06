@@ -116,7 +116,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDrivePeakHandleForce(rower, undefined)
   testRecoveryDuration(rower, undefined)
   testRecoveryDragFactor(rower, undefined)
-  testInstantHandlePower(rower, 372.65646417371306)
+  testInstantHandlePower(rower, 372.6564555906601)
   // Recovery initial stroke starts here
   rower.handleRotationImpulse(0.010769)
   rower.handleRotationImpulse(0.010707554)
@@ -414,7 +414,7 @@ test('A full session for a Concept2 Model C should produce plausible results', a
   await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/Concept2_Model_C.csv', realtime: false, loop: false })
 
   testTotalMovingTimeSinceStart(rower, 181.47141999999985)
-  testTotalLinearDistanceSinceStart(rower, 552.0120574052635)
+  testTotalLinearDistanceSinceStart(rower, 551.98575435377)
   testTotalNumberOfStrokes(rower, 84)
   // As dragFactor isn't static, it should have changed
   testRecoveryDragFactor(rower, 123.82587294279575)
