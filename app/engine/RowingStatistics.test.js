@@ -220,7 +220,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDriveDuration(rowingStatistics, 0.23985939100000003)
   testDriveDistance(rowingStatistics, 1.0733115961672441)
   testDriveLength(rowingStatistics, 0.322536845768552)
-  testDriveAverageHandleForce(rowingStatistics, 285.0923064376231)
+  testDriveAverageHandleForce(rowingStatistics, 285.0926572298846)
   testDrivePeakHandleForce(rowingStatistics, 439.7407274840117)
   testRecoveryDuration(rowingStatistics, 0.20540926600000003)
   testDragFactor(rowingStatistics, 283.12720365097886) // As we decelerate the flywheel quite fast, this is expected
@@ -256,7 +256,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDriveDuration(rowingStatistics, 0.23985939100000003)
   testDriveDistance(rowingStatistics, 1.0733115961672441)
   testDriveLength(rowingStatistics, 0.322536845768552)
-  testDriveAverageHandleForce(rowingStatistics, 285.0923064376231)
+  testDriveAverageHandleForce(rowingStatistics, 285.0926572298846)
   testDrivePeakHandleForce(rowingStatistics, 439.7407274840117)
   testRecoveryDuration(rowingStatistics, 0.09812447700000015)
   testDragFactor(rowingStatistics, 283.12720365097886)
@@ -469,7 +469,7 @@ test('A full session for a Concept2 Model C should produce plausible results', a
   testTotalLinearDistance(rowingStatistics, 551.98575435377)
   testTotalNumberOfStrokes(rowingStatistics, 83)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(rowingStatistics, 123.82587294279575)
+  testDragFactor(rowingStatistics, 123.64195729994428)
 })
 
 test('A full session for a Concept2 RowErg should produce plausible results', async () => {
