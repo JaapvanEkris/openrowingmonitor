@@ -418,13 +418,13 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Fl
   testDeltaTime(flywheel, 0.106396192260267) // Values from Datapoint 6 are now passsing through
   testSpinningTime(flywheel, 0.932810595231392)
   testAngularPosition(flywheel, 6.283185307179586)
-  testAngularVelocity(flywheel, 10.2837183672853)
-  // testAngularAcceleration(flywheel, 9.505583182936473)
+  testAngularVelocity(flywheel, 10.28372167271902)
+  testAngularAcceleration(flywheel, 9.505580607476169)
   flywheel.pushValue(0.05030009417797) // Datapoint 19
   testDeltaTime(flywheel, 0.096822693623239) // Values from Datapoint 7 are now passsing through
   testSpinningTime(flywheel, 1.029633288854631)
   testAngularPosition(flywheel, 7.330382858376184)
-  // testAngularVelocity(flywheel, 11.22246219263027)
+  testAngularVelocity(flywheel, 11.22246219263027)
   // testAngularAcceleration(flywheel, 9.95848445822432)
   flywheel.pushValue(0.04858040892819) // Datapoint 20
   testDeltaTime(flywheel, 0.08904704613513) // Values from Datapoint 8 are now passsing through
@@ -548,7 +548,6 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Fl
   flywheel.pushValue(0.056491331538715) // Datapoint 16
   flywheel.pushValue(0.054229670373632) // Datapoint 17
   flywheel.pushValue(0.052175392433679) // Datapoint 18
-  testAngularAcceleration(flywheel, 9.505583182936473)
   flywheel.pushValue(0.05030009417797) // Datapoint 19
   testAngularAcceleration(flywheel, 9.95848445822432)
   flywheel.pushValue(0.04858040892819) // Datapoint 20
@@ -664,7 +663,7 @@ test('Correct Flywheel behaviour for a noisefree stroke', () => {
   testSpinningTime(flywheel, 0.43343548300000007)
   testAngularPosition(flywheel, 38.746309394274114)
   testAngularVelocity(flywheel, 50.85191314205585)
-  testAngularAcceleration(flywheel, -159.89027501034317)
+  testAngularAcceleration(flywheel, -159.49562226229696)
   testTorque(flywheel, -16.20022817082592)
   testDragFactor(flywheel, 0.00011)
   testIsDwelling(flywheel, true)
