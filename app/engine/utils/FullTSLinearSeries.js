@@ -1,26 +1,27 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  The TSLinearSeries is a datatype that represents a Linear Series. It allows
-  values to be retrieved (like a FiFo buffer, or Queue) but it also includes
-  a Theil-Sen estimator Linear Regressor to determine the slope of this timeseries.
-
-  At creation its length is determined. After it is filled, the oldest will be pushed
-  out of the queue) automatically. This is a property of the Series object
-
-  A key constraint is to prevent heavy calculations at the end (due to large
-  array based curve fitting), which might happen on a Pi zero
-
-  In order to prevent unneccessary calculations, this implementation uses lazy evaluation,
-  so it will calculate the intercept and goodnessOfFit only when needed, as many uses only
-  (first) need the slope.
-
-  This implementation uses concepts that are described here:
-  https://en.wikipedia.org/wiki/Theil%E2%80%93Sen_estimator
-
-  The array is ordered such that x[0] is the oldest, and x[x.length-1] is the youngest
 */
+/**
+ * The TSLinearSeries is a datatype that represents a Linear Series. It allows
+ * values to be retrieved (like a FiFo buffer, or Queue) but it also includes
+ * a Theil-Sen estimator Linear Regressor to determine the slope of this timeseries.
+ *
+ * At creation its length is determined. After it is filled, the oldest will be pushed
+ * out of the queue) automatically. This is a property of the Series object
+ *
+ * A key constraint is to prevent heavy calculations at the end (due to large
+ * array based curve fitting), which might happen on a Pi zero
+ *
+ * In order to prevent unneccessary calculations, this implementation uses lazy evaluation,
+ * so it will calculate the intercept and goodnessOfFit only when needed, as many uses only
+ * (first) need the slope.
+ *
+ * This implementation uses concepts that are described here:
+ * https://en.wikipedia.org/wiki/Theil%E2%80%93Sen_estimator
+ *
+ * The array is ordered such that x[0] is the oldest, and x[x.length-1] is the youngest
+ */
 
 import { createSeries } from './Series.js'
 import { createLabelledBinarySearchTree } from './BinarySearchTree.js'
@@ -136,7 +137,7 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
     return _goodnessOfFit
   }
 
-  function normalizedSquareError (position) {
+  function localGoodnessOfFit (position) {
     if (_sst === null) {
       // Force the recalculation of the _sst
       goodnessOfFit()
@@ -156,7 +157,7 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
           return Math.min(Math.max(1 - ((squaredError * X.length()) / _sst), 0), 1)
           break
         default:
-          // When _SST = 0, normalizedSquareError isn't defined
+          // When _SST = 0, localGoodnessOfFit isn't defined
           return 0
       }
       /* eslint-enable no-unreachable */
@@ -240,7 +241,7 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
     coefficientB,
     length,
     goodnessOfFit,
-    normalizedSquareError,
+    localGoodnessOfFit,
     projectX,
     projectY,
     reliable,
