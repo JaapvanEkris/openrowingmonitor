@@ -179,7 +179,7 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     return _goodnessOfFit
   }
 
-  function normalizedSquareError (position) {
+  function localGoodnessOfFit (position) {
     if (_sst === null) {
       // Force the recalculation of the _sst
       goodnessOfFit()
@@ -199,7 +199,7 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
           return Math.min(Math.max(1 - ((squaredError * X.length()) / _sst), 0), 1)
           break
         default:
-          // When _SST = 0, normalizedSquareError isn't defined
+          // When _SST = 0, localGoodnessOfFit isn't defined
           return 0
       }
       /* eslint-enable no-unreachable */
@@ -298,7 +298,7 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     intercept,
     length,
     goodnessOfFit,
-    normalizedSquareError,
+    localGoodnessOfFit,
     projectX,
     reliable,
     reset
