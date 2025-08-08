@@ -10,7 +10,7 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris)
 
 ### Bugfixes and robustness improvements in 0.9.7
 
-- Introduced the Normalized Square Error function to improve the robustness against noise for the Force curve, Power curve and Handle speed curve
+- Introduced the 'Local Goodness of Fit' function to improve the robustness against noise for the Force curve, Power curve and Handle speed curve
 - Fixed a bug in the initialisation of the Flywheel.js
 
 ## Version 0.9.6 (June 2025)
