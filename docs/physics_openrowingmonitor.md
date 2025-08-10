@@ -492,9 +492,9 @@ Angular velocity &omega; and angular acceleration &alpha; are quite dynamic. As 
 | Test | &omega; | &alpha; |
 |---|---|---|
 | Noise free | -1.8% to -5% | -0.5% to -4.8% |
-| Systematic noise | @@ | @@ |
+| Systematic noise (+/- 0.0001 sec error) | -1.95% to -2.66% | -11.05% to +9.69% |
 
-In the presence of noise, deviations become bigger and power and force curves contain several spikes.
+As this table shows, the traditional numerical approach is too unstable to be usefull, ezpecially for determining the angular acceleration &alpha; where the deviation from the theoretical value deviates wildly. In the presence of random noise, deviations become bigger and power and force curves contain several spikes.
 
 As a cubic regression analysis mthod will lead to overfitting certain error modes, we are constricted to quadratic regression analysis methods. By using multiple quadratic approximations for angular velocity &omega; and angular acceleration &alpha; for the same datapoint, we aim to get close to a cubic regressors behaviour, without the overfitting.
 
@@ -508,16 +508,16 @@ To combine all valid values for &alpha; or &omega; for a specific datapoint to d
 | Test | &omega; | &alpha; |
 |---|---|---|
 | Noise free | -0.20% to -0.48% | -0.83% to -1.86% |
-| Systematic noise | @@ | @@ |
+| Systematic noise (+/- 0.0001 sec error) | -0.18% to -0.46% | -1.05% to -1.95% |
 
-* Using a weighed averager using Goodness of Fit and a local goodness of fit indicator. The weight is based on the r<sup>2</sup>: better fitting curves will result in a heiger weight in the calculation, thus preferring approximations that are a better general fit for curve with the data as well as a good local fit (i.e. a proximity of the point to the curve based on Normalized Squared Error). This results in slightly more stable results and smoother force curves. This approach resulted in smoother (less blocky) force curves while retaining the responsiveness of the force curve. Based on testing ((see the test for the cubic function f(x) = x<sup>3</sup> + 2x<sup>2</sup> + 4x in [flywheel.test.js](../app/engine/Flywheel.test.js)), we get the following results:
+* Using a weighed averager using both a global Goodness of Fit and a local goodness of fit indicator. The global weight is based on the r<sup>2</sup>: better fitting curves will result in a heiger weight in the calculation, thus preferring approximations that are a better general fit for curve with the total data in the buffer. By also adding the local Goodness of Fit indicator pointwise r<sup>2</sup> (i.e. a proximity of the point to the curve at that specific point) a good local fit is also wrighed in. This results in slightly more stable results and smoother force curves. This approach resulted in smoother (less blocky) force curves while retaining the responsiveness of the force curve. Based on testing ((see the test for the cubic function f(x) = x<sup>3</sup> + 2x<sup>2</sup> + 4x in [flywheel.test.js](../app/engine/Flywheel.test.js)), we get the following results:
 
 | Test | &omega; | &alpha; |
 |---|---|---|
 | Noise free | -0.20% to -0.47% | -0.83% to -1.86% |
-| Systematic noise | @@ | @@ |
+| Systematic noise (+/- 0.0001 sec error) | -0.18% to -0.46% | -1.05% to -1.95% |
 
-So we choose the weighed averager as basis for the combination of the multiple approximations into a single one.
+Comparison across these tables shows that using the Goodness Of Fit is needed to get more reliable results. The effect of using the Local Goodness of Fit is not that convincing based on this data, but a more detailed analaysis of the data shows small improvements with the respect to the version without the Local Goodness of Fit version. So we choose the weighed averager as basis for the combination of the multiple approximations into a single one.
 
 Finding a better approximation algorithm that ingores outlying values while maintaining the true data responsiveness is a subject for further improvement.
 
