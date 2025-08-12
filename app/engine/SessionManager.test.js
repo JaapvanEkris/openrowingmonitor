@@ -372,10 +372,10 @@ test('A full session for a Concept2 Model C should produce plausible results', a
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/Concept2_Model_C.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 181.47141999999985)
-  testTotalLinearDistance(sessionManager, 552.0120574052635)
+  testTotalLinearDistance(sessionManager, 551.98575435377)
   testTotalNumberOfStrokes(sessionManager, 83)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(sessionManager, 123.82587294279575)
+  testDragFactor(sessionManager, 123.64195729994428)
 })
 
 test('A 500 meter session for a Concept2 Model C should produce plausible results', async () => {
@@ -406,10 +406,10 @@ test('A 500 meter session for a Concept2 Model C should produce plausible result
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/Concept2_Model_C.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 156.89172699999995)
-  testTotalLinearDistance(sessionManager, 500.0299288851242)
+  testTotalLinearDistance(sessionManager, 500.0232952984508)
   testTotalNumberOfStrokes(sessionManager, 73)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(sessionManager, 123.69864738410088)
+  testDragFactor(sessionManager, 123.59848914302297)
 })
 
 test('A 3 minute session for a Concept2 Model C should produce plausible results', async () => {
@@ -440,10 +440,10 @@ test('A 3 minute session for a Concept2 Model C should produce plausible results
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/Concept2_Model_C.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 180.96533299999987)
-  testTotalLinearDistance(sessionManager, 551.7898640891113)
+  testTotalLinearDistance(sessionManager, 551.7636710982865)
   testTotalNumberOfStrokes(sessionManager, 83)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(sessionManager, 123.82587294279575)
+  testDragFactor(sessionManager, 123.64195729994428)
 })
 
 test('A full session for a Concept2 RowErg should produce plausible results', async () => {

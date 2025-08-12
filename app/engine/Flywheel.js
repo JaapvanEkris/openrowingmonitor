@@ -136,8 +136,8 @@ export function createFlywheel (rowerSettings) {
     let i = 0
 
     while (i < _angularVelocityMatrix.length) {
-      _angularVelocityMatrix[i].push(_angularDistance.firstDerivativeAtPosition(i), _angularDistance.goodnessOfFit())
-      _angularAccelerationMatrix[i].push(_angularDistance.secondDerivativeAtPosition(i), _angularDistance.goodnessOfFit())
+      _angularVelocityMatrix[i].push(_angularDistance.firstDerivativeAtPosition(i), _angularDistance.goodnessOfFit() * _angularDistance.localGoodnessOfFit(i))
+      _angularAccelerationMatrix[i].push(_angularDistance.secondDerivativeAtPosition(i), _angularDistance.goodnessOfFit() * _angularDistance.localGoodnessOfFit(i))
       i++
     }
 

@@ -1,26 +1,27 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  The TSLinearSeries is a datatype that represents a Linear Series. It allows
-  values to be retrieved (like a FiFo buffer, or Queue) but it also includes
-  a Theil-Sen estimator Linear Regressor to determine the slope of this timeseries.
-
-  At creation its length is determined. After it is filled, the oldest will be pushed
-  out of the queue) automatically. This is a property of the Series object
-
-  A key constraint is to prevent heavy calculations at the end (due to large
-  array based curve fitting), which might happen on a Pi zero
-
-  In order to prevent unneccessary calculations, this implementation uses lazy evaluation,
-  so it will calculate the intercept and goodnessOfFit only when needed, as many uses only
-  (first) need the slope.
-
-  This implementation uses concepts that are described here:
-  https://en.wikipedia.org/wiki/Theil%E2%80%93Sen_estimator
-
-  The array is ordered such that x[0] is the oldest, and x[x.length-1] is the youngest
 */
+/**
+ * The TSLinearSeries is a datatype that represents a Linear Series. It allows
+ * values to be retrieved (like a FiFo buffer, or Queue) but it also includes
+ * a Theil-Sen estimator Linear Regressor to determine the slope of this timeseries.
+ *
+ * At creation its length is determined. After it is filled, the oldest will be pushed
+ * out of the queue) automatically. This is a property of the Series object
+ *
+ * A key constraint is to prevent heavy calculations at the end (due to large
+ * array based curve fitting), which might happen on a Pi zero
+ *
+ * In order to prevent unneccessary calculations, this implementation uses lazy evaluation,
+ * so it will calculate the intercept and goodnessOfFit only when needed, as many uses only
+ * (first) need the slope.
+ *
+ * This implementation uses concepts that are described here:
+ * https://en.wikipedia.org/wiki/Theil%E2%80%93Sen_estimator
+ *
+ * The array is ordered such that x[0] is the oldest, and x[x.length-1] is the youngest
+ */
 
 import { createSeries } from './Series.js'
 import { createLabelledBinarySearchTree } from './BinarySearchTree.js'
@@ -35,6 +36,7 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
 
   let _A = 0
   let _B = 0
+  let _sst = 0
   let _goodnessOfFit = 0
 
   function push (x, y) {
@@ -71,6 +73,7 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
 
     // Invalidate the previously calculated intercept and goodnessOfFit. We'll only calculate them if we need them
     _B = null
+    _sst = null
     _goodnessOfFit = null
   }
 
@@ -104,24 +107,24 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
     // This lazy approach is intended to prevent unneccesary calculations
     let i = 0
     let sse = 0
-    let sst = 0
     if (_goodnessOfFit === null) {
       if (X.length() >= 2) {
+        _sst = 0
         while (i < X.length()) {
           sse += Math.pow((Y.get(i) - projectX(X.get(i))), 2)
-          sst += Math.pow((Y.get(i) - Y.average()), 2)
+          _sst += Math.pow((Y.get(i) - Y.average()), 2)
           i++
         }
         switch (true) {
           case (sse === 0):
             _goodnessOfFit = 1
             break
-          case (sse > sst):
+          case (sse > _sst):
             // This is a pretty bad fit as the error is bigger than just using the line for the average y as intercept
             _goodnessOfFit = 0
             break
-          case (sst !== 0):
-            _goodnessOfFit = 1 - (sse / sst)
+          case (_sst !== 0):
+            _goodnessOfFit = 1 - (sse / _sst)
             break
           default:
             // When SST = 0, R2 isn't defined
@@ -132,6 +135,35 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
       }
     }
     return _goodnessOfFit
+  }
+
+  function localGoodnessOfFit (position) {
+    if (_sst === null) {
+      // Force the recalculation of the _sst
+      goodnessOfFit()
+    }
+    if (X.length() >= 3 && position < X.length()) {
+      const squaredError = Math.pow((Y.get(position) - projectX(X.get(position))), 2)
+      /* eslint-disable no-unreachable -- rather be systematic and add a break in all case statements */
+      switch (true) {
+        case (squaredError === 0):
+          return 1
+          break
+        case (squaredError > _sst):
+          // This is a pretty bad fit as the error is bigger than just using the line for the average y as intercept
+          return 0
+          break
+        case (_sst !== 0):
+          return Math.min(Math.max(1 - ((squaredError * X.length()) / _sst), 0), 1)
+          break
+        default:
+          // When _SST = 0, localGoodnessOfFit isn't defined
+          return 0
+      }
+      /* eslint-enable no-unreachable */
+    } else {
+      return 0
+    }
   }
 
   function projectX (x) {
@@ -209,6 +241,7 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
     coefficientB,
     length,
     goodnessOfFit,
+    localGoodnessOfFit,
     projectX,
     projectY,
     reliable,
