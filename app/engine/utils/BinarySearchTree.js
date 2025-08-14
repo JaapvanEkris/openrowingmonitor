@@ -272,7 +272,7 @@ export function createLabelledBinarySearchTree () {
   }
 
   /**
-   * This function implements Tukey's mean. 
+   * This function implements Tukey's mean.
    */
   function tukeysMean () {
     if (tree !== null && tree.numberOfLeafsAndNodes > 0) {
@@ -280,8 +280,8 @@ export function createLabelledBinarySearchTree () {
       // THIS LOGIC THUS WORKS DIFFERENT THAN MOST ARRAYS FOUND IN ORM!!!!!!!
       const mid = Math.floor(tree.numberOfLeafsAndNodes / 2)
       const median = tree.numberOfLeafsAndNodes % 2 !== 0 ? valueAtInorderPosition(tree, mid + 1) : (valueAtInorderPosition(tree, mid) + valueAtInorderPosition(tree, mid + 1)) / 2
-      const firstPercentile = valueAtInorderPosition(tree,Math.floor(tree.numberOfLeafsAndNodes / 4) + 1)
-      const thirdPercentile = valueAtInorderPosition(tree,Math.floor((3 * tree.numberOfLeafsAndNodes) / 4) + 1)
+      const firstPercentile = valueAtInorderPosition(tree, Math.floor(tree.numberOfLeafsAndNodes / 4) + 1)
+      const thirdPercentile = valueAtInorderPosition(tree, Math.floor((3 * tree.numberOfLeafsAndNodes) / 4) + 1)
       return (firstPercentile + (2 * median) + thirdPercentile) / 4
     } else {
       return 0
