@@ -1,11 +1,11 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/jaapvanekris/openrowingmonitor
-
-  This creates an ordered series with labels
-  It allows for efficient determining the Median, Number of Above and Below
 */
-
+/**
+ * This creates an ordered series with labels to retrieve and destroy them
+ * It allows for efficient determining the Median, Tukey's Mean, Number of Above and Below
+ */
 export function createLabelledBinarySearchTree () {
   let tree = null
 
@@ -257,12 +257,32 @@ export function createLabelledBinarySearchTree () {
     }
   }
 
+  /**
+   * This function implements the median of all inserted values
+   */
   function median () {
     if (tree !== null && tree.numberOfLeafsAndNodes > 0) {
       // BE AWARE, UNLIKE WITH ARRAYS, THE COUNTING OF THE ELEMENTS STARTS WITH 1 !!!!!!!
       // THIS LOGIC THUS WORKS DIFFERENT THAN MOST ARRAYS FOUND IN ORM!!!!!!!
       const mid = Math.floor(tree.numberOfLeafsAndNodes / 2)
       return tree.numberOfLeafsAndNodes % 2 !== 0 ? valueAtInorderPosition(tree, mid + 1) : (valueAtInorderPosition(tree, mid) + valueAtInorderPosition(tree, mid + 1)) / 2
+    } else {
+      return 0
+    }
+  }
+
+  /**
+   * This function implements Tukey's mean. 
+   */
+  function tukeysMean () {
+    if (tree !== null && tree.numberOfLeafsAndNodes > 0) {
+      // BE AWARE, UNLIKE WITH ARRAYS, THE COUNTING OF THE ELEMENTS STARTS WITH 1 !!!!!!!
+      // THIS LOGIC THUS WORKS DIFFERENT THAN MOST ARRAYS FOUND IN ORM!!!!!!!
+      const mid = Math.floor(tree.numberOfLeafsAndNodes / 2)
+      const median = tree.numberOfLeafsAndNodes % 2 !== 0 ? valueAtInorderPosition(tree, mid + 1) : (valueAtInorderPosition(tree, mid) + valueAtInorderPosition(tree, mid + 1)) >
+      const firstPercentile = valueAtInorderPosition(tree,Math.floor(tree.numberOfLeafsAndNodes / 4) + 1)
+      const thirdPercentile = valueAtInorderPosition(tree,Math.floor((3 * tree.numberOfLeafsAndNodes) / 4) + 1)
+      return (firstPercentile + (2 * median) + thirdPercentile) / 4
     } else {
       return 0
     }
@@ -354,6 +374,7 @@ export function createLabelledBinarySearchTree () {
     minimum,
     maximum,
     median,
+    tukeysMean,
     valueAtInorderPos,
     orderedSeries,
     reset
