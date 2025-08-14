@@ -279,7 +279,7 @@ export function createLabelledBinarySearchTree () {
       // BE AWARE, UNLIKE WITH ARRAYS, THE COUNTING OF THE ELEMENTS STARTS WITH 1 !!!!!!!
       // THIS LOGIC THUS WORKS DIFFERENT THAN MOST ARRAYS FOUND IN ORM!!!!!!!
       const mid = Math.floor(tree.numberOfLeafsAndNodes / 2)
-      const median = tree.numberOfLeafsAndNodes % 2 !== 0 ? valueAtInorderPosition(tree, mid + 1) : (valueAtInorderPosition(tree, mid) + valueAtInorderPosition(tree, mid + 1)) >
+      const median = tree.numberOfLeafsAndNodes % 2 !== 0 ? valueAtInorderPosition(tree, mid + 1) : (valueAtInorderPosition(tree, mid) + valueAtInorderPosition(tree, mid + 1)) / 2
       const firstPercentile = valueAtInorderPosition(tree,Math.floor(tree.numberOfLeafsAndNodes / 4) + 1)
       const thirdPercentile = valueAtInorderPosition(tree,Math.floor((3 * tree.numberOfLeafsAndNodes) / 4) + 1)
       return (firstPercentile + (2 * median) + thirdPercentile) / 4
