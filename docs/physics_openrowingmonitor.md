@@ -458,7 +458,7 @@ OpenRowingMonitor uses the latter simplified version. As shown by academic resea
 
 Currently, this is an accepted issue, as the simplified formula has the huge benefit of being much more robust against errors in both the *CurrentDt*/&omega; measurement and the stroke detection algorithm. As Concept 2 seems to have taken shortcut in a thoroughly matured product [[15]](#15), we are not inclined to change this quickly. Especially as the robustness of both the &omega; calculation and stroke phase detection varies across types of rowing machines, it is an improvement that should be handled with extreme caution.
 
-### Use of Quadratic Theil-Senn regression for determining &alpha; and &omega; based on time and &theta;
+### Use of Quadratic Theil-Senn regression for determining &omega; and &alpha; based on time and &theta;
 
 Abandoning the numerical approach for a regression based approach has resulted with a huge improvement in metric robustness. So far, we were able to implement Quadratic Theil-Senn regression and get reliable and robust results. Currently, the use of Quadratic Theil-Senn regression represents a huge improvement from both the traditional numerical approach (as taken by [[1]](#1) and [[4]](#4)) used by earlier approaches of OpenRowingMonitor.
 
@@ -483,9 +483,19 @@ Fitting a quadratic curve with at least two full rotations of data (in this case
 
 We also observe that in several areas the theoretical best approach did not deliver the best practical result (i.e. a "better" algorithm delivered a more noisy result for &alpha; and &omega;). Therefore, this avenue isn't investigated yet, but will remain a continuing area of improvement.
 
-This doesn't definitively exclude the use of more complex polynomial regression methods: alternative methods for higher polynomials within a datastream could be as CPU intensive as Theil-Senn Quadratic regression now, and their use could be isolated to specific combination of Raspberry hardware and settings. Thus, this will remain an active area of investigation for future versions.
+This doesn't definitively exclude the use of more complex polynomial regression methods: alternative methods for higher polynomials within a datastream could be as CPU intensive as Theil-Senn Quadratic regression now, and their use could be isolated to specific combination of Raspberry hardware and settings. Thus, this choice for the specific algorithm will remain an active area of investigation for future versions.
 
-### Use of Quadratic Theil-Senn regression and a weighed average filter for determining &omega; and &alpha;
+#### Implementation choices in the Theil-Sen regression
+
+Theil-Sen is normally limited to linear regression. By using Lagrange interpolation, and a "median of triplets" approach we devised an algorithm that can be used on quadratics. In essence, it calculates the ideal quadratic for each combination of three datapoints in the dataset, and uses a median to determine the quadratic coefficent. This suggests an O(n<sup>3</sup>) algorithm, where n is the *flankLength*. However, by use of a sliding window and reuse of previous calculation data reduced it to O(n<sup>2</sup>) per added datapoint, which is sufficient for all known applications. Some relevant elements need to be mentioned:
+
+* Traditionally, all coefficients are determined in a single calculation cycle: the a, b and c are all calculated in the same cycle of Lagrange interpolations. However, we implemented a two-stage approach, after determining the quadratic coefficient a, the linear coefficient b and intercept c are calculated via linear Theil-Sen regression on the residual of y = a x<sup>2</sup> + &epsilon;. Emperical testing shows that this leads to more consistent and better results (i.e. more accurate estimate of angular velocity &omega; and higher degrees of fit based on the same data). The computational penalty is relatively low, but the improvements are measureable.
+* Use of trimming, for example to prevent heads or tails of the drive entering the drag-calculation has negative effects. Where a test sample (a Concept2 RowErg on drag 68, which is the most difficult for OpenRowingMonitor) with the current algorithm has an R<sup>2</sup> of 0.96, applying trimming reduced this to a R<sup>2</sup> of 0.93
+* Use of Tuskey's mean instead of the median also had negative effects. Where a test sample (a Concept2 RowErg on drag 68, which is the most difficult for OpenRowingMonitor) with the current algorithm has an R<sup>2</sup> of 0.96, applying Tuskey's mean reduced this to a R<sup>2</sup> of 0.91 with a lot of stroke detection errors, even after adjusting key parameters accordingly.
+
+Further improvements to the implementation of the Theil-Sen is an active topic of investigation.
+
+#### Integration: Use of Quadratic Theil-Senn regression and a weighed average filter for determining &omega; and &alpha;
 
 Angular velocity &omega; and angular acceleration &alpha; are quite dynamic. As *currentDt* only provides us with a position and time to wok with, options for determining these values are quite limited. The standard numerical approach of &omega; = ${&Delta;&theta; \over &Delta;t}$ and the subsequent &alpha; = ${&Delta;&omega; \over &Delta;t}$ are too inpricise and vulnerable to noise. Tests show ((see the test for the cubic function f(x) = x<sup>3</sup> + 2x<sup>2</sup> + 4x in [flywheel.test.js](../app/engine/Flywheel.test.js)) that in a artificial noise free series simulating a continuous accelerating flywheel, the underestimation varies but is significant:
 
