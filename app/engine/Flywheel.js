@@ -26,6 +26,7 @@ import { createStreamFilter } from './utils/StreamFilter.js'
 import { createTSLinearSeries } from './utils/FullTSLinearSeries.js'
 import { createTSQuadraticSeries } from './utils/FullTSQuadraticSeries.js'
 import { createWeighedSeries } from './utils/WeighedSeries.js'
+import { createGausianWeightFunction } from './utils/Gausian.js'
 
 const log = loglevel.getLogger('RowingEngine')
 
