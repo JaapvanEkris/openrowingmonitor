@@ -5,10 +5,17 @@
 /**
  * This implements a Gausian weight function, which is used in the moving regression filter
  */
-let begin, middle, end, halfLength
+let begin
+let end
+let halfLength
+let middle
 
 export function createGausianWeightFunction () {
-
+  begin = 0
+  end = 0
+  halfLength = 0
+  middle = 0
+  
   function setWindowWidth(beginpos, endpos) {
     begin = beginpos
     end = endpos
