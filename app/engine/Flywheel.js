@@ -42,6 +42,7 @@ export function createFlywheel (rowerSettings) {
   const recoveryDeltaTime = createTSLinearSeries()
   const strokedetectionMinimalGoodnessOfFit = rowerSettings.minimumStrokeQuality
   const minimumRecoverySlope = createWeighedSeries(rowerSettings.dragFactorSmoothing, rowerSettings.minimumRecoverySlope)
+  const gausianWeight = createGausianWeightFunction()
   let _angularVelocityMatrix = []
   let _angularAccelerationMatrix = []
   let _deltaTimeBeforeFlank
@@ -136,8 +137,9 @@ export function createFlywheel (rowerSettings) {
     let i = 0
 
     while (i < _angularVelocityMatrix.length) {
-      _angularVelocityMatrix[i].push(_angularDistance.firstDerivativeAtPosition(i), _angularDistance.goodnessOfFit() * _angularDistance.localGoodnessOfFit(i))
-      _angularAccelerationMatrix[i].push(_angularDistance.secondDerivativeAtPosition(i), _angularDistance.goodnessOfFit() * _angularDistance.localGoodnessOfFit(i))
+      gausianWeight.setWindowWidth(_angularDistance.X.atSeriesBegin(), _angularDistance.X.atSeriesEnd())
+      _angularVelocityMatrix[i].push(_angularDistance.firstDerivativeAtPosition(i), _angularDistance.goodnessOfFit() * _angularDistance.localGoodnessOfFit(i) * gausianWeight.weight(_angularDistance.X.get(i)))
+      _angularAccelerationMatrix[i].push(_angularDistance.secondDerivativeAtPosition(i), _angularDistance.goodnessOfFit() * _angularDistance.localGoodnessOfFit(i) * gausianWeight.weight(_angularDistance.X.get(i)))
       i++
     }
 
