@@ -24,9 +24,8 @@
 import loglevel from 'loglevel'
 import { createStreamFilter } from './utils/StreamFilter.js'
 import { createTSLinearSeries } from './utils/FullTSLinearSeries.js'
-import { createTSQuadraticSeries } from './utils/FullTSQuadraticSeries.js'
 import { createWeighedSeries } from './utils/WeighedSeries.js'
-import { createGausianWeightFunction } from './utils/Gausian.js'
+import { createMovingRegressor } from './utils/MovingWindowRegressor.js'
 
 const log = loglevel.getLogger('RowingEngine')
 
@@ -38,12 +37,11 @@ export function createFlywheel (rowerSettings) {
   const minimumTorqueBeforeStroke = rowerSettings.minimumForceBeforeStroke * (rowerSettings.sprocketRadius / 100)
   const currentDt = createStreamFilter(rowerSettings.smoothing, rowerSettings.maximumTimeBetweenImpulses)
   const _deltaTime = createTSLinearSeries(flankLength)
-  const _angularDistance = createTSQuadraticSeries(flankLength)
+  const _angularDistance = createMovingRegressor(flankLength)
   const drag = createWeighedSeries(rowerSettings.dragFactorSmoothing, (rowerSettings.dragFactor / 1000000))
   const recoveryDeltaTime = createTSLinearSeries()
   const strokedetectionMinimalGoodnessOfFit = rowerSettings.minimumStrokeQuality
   const minimumRecoverySlope = createWeighedSeries(rowerSettings.dragFactorSmoothing, rowerSettings.minimumRecoverySlope)
-  const gausianWeight = createGausianWeightFunction()
   let _angularVelocityMatrix = []
   let _angularAccelerationMatrix = []
   let _deltaTimeBeforeFlank
@@ -62,7 +60,6 @@ export function createFlywheel (rowerSettings) {
   let currentAngularDistance
   reset()
 
-  /* eslint-disable max-statements -- we need to maintain a lot of metrics in the main loop, nothing we can do about that */
   function pushValue (dataPoint) {
     if (isNaN(dataPoint) || dataPoint < 0 || dataPoint > rowerSettings.maximumStrokeTimeBeforePause) {
       // This typicaly happends after a pause, we need to fix this as it throws off all time calculations
@@ -119,38 +116,12 @@ export function createFlywheel (rowerSettings) {
     // Next are the metrics that are needed for more advanced metrics, like the foce curve
     currentCleanTime += currentDt.clean()
     _angularDistance.push(currentCleanTime, currentAngularDistance)
-
-    // Let's update the matrix and  calculate the angular velocity and acceleration
-    if (_angularVelocityMatrix.length >= flankLength) {
-      // The angularVelocityMatrix has reached its maximum length, we need to remove the first element
-      _angularVelocityMatrix[0].reset()
-      _angularVelocityMatrix[0] = null
-      _angularVelocityMatrix.shift()
-      _angularAccelerationMatrix[0].reset()
-      _angularAccelerationMatrix[0] = null
-      _angularAccelerationMatrix.shift()
-    }
-
-    // Let's make room for a new set of values for angular velocity and acceleration
-    _angularVelocityMatrix[_angularVelocityMatrix.length] = createWeighedSeries(flankLength, 0)
-    _angularAccelerationMatrix[_angularAccelerationMatrix.length] = createWeighedSeries(flankLength, 0)
-
-    let i = 0
-
-    while (i < _angularVelocityMatrix.length) {
-      gausianWeight.setWindowWidth(_angularDistance.X.atSeriesBegin(), _angularDistance.X.atSeriesEnd())
-      _angularVelocityMatrix[i].push(_angularDistance.firstDerivativeAtPosition(i), _angularDistance.goodnessOfFit() * _angularDistance.localGoodnessOfFit(i) * gausianWeight.weight(_angularDistance.X.get(i)))
-      _angularAccelerationMatrix[i].push(_angularDistance.secondDerivativeAtPosition(i), _angularDistance.goodnessOfFit() * _angularDistance.localGoodnessOfFit(i) * gausianWeight.weight(_angularDistance.X.get(i)))
-      i++
-    }
-
-    _angularVelocityAtBeginFlank = _angularVelocityMatrix[0].weighedAverage()
-    _angularAccelerationAtBeginFlank = _angularAccelerationMatrix[0].weighedAverage()
+    _angularVelocityAtBeginFlank = _angularDistance.firstDerivativeAtBeginFlank()
+    _angularAccelerationAtBeginFlank = _angularDistance.secondDerivativeAtBeginFlank()
 
     // And finally calculate the torque
     _torqueAtBeginFlank = (rowerSettings.flywheelInertia * _angularAccelerationAtBeginFlank + drag.weighedAverage() * Math.pow(_angularVelocityAtBeginFlank, 2))
   }
-  /* eslint-enable max-statements */
 
   function maintainStateOnly () {
     maintainMetrics = false
@@ -349,28 +320,8 @@ export function createFlywheel (rowerSettings) {
     currentCleanTime = 0
     currentRawTime = 0
     currentAngularDistance = 0
-    let i = _angularVelocityMatrix.length
-    while (i > 0) {
-      _angularVelocityMatrix[0].reset()
-      _angularVelocityMatrix[0] = null
-      _angularVelocityMatrix.shift()
-      i--
-    }
-    _angularVelocityMatrix = null
-    _angularVelocityMatrix = []
-    let j = _angularAccelerationMatrix.length
-    while (j > 0) {
-      _angularAccelerationMatrix[0].reset()
-      _angularAccelerationMatrix[0] = null
-      _angularAccelerationMatrix.shift()
-      j--
-    }
-    _angularAccelerationMatrix = null
-    _angularAccelerationMatrix = []
     _deltaTime.push(0, 0)
     _angularDistance.push(0, 0)
-    _angularVelocityMatrix[0] = createWeighedSeries(flankLength, 0)
-    _angularAccelerationMatrix[0] = createWeighedSeries(flankLength, 0)
     _deltaTimeBeforeFlank = 0
     _angularVelocityBeforeFlank = 0
     _angularAccelerationBeforeFlank = 0
