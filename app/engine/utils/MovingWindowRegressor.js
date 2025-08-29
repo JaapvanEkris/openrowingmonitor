@@ -13,14 +13,14 @@ import { createGausianWeightFunction } from './Gausian.js'
 
 export function createMovingRegressor (bandwith) {
   const flankLength = bandwith
-  const movingWindow = createTSQuadraticSeries(flankLength)
+  const quadraticTheilSenRegressor = createTSQuadraticSeries(flankLength)
   const gausianWeight = createGausianWeightFunction()
   let aMatrix = []
   let bMatrix = []
   let cMatrix = []
 
   function push (x, y) {
-    movingWindow.push(x, y)
+    quadraticTheilSenRegressor.push(x, y)
 
     // Let's shift the matrix to make room for a new datapoint
     if (aMatrix.length >= flankLength) {
@@ -43,14 +43,14 @@ export function createMovingRegressor (bandwith) {
 
     let i = 0
     let weight = 0
-    gausianWeight.setWindowWidth(movingWindow.X.atSeriesBegin(), movingWindow.X.atSeriesEnd())
+    gausianWeight.setWindowWidth(quadraticTheilSenRegressor.X.atSeriesBegin(), quadraticTheilSenRegressor.X.atSeriesEnd())
 
     // Let's calculate the first and second derivatives for each datapoint and store them in their matrices
     while (i < aMatrix.length) {
       weight = movingWindow.goodnessOfFit() * movingWindow.localGoodnessOfFit(i) * gausianWeight.weight(movingWindow.X.get(i))
-      aMatrix[i].push(movingWindow.coefficientA(), weight)
-      bMatrix[i].push(movingWindow.coefficientB(), weight)
-      cMatrix[i].push(movingWindow.coefficientC(), weight)
+      aMatrix[i].push(quadraticTheilSenRegressor.coefficientA(), weight)
+      bMatrix[i].push(quadraticTheilSenRegressor.coefficientB(), weight)
+      cMatrix[i].push(quadraticTheilSenRegressor.coefficientC(), weight)
       i++
     }
   }
@@ -79,7 +79,6 @@ export function createMovingRegressor (bandwith) {
     }
   }
 
-
   function firstDerivativeAtBeginFlank () {
     if (aMatrix.length === flankLength) {
       return ((aMatrix[0].weighedAverage() * 2 * movingWindow.X.get(0)) + bMatrix[0].weighedAverage())
@@ -97,7 +96,7 @@ export function createMovingRegressor (bandwith) {
   }
 
   function reset () {
-    movingWindow.reset()
+    quadraticTheilSenRegressor.reset()
     let i = aMatrix.length
     while (i > 0) {
       aMatrix[0].reset()
