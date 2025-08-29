@@ -47,7 +47,7 @@ export function createMovingRegressor (bandwith) {
 
     // Let's calculate the first and second derivatives for each datapoint and store them in their matrices
     while (i < aMatrix.length) {
-      weight = movingWindow.goodnessOfFit() * movingWindow.localGoodnessOfFit(i) * gausianWeight.weight(movingWindow.X.get(i))
+      weight = quadraticTheilSenRegressor.goodnessOfFit() * quadraticTheilSenRegressor.localGoodnessOfFit(i) * gausianWeight.weight(quadraticTheilSenRegressor.X.get(i))
       aMatrix[i].push(quadraticTheilSenRegressor.coefficientA(), weight)
       bMatrix[i].push(quadraticTheilSenRegressor.coefficientB(), weight)
       cMatrix[i].push(quadraticTheilSenRegressor.coefficientC(), weight)
