@@ -81,7 +81,7 @@ export function createMovingRegressor (bandwith) {
 
   function firstDerivativeAtBeginFlank () {
     if (aMatrix.length === flankLength) {
-      return ((aMatrix[0].weighedAverage() * 2 * movingWindow.X.get(0)) + bMatrix[0].weighedAverage())
+      return ((aMatrix[0].weighedAverage() * 2 * quadraticTheilSenRegressor.X.get(0)) + bMatrix[0].weighedAverage())
     } else {
       return undefined
     }
