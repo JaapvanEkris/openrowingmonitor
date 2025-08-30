@@ -46,7 +46,7 @@ export function createMovingRegressor (bandwith) {
     gausianWeight.setWindowWidth(quadraticTheilSenRegressor.X.atSeriesBegin(), quadraticTheilSenRegressor.X.atSeriesEnd())
 
     // Let's calculate the first and second derivatives for each datapoint and store them in their matrices
-    while (i < aMatrix.length) {
+    while (i < aMatrix.length  && quadraticTheilSenRegressor.reliable()) {
       weight = quadraticTheilSenRegressor.goodnessOfFit() * quadraticTheilSenRegressor.localGoodnessOfFit(i) * gausianWeight.weight(quadraticTheilSenRegressor.X.get(i))
       aMatrix[i].push(quadraticTheilSenRegressor.coefficientA(), weight)
       bMatrix[i].push(quadraticTheilSenRegressor.coefficientB(), weight)
@@ -55,41 +55,41 @@ export function createMovingRegressor (bandwith) {
     }
   }
 
-  function coefficientAAtBeginFlank () {
-    if (aMatrix.length === flankLength) {
-      return aMatrix[0].weighedAverage()
+  function coefficientA (position = 0) {
+    if (aMatrix.length === flankLength && position < aMatrix.length) {
+      return aMatrix[position].weighedAverage()
     } else {
       return undefined
     }
   }
 
-  function coefficientBAtBeginFlank () {
-    if (bMatrix.length === flankLength) {
-      return bMatrix[0].weighedAverage()
+  function coefficientB (position = 0) {
+    if (bMatrix.length === flankLength && position < aMatrix.length) {
+      return bMatrix[position].weighedAverage()
     } else {
       return undefined
     }
   }
 
-  function coefficientCAtBeginFlank () {
-    if (cMatrix.length === flankLength) {
-      return cMatrix[0].weighedAverage()
+  function coefficientC (position = 0) {
+    if (cMatrix.length === flankLength && position < aMatrix.length) {
+      return cMatrix[position].weighedAverage()
     } else {
       return undefined
     }
   }
 
-  function firstDerivativeAtBeginFlank () {
-    if (aMatrix.length === flankLength) {
-      return ((aMatrix[0].weighedAverage() * 2 * quadraticTheilSenRegressor.X.get(0)) + bMatrix[0].weighedAverage())
+  function firstDerivative (position = 0) {
+    if (aMatrix.length === flankLength && position < aMatrix.length) {
+      return ((aMatrix[position].weighedAverage() * 2 * quadraticTheilSenRegressor.X.get(position)) + bMatrix[position].weighedAverage())
     } else {
       return undefined
     }
   }
 
-  function secondDerivativeAtBeginFlank () {
-    if (aMatrix.length === flankLength) {
-      return (aMatrix[0].weighedAverage() * 2)
+  function secondDerivative (position = 0) {
+    if (aMatrix.length === flankLength && position < aMatrix.length) {
+      return (aMatrix[position].weighedAverage() * 2)
     } else {
       return undefined
     }
@@ -130,11 +130,11 @@ export function createMovingRegressor (bandwith) {
 
   return {
     push,
-    coefficientAAtBeginFlank,
-    coefficientBAtBeginFlank,
-    coefficientCAtBeginFlank,
-    firstDerivativeAtBeginFlank,
-    secondDerivativeAtBeginFlank,
+    coefficientA,
+    coefficientB,
+    coefficientC,
+    firstDerivative,
+    secondDerivative,
     reset
   }
 }
