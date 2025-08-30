@@ -115,8 +115,8 @@ export function createFlywheel (rowerSettings) {
     // Next are the metrics that are needed for more advanced metrics, like the foce curve
     currentCleanTime += currentDt.clean()
     _angularDistance.push(currentCleanTime, currentAngularDistance)
-    _angularVelocityAtBeginFlank = _angularDistance.firstDerivativeAtBeginFlank()
-    _angularAccelerationAtBeginFlank = _angularDistance.secondDerivativeAtBeginFlank()
+    _angularVelocityAtBeginFlank = _angularDistance.firstDerivative(0)
+    _angularAccelerationAtBeginFlank = _angularDistance.secondDerivative(0)
 
     // And finally calculate the torque
     _torqueAtBeginFlank = (rowerSettings.flywheelInertia * _angularAccelerationAtBeginFlank + drag.weighedAverage() * Math.pow(_angularVelocityAtBeginFlank, 2))
