@@ -151,11 +151,11 @@ test('sample data for NordicTrack RX800 should produce plausible results without
 
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/RX800.csv', realtime: false, loop: false })
 
-  testTotalMovingTime(sessionManager, 22.259092749999997)
-  testTotalLinearDistance(sessionManager, 80.42482071913939)
+  testTotalMovingTime(sessionManager, 22.396083608999994)
+  testTotalLinearDistance(sessionManager, 80.53187404607915)
   testTotalNumberOfStrokes(sessionManager, 9)
   // As dragFactor is dynamic, it should have changed
-  testDragFactor(sessionManager, 491.1395313462149)
+  testDragFactor(sessionManager, 492.9300865757259)
 })
 
 test('sample data for NordicTrack RX800 should produce plausible results for a 20 seconds session', async () => {
@@ -186,10 +186,10 @@ test('sample data for NordicTrack RX800 should produce plausible results for a 2
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/RX800.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 20.02496380499998)
-  testTotalLinearDistance(sessionManager, 72.32276839819497)
+  testTotalLinearDistance(sessionManager, 71.97978520696911)
   testTotalNumberOfStrokes(sessionManager, 8)
   // As dragFactor is dynamic, it should have changed
-  testDragFactor(sessionManager, 487.65077394777813)
+  testDragFactor(sessionManager, 489.10489111154453)
 })
 
 test('sample data for NordicTrack RX800 should produce plausible results for a 75 meter session', async () => {
@@ -219,11 +219,11 @@ test('sample data for NordicTrack RX800 should produce plausible results for a 7
 
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/RX800.csv', realtime: false, loop: false })
 
-  testTotalMovingTime(sessionManager, 20.80755593899998)
-  testTotalLinearDistance(sessionManager, 75.06111018441142)
+  testTotalMovingTime(sessionManager, 20.892344371999982)
+  testTotalLinearDistance(sessionManager, 75.07361682127684)
   testTotalNumberOfStrokes(sessionManager, 9)
   // As dragFactor is dynamic, it should have changed
-  testDragFactor(sessionManager, 491.1395313462149)
+  testDragFactor(sessionManager, 492.9300865757259)
 })
 
 test('A full unlimited session for SportsTech WRX700 should produce plausible results', async () => {
@@ -245,7 +245,7 @@ test('A full unlimited session for SportsTech WRX700 should produce plausible re
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/WRX700_2magnets_session.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 2340.0100514160117)
-  testTotalLinearDistance(sessionManager, 8406.08422954542)
+  testTotalLinearDistance(sessionManager, 8406.084229545408)
   testTotalNumberOfStrokes(sessionManager, 845)
   // As dragFactor is static, it should remain in place
   testDragFactor(sessionManager, rowerProfiles.Sportstech_WRX700.dragFactor)
@@ -279,7 +279,7 @@ test('A 8000 meter session for SportsTech WRX700 should produce plausible result
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/WRX700_2magnets_session.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 2236.631120457007)
-  testTotalLinearDistance(sessionManager, 8000.6051266302375)
+  testTotalLinearDistance(sessionManager, 8000.605126630226)
   testTotalNumberOfStrokes(sessionManager, 804)
   // As dragFactor is static, it should remain in place
   testDragFactor(sessionManager, rowerProfiles.Sportstech_WRX700.dragFactor)
@@ -313,7 +313,7 @@ test('A 2300 sec session for SportsTech WRX700 should produce plausible results'
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/WRX700_2magnets_session.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 2300.00695516701)
-  testTotalLinearDistance(sessionManager, 8251.818183410156)
+  testTotalLinearDistance(sessionManager, 8251.818183410143)
   testTotalNumberOfStrokes(sessionManager, 830)
   // As dragFactor is static, it should remain in place
   testDragFactor(sessionManager, rowerProfiles.Sportstech_WRX700.dragFactor)
@@ -347,7 +347,7 @@ test('A 2400 sec session for SportsTech WRX700 should produce plausible results'
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/WRX700_2magnets_session.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 2340.0100514160117)
-  testTotalLinearDistance(sessionManager, 8406.08422954542)
+  testTotalLinearDistance(sessionManager, 8406.084229545408)
   testTotalNumberOfStrokes(sessionManager, 845)
   // As dragFactor is static, it should remain in place
   testDragFactor(sessionManager, rowerProfiles.Sportstech_WRX700.dragFactor)
@@ -372,10 +372,10 @@ test('A full session for a Concept2 Model C should produce plausible results', a
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/Concept2_Model_C.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 181.47141999999985)
-  testTotalLinearDistance(sessionManager, 551.98575435377)
-  testTotalNumberOfStrokes(sessionManager, 83)
+  testTotalLinearDistance(sessionManager, 552.2056895088467)
+  testTotalNumberOfStrokes(sessionManager, 82)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(sessionManager, 123.64195729994428)
+  testDragFactor(sessionManager, 123.64632740545652)
 })
 
 test('A 500 meter session for a Concept2 Model C should produce plausible results', async () => {
@@ -405,11 +405,11 @@ test('A 500 meter session for a Concept2 Model C should produce plausible result
 
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/Concept2_Model_C.csv', realtime: false, loop: false })
 
-  testTotalMovingTime(sessionManager, 156.89172699999995)
-  testTotalLinearDistance(sessionManager, 500.0232952984508)
+  testTotalMovingTime(sessionManager, 156.83075199999985)
+  testTotalLinearDistance(sessionManager, 500.0178754492436)
   testTotalNumberOfStrokes(sessionManager, 73)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(sessionManager, 123.59848914302297)
+  testDragFactor(sessionManager, 123.18123281481081)
 })
 
 test('A 3 minute session for a Concept2 Model C should produce plausible results', async () => {
@@ -440,10 +440,10 @@ test('A 3 minute session for a Concept2 Model C should produce plausible results
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/Concept2_Model_C.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 180.96533299999987)
-  testTotalLinearDistance(sessionManager, 551.7636710982865)
-  testTotalNumberOfStrokes(sessionManager, 83)
+  testTotalLinearDistance(sessionManager, 551.9836036368948)
+  testTotalNumberOfStrokes(sessionManager, 82)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(sessionManager, 123.64195729994428)
+  testDragFactor(sessionManager, 123.64632740545652)
 })
 
 test('A full session for a Concept2 RowErg should produce plausible results', async () => {
@@ -464,11 +464,11 @@ test('A full session for a Concept2 RowErg should produce plausible results', as
 
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
 
-  testTotalMovingTime(sessionManager, 590.111937)
-  testTotalLinearDistance(sessionManager, 2027.4627564399068)
+  testTotalMovingTime(sessionManager, 590.121978)
+  testTotalLinearDistance(sessionManager, 2027.4784558136782)
   testTotalNumberOfStrokes(sessionManager, 205)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(sessionManager, 80.60573080009686)
+  testDragFactor(sessionManager, 80.67639163661059)
 })
 
 test('A 2000 meter session for a Concept2 RowErg should produce plausible results', async () => {
@@ -498,11 +498,11 @@ test('A 2000 meter session for a Concept2 RowErg should produce plausible result
 
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
 
-  testTotalMovingTime(sessionManager, 582.1993239999988)
-  testTotalLinearDistance(sessionManager, 2000.017655603541)
+  testTotalMovingTime(sessionManager, 582.2079249999988)
+  testTotalLinearDistance(sessionManager, 2000.0226247673236)
   testTotalNumberOfStrokes(sessionManager, 203)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(sessionManager, 80.55270240035931)
+  testDragFactor(sessionManager, 80.66010189973966)
 })
 
 test('A 580 seconds session for a Concept2 RowErg should produce plausible results', async () => {
@@ -533,10 +533,10 @@ test('A 580 seconds session for a Concept2 RowErg should produce plausible resul
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 580.0033639999992)
-  testTotalLinearDistance(sessionManager, 1992.5736933039327)
+  testTotalLinearDistance(sessionManager, 1992.542786798406)
   testTotalNumberOfStrokes(sessionManager, 202)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(sessionManager, 80.5946092810885)
+  testDragFactor(sessionManager, 80.64229778656268)
 })
 
 function testTotalMovingTime (sessionManager, expectedValue) {
