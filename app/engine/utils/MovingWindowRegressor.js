@@ -128,8 +128,31 @@ export function createMovingRegressor (bandwith) {
     cMatrix = []
   }
 
+  function Xget (position = 0) {
+    if (position < quadraticTheilSenRegressor.length()) {
+      return quadraticTheilSenRegressor.X.get(position)
+    } else {
+      return undefined
+    }
+  }
+
+  function Yget (position = 0) {
+    if (position < quadraticTheilSenRegressor.length()) {
+      return quadraticTheilSenRegressor.Y.get(position)
+    } else {
+      return undefined
+    }
+  }
+
+
   return {
     push,
+    X: {
+      get: Xget
+    },
+    Y: {
+      get: Yget
+    },
     coefficientA,
     coefficientB,
     coefficientC,
