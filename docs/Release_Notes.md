@@ -11,6 +11,7 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris)
 ### Bugfixes and robustness improvements in 0.9.7
 
 - Improvement of the Moving Least Squares regressor:
+  - Code refactoring to isolate this function from Flywheel.js, allowing a more thorough trsting of its behaviour
   - Introduced the 'Local Goodness of Fit' function to improve the robustness against noise. This reduces the effect of outliers on stroke detection, the Force curve, Power curve and Handle speed curve
   - Introduction of a 'Gaussian Weight' filter to reduce the effects of flanks on the regression in a specific datapoint
 - Fixed a bug in the initialisation of the Flywheel.js
