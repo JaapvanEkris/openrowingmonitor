@@ -54,7 +54,7 @@ We use OLS for the stroke detection.
 
 #### Regression algorithm used for Angular velocity &omega; and Angular Acceleration &alpha; based on the relation between &theta; and time
 
-As *currentDt* only provides us with a position and time to work with, options for determining the values of &omega; and &alpha; are quite limited. The standard numerical approach of &omega; = ${&Delta;&theta; \over &Delta;t}$ and the subsequent &alpha; = ${&Delta;&omega; \over &Delta;t}$ are too inpricise and vulnerable to noise in *CurrentDt*. Tests show ((see the test for the cubic function f(x) = x<sup>3</sup> + 2x<sup>2</sup> + 4x in [`flywheel.test.js`](../app/engine/Flywheel.test.js)) that in a artificial noise free series simulating a continuous accelerating flywheel, the underestimation varies but is significant:
+As *currentDt* only provides us with a position and time to work with, options for determining the values of &omega; and &alpha; are quite limited. The standard numerical approach of &omega; = ${&Delta;&theta; \over &Delta;t}$ and the subsequent &alpha; = ${&Delta;&omega; \over &Delta;t}$ are too inpricise and vulnerable to noise in *CurrentDt*. Tests show (see the test for the cubic function f(x) = x<sup>3</sup> + 2x<sup>2</sup> + 4x in [`flywheel.test.js`](../app/engine/Flywheel.test.js)) that in a artificial noise free series simulating a continuous accelerating flywheel, the underestimation varies but is significant:
 
 | Test | &omega; | &alpha; |
 |---|---|---|
@@ -98,6 +98,8 @@ This doesn't definitively exclude the use of more complex polynomial regression 
 
 ### Noise filtering algorithm
 
+See [`/app/engine/utils/StreamFilter.js`](../app/engine/utils/StreamFilter.js)
+
 For noise filtering, we use a moving median filter, which has the benefit of removing outliers completely. This is more robust than the moving average, where the effect of outliers is reduced, but not removed.
 
 ### Linear regression algorithms
@@ -112,15 +114,21 @@ Ordinary Least Squares is by far the most efficient and can easily be applied to
 
 #### Ordinary Least Squares (OLS)
 
+See [`/app/engine/utils/OLSLinearSeries.js`](../app/engine/utils/OLSLinearSeries.js)
+
 Ordinary Least Squares regression (see [[5]](#5)) and [[6]](#6)) produces results that are generally acceptable and the O(N) performance is well-suited for near-real-time calculations. When implemented in a datastream, the addition of a new datapoint is O(1), and the calculation of a slope also is O(1). When using a high-pass filter on the r<sup>2</sup> to disregard any unreliably approximated data, it can also be used to produce reliable results. See `engine/utils/OLSLinearSeries.js` for more information about the implementation.
 
 #### Theil–Sen estimator (Linear TS)
+
+See [`/app/engine/utils/FullTSLinearSeries.js`](../app/engine/utils/FullTSLinearSeries.js)
 
 Although the Theil–Sen estimator has a O(N log(N)) solution available, however we could not find a readily available solution. We did manage to develop a solution that has a O(N) impact during the addition of an additional datapoint in a datastream with a fixed length window, and O(log(N)) impact when determining the slope.
 
 ### Polynomial regression algorithm
 
 #### Quadratic Theil–Sen estimator (Quadratic TS)
+
+See [`/app/engine/utils/FullTSQuadraticSeries.js`](../app/engine/utils/FullTSQuadraticSeries.js)
 
 The Theil–Sen estimator can be expanded to apply to Quadratic functions, where the implementation is O(N<sup>2</sup>). Based on a Lagrange interpolation, we can calculate the coefficients of the formula quite effectively, resulting in a robust estimation more fitting the data. See `engine/utils/FullTSQuadraticSeries.js` for more information about the background of the implementation.
 
@@ -132,6 +140,8 @@ Theil-Sen is normally limited to linear regression. By using Lagrange interpolat
 Further improvements to the implementation of the Theil-Sen is an active topic of investigation.
 
 #### Moving Regression analysis
+
+See [`/app/engine/utils/MovingWindowRegressor.js`](../app/engine/utils/MovingWindowRegressor.js)
 
 ## Open design issues
 
