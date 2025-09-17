@@ -3,7 +3,14 @@
 <!-- markdownlint-disable no-inline-html -->
 In this document we explain the math behind the OpenRowingMonitor, to allow for independent review and software maintenance. It should be read in conjunction with [our desciption of OpenRowingMonitor's physics](./physics_openrowingmonitor.md), as these interact. When possible, we link to the source code to allow further investigation and keep the link with the actual implementation.
 
-Please note that this text is used as a rationale for design decissions of the physics used in OpenRowingMonitor. So it is of interest for people maintaining the code (as it explains why we do things the way we do) and for academics to verify or improve our solution. For these academics, we conclude with a section of open design issues as they might provide avenues of future research. If you are interested in just using OpenRowingMonitor as-is, this might not be the text you are looking for.
+Please note that this text is used as a rationale for design decissions of the mathematical algorithms used in OpenRowingMonitor. So it is of interest for people maintaining the code (as it explains why we do things the way we do) and for academics to verify or improve our solution. For these academics, we conclude with a section of open design issues as they might provide avenues of future research. If you are interested in just using OpenRowingMonitor as-is, this might not be the text you are looking for.
+
+This document consists out of four sections:
+
+* A description of the leading design principles of the mathematic algorithms
+* An overview of the places where specific algorithms are used
+* The selection and/or design of the specific mathematical algorithms used
+* Open design issues
 
 ## Leading design principles of the mathematic algorithms
 
@@ -15,7 +22,11 @@ In our design of the physics engine, we obey the following principles (see also 
 
 * use robust calculations wherever possible (i.e. not depend on a single measurements, extrapolations, derivation, etc.) to reduce effects of measurement errors. A typical issue is the role of *CurrentDt*, which is often used as a divisor with small numers as &Delta;t, increasing the effect of measurement errors in most metrics. When we do need to calculate a derived function, we choose to use a robust linear regression method to reduce the impact of noise and than use the function to calculate the derived function;
 
-## Basic concepts
+## Overview of algorithms used
+
+## The selection and design of used mathematical algorithms
+
+## Open design issues
 
 ### Noise Filtering algorithms applied
 
