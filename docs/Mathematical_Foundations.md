@@ -5,9 +5,11 @@ In this document we explain the math behind the OpenRowingMonitor, to allow for 
 
 Please note that this text is used as a rationale for design decissions of the physics used in OpenRowingMonitor. So it is of interest for people maintaining the code (as it explains why we do things the way we do) and for academics to verify or improve our solution. For these academics, we conclude with a section of open design issues as they might provide avenues of future research. If you are interested in just using OpenRowingMonitor as-is, this might not be the text you are looking for.
 
-## Leading design principles of the rowing engine
+## Leading design principles of the mathematic algorithms
 
 In our design of the physics engine, we obey the following principles (see also [the architecture document](Architecture.md)):
+
+* all calculations should be performed in real-time in a stream of datapoints, to allow decent feedback to the user. CPU load is to be limited as some rowing machines are data intensive and the app's CPU load interferes with the accurate measurement of time between pulses;
 
 * stay as close to the original data as possible (thus depend on direct measurements as much as possible) instead of heavily depend on derived data. This means that there are two absolute values we try to stay close to as much as possible: the **time between an impulse** and the **Number of Impulses**, where we consider **Number of Impulses** most reliable, and **time between an impulse** reliable but containing noise (the origin and meaning of these metrics, as well the effects of this approach are explained later);
 
