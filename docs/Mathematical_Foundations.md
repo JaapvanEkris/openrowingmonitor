@@ -28,7 +28,7 @@ In our design of the physics engine, we obey the following principles (see also 
 
 In [`Flywheel.js`](..//app/engine/Flywheel.js) there is a noise filter present, essentially to handle edge cases and for legacy purposses. In theory this should be removed as the subsequent handling by robust algorithms is actually disturbed when this filter is applied.
 
-### Linear regression algorithms applied for dragfactor calculation based on the relation between *CurrentDt* and time
+### Linear regression algorithm for dragfactor calculation based on *CurrentDt* and time
 
 In [`Flywheel.js`](..//app/engine/Flywheel.js) the recovery slope is determined. Theoretically, this should be a line following:
 
