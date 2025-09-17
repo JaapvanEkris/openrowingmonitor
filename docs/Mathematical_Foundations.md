@@ -52,7 +52,7 @@ Therefore, we choose to apply the Linear Theil-Sen estimator for the calculation
 
 We use OLS for the stroke detection.
 
-#### Regression algorithm used for Angular velocity &omega; and Angular Acceleration &alpha; based on the relation between &theta; and time
+### Regression algorithm used for Angular velocity &omega; and Angular Acceleration &alpha; based on the relation between &theta; and time
 
 As *currentDt* only provides us with a position and time to work with, options for determining the values of &omega; and &alpha; are quite limited. The standard numerical approach of &omega; = ${&Delta;&theta; \over &Delta;t}$ and the subsequent &alpha; = ${&Delta;&omega; \over &Delta;t}$ are too inpricise and vulnerable to noise in *CurrentDt*. Tests show (see the test for the cubic function f(x) = x<sup>3</sup> + 2x<sup>2</sup> + 4x in [`flywheel.test.js`](../app/engine/Flywheel.test.js)) that in a artificial noise free series simulating a continuous accelerating flywheel, the underestimation varies but is significant:
 
