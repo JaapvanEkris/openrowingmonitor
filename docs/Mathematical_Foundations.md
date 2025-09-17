@@ -54,7 +54,11 @@ We use OLS for the stroke detection.
 
 #### Regression algorithm used for Angular velocity &omega; and Angular Acceleration &alpha; based on the relation between &theta; and time
 
-Angular velocity &omega; and angular acceleration &alpha; are quite dynamic. As *currentDt* only provides us with a position and time to work with, options for determining the values of &omega; and &alpha; are quite limited. The standard numerical approach of &omega; = ${&Delta;&theta; \over &Delta;t}$ and the subsequent &alpha; = ${&Delta;&omega; \over &Delta;t}$ are too inpricise and vulnerable to noise in *CurrentDt*. Tests show ((see the test for the cubic function f(x) = x<sup>3</sup> + 2x<sup>2</sup> + 4x in [`flywheel.test.js`](../app/engine/Flywheel.test.js)) that in a artificial noise free series simulating a continuous accelerating flywheel, the underestimation varies but is significant:
+Angular velocity &omega; and angular acceleration &alpha; are quite dynamic, as is the underlying &theta;: when a static force would be applied, &theta; would behave as 1/2 \* &alpha; \* t<sup>2</sup> + &omega; \* t, a quadratic function. As the force curve is a key metric in indoor rowing for a reason, this function would probably be a cubic, quartic or even quintic in reality. 
+
+We observe that we use both the first derived function (i.e. &omega;) and the second derived function (i.e. &alpha;), making a quadratic or even a cubic regression algorithm more appropriate, as a liniear regressor would make the second derived function trivial.
+
+As *currentDt* only provides us with a position and time to work with, options for determining the values of &omega; and &alpha; are quite limited. The standard numerical approach of &omega; = ${&Delta;&theta; \over &Delta;t}$ and the subsequent &alpha; = ${&Delta;&omega; \over &Delta;t}$ are too inpricise and vulnerable to noise in *CurrentDt*. Tests show ((see the test for the cubic function f(x) = x<sup>3</sup> + 2x<sup>2</sup> + 4x in [`flywheel.test.js`](../app/engine/Flywheel.test.js)) that in a artificial noise free series simulating a continuous accelerating flywheel, the underestimation varies but is significant:
 
 | Test | &omega; | &alpha; |
 |---|---|---|
