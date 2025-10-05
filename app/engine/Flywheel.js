@@ -10,7 +10,7 @@
  * drive or recovery phase).
  *
  * The calculation of angular velocity and acceleration is based on Quadratic Regression, as the second derivative tends to be
- * quite fragile when small errors are thrown in the mix. The math behind this approach can be found in https://physics.info/motion-equations/
+ * quite fragile when small errors are thrown in the mix. The physics behind this approach can be found in https://physics.info/motion-equations/
  * which is intended for simple linear motion, but the formula are identical when applied to angular distances, velocities and
  * accelerations. See also https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/physics_openrowingmonitor.md#determining-the-angular-velocity-and-angular-acceleration-of-the-flywheel
  *
@@ -53,6 +53,7 @@ export function createFlywheel (rowerSettings) {
   let maintainMetrics
   let totalNumberOfImpulses
   let totalTimeSpinning
+  let _totalEnergy
   let currentCleanTime
   let currentRawTime
   let currentAngularDistance
@@ -93,11 +94,15 @@ export function createFlywheel (rowerSettings) {
       totalTimeSpinning += _deltaTimeBeforeFlank
       _angularVelocityBeforeFlank = _angularVelocityAtBeginFlank
       _angularAccelerationBeforeFlank = _angularAccelerationAtBeginFlank
-      _torqueBeforeFlank = _torqueAtBeginFlank
+      // As drag is recalculated at the begin of the drive, we need to recalculate the torque
+      _torqueBeforeFlank = (rowerSettings.flywheelInertia * _angularAccelerationBeforeFlank + drag.weighedAverage() * Math.pow(_angularVelocityBeforeFlank, 2))
 
-      // Feed the drag calculation,  as we didn't reset the Semaphore in the previous cycle based on the current flank
       if (inRecoveryPhase) {
+        // Feed the drag calculation, as we didn't reset the Semaphore in the previous cycle based on the current flank
         recoveryDeltaTime.push(totalTimeSpinning, _deltaTimeBeforeFlank)
+      } else {
+        // Accumulate the energy total as we are in the drive phase
+        _totalEnergy += Math.max(_torqueBeforeFlank * angularDisplacementPerImpulse, 0)
       }
     } else {
       _deltaTimeBeforeFlank = 0
@@ -168,6 +173,9 @@ export function createFlywheel (rowerSettings) {
     return totalTimeSpinning
   }
 
+  function totalEnergy () {
+    return Math.max(_totalEnergy, 0)
+  }
   function deltaTime () {
     return _deltaTimeBeforeFlank
   }
@@ -317,6 +325,7 @@ export function createFlywheel (rowerSettings) {
     _angularDistance.reset()
     totalNumberOfImpulses = -1
     totalTimeSpinning = 0
+    _totalEnergy = 0
     currentCleanTime = 0
     currentRawTime = 0
     currentAngularDistance = 0
@@ -336,6 +345,7 @@ export function createFlywheel (rowerSettings) {
     markRecoveryPhaseStart,
     markRecoveryPhaseCompleted,
     spinningTime,
+    totalEnergy,
     deltaTime,
     angularPosition,
     angularVelocity,
