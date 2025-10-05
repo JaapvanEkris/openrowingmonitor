@@ -160,7 +160,7 @@ export function createRower (rowerSettings) {
     // Here, we conclude the Drive Phase
     // The FSM guarantees that we have a credible driveDuration and cycletime in normal operation, but NOT at the start
     _driveDuration = flywheel.spinningTime() - drivePhaseStartTime
-    _drivePhaseFlywheelEnergy = flywheel.totalEnergy() - drivePhaseStartEnergy
+    _drivePhaseFlywheelEnergy = flywheel.totalEnergy() - drivePhaseStartFlywheelEnergy
     drivePhaseStartFlywheelEnergy = flywheel.totalEnergy()
     drivePhaseAngularDisplacement = flywheel.angularPosition() - drivePhaseStartAngularPosition
     _driveLength = drivePhaseAngularDisplacement * sprocketRadius
