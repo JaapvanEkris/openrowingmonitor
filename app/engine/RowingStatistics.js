@@ -30,6 +30,7 @@ export function createRowingStatistics (config) {
   let totalNumberOfStrokes = -1
   let driveLastStartTime = 0
   let strokeCalories = 0
+  let totalCalories = 0
   let strokeWork = 0
   const calories = createOLSLinearSeries()
   const driveDuration = createStreamFilter(halfNumOfDataPointsForAveraging, undefined)
@@ -181,6 +182,7 @@ export function createRowingStatistics (config) {
     totalMovingTime = rower.totalMovingTimeSinceStart()
     totalLinearDistance = rower.totalLinearDistanceSinceStart()
     instantPower = rower.instantHandlePower()
+    totalCalories = ((4 * rower.totalFlywheelWorkSinceStart()) + (350 * rower.totalMovingTimeSinceStart())) / 4200
   }
 
   function updateCycleMetrics () {
@@ -205,6 +207,12 @@ export function createRowingStatistics (config) {
       driveHandleForceCurve.push(rower.driveHandleForceCurve())
       driveHandleVelocityCurve.push(rower.driveHandleVelocityCurve())
       driveHandlePowerCurve.push(rower.driveHandlePowerCurve())
+      // based on: http://eodg.atm.ox.ac.uk/user/dudhia/rowing/physics/ergometer.html#section11
+      strokeWork = rower.driveFlywheelWork()
+      strokeCalories = ((4 * rower.driveFlywheelWork()) + (350 * cycleDuration.clean())) / 4200
+      if (cyclePower.reliable() && cycleDuration.reliable()) {
+        calories.push(totalMovingTime, totalCalories)
+      }
     }
   }
 
@@ -222,11 +230,6 @@ export function createRowingStatistics (config) {
     }
 
     if (cyclePower.reliable() && cycleDuration.reliable()) {
-      // @todo: see if this can be made part of the continuousmatrcs as Garmin and Concept2 also have a 'calories' type of training
-      // based on: http://eodg.atm.ox.ac.uk/user/dudhia/rowing/physics/ergometer.html#section11
-      strokeWork = cyclePower.clean() * cycleDuration.clean()
-      strokeCalories = ((4 * strokeWork) + (350 * cycleDuration.clean())) / 4200
-      const totalCalories = calories.Y.atSeriesEnd() + strokeCalories
       calories.push(totalMovingTime, totalCalories)
     }
   }
@@ -242,7 +245,7 @@ export function createRowingStatistics (config) {
       totalLinearDistance: totalLinearDistance > 0 ? totalLinearDistance : 0, // meters
       strokeCalories: strokeCalories > 0 ? strokeCalories : 0, // kCal
       strokeWork: strokeWork > 0 ? strokeWork : 0, // Joules
-      totalCalories: calories.Y.atSeriesEnd() > 0 ? calories.Y.atSeriesEnd() : 0, // kcal
+      totalCalories: totalCalories > 0 ? totalCalories : 0, // kcal
       totalCaloriesPerMinute: totalMovingTime > 60 ? caloriesPerPeriod(totalMovingTime - 60, totalMovingTime) : caloriesPerPeriod(0, 60),
       totalCaloriesPerHour: totalMovingTime > 3600 ? caloriesPerPeriod(totalMovingTime - 3600, totalMovingTime) : caloriesPerPeriod(0, 3600),
       cycleDuration: cycleDuration.reliable() && cycleDuration.clean() > minimumStrokeTime && cycleDuration.clean() < maximumStrokeTime && cycleLinearVelocity.raw() > 0 && totalNumberOfStrokes > 0 && metricsContext.isMoving === true ? cycleDuration.clean() : undefined, // seconds
