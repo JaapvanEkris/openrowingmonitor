@@ -53,7 +53,7 @@ export function createFlywheel (rowerSettings) {
   let maintainMetrics
   let totalNumberOfImpulses
   let totalTimeSpinning
-  let _totalEnergy
+  let _totalWork
   let currentCleanTime
   let currentRawTime
   let currentAngularDistance
@@ -102,7 +102,7 @@ export function createFlywheel (rowerSettings) {
         recoveryDeltaTime.push(totalTimeSpinning, _deltaTimeBeforeFlank)
       } else {
         // Accumulate the energy total as we are in the drive phase
-        _totalEnergy += Math.max(_torqueBeforeFlank * angularDisplacementPerImpulse, 0)
+        _totalWork += Math.max(_torqueBeforeFlank * angularDisplacementPerImpulse, 0)
       }
     } else {
       _deltaTimeBeforeFlank = 0
@@ -173,8 +173,8 @@ export function createFlywheel (rowerSettings) {
     return totalTimeSpinning
   }
 
-  function totalEnergy () {
-    return Math.max(_totalEnergy, 0)
+  function totalWork () {
+    return Math.max(_totalWork, 0)
   }
   function deltaTime () {
     return _deltaTimeBeforeFlank
@@ -325,7 +325,7 @@ export function createFlywheel (rowerSettings) {
     _angularDistance.reset()
     totalNumberOfImpulses = -1
     totalTimeSpinning = 0
-    _totalEnergy = 0
+    _totalWork = 0
     currentCleanTime = 0
     currentRawTime = 0
     currentAngularDistance = 0
@@ -345,7 +345,7 @@ export function createFlywheel (rowerSettings) {
     markRecoveryPhaseStart,
     markRecoveryPhaseCompleted,
     spinningTime,
-    totalEnergy,
+    totalWork,
     deltaTime,
     angularPosition,
     angularVelocity,
