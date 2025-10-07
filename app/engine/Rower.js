@@ -31,7 +31,7 @@ export function createRower (rowerSettings) {
   let drivePhaseStartTime = 0.0
   let _driveDuration
   let drivePhaseStartFlywheelWork = 0.0
-  let _drivePhaseFlywheelWork = 0.0
+  let _driveFlywheelWork = 0.0
   let drivePhaseStartAngularPosition = 0.0
   let drivePhaseAngularDisplacement = 0.0
   let _driveLinearDistance = 0.0
@@ -160,7 +160,7 @@ export function createRower (rowerSettings) {
     // Here, we conclude the Drive Phase
     // The FSM guarantees that we have a credible driveDuration and cycletime in normal operation, but NOT at the start
     _driveDuration = flywheel.spinningTime() - drivePhaseStartTime
-    _drivePhaseFlywheelWork = flywheel.totalWork() - drivePhaseStartFlywheelWork
+    _driveFlywheelWork = flywheel.totalWork() - drivePhaseStartFlywheelWork
     drivePhaseStartFlywheelWork = flywheel.totalWork()
     drivePhaseAngularDisplacement = flywheel.angularPosition() - drivePhaseStartAngularPosition
     _driveLength = drivePhaseAngularDisplacement * sprocketRadius
@@ -325,9 +325,9 @@ export function createRower (rowerSettings) {
     }
   }
 
-  function drivePhaseFlywheelWork () {
+  function driveFlywheelWork () {
     if (_driveDuration >= rowerSettings.minimumDriveTime) {
-      return _drivePhaseFlywheelWork
+      return _driveFlywheelWork
     } else {
       return undefined
     }
@@ -428,7 +428,7 @@ export function createRower (rowerSettings) {
     drivePhaseStartAngularPosition = 0.0
     _driveDuration = 0.0
     drivePhaseStartFlywheelWork = 0.0
-    _drivePhaseFlywheelWork = 0.0
+    _driveFlywheelWork = 0.0
     drivePhaseAngularDisplacement = 0.0
     _driveLinearDistance = 0.0
     recoveryPhaseStartTime = 0.0
@@ -462,7 +462,7 @@ export function createRower (rowerSettings) {
     driveDuration,
     driveLinearDistance,
     driveLength,
-    drivePhaseFlywheelWork,
+    driveFlywheelWork,
     driveAverageHandleForce,
     drivePeakHandleForce,
     driveHandleForceCurve,
