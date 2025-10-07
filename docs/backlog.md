@@ -13,7 +13,6 @@ If you would like to contribute to this project, you are more than welcome, but 
   * Describe the physics
   * Add weight correction factor (see [C2 formula](https://www.concept2.com/training/calorie-calculator))
   * Add moving uo and down the slide to the work performed definitions where relevant
-  * Make Calories a continuous metric (similar to distance) instead of a cycle based one
   * Add it as a stop criterium for the session manager
   * Add 'Calories' to the PM5 CSafe workout definition command set
   * Add 'Calories' to the MQTT command set
