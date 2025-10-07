@@ -4,7 +4,7 @@
 */
 /**
  * @file The Rowing Engine models the physics of a real rowing boat. It takes impulses from the flywheel of a rowing machine
- * and calculates parameters such as energy, stroke rates and linear movement.
+ * and calculates parameters such as work, stroke rates and linear movement.
  *
  * This implementation uses concepts that are described here:
  * - @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/physics_openrowingmonitor.md#relevant-linear-metrics|the description of our underlying physics model}
@@ -30,8 +30,8 @@ export function createRower (rowerSettings) {
   let _recoveryDuration
   let drivePhaseStartTime = 0.0
   let _driveDuration
-  let drivePhaseStartFlywheelEnergy = 0.0
-  let _drivePhaseFlywheelEnergy = 0.0
+  let drivePhaseStartFlywheelWork = 0.0
+  let _drivePhaseFlywheelWork = 0.0
   let drivePhaseStartAngularPosition = 0.0
   let drivePhaseAngularDisplacement = 0.0
   let _driveLinearDistance = 0.0
@@ -160,8 +160,8 @@ export function createRower (rowerSettings) {
     // Here, we conclude the Drive Phase
     // The FSM guarantees that we have a credible driveDuration and cycletime in normal operation, but NOT at the start
     _driveDuration = flywheel.spinningTime() - drivePhaseStartTime
-    _drivePhaseFlywheelEnergy = flywheel.totalEnergy() - drivePhaseStartFlywheelEnergy
-    drivePhaseStartFlywheelEnergy = flywheel.totalEnergy()
+    _drivePhaseFlywheelWork = flywheel.totalWork() - drivePhaseStartFlywheelWork
+    drivePhaseStartFlywheelWork = flywheel.totalWork()
     drivePhaseAngularDisplacement = flywheel.angularPosition() - drivePhaseStartAngularPosition
     _driveLength = drivePhaseAngularDisplacement * sprocketRadius
     _driveLinearDistance = calculateLinearDistance(drivePhaseAngularDisplacement, _driveDuration)
@@ -258,6 +258,10 @@ export function createRower (rowerSettings) {
     return flywheel.spinningTime()
   }
 
+  function totalFlywheelWorkSinceStart () {
+    return flywheel.totalWork()
+  }
+
   function driveLastStartTime () {
     return drivePhaseStartTime
   }
@@ -316,6 +320,14 @@ export function createRower (rowerSettings) {
   function driveLength () {
     if (_driveDuration >= rowerSettings.minimumDriveTime) {
       return _driveLength
+    } else {
+      return undefined
+    }
+  }
+
+  function drivePhaseFlywheelWork () {
+    if (_driveDuration >= rowerSettings.minimumDriveTime) {
+      return _drivePhaseFlywheelWork
     } else {
       return undefined
     }
@@ -415,8 +427,8 @@ export function createRower (rowerSettings) {
     drivePhaseStartTime = 0.0
     drivePhaseStartAngularPosition = 0.0
     _driveDuration = 0.0
-    drivePhaseStartFlywheelEnergy = 0.0
-    _drivePhaseFlywheelEnergy = 0.0
+    drivePhaseStartFlywheelWork = 0.0
+    _drivePhaseFlywheelWork = 0.0
     drivePhaseAngularDisplacement = 0.0
     _driveLinearDistance = 0.0
     recoveryPhaseStartTime = 0.0
@@ -442,6 +454,7 @@ export function createRower (rowerSettings) {
     driveLastStartTime,
     totalMovingTimeSinceStart,
     totalLinearDistanceSinceStart,
+    totalFlywheelWorkSinceStart,
     cycleDuration,
     cycleLinearDistance,
     cycleLinearVelocity,
@@ -449,6 +462,7 @@ export function createRower (rowerSettings) {
     driveDuration,
     driveLinearDistance,
     driveLength,
+    drivePhaseFlywheelWork,
     driveAverageHandleForce,
     drivePeakHandleForce,
     driveHandleForceCurve,
