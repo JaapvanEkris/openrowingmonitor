@@ -9,10 +9,11 @@
  * solely depend on times and angular positions before the flank (as they are to be certain to belong to a specific
  * drive or recovery phase).
  *
- * The calculation of angular velocity and acceleration is based on Quadratic Regression, as the second derivative tends to be
+ * The calculation of angular velocity and acceleration is based on regression analysis, as the second derivative tends to be
  * quite fragile when small errors are thrown in the mix. The physics behind this approach can be found in https://physics.info/motion-equations/
  * which is intended for simple linear motion, but the formula are identical when applied to angular distances, velocities and
- * accelerations. See also https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/physics_openrowingmonitor.md#determining-the-angular-velocity-and-angular-acceleration-of-the-flywheel
+ * accelerations.
+ * @see {@link See also https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/physics_openrowingmonitor.md#determining-the-angular-velocity-and-angular-acceleration-of-the-flywheel|this approach}
  *
  * Please note: The array contains a buffer of flankLenght measured currentDt's, BEFORE they are actually processed
  *
@@ -176,6 +177,7 @@ export function createFlywheel (rowerSettings) {
   function totalWork () {
     return Math.max(_totalWork, 0)
   }
+  
   function deltaTime () {
     return _deltaTimeBeforeFlank
   }
