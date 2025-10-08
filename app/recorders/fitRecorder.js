@@ -623,6 +623,10 @@ export function createFITRecorder (config) {
           // A target time is set
           createWorkoutStep(writer, i, 'time', workout.workoutplan[i].targetTime * 1000, 'active')
           break
+        case (workout.workoutplan[i].type === 'calories' && workout.workoutplan[i].targetCalories > 0):
+          // A target time is set
+          createWorkoutStep(writer, i, 'calories', workout.workoutplan[i].targetCalories, 'active')
+          break
         case (workout.workoutplan[i].type === 'rest' && workout.workoutplan[i].targetTime > 0):
           // A target time is set
           createWorkoutStep(writer, i, 'time', workout.workoutplan[i].targetTime * 1000, 'rest')
