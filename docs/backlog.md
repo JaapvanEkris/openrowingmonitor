@@ -14,6 +14,7 @@ If you would like to contribute to this project, you are more than welcome, but 
   * Add weight correction factor (see [C2 formula](https://www.concept2.com/training/calorie-calculator))
   * Add 'Calories' to the PM5 CSafe workout definition command set
   * Add 'Calories' to the MQTT command set
+  * Add calories countdown to the GUI
   * Modify the PM5 peripheral to broadcast the right data
 
 ## Soon
