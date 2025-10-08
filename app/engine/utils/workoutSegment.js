@@ -15,6 +15,7 @@ const log = loglevel.getLogger('RowingEngine')
 export function createWorkoutSegment (config) {
   const numOfDataPointsForAveraging = config.numOfPhasesForAveragingScreenData
   const distanceOverTime = createOLSLinearSeries(Math.min(4, numOfDataPointsForAveraging))
+  const caloriesOverTime = createOLSLinearSeries(Math.min(4, numOfDataPointsForAveraging))
   const _power = createSeries()
   const _linearVelocity = createSeries()
   const _strokerate = createSeries()
@@ -29,8 +30,10 @@ export function createWorkoutSegment (config) {
   let _startCalories = 0
   let _targetTime = 0
   let _targetDistance = 0
+  let _targetCalories = 0
   let _endMovingTime = 0
   let _endLinearDistance = 0
+  let _endCalories = 0
   let _totalNumberIntervals = 0
   let _split = {
     type: 'justrow',
@@ -62,6 +65,7 @@ export function createWorkoutSegment (config) {
     let intervalNumber = 0
     let totalDistance = 0
     let totalTime = 0
+    let totalCalories = 0
     let containsJustRow = false
     _totalNumberIntervals = Math.max(intervals.length, 1)
     switch (true) {
@@ -83,6 +87,9 @@ export function createWorkoutSegment (config) {
             case (intervals[intervalNumber].type === 'time' && intervals[intervalNumber].targetTime > 0):
               totalTime = totalTime + Number(intervals[intervalNumber].targetTime)
               break
+            case (intervals[intervalNumber].type === 'calories' && intervals[intervalNumber].targetCalories > 0):
+              totalCalories = totalCalories + intervals[intervalNumber].targetCalories
+              break
             case (intervals[intervalNumber].type === 'justrow'):
               containsJustRow = true
               break
@@ -95,14 +102,14 @@ export function createWorkoutSegment (config) {
           case (containsJustRow):
             setEnd({ type: 'justrow' })
             break
-          case (totalDistance > 0 && totalTime === 0):
+          case (totalDistance > 0 && totalTime === 0 && totalCalories === 0):
             setEnd({ type: 'distance', targetDistance: totalDistance })
             break
-          case (totalTime > 0 && totalDistance === 0):
+          case (totalTime > 0 && totalDistance === 0 && totalCalories === 0):
             setEnd({ type: 'time', targetTime: totalTime })
             break
-          case (totalTime > 0 && totalDistance > 0):
-            setEnd({ type: 'justrow' })
+          case (totalCalories > 0 && totalTime === 0 && totalDistance === 0):
+            setEnd({ type: 'calories', targetCalories: totalCalories })
             break
           default:
             setEnd({ type: 'justrow' })
@@ -124,8 +131,10 @@ export function createWorkoutSegment (config) {
         _type = 'rest'
         _targetTime = Number(intervalSettings.targetTime)
         _targetDistance = 0
+        _targetCalories = 0
         _endMovingTime = _startMovingTime + Number(intervalSettings.targetTime)
         _endLinearDistance = 0
+        _endCalories = 0
         log.debug(`  Workout parser, recognised ${_type} interval/split, ${_targetTime} seconds`)
         break
       case (intervalSettings.type === 'rest'):
@@ -133,8 +142,10 @@ export function createWorkoutSegment (config) {
         _type = 'rest'
         _targetTime = 0
         _targetDistance = 0
+        _targetCalories = 0
         _endMovingTime = _startMovingTime
         _endLinearDistance = 0
+        _endCalories = 0
         log.debug(`  Workout parser, recognised undetermined ${_type} interval`)
         break
       case (intervalSettings.type === 'distance' && Number(intervalSettings.targetDistance) > 0):
@@ -142,8 +153,10 @@ export function createWorkoutSegment (config) {
         _type = 'distance'
         _targetTime = 0
         _targetDistance = Number(intervalSettings.targetDistance)
+        _targetCalories = 0
         _endMovingTime = 0
         _endLinearDistance = _startLinearDistance + Number(intervalSettings.targetDistance)
+        _endCalories = 0
         log.debug(`  Workout parser, recognised ${_type} interval/split, ${_targetDistance} meters`)
         break
       case (intervalSettings.type === 'time' && Number(intervalSettings.targetTime) > 0):
@@ -151,16 +164,31 @@ export function createWorkoutSegment (config) {
         _type = 'time'
         _targetTime = Number(intervalSettings.targetTime)
         _targetDistance = 0
+        _targetCalories = 0
         _endMovingTime = _startMovingTime + Number(intervalSettings.targetTime)
         _endLinearDistance = 0
+        _endCalories = 0
         log.debug(`  Workout parser, recognised ${_type} interval/split, ${_targetTime} seconds`)
+        break
+      case (intervalSettings.type === 'calories' && Number(intervalSettings.targetCalories) > 0):
+        // A target time is set
+        _type = 'calories'
+        _targetTime = 0
+        _targetDistance = 0
+        _targetCalories = Number(intervalSettings.targetCalories)
+        _endMovingTime = 0
+        _endLinearDistance = 0
+        _endCalories = _startCalories + Number(intervalSettings.targetCalories)
+        log.debug(`  Workout parser, recognised ${_type} interval/split, ${_targetCalories} kCal`)
         break
       case (intervalSettings.type === 'justrow'):
         _type = 'justrow'
         _targetTime = 0
         _targetDistance = 0
+        _targetCalories = 0
         _endMovingTime = 0
         _endLinearDistance = 0
+        _endCalories = 0
         log.debug(`  Workout parser, recognised ${_type} interval/split`)
         break
       default:
@@ -168,8 +196,10 @@ export function createWorkoutSegment (config) {
         _type = 'justrow'
         _targetTime = 0
         _targetDistance = 0
+        _targetCalories = 0
         _endMovingTime = 0
         _endLinearDistance = 0
+        _endCalories = 0
     }
 
     // Set the split parameters
@@ -179,7 +209,8 @@ export function createWorkoutSegment (config) {
         _split = {
           type: 'rest',
           targetDistance: 0,
-          targetTime: _targetTime
+          targetTime: _targetTime,
+          targetCalories: 0
         }
         break
       case (!!intervalSettings.split && intervalSettings.split !== undefined && intervalSettings.split.type === 'distance' && Number(intervalSettings.split.targetDistance) > 0):
@@ -187,7 +218,8 @@ export function createWorkoutSegment (config) {
         _split = {
           type: 'distance',
           targetDistance: Number(intervalSettings.split.targetDistance),
-          targetTime: 0
+          targetTime: 0,
+          targetCalories: 0
         }
         break
       case (!!intervalSettings.split && intervalSettings.split !== undefined && intervalSettings.split.type === 'time' && Number(intervalSettings.split.targetTime) > 0):
@@ -195,14 +227,25 @@ export function createWorkoutSegment (config) {
         _split = {
           type: 'time',
           targetDistance: 0,
-          targetTime: Number(intervalSettings.split.targetTime)
+          targetTime: Number(intervalSettings.split.targetTime),
+          targetCalories: 0
+        }
+        break
+      case (!!intervalSettings.split && intervalSettings.split !== undefined && intervalSettings.split.type === 'calories' && Number(intervalSettings.split.targetCalories) > 0):
+        // A target time is set
+        _split = {
+          type: 'calories',
+          targetDistance: 0,
+          targetDistance: 0,
+          targetCalories: Number(intervalSettings.split.targetCalories)
         }
         break
       case (!!intervalSettings.split && intervalSettings.split !== undefined && intervalSettings.split.type === 'justrow'):
         _split = {
           type: _type,
           targetDistance: _targetDistance,
-          targetTime: _targetTime
+          targetTime: _targetTime,
+          targetCalories: _targetCalories
         }
         break
       case (!intervalSettings.split):
@@ -210,7 +253,8 @@ export function createWorkoutSegment (config) {
         _split = {
           type: _type,
           targetDistance: _targetDistance,
-          targetTime: _targetTime
+          targetTime: _targetTime,
+          targetCalories: _targetCalories
         }
         break
       default:
@@ -218,7 +262,8 @@ export function createWorkoutSegment (config) {
         _split = {
           type: _type,
           targetDistance: _targetDistance,
-          targetTime: _targetTime
+          targetTime: _targetTime,
+          targetCalories: _targetCalories
         }
     }
   }
@@ -228,6 +273,7 @@ export function createWorkoutSegment (config) {
    */
   function push (baseMetrics) {
     distanceOverTime.push(baseMetrics.totalMovingTime, baseMetrics.totalLinearDistance)
+    caloriesOverTime.push(baseMetrics.totalMovingTime, baseMetrics.totalCalories)
     if (!!baseMetrics.cyclePower && !isNaN(baseMetrics.cyclePower) && baseMetrics.cyclePower > 0) { _power.push(baseMetrics.cyclePower) }
     if (!!baseMetrics.cycleLinearVelocity && !isNaN(baseMetrics.cycleLinearVelocity) && baseMetrics.cycleLinearVelocity > 0) { _linearVelocity.push(baseMetrics.cycleLinearVelocity) }
     if (!!baseMetrics.cycleStrokeRate && !isNaN(baseMetrics.cycleStrokeRate) && baseMetrics.cycleStrokeRate > 0) { _strokerate.push(baseMetrics.cycleStrokeRate) }
@@ -280,6 +326,8 @@ export function createWorkoutSegment (config) {
         return (distanceOverTime.projectY(_endLinearDistance) - _startMovingTime)
       case (_type === 'time' && _endMovingTime > 0):
         return _targetTime
+      case (_type === 'calories' && _endCalories > 0 && caloriesOverTime.reliable()):
+        return (caloriesOverTime.projectY(_endCalories) - _startMovingTime)
       default:
         return undefined
     }
@@ -295,6 +343,8 @@ export function createWorkoutSegment (config) {
       case (_type === 'time' && _endMovingTime > 0 && distanceOverTime.reliable()):
         // We are in a time based interval, so we need to project
         return (distanceOverTime.projectX(_endMovingTime) - _startLinearDistance)
+      case (_type === 'calories' && _endCalories > 0 && distanceOverTime.reliable() && caloriesOverTime.reliable()):
+        return (distanceOverTime.projectX(caloriesOverTime.projectY(_endCalories)) - _startLinearDistance)
       default:
         return undefined
     }
@@ -307,6 +357,18 @@ export function createWorkoutSegment (config) {
     if ((_type === 'time' || _type === 'rest') && _endMovingTime > 0) {
       // We are in a time based interval
       return _endMovingTime - baseMetrics.totalMovingTime
+    } else {
+      return undefined
+    }
+  }
+
+  /**
+   * @returns {float} the remaining time to the end of the workoutsegment
+   */
+  function caloriesToEnd (baseMetrics) {
+    if ((_type === 'calories' && _endCalories > 0) {
+      // We are in a time based interval
+      return _endCalories - baseMetrics.totalCalories
     } else {
       return undefined
     }
@@ -380,11 +442,30 @@ export function createWorkoutSegment (config) {
    * @returns {boolean} If the boundary of the planned segment has been reached
    */
   function isEndReached (baseMetrics) {
-    if ((_type === 'distance' && _endLinearDistance > 0 && baseMetrics.totalLinearDistance >= _endLinearDistance) || (_type === 'time' && _endMovingTime > 0 && baseMetrics.totalMovingTime >= _endMovingTime)) {
-      // We have exceeded the boundary
-      return true
-    } else {
-      return false
+    switch (_type) {
+      case 'distance':
+        if (_endLinearDistance > 0 && baseMetrics.totalLinearDistance >= _endLinearDistance) {
+          return true
+        } else {
+          return false
+        }
+        break
+      case 'time':
+        if (_endMovingTime > 0 && baseMetrics.totalMovingTime >= _endMovingTime) {
+          return true
+        } else {
+          return false
+        }
+        break
+      case 'calories':
+        if (_endCalories > 0 && baseMetrics.totalCalories >= _endCalories) {
+          return true
+        } else {
+          return false
+        }
+        break
+      default:
+        return false
     }
   }
 
@@ -398,16 +479,22 @@ export function createWorkoutSegment (config) {
       case (_type === 'distance' && _endLinearDistance > 0 && currMetrics.totalLinearDistance > _endLinearDistance):
         // We are in a distance based interval, and overshot the targetDistance
         projectedMetrics.totalMovingTime = interpolatedTime(prevMetrics, currMetrics, _endLinearDistance)
-        projectedMetrics.timestamp = new Date(currMetrics.timestamp.getTime() - ((currMetrics.totalMovingTime - projectedMetrics.totalMovingTime) * 1000))
         projectedMetrics.totalLinearDistance = _endLinearDistance
-        projectedMetrics.timestamp = currMetrics.timestamp - ((currMetrics.totalMovingTime - projectedMetrics.totalMovingTime) * 1000)
+        projectedMetrics.totalCalories = interpolatedCaloriesFromTime(prevMetrics, currMetrics, projectedMetrics.totalMovingTime)
         projectedMetrics.modified = true
         break
       case (_type === 'time' && _endMovingTime > 0 && currMetrics.totalMovingTime > _endMovingTime):
         // We are in a time based interval, and overshot the targetTime
         projectedMetrics.totalLinearDistance = interpolatedDistance(prevMetrics, currMetrics, _endMovingTime)
         projectedMetrics.totalMovingTime = _endMovingTime
-        projectedMetrics.timestamp = new Date(_startTimestamp.getTime() + (_targetTime * 1000))
+        projectedMetrics.totalCalories = interpolatedCaloriesFromTime(prevMetrics, currMetrics, _endMovingTime)
+        projectedMetrics.modified = true
+        break
+      case (_type === 'calories' && _endCalories > 0 && currMetrics.totalCalories > _endCalories):
+        // We are in a calorie based interval, and overshot the targetCalories
+        projectedMetrics.totalCalories = _endCalories
+        projectedMetrics.totalMovingTime = interpolatedTimeFromCalories(prevMetrics, currMetrics, _endCalories)
+        projectedMetrics.totalLinearDistance = interpolatedDistance(prevMetrics, currMetrics, projectedMetrics.totalMovingTime)
         projectedMetrics.modified = true
         break
       default:
@@ -441,6 +528,24 @@ export function createWorkoutSegment (config) {
       return (prevMetrics.totalLinearDistance + ((currMetrics.totalLinearDistance - prevMetrics.totalLinearDistance) * ((targetTime - prevMetrics.totalMovingTime) / (currMetrics.totalMovingTime - prevMetrics.totalMovingTime))))
     } else {
       return currMetrics.totalLinearDistance
+    }
+  }
+
+  function interpolatedTimeFromCalories (prevMetrics, currMetrics, targetCalories) {
+    if (prevMetrics.totalCalories < targetCalories && targetCalories < currMetrics.totalCalories) {
+      // See https://en.wikipedia.org/wiki/Linear_interpolation
+      return (prevMetrics.totalMovingTime + ((currMetrics.totalMovingTime - prevMetrics.totalMovingTime) * ((targetCalories - prevMetrics.totalCalories) / (currMetrics.totalCalories - prevMetrics.totalCalories))))
+    } else {
+      return currMetrics.totalMovingTime
+    }
+  }
+
+  function interpolatedCaloriesFromTime (prevMetrics, currMetrics, targetTime) {
+    if (prevMetrics.totalMovingTime < targetTime && targetTime < currMetrics.totalMovingTime) {
+      // See https://en.wikipedia.org/wiki/Linear_interpolation
+      return (prevMetrics.totalCalories + ((currMetrics.totalCalories - prevMetrics.totalCalories) * ((targetTime - prevMetrics.totalMovingTime) / (currMetrics.totalMovingTime - prevMetrics.totalMovingTime))))
+    } else {
+      return currMetrics.totalCalories
     }
   }
 
@@ -548,6 +653,11 @@ export function createWorkoutSegment (config) {
           type: _type,
           targetTime: timeToEnd(baseMetrics)
         }
+      case ('calories'):
+        return {
+          type: _type,
+          targetCalories: caloriesToEnd(baseMetrics)
+        }        
       default:
         return {
           type: _type,
@@ -589,6 +699,7 @@ export function createWorkoutSegment (config) {
   function reset () {
     resetSegmentMetrics()
     distanceOverTime.reset()
+    caloriesOverTime.reset()
   }
 
   return {
