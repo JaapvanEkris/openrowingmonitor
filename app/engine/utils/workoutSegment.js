@@ -629,6 +629,10 @@ export function createWorkoutSegment (config) {
         maximum: _dragFactor.maximum()
       },
       calories: {
+        absoluteStart: _startCalories,
+        sinceStart: spentCalories(baseMetrics),
+        target: _targetCalories,
+        toEnd: caloriesToEnd(baseMetrics),
         totalSpent: spentCalories(baseMetrics),
         averagePerHour: _caloriesPerHour.average()
       }
