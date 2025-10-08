@@ -236,7 +236,7 @@ export function createWorkoutSegment (config) {
         _split = {
           type: 'calories',
           targetDistance: 0,
-          targetDistance: 0,
+          targetTime: 0,
           targetCalories: Number(intervalSettings.split.targetCalories)
         }
         break
@@ -449,21 +449,18 @@ export function createWorkoutSegment (config) {
         } else {
           return false
         }
-        break
       case 'time':
         if (_endMovingTime > 0 && baseMetrics.totalMovingTime >= _endMovingTime) {
           return true
         } else {
           return false
         }
-        break
       case 'calories':
         if (_endCalories > 0 && baseMetrics.totalCalories >= _endCalories) {
           return true
         } else {
           return false
         }
-        break
       default:
         return false
     }
@@ -657,7 +654,7 @@ export function createWorkoutSegment (config) {
         return {
           type: _type,
           targetCalories: caloriesToEnd(baseMetrics)
-        }        
+        }
       default:
         return {
           type: _type,
