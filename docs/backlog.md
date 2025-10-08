@@ -12,13 +12,9 @@ If you would like to contribute to this project, you are more than welcome, but 
 * Add calories as interval type
   * Describe the physics
   * Add weight correction factor (see [C2 formula](https://www.concept2.com/training/calorie-calculator))
-  * Add moving uo and down the slide to the work performed definitions where relevant
-  * Add it as a stop criterium for the session manager
   * Add 'Calories' to the PM5 CSafe workout definition command set
   * Add 'Calories' to the MQTT command set
-  * Add it as a workout option to the FIT recorder
   * Modify the PM5 peripheral to broadcast the right data
-  * Update the GUI to allow selecting it
 
 ## Soon
 
