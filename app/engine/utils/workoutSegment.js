@@ -366,7 +366,7 @@ export function createWorkoutSegment (config) {
    * @returns {float} the remaining time to the end of the workoutsegment
    */
   function caloriesToEnd (baseMetrics) {
-    if ((_type === 'calories' && _endCalories > 0) {
+    if (_type === 'calories' && _endCalories > 0) {
       // We are in a time based interval
       return _endCalories - baseMetrics.totalCalories
     } else {
