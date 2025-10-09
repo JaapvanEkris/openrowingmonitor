@@ -8,14 +8,10 @@ If you would like to contribute to this project, you are more than welcome, but 
 
 * Add a lot of testcases to complete unit/integration testing of all functions used. Especially:
   * Testing core objects, like the Theil-Senn regression analysis functions (not the algorithm), as well as their integrated behaviour
-  * Testing all the `workoutSegment.js` object metrics and cutting capabilities
+  * Testing all the `workoutSegment.js` object metrics and cutting capabilities, including Calories
 * Add calories as interval type
   * Describe the physics
   * Add weight correction factor (see [C2 formula](https://www.concept2.com/training/calorie-calculator))
-  * Add 'Calories' to the PM5 CSafe workout definition command set
-  * Add 'Calories' to the MQTT command set
-  * Add calories countdown to the GUI
-  * Modify the PM5 peripheral to broadcast the right data
 
 ## Soon
 
