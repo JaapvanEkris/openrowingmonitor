@@ -61,6 +61,7 @@ export function createWorkoutPlan () {
       case (type === 'calories' && data.length > 4):
         workoutplan.push({})
         workoutstep = workoutplan.length - 1
+        /* eslint-disable-next-line no-case-declarations -- readable code outweighs rules */
         const targetCalories = readUInt32(data[1], data[2], data[3], data[4])
         if (targetTime > 0) {
           workoutplan[workoutstep].type = 'calories'
