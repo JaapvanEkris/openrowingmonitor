@@ -16,6 +16,7 @@ If you would like to contribute to this project, you are more than welcome, but 
 ## Soon
 
 * Improve the user interface (We really need help on this!)
+* Look at an alternative for pigpio library as it doesn't work on a Raspberry Pi 5 (see https://github.com/JaapvanEkris/openrowingmonitor/issues/52)
 * Move to the Wayland window manager, to keep in step with Raspberry Pi OS
 * Introduce training plans (i.e. a distance/time to row):
   * Integrate with rowsandall.com to retrieve training planning
