@@ -6,7 +6,7 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris)
 
 ### New functionality in 0.9.7
 
-- Nothing yet
+- **Addition of the 'Calories' workout type**. You can now program Intervals and splits based on calories to be burned
 
 ### Bugfixes and robustness improvements in 0.9.7
 
