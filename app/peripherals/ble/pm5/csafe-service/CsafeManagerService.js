@@ -153,7 +153,7 @@ export class CsafeManagerService {
           response.addCommand(commands[i].command)
           break
         case (ProprietaryLongSetConfigCommands.CSAFE_PM_SET_WORKOUTDURATION):
-          switch(commandData[0]) {
+          switch (commandData[0]) {
             case (DurationTypes.CSAFE_DISTANCE_DURATION):
               this.#workoutplan.addInterval('distance', commands[i].data)
               response.addCommand(commands[i].command)
@@ -176,7 +176,7 @@ export class CsafeManagerService {
           }
           break
         case (ProprietaryLongSetConfigCommands.CSAFE_PM_SET_SPLITDURATION):
-          switch(commandData[0]) {
+          switch (commandData[0]) {
             case (DurationTypes.CSAFE_DISTANCE_DURATION):
               this.#workoutplan.addSplit('distance', commands[i].data)
               response.addCommand(commands[i].command)
@@ -185,12 +185,12 @@ export class CsafeManagerService {
             case (DurationTypes.CSAFE_TIME_DURATION):
               this.#workoutplan.addSplit('time', commands[i].data)
               response.addCommand(commands[i].command)
-              log.debug(`command ${i + 1}, CSAFE_PM_SET_SPLITDURATION, ${swapObjectPropertyValues(DurationTypes)[commandData[0]]}, mapped to '${this.#workoutplan.lastInterval().split.type}' split, duration ${this.#workoutplan.lastInterval().split.targetTime} seconds`)              
+              log.debug(`command ${i + 1}, CSAFE_PM_SET_SPLITDURATION, ${swapObjectPropertyValues(DurationTypes)[commandData[0]]}, mapped to '${this.#workoutplan.lastInterval().split.type}' split, duration ${this.#workoutplan.lastInterval().split.targetTime} seconds`)
               break
             case (DurationTypes.CSAFE_CALORIES_DURATION):
               this.#workoutplan.addSplit('time', commands[i].data)
               response.addCommand(commands[i].command)
-              log.debug(`command ${i + 1}, CSAFE_PM_SET_SPLITDURATION, ${swapObjectPropertyValues(DurationTypes)[commandData[0]]}, mapped to '${this.#workoutplan.lastInterval().split.type}' split, duration ${this.#workoutplan.lastInterval().split.targetTime} seconds`)              
+              log.debug(`command ${i + 1}, CSAFE_PM_SET_SPLITDURATION, ${swapObjectPropertyValues(DurationTypes)[commandData[0]]}, mapped to '${this.#workoutplan.lastInterval().split.type}' split, duration ${this.#workoutplan.lastInterval().split.targetTime} seconds`)
               break
             default:
               this.#workoutplan.addSplit('time', commands[i].data)
