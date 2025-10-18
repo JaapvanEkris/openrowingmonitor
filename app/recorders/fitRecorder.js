@@ -57,6 +57,7 @@ export function createFITRecorder (config) {
           // We apperantly get a shutdown/crash during session
           addMetricsToStrokesArray(lastMetrics)
           calculateLapMetrics(lastMetrics)
+          calculateSplitMetrics(splitnumber, lastMetrics)
           calculateSessionMetrics(lastMetrics)
         }
         break
