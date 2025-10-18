@@ -27,7 +27,10 @@ export function createFITRecorder (config) {
   let sessionData = {}
   sessionData.workoutplan = []
   sessionData.workoutplan[0] = { type: 'justrow' }
+  sessionData.split = []
   sessionData.lap = []
+  sessionData.activeSplits = 0
+  sessionData.restSplits = 0
   sessionData.complete = false
   let splitnumber = 0
   let lapnumber = 0
@@ -78,12 +81,13 @@ export function createFITRecorder (config) {
       case (metrics.metricsContext.isSessionStart):
         sessionData.startTime = metrics.timestamp
         sessionData.activeSplits = 1
-        sessionData.restSplits = 0
         splitnumber = 0
         startSplit(splitnumber, metrics)
         lapnumber = 0
         startLap(lapnumber, metrics)
         sessionHRMetrics.reset()
+        splitActiveHRMetrics.reset()
+        splitRestHRMetrics.reset()
         addMetricsToStrokesArray(metrics)
         break
       case (metrics.metricsContext.isSessionStop && lastMetrics.sessionState !== 'Stopped'):
@@ -571,7 +575,6 @@ export function createFITRecorder (config) {
   async function createActiveSplit (writer, splitdata) {
     if (!!splitdata.endTime && splitdata.endTime > 0 && !!splitdata.startTime && splitdata.startTime > 0) {
       // The split is complete
-      // Conclude the lap with a summary
       // See https://developer.garmin.com/fit/cookbook/durations/ for how the different times are defined
       writer.writeMessage(
         'split',
