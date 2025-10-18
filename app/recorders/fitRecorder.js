@@ -29,8 +29,8 @@ export function createFITRecorder (config) {
   sessionData.workoutplan[0] = { type: 'justrow' }
   sessionData.split = []
   sessionData.lap = []
-  sessionData.activeSplits = 0
-  sessionData.restSplits = 0
+  sessionData.noActiveSplits = 0
+  sessionData.noRestSplits = 0
   sessionData.complete = false
   let splitnumber = 0
   let lapnumber = 0
@@ -80,7 +80,6 @@ export function createFITRecorder (config) {
     switch (true) {
       case (metrics.metricsContext.isSessionStart):
         sessionData.startTime = metrics.timestamp
-        sessionData.activeSplits = 1
         splitnumber = 0
         startSplit(splitnumber, metrics)
         lapnumber = 0
@@ -171,8 +170,9 @@ export function createFITRecorder (config) {
 
   function startSplit (splitnumber, metrics) {
     resetSplitMetrics()
-    sessionData.activeSplits++
+    sessionData.noActiveSplits++
     sessionData.split[splitnumber] = { totalMovingTimeAtStart: metrics.totalMovingTime }
+    sessionData.split[splitnumber].startDistance: metrics.totalLinearDistance
     sessionData.split[splitnumber].intensity = 'active'
     sessionData.split[splitnumber].startTime = metrics.timestamp
     sessionData.split[splitnumber].splitNumber = splitnumber + 1
@@ -180,26 +180,21 @@ export function createFITRecorder (config) {
   }
 
   function calculateSplitMetrics (splitnumber, metrics) {
-    sessionData.split[splitnumber].workoutStepNumber = metrics.interval.workoutStepNumber
+    sessionData.split[splitnumber].totalMovingTimeAtEnd: metrics.totalMovingTime
+    sessionData.split[splitnumber].totalTime: metrics.totalMovingTime - sessionData.split[splitnumber].totalMovingTimeAtStart
+    sessionData.split[splitnumber].totalLinearDistance: metrics.totalLinearDistance - sessionData.split[splitnumber].startDistance
     sessionData.split[splitnumber].endTime = metrics.timestamp
-    sessionData.split[splitnumber].summary = { ...metrics.interval }
+    sessionData.split[splitnumber].maxSpeed: metrics.splitdata.interval.linearVelocity.maximum,
     sessionData.split[splitnumber].complete = true
   }
 
   function addRestSplit (splitnumber, metrics, startTime, workoutStepNo) {
-    sessionData.restSplits++
+    sessionData.noRestSplits++
     sessionData.split[splitnumber] = { startTime }
     sessionData.split[splitnumber].intensity = 'rest'
-    sessionData.split[splitnumber].workoutStepNumber = workoutStepNo
+    sessionData.split[splitnumber].totalTime: metrics.split.timeSpent.rest
     sessionData.split[splitnumber].splitNumber = splitnumber + 1
     sessionData.split[splitnumber].endTime = metrics.timestamp
-    if (metrics.metricsContext.isUnplannedPause) {
-      // The pause wasn't planned, so it was inserted as a paused split
-      sessionData.split[splitnumber].summary = { ...metrics.split }
-    else {
-      // The pause was planned, so it was administrated as an interval
-      sessionData.split[splitnumber].summary = { ...metrics.interval }
-    }
     sessionData.split[splitnumber].complete = true
   }
 
@@ -469,7 +464,7 @@ export function createFITRecorder (config) {
         message_index: 0,
         start_time: writer.time(workout.startTime),
         split_type: 'interval_active',
-        num_splits: sessionData.activeSplits,
+        num_splits: sessionData.noActiveSplits,
         total_timer_time: workout.totalMovingTime,
         total_distance: workout.totalLinearDistance,
         avg_speed: workout.averageLinearVelocity,
@@ -478,10 +473,10 @@ export function createFITRecorder (config) {
         ...(splitActiveHRMetrics.maximum() > 0 ? { max_heart_rate: splitActiveHRMetrics.maximum() } : {}),
       },
       null,
-      (workout.totalTime - workout.totalMovingTime) === 0
+      sessionData.noRestSplits === 0
     )
 
-    if ((workout.totalTime - workout.totalMovingTime) > 0) {
+    if (sessionData.noRestSplits > 0) {
       // There was a pause
       writer.writeMessage(
         'split_summary',
@@ -489,7 +484,7 @@ export function createFITRecorder (config) {
           message_index: 1,
           start_time: writer.time(workout.startTime),
           split_type: 'interval_rest',
-          num_splits: sessionData.restSplits,
+          num_splits: sessionData.noRestSplits,
           total_timer_time: workout.totalTime - workout.totalTime,
           total_distance: 0,
           avg_speed: 0,
@@ -582,17 +577,17 @@ export function createFITRecorder (config) {
           timestamp: writer.time(splitdata.endTime),
           message_index: splitdata.splitNumber - 1,
           split_type: 'interval_active',
-          total_elapsed_time: splitdata.summary.timeSpent.total,
-          total_timer_time: splitdata.summary.timeSpent.total,
-          total_moving_time: splitdata.summary.timeSpent.moving,
-          total_distance: splitdata.summary.distance.fromStart,
-          avg_speed: splitdata.summary.linearVelocity.average,          
+          total_elapsed_time: splitdata.totalTime,
+          total_timer_time: splitdata.totalTime,
+          total_moving_time: splitdata.totalTime,
+          total_distance: splitdata.totalLinearDistance,
+          avg_speed: splitdata.totalLinearDistance > 0 ? splitdata.totalLinearDistance / splitdata.totalTime : 0,
           max_speed: splitdata.summary.linearVelocity.maximum,
           start_time: writer.time(splitdata.startTime),
           end_time: writer.time(splitdata.endTime),
         },
         null,
-        sessionData.totalNoLaps === lapdata.splitNumber
+        splitdata.splitNumber === (sessionData.noRestSplits + sessionData.noActiveSplits)
       )
     }
   }
@@ -619,7 +614,7 @@ export function createFITRecorder (config) {
           max_speed: 0,
         },
         null,
-        sessionData.totalNoLaps === splitdata.lapNumber
+        splitdata.splitNumber === (sessionData.noRestSplits + sessionData.noActiveSplits)
       )
     }
   }
@@ -922,6 +917,9 @@ export function createFITRecorder (config) {
     sessionData.workoutplan = []
     sessionData.workoutplan[0] = { type: 'justrow' }
     sessionData.lap = []
+    sessionData.split = []
+    sessionData.noActiveSplits = 0
+    sessionData.noRestSplits = 0
     sessionData.complete = false
     postExerciseHR = null
     postExerciseHR = []
