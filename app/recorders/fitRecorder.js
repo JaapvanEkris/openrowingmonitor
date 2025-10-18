@@ -77,6 +77,8 @@ export function createFITRecorder (config) {
     switch (true) {
       case (metrics.metricsContext.isSessionStart):
         sessionData.startTime = metrics.timestamp
+        sessionData.activeSplits = 1
+        sessionData.restSplits = 0
         splitnumber = 0
         startSplit(splitnumber, metrics)
         lapnumber = 0
@@ -165,6 +167,7 @@ export function createFITRecorder (config) {
 
   function startSplit (splitnumber, metrics) {
     resetSplitMetrics()
+    sessionData.activeSplits++
     sessionData.split[splitnumber] = { totalMovingTimeAtStart: metrics.totalMovingTime }
     sessionData.split[splitnumber].intensity = 'active'
     sessionData.split[splitnumber].startTime = metrics.timestamp
@@ -180,6 +183,7 @@ export function createFITRecorder (config) {
   }
 
   function addRestSplit (splitnumber, metrics, startTime, workoutStepNo) {
+    sessionData.restSplits++
     sessionData.split[splitnumber] = { startTime }
     sessionData.split[splitnumber].intensity = 'rest'
     sessionData.split[splitnumber].workoutStepNumber = workoutStepNo
@@ -461,6 +465,7 @@ export function createFITRecorder (config) {
         message_index: 0,
         start_time: writer.time(workout.startTime),
         split_type: 'interval_active',
+        num_splits: sessionData.activeSplits,
         total_timer_time: workout.totalMovingTime,
         total_distance: workout.totalLinearDistance,
         avg_speed: workout.averageLinearVelocity,
@@ -480,6 +485,7 @@ export function createFITRecorder (config) {
           message_index: 1,
           start_time: writer.time(workout.startTime),
           split_type: 'interval_rest',
+          num_splits: sessionData.restSplits,
           total_timer_time: workout.totalTime - workout.totalTime,
           total_distance: 0,
           avg_speed: 0,
