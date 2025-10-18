@@ -470,7 +470,7 @@ export function createFITRecorder (config) {
         avg_speed: workout.averageLinearVelocity,
         max_speed: workout.maximumLinearVelocity,
         ...(splitActiveHRMetrics.average() > 0 ? { avg_heart_rate: splitActiveHRMetrics.average() } : {}),
-        ...(splitActiveHRMetrics.maximum() > 0 ? { max_heart_rate: splitActiveHRMetrics.maximum() } : {}),
+        ...(splitActiveHRMetrics.maximum() > 0 ? { max_heart_rate: splitActiveHRMetrics.maximum() } : {})
       },
       null,
       sessionData.noRestSplits === 0
@@ -485,12 +485,12 @@ export function createFITRecorder (config) {
           start_time: writer.time(workout.startTime),
           split_type: 'interval_rest',
           num_splits: sessionData.noRestSplits,
-          total_timer_time: workout.totalTime - workout.totalTime,
+          total_timer_time: workout.totalTime - workout.totalMovingTime,
           total_distance: 0,
           avg_speed: 0,
           max_speed: 0,
-        ...(splitRestHRMetrics.average() > 0 ? { avg_heart_rate: splitRestHRMetrics.average() } : {}),
-        ...(splitRestHRMetrics.maximum() > 0 ? { max_heart_rate: splitRestHRMetrics.maximum() } : {}),          
+          ...(splitRestHRMetrics.average() > 0 ? { avg_heart_rate: splitRestHRMetrics.average() } : {}),
+          ...(splitRestHRMetrics.maximum() > 0 ? { max_heart_rate: splitRestHRMetrics.maximum() } : {})
         },
         null,
         true
