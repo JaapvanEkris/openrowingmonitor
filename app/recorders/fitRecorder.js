@@ -181,9 +181,9 @@ export function createFITRecorder (config) {
   }
 
   function calculateSplitMetrics (splitnumber, metrics) {
-    sessionData.split[splitnumber].totalMovingTimeAtEnd: metrics.totalMovingTime
+    sessionData.split[splitnumber].totalMovingTimeAtEnd = metrics.totalMovingTime
     sessionData.split[splitnumber].totalTime = metrics.totalMovingTime - sessionData.split[splitnumber].totalMovingTimeAtStart
-    sessionData.split[splitnumber].totalLinearDistance: metrics.totalLinearDistance - sessionData.split[splitnumber].startDistance
+    sessionData.split[splitnumber].totalLinearDistance = metrics.totalLinearDistance - sessionData.split[splitnumber].startDistance
     sessionData.split[splitnumber].endTime = metrics.timestamp
     sessionData.split[splitnumber].maxSpeed = metrics.splitdata.interval.linearVelocity.maximum
     sessionData.split[splitnumber].complete = true
