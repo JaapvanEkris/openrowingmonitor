@@ -112,7 +112,7 @@ export function createFITRecorder (config) {
       case (metrics.metricsContext.isPauseEnd):
         // The session is resumed, so it was a pause instead of a stop
         splitnumber++
-        addRestSplit(splitnumber, metrics, sessionData.split[splitnumber - 1].endTime, metrics.interval.workoutStepNumber)
+        addRestSplit(splitnumber, metrics, sessionData.split[splitnumber - 1].endTime)
         splitnumber++
         startSplit(splitnumber, metrics)
         lapnumber++
@@ -170,7 +170,6 @@ export function createFITRecorder (config) {
   }
 
   function startSplit (splitnumber, metrics) {
-    resetSplitMetrics()
     sessionData.noActiveSplits++
     sessionData.split[splitnumber] = { totalMovingTimeAtStart: metrics.totalMovingTime }
     sessionData.split[splitnumber].startDistance = metrics.totalLinearDistance
@@ -189,7 +188,7 @@ export function createFITRecorder (config) {
     sessionData.split[splitnumber].complete = true
   }
 
-  function addRestSplit (splitnumber, metrics, startTime, workoutStepNo) {
+  function addRestSplit (splitnumber, metrics, startTime) {
     sessionData.noRestSplits++
     sessionData.split[splitnumber] = { startTime }
     sessionData.split[splitnumber].intensity = 'rest'
@@ -911,7 +910,7 @@ export function createFITRecorder (config) {
     lapnumber = 0
     lapHRMetrics.reset()
     splitActiveHRMetrics.reset()
-    splitResetHRMetrics.reset()
+    splitRestHRMetrics.reset()
     sessionHRMetrics.reset()
     sessionData = null
     sessionData = {}
