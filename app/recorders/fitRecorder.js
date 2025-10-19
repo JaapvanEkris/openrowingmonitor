@@ -173,7 +173,7 @@ export function createFITRecorder (config) {
     resetSplitMetrics()
     sessionData.noActiveSplits++
     sessionData.split[splitnumber] = { totalMovingTimeAtStart: metrics.totalMovingTime }
-    sessionData.split[splitnumber].startDistance: metrics.totalLinearDistance
+    sessionData.split[splitnumber].startDistance = metrics.totalLinearDistance
     sessionData.split[splitnumber].intensity = 'active'
     sessionData.split[splitnumber].startTime = metrics.timestamp
     sessionData.split[splitnumber].splitNumber = splitnumber + 1
