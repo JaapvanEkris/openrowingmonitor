@@ -184,7 +184,7 @@ export function createFITRecorder (config) {
     sessionData.split[splitnumber].totalTime = metrics.totalMovingTime - sessionData.split[splitnumber].totalMovingTimeAtStart
     sessionData.split[splitnumber].totalLinearDistance = metrics.totalLinearDistance - sessionData.split[splitnumber].startDistance
     sessionData.split[splitnumber].endTime = metrics.timestamp
-    sessionData.split[splitnumber].maxSpeed = metrics.splitdata.interval.linearVelocity.maximum
+    sessionData.split[splitnumber].maxSpeed = metrics.interval.linearVelocity.maximum
     sessionData.split[splitnumber].complete = true
   }
 
@@ -582,7 +582,7 @@ export function createFITRecorder (config) {
           total_moving_time: splitdata.totalTime,
           total_distance: splitdata.totalLinearDistance,
           avg_speed: splitdata.totalLinearDistance > 0 ? splitdata.totalLinearDistance / splitdata.totalTime : 0,
-          max_speed: splitdata.summary.linearVelocity.maximum,
+          max_speed: splitdata.maxSpeed,
           start_time: writer.time(splitdata.startTime),
           end_time: writer.time(splitdata.endTime),
         },
