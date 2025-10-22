@@ -180,7 +180,7 @@ export function createFITRecorder (config) {
     sessionData.split[splitnumber].startDistance = metrics.totalLinearDistance
     sessionData.split[splitnumber].intensity = 'active'
     sessionData.split[splitnumber].startTime = metrics.timestamp
-    sessionData.split[splitnumber].splitNumber = splitnumber + 1
+    sessionData.split[splitnumber].splitNumber = splitnumber
     sessionData.split[splitnumber].complete = false
   }
 
@@ -197,7 +197,7 @@ export function createFITRecorder (config) {
     sessionData.split[splitnumber] = { startTime }
     sessionData.split[splitnumber].intensity = 'rest'
     sessionData.split[splitnumber].totalTime = metrics.split.timeSpent.rest
-    sessionData.split[splitnumber].splitNumber = splitnumber + 1
+    sessionData.split[splitnumber].splitNumber = splitnumber
     sessionData.split[splitnumber].endTime = metrics.timestamp
     sessionData.split[splitnumber].complete = true
   }
@@ -208,7 +208,7 @@ export function createFITRecorder (config) {
     sessionData.lap[lapnumber].intensity = 'active'
     sessionData.lap[lapnumber].strokes = []
     sessionData.lap[lapnumber].startTime = metrics.timestamp
-    sessionData.lap[lapnumber].lapNumber = lapnumber + 1
+    sessionData.lap[lapnumber].lapNumber = lapnumber
     sessionData.lap[lapnumber].complete = false
   }
 
@@ -271,7 +271,7 @@ export function createFITRecorder (config) {
         sessionData.lap[lapnumber].trigger = 'manual'
         sessionData.lap[lapnumber].event = 'lap'
     }
-    sessionData.lap[lapnumber].lapNumber = lapnumber + 1
+    sessionData.lap[lapnumber].lapNumber = lapnumber
     sessionData.lap[lapnumber].endTime = metrics.timestamp
     sessionData.lap[lapnumber].averageHeartrate = lapHRMetrics.average()
     sessionData.lap[lapnumber].maximumHeartrate = lapHRMetrics.maximum()
@@ -579,7 +579,7 @@ export function createFITRecorder (config) {
         'split',
         {
           timestamp: writer.time(splitdata.endTime),
-          message_index: splitdata.splitNumber - 1,
+          message_index: splitdata.splitNumber,
           split_type: 'interval_active',
           total_elapsed_time: splitdata.totalTime,
           total_timer_time: splitdata.totalTime,
@@ -591,7 +591,7 @@ export function createFITRecorder (config) {
           end_time: writer.time(splitdata.endTime)
         },
         null,
-        splitdata.splitNumber === (sessionData.noRestSplits + sessionData.noActiveSplits)
+        (splitdata.splitNumber + 1) === (sessionData.noRestSplits + sessionData.noActiveSplits)
       )
     }
   }
@@ -606,10 +606,10 @@ export function createFITRecorder (config) {
         'lap',
         {
           timestamp: writer.time(splitdata.endTime),
-          message_index: splitdata.splitNumber - 1,
+          message_index: splitdata.splitNumber,
           split_type: 'interval_rest',
-          total_elapsed_time: splitdata.summary.timeSpent.total,
-          total_timer_time: splitdata.summary.timeSpent.total,
+          total_elapsed_time: splitdata.totalTime,
+          total_timer_time: splitdata.totalTime,
           total_moving_time: 0,
           total_distance: 0,
           start_time: writer.time(splitdata.startTime),
@@ -618,7 +618,7 @@ export function createFITRecorder (config) {
           max_speed: 0,
         },
         null,
-        splitdata.splitNumber === (sessionData.noRestSplits + sessionData.noActiveSplits)
+        (splitdata.splitNumber + 1) === (sessionData.noRestSplits + sessionData.noActiveSplits)
       )
     }
   }
@@ -641,14 +641,14 @@ export function createFITRecorder (config) {
         'lap',
         {
           timestamp: writer.time(lapdata.endTime),
-          message_index: lapdata.lapNumber - 1,
+          message_index: lapdata.lapNumber,
           sport: 'rowing',
           sub_sport: 'indoorRowing',
           event: lapdata.event,
           wkt_step_index: lapdata.workoutStepNumber,
           event_type: 'stop',
           intensity: lapdata.intensity,
-          ...(sessionData.totalNoLaps === lapdata.lapNumber ? { lap_trigger: 'sessionEnd' } : { lap_trigger: lapdata.trigger }),
+          ...(sessionData.totalNoLaps === (lapdata.lapNumber + 1) ? { lap_trigger: 'sessionEnd' } : { lap_trigger: lapdata.trigger }),
           start_time: writer.time(lapdata.startTime),
           total_elapsed_time: lapdata.summary.timeSpent.total,
           total_timer_time: lapdata.summary.timeSpent.total,
@@ -667,7 +667,7 @@ export function createFITRecorder (config) {
           ...(lapdata.maximumHeartrate > 0 ? { max_heart_rate: lapdata.maximumHeartrate } : {})
         },
         null,
-        sessionData.totalNoLaps === lapdata.lapNumber
+        sessionData.totalNoLaps === (lapdata.lapNumber + 1)
       )
     }
   }
@@ -684,7 +684,7 @@ export function createFITRecorder (config) {
         'lap',
         {
           timestamp: writer.time(lapdata.endTime),
-          message_index: lapdata.lapNumber - 1,
+          message_index: lapdata.lapNumber,
           sport: 'rowing',
           sub_sport: 'indoorRowing',
           event: lapdata.event,
@@ -710,7 +710,7 @@ export function createFITRecorder (config) {
           ...(lapdata.maximumHeartrate > 0 ? { max_heart_rate: lapdata.maximumHeartrate } : {})
         },
         null,
-        sessionData.totalNoLaps === lapdata.lapNumber
+        sessionData.totalNoLaps === (lapdata.lapNumber + 1)
       )
 
       // Restart of the session
