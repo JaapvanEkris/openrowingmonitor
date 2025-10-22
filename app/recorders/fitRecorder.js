@@ -460,8 +460,8 @@ export function createFITRecorder (config) {
     writer.writeMessage(
       'split_summary',
       {
+        timestamp: writer.time(workout.endTime),
         message_index: 0,
-        start_time: writer.time(workout.startTime),
         split_type: 'interval_active',
         num_splits: sessionData.noActiveSplits,
         total_timer_time: workout.totalMovingTime,
@@ -480,8 +480,8 @@ export function createFITRecorder (config) {
       writer.writeMessage(
         'split_summary',
         {
+          timestamp: writer.time(workout.endTime),
           message_index: 1,
-          start_time: writer.time(workout.startTime),
           split_type: 'interval_rest',
           num_splits: sessionData.noRestSplits,
           total_timer_time: workout.totalTime - workout.totalMovingTime,
