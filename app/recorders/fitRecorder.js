@@ -26,6 +26,7 @@ export function createFITRecorder (config) {
   const sessionHRMetrics = createSeries()
   const splitActiveHRMetrics = createSeries()
   const splitRestHRMetrics = createSeries()
+  const splitVelocityMetrics = createSeries()
   const lapHRMetrics = createSeries()
   const VO2max = createVO2max(config)
   let heartRate = 0
@@ -147,6 +148,7 @@ export function createFITRecorder (config) {
         break
       case (metrics.metricsContext.isDriveStart):
         addMetricsToStrokesArray(metrics)
+        splitVelocityMetrics.push(metrics.cycleLinearVelocity)
         break
       // no default
     }
@@ -176,6 +178,8 @@ export function createFITRecorder (config) {
 
   function startSplit (splitnumber, metrics) {
     sessionData.noActiveSplits++
+    splitVelocityMetrics.reset()
+    splitVelocityMetrics.push(metrics.cycleLinearVelocity)
     sessionData.split[splitnumber] = { totalMovingTimeAtStart: metrics.totalMovingTime }
     sessionData.split[splitnumber].startDistance = metrics.totalLinearDistance
     sessionData.split[splitnumber].intensity = 'active'
@@ -188,7 +192,7 @@ export function createFITRecorder (config) {
     sessionData.split[splitnumber].totalTime = metrics.totalMovingTime - sessionData.split[splitnumber].totalMovingTimeAtStart
     sessionData.split[splitnumber].totalLinearDistance = metrics.totalLinearDistance - sessionData.split[splitnumber].startDistance
     sessionData.split[splitnumber].endTime = metrics.timestamp
-    sessionData.split[splitnumber].maxSpeed = metrics.interval.linearVelocity.maximum
+    sessionData.split[splitnumber].maxSpeed = splitVelocityMetrics.maximum()
     sessionData.split[splitnumber].complete = true
   }
 
@@ -915,6 +919,7 @@ export function createFITRecorder (config) {
     lapHRMetrics.reset()
     splitActiveHRMetrics.reset()
     splitRestHRMetrics.reset()
+    splitVelocityMetrics.reset()
     sessionHRMetrics.reset()
     sessionData = null
     sessionData = {}
