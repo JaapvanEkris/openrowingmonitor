@@ -5,6 +5,11 @@
 /**
  * This Module captures the metrics of a rowing session and persists them into the fit format
  * It provides a fit-file content, and some metadata for the filewriter and the file-uploaders
+ *
+ * Be aware: OpenRowingMonitor and Garmin actually use conflicting terminology!
+ * - An OpenRowingMonitor Interval is nearly identical as a Garmin Split (it is equal, aside the handling of unplanned pauses)
+ * - An OpenRowingMonitor Split is identical to a Garmin lap
+ * As Garmin splits also are only loosely related to laps and not seem to have a hierachrical relation, we do NOT use this in our datastructure either
  */
 /* eslint-disable camelcase -- Imported parameters are not camelCase */
 /* eslint-disable max-lines -- The length is governed by the fit-parameterisation, which we can't control */
