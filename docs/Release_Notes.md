@@ -7,6 +7,7 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris)
 ### New functionality in 0.9.7
 
 - **Addition of the 'Calories' workout type**. You can now program Intervals and splits based on calories to be burned
+- **Introduction of splits in the fit-file**. The fit-file now also has splits, which makes the fit-file closer to a native Garmin recording of the same session
 
 ### Bugfixes and robustness improvements in 0.9.7
 
@@ -15,6 +16,7 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris)
   - Introduced the 'Local Goodness of Fit' function to improve the robustness against noise. This reduces the effect of outliers on stroke detection, the Force curve, Power curve and Handle speed curve
   - Introduction of a 'Gaussian Weight' filter to reduce the effects of flanks on the regression in a specific datapoint
 - Fixed a bug in the initialisation of the Flywheel.js
+- Improved logging in the Strava uploader for better troubleshooting (see [issue 145](https://github.com/JaapvanEkris/openrowingmonitor/issues/145))
 
 ## Version 0.9.6 (June 2025)
 
