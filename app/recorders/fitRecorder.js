@@ -1,9 +1,9 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-*/
+ * OpenRowingMonitor, https://github.com/JaapvanEkris/openrowingmonitor
+ */
 /**
- * This Module captures the metrics of a rowing session and persists them into the fit format
+ * @file This Module captures the metrics of a rowing session and persists them into the fit format
  * It provides a fit-file content, and some metadata for the filewriter and the file-uploaders
  *
  * Be aware: OpenRowingMonitor and Garmin actually use conflicting terminology!
@@ -81,7 +81,7 @@ export function createFITRecorder (config) {
 
   /**
    * This function records the metrics in the structure for he fit-file to be generated
-   * * @param {Metrics} metrics to be recorded
+   * @param {Metrics} metrics to be recorded
    */
   function recordRowingMetrics (metrics) {
     switch (true) {
@@ -312,7 +312,7 @@ export function createFITRecorder (config) {
     sessionData.complete = true
   }
 
-  /*
+  /**
    * initiated when a new heart rate value is received from heart rate sensor
    */
   async function recordHeartRate (value) {
@@ -325,7 +325,7 @@ export function createFITRecorder (config) {
     }
   }
 
-  /*
+  /**
    * This externally exposed function generates the file contont for the file writer and uploaders
    */
   async function fileContent () {
@@ -349,7 +349,7 @@ export function createFITRecorder (config) {
     }
   }
 
- /*
+ /**
   * @see {@link https://developer.garmin.com/fit/file-types/activity/|the fields and their meaning}. We use 'Smart Recording' per stroke.
   * @see {@link https://developer.garmin.com/fit/cookbook/encoding-activity-files/|the description of the filestructure and how timestamps}
   * We use 'summary last message sequencing' as the stream makes most sense that way
@@ -491,7 +491,7 @@ export function createFITRecorder (config) {
     return fitfileContent
   }
 
-  /*
+  /**
    * @see {@link https://developer.garmin.com/fit/file-types/workout/|a general description of the workout structure}
    * @see {@link https://developer.garmin.com/fit/cookbook/encoding-workout-files/|a detailed description of the workout structure}
    */
@@ -762,7 +762,7 @@ export function createFITRecorder (config) {
     }
   }
 
-  /*
+  /**
    * Creation of the active split
    * @see {@link https://developer.garmin.com/fit/cookbook/durations/|how the different times are defined}
    */
@@ -790,8 +790,8 @@ export function createFITRecorder (config) {
     }
   }
 
-  /*
-   * Creation of the active split
+  /**
+   * Creation of the rest split
    * @see {@link https://developer.garmin.com/fit/cookbook/durations/|how the different times are defined}
    */
   async function createRestSplit (writer, splitdata) {
@@ -853,9 +853,11 @@ export function createFITRecorder (config) {
     }
   }
 
+  /**
+   * This function is called when the rowing session is stopped. postExerciseHR[0] is the last measured excercise HR
+   * Thus postExerciseHR[1] is Recovery HR after 1 min, etc..
+   */
   function measureRecoveryHR () {
-    // This function is called when the rowing session is stopped. postExerciseHR[0] is the last measured excercise HR
-    // Thus postExerciseHR[1] is Recovery HR after 1 min, etc..
     if (!isNaN(heartRate) && config.userSettings.restingHR <= heartRate && heartRate <= config.userSettings.maxHR) {
       log.debug(`*** Fit-recorder HRR-${postExerciseHR.length}: ${heartRate}`)
       postExerciseHR.push(heartRate)
