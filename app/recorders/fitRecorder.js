@@ -7,9 +7,10 @@
  * It provides a fit-file content, and some metadata for the filewriter and the file-uploaders
  *
  * Be aware: OpenRowingMonitor and Garmin actually use conflicting terminology!
- * - An OpenRowingMonitor Interval is nearly identical as a Garmin Split (it is equal, aside the handling of unplanned pauses)
+ * - An OpenRowingMonitor Interval is nearly identical as a Garmin Split (aside the handling of unplanned pauses)
  * - An OpenRowingMonitor Split is identical to a Garmin lap
- * As Garmin splits also are only loosely related to laps and not seem to have a hierachrical relation, we do NOT use this in our datastructure either
+ *
+ * Analysis of Garmin files show that splits, laps and strokes are completely disconnected, so we use that loose structure here as well
  */
 /* eslint-disable camelcase -- Imported parameters are not camelCase */
 /* eslint-disable max-lines -- The length is governed by the fit-parameterisation, which we can't control */
@@ -34,12 +35,15 @@ export function createFITRecorder (config) {
   sessionData.workoutplan = []
   sessionData.workoutplan[0] = { type: 'justrow' }
   sessionData.split = []
-  sessionData.lap = []
+  sessionData.split[0] = {}
+  sessionData.split[0].lap = []
+  sessionData.split[0].lap[0] = {}
   sessionData.noActiveSplits = 0
   sessionData.noRestSplits = 0
   sessionData.complete = false
   let splitnumber = 0
   let lapnumber = 0
+  let presentedlapnumber = 0
   let postExerciseHR = []
   let lastMetrics = {}
   let fitfileContent
@@ -59,10 +63,10 @@ export function createFITRecorder (config) {
         break
       case ('reset'):
       case ('shutdown'):
-        if (lastMetrics !== undefined && !!lastMetrics.metricsContext && lastMetrics.metricsContext.isMoving === true && (sessionData.lap[lapnumber].strokes.length > 0) && (lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime)) {
+        if (lastMetrics !== undefined && !!lastMetrics.metricsContext && lastMetrics.metricsContext.isMoving === true && (lastMetrics.totalNumberOfStrokes > 0) && (lastMetrics.totalMovingTime > sessionData.totalMovingTime)) {
           // We apperantly get a shutdown/crash during session
-          addMetricsToStrokesArray(lastMetrics)
-          calculateLapMetrics(lastMetrics)
+          addMetricsToStrokesArray(splitnumber, lapnumber, lastMetrics)
+          calculateLapMetrics(splitnumber, lapnumber, lastMetrics)
           calculateSplitMetrics(splitnumber, lastMetrics)
           calculateSessionMetrics(lastMetrics)
         }
@@ -90,15 +94,16 @@ export function createFITRecorder (config) {
         splitnumber = 0
         startSplit(splitnumber, metrics)
         lapnumber = 0
-        startLap(lapnumber, metrics)
+        presentedlapnumber = 0
+        startLap(splitnumber, lapnumber, presentedlapnumber, metrics)
         sessionHRMetrics.reset()
         splitActiveHRMetrics.reset()
         splitRestHRMetrics.reset()
-        addMetricsToStrokesArray(metrics)
+        addMetricsToStrokesArray(splitnumber, lapnumber, metrics)
         break
       case (metrics.metricsContext.isSessionStop && lastMetrics.sessionState !== 'Stopped'):
-        addMetricsToStrokesArray(metrics)
-        calculateLapMetrics(metrics)
+        addMetricsToStrokesArray(splitnumber, lapnumber, metrics)
+        calculateLapMetrics(splitnumber, lapnumber, metrics)
         calculateSplitMetrics(splitnumber, metrics)
         calculateSessionMetrics(metrics)
         postExerciseHR = null
@@ -106,8 +111,8 @@ export function createFITRecorder (config) {
         measureRecoveryHR()
         break
       case (metrics.metricsContext.isPauseStart && lastMetrics.sessionState === 'Rowing'):
-        addMetricsToStrokesArray(metrics)
-        calculateLapMetrics(metrics)
+        addMetricsToStrokesArray(splitnumber, lapnumber, metrics)
+        calculateLapMetrics(splitnumber, lapnumber,  metrics)
         calculateSplitMetrics(splitnumber, metrics)
         calculateSessionMetrics(metrics)
         resetLapMetrics()
@@ -116,38 +121,42 @@ export function createFITRecorder (config) {
         measureRecoveryHR()
         break
       case (metrics.metricsContext.isPauseEnd):
-        // The session is resumed, so it was a pause instead of a stop
+        // The session is resumed, so it was a pause instead of a stop. First add the rest split and lap
         splitnumber++
-        addRestSplit(splitnumber, metrics, sessionData.split[splitnumber - 1].endTime)
+        const endTime = sessionData.split[splitnumber - 1].endTime
+        addRestSplit(splitnumber, metrics, endTime)
+        lapnumber = 0
+        presentedlapnumber++
+        addRestLap(splitnumber, lapnumber, presentedlapnumber, metrics, endTime, metrics.interval.workoutStepNumber)
+        // Now start a new active split and lap
         splitnumber++
         startSplit(splitnumber, metrics)
-        lapnumber++
-        addRestLap(lapnumber, metrics, sessionData.lap[lapnumber - 1].endTime, metrics.interval.workoutStepNumber)
-        lapnumber++
-        startLap(lapnumber, metrics)
-        addMetricsToStrokesArray(metrics)
+        lapnumber = 0
+        presentedlapnumber++
+        startLap(splitnumber, lapnumber, presentedlapnumber, metrics)
+        addMetricsToStrokesArray(splitnumber, lapnumber, metrics)
         break
       case (metrics.metricsContext.isIntervalEnd):
-        if (metrics.metricsContext.isDriveStart) { addMetricsToStrokesArray(metrics) }
-        calculateSessionMetrics(metrics)
+        if (metrics.metricsContext.isDriveStart) { addMetricsToStrokesArray(splitnumber, lapnumber, metrics) }
         calculateSplitMetrics(splitnumber, metrics)
-        calculateLapMetrics(metrics)
+        calculateLapMetrics(splitnumber, lapnumber, metrics)
         resetLapMetrics()
         splitnumber++
         startSplit(splitnumber, metrics)
-        lapnumber++
-        startLap(lapnumber, metrics)
+        lapnumber = 0
+        presentedlapnumber++
+        startLap(splitnumber, lapnumber, presentedlapnumber, metrics)
         break
       case (metrics.metricsContext.isSplitEnd):
-        if (metrics.metricsContext.isDriveStart) { addMetricsToStrokesArray(metrics) }
-        calculateLapMetrics(metrics)
-        calculateSessionMetrics(metrics)
+        if (metrics.metricsContext.isDriveStart) { addMetricsToStrokesArray(splitnumber, lapnumber, metrics) }
+        calculateLapMetrics(splitnumber, lapnumber, metrics)
         resetLapMetrics()
         lapnumber++
-        startLap(lapnumber, metrics)
+        presentedlapnumber++
+        startLap(splitnumber, lapnumber, presentedlapnumber, metrics)
         break
       case (metrics.metricsContext.isDriveStart):
-        addMetricsToStrokesArray(metrics)
+        addMetricsToStrokesArray(splitnumber, lapnumber, metrics)
         splitVelocityMetrics.push(metrics.cycleLinearVelocity)
         break
       // no default
@@ -155,22 +164,23 @@ export function createFITRecorder (config) {
     lastMetrics = metrics
   }
 
-  function addMetricsToStrokesArray (metrics) {
-    sessionData.lap[lapnumber].strokes.push({})
-    const strokenumber = sessionData.lap[lapnumber].strokes.length - 1
-    sessionData.lap[lapnumber].strokes[strokenumber].timestamp = metrics.timestamp
-    sessionData.lap[lapnumber].strokes[strokenumber].totalLinearDistance = metrics.totalLinearDistance
-    sessionData.lap[lapnumber].strokes[strokenumber].totalNumberOfStrokes = metrics.totalNumberOfStrokes
-    sessionData.lap[lapnumber].strokes[strokenumber].cycleStrokeRate = metrics.cycleStrokeRate
-    sessionData.lap[lapnumber].strokes[strokenumber].cyclePower = metrics.cyclePower
-    sessionData.lap[lapnumber].strokes[strokenumber].cycleLinearVelocity = metrics.cycleLinearVelocity
-    sessionData.lap[lapnumber].strokes[strokenumber].cycleDistance = metrics.cycleDistance
-    sessionData.lap[lapnumber].strokes[strokenumber].dragFactor = metrics.dragFactor
+  function addMetricsToStrokesArray (splitnumber, lapnumber, metrics) {
+    sessionData.split[splitnumber].lap[lapnumber].strokes.push({})
+    const strokenumber = sessionData.split[splitnumber].lap[lapnumber].strokes.length - 1
+    sessionData.split[splitnumber].lap[lapnumber].strokes[strokenumber].timestamp = metrics.timestamp
+    sessionData.split[splitnumber].lap[lapnumber].strokes[strokenumber].totalLinearDistance = metrics.totalLinearDistance
+    sessionData.split[splitnumber].lap[lapnumber].strokes[strokenumber].totalNumberOfStrokes = metrics.totalNumberOfStrokes
+    sessionData.split[splitnumber].lap[lapnumber].strokes[strokenumber].cycleStrokeRate = metrics.cycleStrokeRate
+    sessionData.split[splitnumber].lap[lapnumber].strokes[strokenumber].cyclePower = metrics.cyclePower
+    sessionData.split[splitnumber].lap[lapnumber].strokes[strokenumber].cycleLinearVelocity = metrics.cycleLinearVelocity
+    sessionData.split[splitnumber].lap[lapnumber].strokes[strokenumber].cycleDistance = metrics.cycleDistance
+    sessionData.split[splitnumber].lap[lapnumber].strokes[strokenumber].dragFactor = metrics.dragFactor
     if (!isNaN(heartRate) && heartRate > 0) {
-      sessionData.lap[lapnumber].strokes[strokenumber].heartrate = heartRate
+      sessionData.split[splitnumber].lap[lapnumber].strokes[strokenumber].heartrate = heartRate
     } else {
-      sessionData.lap[lapnumber].strokes[strokenumber].heartrate = undefined
+      sessionData.split[splitnumber].lap[lapnumber].strokes[strokenumber].heartrate = undefined
     }
+    sessionData.totalMovingTime = metrics.workout.timeSpent.moving
     VO2max.push(metrics)
     fitfileContentIsCurrent = false
     allDataHasBeenWritten = false
@@ -187,6 +197,7 @@ export function createFITRecorder (config) {
     sessionData.split[splitnumber].intensity = 'active'
     sessionData.split[splitnumber].startTime = metrics.timestamp
     sessionData.split[splitnumber].splitNumber = splitnumber
+    sessionData.split[splitnumber].lap = []
     sessionData.split[splitnumber].complete = false
   }
 
@@ -196,6 +207,7 @@ export function createFITRecorder (config) {
     sessionData.split[splitnumber].endTime = metrics.timestamp
     sessionData.split[splitnumber].maxSpeed = splitVelocityMetrics.maximum()
     sessionData.split[splitnumber].complete = true
+    sessionData.totalMovingTime = metrics.workout.timeSpent.moving
   }
 
   function addRestSplit (splitnumber, metrics, startTime) {
@@ -205,84 +217,88 @@ export function createFITRecorder (config) {
     sessionData.split[splitnumber].intensity = 'rest'
     sessionData.split[splitnumber].totalTime = metrics.split.timeSpent.rest
     sessionData.split[splitnumber].endTime = metrics.timestamp
+    sessionData.split[splitnumber].lap = []
     sessionData.split[splitnumber].complete = true
   }
 
-  function startLap (lapnumber, metrics) {
+  function startLap (splitnumber, lapnumber, presentedlapnumber, metrics) {
     resetLapMetrics()
-    sessionData.lap[lapnumber] = { lapNumber: lapnumber }
-    sessionData.lap[lapnumber].totalMovingTimeAtStart = metrics.totalMovingTime
-    sessionData.lap[lapnumber].intensity = 'active'
-    sessionData.lap[lapnumber].strokes = []
-    sessionData.lap[lapnumber].startTime = metrics.timestamp
-    sessionData.lap[lapnumber].complete = false
+    sessionData.split[splitnumber].lap.push({})
+    sessionData.split[splitnumber].lap[lapnumber].lapNumber = presentedlapnumber
+    sessionData.split[splitnumber].lap[lapnumber].totalMovingTimeAtStart = metrics.totalMovingTime
+    sessionData.split[splitnumber].lap[lapnumber].intensity = 'active'
+    sessionData.split[splitnumber].lap[lapnumber].strokes = []
+    sessionData.split[splitnumber].lap[lapnumber].startTime = metrics.timestamp
+    sessionData.split[splitnumber].lap[lapnumber].complete = false
   }
 
-  function calculateLapMetrics (metrics) {
-    sessionData.lap[lapnumber].workoutStepNumber = metrics.interval.workoutStepNumber
-    sessionData.lap[lapnumber].endTime = metrics.timestamp
+  function calculateLapMetrics (splitnumber, lapnumber, metrics) {
+    sessionData.split[splitnumber].lap[lapnumber].workoutStepNumber = metrics.interval.workoutStepNumber
+    sessionData.split[splitnumber].lap[lapnumber].endTime = metrics.timestamp
     switch (true) {
       case (metrics.metricsContext.isSessionStop && (metrics.interval.type === 'distance' || metrics.interval.type === 'time' || metrics.interval.type === 'calories')):
         // As the workout closure has its own events, we need to close the workout step here
-        sessionData.lap[lapnumber].trigger = metrics.interval.type
-        sessionData.lap[lapnumber].event = 'workoutStep'
+        sessionData.split[splitnumber].lap[lapnumber].trigger = metrics.interval.type
+        sessionData.split[splitnumber].lap[lapnumber].event = 'workoutStep'
         break
       case (metrics.metricsContext.isSessionStop):
-        sessionData.lap[lapnumber].trigger = 'manual'
-        sessionData.lap[lapnumber].event = 'workoutStep'
+        sessionData.split[splitnumber].lap[lapnumber].trigger = 'manual'
+        sessionData.split[splitnumber].lap[lapnumber].event = 'workoutStep'
         break
       case (metrics.metricsContext.isIntervalEnd && (metrics.interval.type === 'distance' || metrics.interval.type === 'time' || metrics.interval.type === 'calories')):
-        sessionData.lap[lapnumber].trigger = metrics.interval.type
-        sessionData.lap[lapnumber].event = 'workoutStep'
+        sessionData.split[splitnumber].lap[lapnumber].trigger = metrics.interval.type
+        sessionData.split[splitnumber].lap[lapnumber].event = 'workoutStep'
         break
       case (metrics.metricsContext.isIntervalEnd):
-        sessionData.lap[lapnumber].trigger = 'manual'
-        sessionData.lap[lapnumber].event = 'workoutStep'
+        sessionData.split[splitnumber].lap[lapnumber].trigger = 'manual'
+        sessionData.split[splitnumber].lap[lapnumber].event = 'workoutStep'
         break
       case (metrics.metricsContext.isPauseStart):
         // As metrics.metricsContext.isIntervalEnd === false, we know this is a spontanuous pause and not a planned rest interval
-        sessionData.lap[lapnumber].trigger = 'manual'
-        sessionData.lap[lapnumber].event = 'speedLowAlert'
+        sessionData.split[splitnumber].lap[lapnumber].trigger = 'manual'
+        sessionData.split[splitnumber].lap[lapnumber].event = 'speedLowAlert'
         break
       case (metrics.metricsContext.isSplitEnd && (metrics.split.type === 'distance' || metrics.split.type === 'time' || metrics.split.type === 'calories')):
-        sessionData.lap[lapnumber].trigger = metrics.split.type
-        sessionData.lap[lapnumber].event = 'lap'
+        sessionData.split[splitnumber].lap[lapnumber].trigger = metrics.split.type
+        sessionData.split[splitnumber].lap[lapnumber].event = 'lap'
         break
       case (metrics.metricsContext.isSplitEnd):
-        sessionData.lap[lapnumber].trigger = 'manual'
-        sessionData.lap[lapnumber].event = 'lap'
+        sessionData.split[splitnumber].lap[lapnumber].trigger = 'manual'
+        sessionData.split[splitnumber].lap[lapnumber].event = 'lap'
         break
       default:
-        sessionData.lap[lapnumber].trigger = 'manual'
-        sessionData.lap[lapnumber].event = 'lap'
+        sessionData.split[splitnumber].lap[lapnumber].trigger = 'manual'
+        sessionData.split[splitnumber].lap[lapnumber].event = 'lap'
     }
-    sessionData.lap[lapnumber].summary = { ...metrics.split }
-    sessionData.lap[lapnumber].averageHeartrate = lapHRMetrics.average()
-    sessionData.lap[lapnumber].maximumHeartrate = lapHRMetrics.maximum()
-    sessionData.lap[lapnumber].complete = true
+    sessionData.split[splitnumber].lap[lapnumber].summary = { ...metrics.split }
+    sessionData.split[splitnumber].lap[lapnumber].averageHeartrate = lapHRMetrics.average()
+    sessionData.split[splitnumber].lap[lapnumber].maximumHeartrate = lapHRMetrics.maximum()
+    sessionData.split[splitnumber].lap[lapnumber].complete = true
+    sessionData.totalMovingTime = metrics.workout.timeSpent.moving
   }
 
-  function addRestLap (lapnumber, metrics, startTime, workoutStepNo) {
-    sessionData.lap[lapnumber] = { lapNumber: lapnumber }
-    sessionData.lap[lapnumber].startTime = startTime
-    sessionData.lap[lapnumber].intensity = 'rest'
-    sessionData.lap[lapnumber].workoutStepNumber = workoutStepNo
+  function addRestLap (splitnumber, lapnumber, presentedLapMumber, metrics, startTime, workoutStepNo) {
+    sessionData.split[splitnumber].lap.push({})
+    sessionData.split[splitnumber].lap[lapnumber].lapNumber = presentedLapMumber
+    sessionData.split[splitnumber].lap[lapnumber].startTime = startTime
+    sessionData.split[splitnumber].lap[lapnumber].intensity = 'rest'
+    sessionData.split[splitnumber].lap[lapnumber].workoutStepNumber = workoutStepNo
     switch (true) {
       case (metrics.metricsContext.isIntervalEnd):
         // This occurs when the sessionmanager termnates a planned rest interval
-        sessionData.lap[lapnumber].trigger = 'time'
-        sessionData.lap[lapnumber].event = 'workoutStep'
+        sessionData.split[splitnumber].lap[lapnumber].trigger = 'time'
+        sessionData.split[splitnumber].lap[lapnumber].event = 'workoutStep'
         break
       default:
         // It is an unplanned rest lap
-        sessionData.lap[lapnumber].trigger = 'manual'
-        sessionData.lap[lapnumber].event = 'lap'
+        sessionData.split[splitnumber].lap[lapnumber].trigger = 'manual'
+        sessionData.split[splitnumber].lap[lapnumber].event = 'lap'
     }
-    sessionData.lap[lapnumber].endTime = metrics.timestamp
-    sessionData.lap[lapnumber].averageHeartrate = lapHRMetrics.average()
-    sessionData.lap[lapnumber].maximumHeartrate = lapHRMetrics.maximum()
-    sessionData.lap[lapnumber].summary = { ...metrics.split }
-    sessionData.lap[lapnumber].complete = true
+    sessionData.split[splitnumber].lap[lapnumber].endTime = metrics.timestamp
+    sessionData.split[splitnumber].lap[lapnumber].averageHeartrate = lapHRMetrics.average()
+    sessionData.split[splitnumber].lap[lapnumber].maximumHeartrate = lapHRMetrics.maximum()
+    sessionData.split[splitnumber].lap[lapnumber].summary = { ...metrics.split }
+    sessionData.split[splitnumber].lap[lapnumber].complete = true
     VO2max.handleRestart(metrics.split.timeSpent.moving)
   }
 
@@ -308,7 +324,7 @@ export function createFITRecorder (config) {
     sessionData.minimumHeartrate = sessionHRMetrics.minimum()
     sessionData.averageHeartrate = sessionHRMetrics.average()
     sessionData.maximumHeartrate = sessionHRMetrics.maximum()
-    sessionData.endTime = sessionData.lap[lapnumber].endTime
+    sessionData.endTime = sessionData.split[splitnumber].lap[lapnumber].endTime
     sessionData.complete = true
   }
 
@@ -331,9 +347,13 @@ export function createFITRecorder (config) {
   async function fileContent () {
     if (Object.keys(lastMetrics).length === 0 || Object.keys(sessionData).length === 0) { return undefined }
 
-    if (sessionData.lap[lapnumber].complete !== true) {
-      addMetricsToStrokesArray(lastMetrics)
-      calculateLapMetrics(lastMetrics)
+    if (sessionData.split[splitnumber].lap[lapnumber].complete !== true) {
+      addMetricsToStrokesArray(splitnumber, lapnumber, lastMetrics)
+      calculateLapMetrics(splitnumber, lapnumber, lastMetrics)
+    }
+
+    if (sessionData.split[splitnumber].complete !== true) {
+        calculateSplitMetrics(splitnumber, lastMetrics)
     }
 
     if (sessionData.complete !== true) {
@@ -424,10 +444,16 @@ export function createFITRecorder (config) {
     // The workout definition before the start
     await createWorkoutSteps(fitWriter, workout)
 
-    // Write the metrics
-    await createActivity(fitWriter, workout)
+    // Start of the session
+    await addEvent(fitWriter, workout.startTime, 'workout', 'start')
+    await addEvent(fitWriter, workout.startTime, 'timer', 'start')
 
+    // Write the metrics
     await createSplits(fitWriter, workout)
+
+    // Finish the seesion with a stop event
+    await addEvent(fitWriter, workout.endTime, 'timer', 'stopAll')
+    await addEvent(fitWriter, workout.endTime, 'workout', 'stop')
 
     await createVO2MaxRecord(fitWriter, workout)
 
@@ -496,7 +522,7 @@ export function createFITRecorder (config) {
    * @see {@link https://developer.garmin.com/fit/cookbook/encoding-workout-files/|a detailed description of the workout structure}
    */
   async function createWorkoutSteps (writer, workout) {
-    const maxWorkoutStepNumber = workout.lap[workout.lap.length - 1].workoutStepNumber
+    const maxWorkoutStepNumber = workout.split[splitnumber].lap[workout.split[splitnumber].lap.length - 1].workoutStepNumber
     writer.writeMessage(
       'workout',
       {
@@ -553,30 +579,6 @@ export function createFITRecorder (config) {
     )
   }
 
-  async function createActivity (writer, workout) {
-    // Start of the session
-    await addEvent(writer, workout.startTime, 'workout', 'start')
-    await addEvent(writer, workout.startTime, 'timer', 'start')
-
-    // Write all laps
-    let i = 0
-    while (i < workout.lap.length) {
-      if (workout.lap[i].intensity === 'active') {
-        // eslint-disable-next-line no-await-in-loop -- This is inevitable if you want to have some decent order in the file
-        await createActiveLap(writer, workout.lap[i])
-      } else {
-        // This is a rest interval
-        // eslint-disable-next-line no-await-in-loop -- This is inevitable if you want to have some decent order in the file
-        await createRestLap(writer, workout.lap[i])
-      }
-      i++
-    }
-
-    // Finish the seesion with a stop event
-    await addEvent(writer, workout.endTime, 'timer', 'stopAll')
-    await addEvent(writer, workout.endTime, 'workout', 'stop')
-  }
-
   async function addEvent (writer, time, event, eventType) {
     writer.writeMessage(
       'event',
@@ -591,6 +593,142 @@ export function createFITRecorder (config) {
     )
   }
 
+  async function createSplits (writer, workout) {
+    // Create the splits
+    let i = 0
+    while (i < workout.split.length) {
+      if (workout.split[i].intensity === 'active') {
+        // eslint-disable-next-line no-await-in-loop -- This is inevitable if you want to have some decent order in the file
+        await createActiveSplit(writer, workout.split[i])
+      } else {
+        // This is a rest interval
+        // eslint-disable-next-line no-await-in-loop -- This is inevitable if you want to have some decent order in the file
+        await createRestSplit(writer, workout.split[i])
+      }
+      i++
+    }
+
+    // Write the split summary
+    writer.writeMessage(
+      'split_summary',
+      {
+        timestamp: writer.time(workout.endTime),
+        message_index: 0,
+        split_type: 'interval_active',
+        num_splits: sessionData.noActiveSplits,
+        total_timer_time: workout.totalMovingTime,
+        total_distance: workout.totalLinearDistance,
+        avg_speed: workout.averageLinearVelocity,
+        max_speed: workout.maximumLinearVelocity,
+        ...(splitActiveHRMetrics.average() > 0 ? { avg_heart_rate: splitActiveHRMetrics.average() } : {}),
+        ...(splitActiveHRMetrics.maximum() > 0 ? { max_heart_rate: splitActiveHRMetrics.maximum() } : {})
+      },
+      null,
+      sessionData.noRestSplits === 0
+    )
+
+    if (sessionData.noRestSplits > 0) {
+      // There was a pause
+      writer.writeMessage(
+        'split_summary',
+        {
+          timestamp: writer.time(workout.endTime),
+          message_index: 1,
+          split_type: 'interval_rest',
+          num_splits: sessionData.noRestSplits,
+          total_timer_time: workout.totalTime - workout.totalMovingTime,
+          total_distance: 0,
+          avg_speed: 0,
+          max_speed: 0,
+          ...(splitRestHRMetrics.average() > 0 ? { avg_heart_rate: splitRestHRMetrics.average() } : {}),
+          ...(splitRestHRMetrics.maximum() > 0 ? { max_heart_rate: splitRestHRMetrics.maximum() } : {})
+        },
+        null,
+        true
+      )
+    }
+  }
+
+  /**
+   * Creation of the active split
+   * @see {@link https://developer.garmin.com/fit/cookbook/durations/|how the different times are defined}
+   */
+  async function createActiveSplit (writer, splitdata) {
+    if (!!splitdata.endTime && splitdata.endTime > 0 && !!splitdata.startTime && splitdata.startTime > 0) {
+      // The split is complete
+
+      await writeLaps(writer, splitdata)
+
+      writer.writeMessage(
+        'split',
+        {
+          timestamp: writer.time(splitdata.endTime),
+          message_index: splitdata.splitNumber,
+          split_type: 'interval_active',
+          total_elapsed_time: splitdata.totalTime,
+          total_timer_time: splitdata.totalTime,
+          total_moving_time: splitdata.totalTime,
+          total_distance: splitdata.totalLinearDistance,
+          avg_speed: splitdata.totalLinearDistance > 0 ? splitdata.totalLinearDistance / splitdata.totalTime : 0,
+          max_speed: splitdata.maxSpeed,
+          start_time: writer.time(splitdata.startTime),
+          end_time: writer.time(splitdata.endTime)
+        },
+        null,
+        (splitdata.splitNumber + 1) === (sessionData.noRestSplits + sessionData.noActiveSplits)
+      )
+    }
+  }
+
+  /**
+   * Creation of the rest split
+   * @see {@link https://developer.garmin.com/fit/cookbook/durations/|how the different times are defined}
+   */
+  async function createRestSplit (writer, splitdata) {
+    // First, make sure the rest lap is complete
+    if (!!splitdata.endTime && splitdata.endTime > 0 && !!splitdata.startTime && splitdata.startTime > 0) {
+      // Pause the session timer with a stop event at the begin of the rest interval
+
+      await writeLaps(writer, splitdata)
+
+      // Add a rest lap summary
+      writer.writeMessage(
+        'split',
+        {
+          timestamp: writer.time(splitdata.endTime),
+          message_index: splitdata.splitNumber,
+          split_type: 'interval_rest',
+          total_elapsed_time: splitdata.totalTime,
+          total_timer_time: splitdata.totalTime,
+          total_moving_time: 0,
+          total_distance: 0,
+          avg_speed: 0,
+          max_speed: 0,
+          start_time: writer.time(splitdata.startTime),
+          end_time: writer.time(splitdata.endTime)
+        },
+        null,
+        (splitdata.splitNumber + 1) === (sessionData.noRestSplits + sessionData.noActiveSplits)
+      )
+    }
+  }
+
+  async function writeLaps (writer, split) {
+    // Write all laps
+    let i = 0
+    while (i < split.lap.length) {
+      if (split.lap[i].intensity === 'active') {
+        // eslint-disable-next-line no-await-in-loop -- This is inevitable if you want to have some decent order in the file
+        await createActiveLap(writer, split.lap[i])
+      } else {
+        // This is a rest interval
+        // eslint-disable-next-line no-await-in-loop -- This is inevitable if you want to have some decent order in the file
+        await createRestLap(writer, split.lap[i])
+      }
+      i++
+    }
+  }
+
   async function createActiveLap (writer, lapdata) {
     // It is an active lap, after we make sure it is a completed lap, we can write all underlying records
     if (!!lapdata.summary.timeSpent.moving && lapdata.summary.timeSpent.moving > 0 && !!lapdata.summary.distance.fromStart && lapdata.summary.distance.fromStart > 0) {
@@ -602,6 +740,7 @@ export function createFITRecorder (config) {
       }
 
       await addEvent(writer, lapdata.endTime, lapdata.event, 'stop')
+
 
       // Conclude the lap with a summary
       // See https://developer.garmin.com/fit/cookbook/durations/ for how the different times are defined
@@ -704,120 +843,6 @@ export function createFITRecorder (config) {
         ...(trackpoint.heartrate !== undefined && trackpoint.heartrate > 0 ? { heart_rate: trackpoint.heartrate } : {})
       }
     )
-  }
-
-  async function createSplits (writer, workout) {
-    // Create the splits
-    let i = 0
-    while (i < workout.split.length) {
-      if (workout.split[i].intensity === 'active') {
-        // eslint-disable-next-line no-await-in-loop -- This is inevitable if you want to have some decent order in the file
-        await createActiveSplit(writer, workout.split[i])
-      } else {
-        // This is a rest interval
-        // eslint-disable-next-line no-await-in-loop -- This is inevitable if you want to have some decent order in the file
-        await createRestSplit(writer, workout.split[i])
-      }
-      i++
-    }
-
-    // Write the split summary
-    writer.writeMessage(
-      'split_summary',
-      {
-        timestamp: writer.time(workout.endTime),
-        message_index: 0,
-        split_type: 'interval_active',
-        num_splits: sessionData.noActiveSplits,
-        total_timer_time: workout.totalMovingTime,
-        total_distance: workout.totalLinearDistance,
-        avg_speed: workout.averageLinearVelocity,
-        max_speed: workout.maximumLinearVelocity,
-        ...(splitActiveHRMetrics.average() > 0 ? { avg_heart_rate: splitActiveHRMetrics.average() } : {}),
-        ...(splitActiveHRMetrics.maximum() > 0 ? { max_heart_rate: splitActiveHRMetrics.maximum() } : {})
-      },
-      null,
-      sessionData.noRestSplits === 0
-    )
-
-    if (sessionData.noRestSplits > 0) {
-      // There was a pause
-      writer.writeMessage(
-        'split_summary',
-        {
-          timestamp: writer.time(workout.endTime),
-          message_index: 1,
-          split_type: 'interval_rest',
-          num_splits: sessionData.noRestSplits,
-          total_timer_time: workout.totalTime - workout.totalMovingTime,
-          total_distance: 0,
-          avg_speed: 0,
-          max_speed: 0,
-          ...(splitRestHRMetrics.average() > 0 ? { avg_heart_rate: splitRestHRMetrics.average() } : {}),
-          ...(splitRestHRMetrics.maximum() > 0 ? { max_heart_rate: splitRestHRMetrics.maximum() } : {})
-        },
-        null,
-        true
-      )
-    }
-  }
-
-  /**
-   * Creation of the active split
-   * @see {@link https://developer.garmin.com/fit/cookbook/durations/|how the different times are defined}
-   */
-  async function createActiveSplit (writer, splitdata) {
-    if (!!splitdata.endTime && splitdata.endTime > 0 && !!splitdata.startTime && splitdata.startTime > 0) {
-      // The split is complete
-      writer.writeMessage(
-        'split',
-        {
-          timestamp: writer.time(splitdata.endTime),
-          message_index: splitdata.splitNumber,
-          split_type: 'interval_active',
-          total_elapsed_time: splitdata.totalTime,
-          total_timer_time: splitdata.totalTime,
-          total_moving_time: splitdata.totalTime,
-          total_distance: splitdata.totalLinearDistance,
-          avg_speed: splitdata.totalLinearDistance > 0 ? splitdata.totalLinearDistance / splitdata.totalTime : 0,
-          max_speed: splitdata.maxSpeed,
-          start_time: writer.time(splitdata.startTime),
-          end_time: writer.time(splitdata.endTime)
-        },
-        null,
-        (splitdata.splitNumber + 1) === (sessionData.noRestSplits + sessionData.noActiveSplits)
-      )
-    }
-  }
-
-  /**
-   * Creation of the rest split
-   * @see {@link https://developer.garmin.com/fit/cookbook/durations/|how the different times are defined}
-   */
-  async function createRestSplit (writer, splitdata) {
-    // First, make sure the rest lap is complete
-    if (!!splitdata.endTime && splitdata.endTime > 0 && !!splitdata.startTime && splitdata.startTime > 0) {
-      // Pause the session timer with a stop event at the begin of the rest interval
-      // Add a rest lap summary
-      writer.writeMessage(
-        'split',
-        {
-          timestamp: writer.time(splitdata.endTime),
-          message_index: splitdata.splitNumber,
-          split_type: 'interval_rest',
-          total_elapsed_time: splitdata.totalTime,
-          total_timer_time: splitdata.totalTime,
-          total_moving_time: 0,
-          total_distance: 0,
-          avg_speed: 0,
-          max_speed: 0,
-          start_time: writer.time(splitdata.startTime),
-          end_time: writer.time(splitdata.endTime)
-        },
-        null,
-        (splitdata.splitNumber + 1) === (sessionData.noRestSplits + sessionData.noActiveSplits)
-      )
-    }
   }
 
   async function createVO2MaxRecord (writer, workout) {
