@@ -1812,11 +1812,11 @@ function testSlope (series, position, expectedValue) { // eslint-disable-line no
   assert.ok(series.slope(position) === expectedValue, `Expected value for Slope-${position} at X-position ${series.X.atSeriesEnd()} (slope at X-position ${series.X.atPosition(position)}) is ${expectedValue}, encountered a ${series.slope(position)}`)
 }
 
-function testFirstDerivativeAtPosition (series, position, expectedValue) { // eslint-disable-line no-unused-vars
+function testFirstDerivativeAtPosition (series, position, expectedValue) {
   assert.ok(series.firstDerivativeAtPosition(position) === expectedValue, `Expected value for first derivative for position ${position} at X-position ${series.X.atSeriesEnd()} is ${expectedValue}, encountered a ${series.firstDerivativeAtPosition(position)}`)
 }
 
-function testSecondDerivativeAtPosition (series, position, expectedValue) { // eslint-disable-line no-unused-vars
+function testSecondDerivativeAtPosition (series, position, expectedValue) {
   assert.ok(series.secondDerivativeAtPosition(position) === expectedValue, `Expected value for second derivative for position ${position} at X-position ${series.X.atSeriesEnd()} is ${expectedValue}, encountered a ${series.secondDerivativeAtPosition(position)}`)
 }
 
