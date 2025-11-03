@@ -177,6 +177,7 @@ export function createFITRecorder (config) {
       splitNumber: splitnumber,
       totalMovingTimeAtStart: metrics.totalMovingTime,
       startDistance: metrics.totalLinearDistance,
+      startCalories: metrics.workout.caloriesSpent.total,
       intensity: 'active',
       complete: false
     })
@@ -186,6 +187,7 @@ export function createFITRecorder (config) {
     const splitnumber = sessionData.splits.length - 1
     sessionData.splits[splitnumber].totalTime = metrics.totalMovingTime - sessionData.splits[splitnumber].totalMovingTimeAtStart
     sessionData.splits[splitnumber].totalLinearDistance = metrics.totalLinearDistance - sessionData.splits[splitnumber].startDistance
+    sessionData.splits[splitnumber].calories = metrics.workout.caloriesSpent.total - sessionData.splits[splitnumber].startCalories
     sessionData.splits[splitnumber].endTime = metrics.timestamp
     sessionData.splits[splitnumber].maxSpeed = splitVelocityMetrics.maximum()
     sessionData.splits[splitnumber].complete = true
@@ -200,6 +202,7 @@ export function createFITRecorder (config) {
       splitNumber: splitnumber,
       intensity: 'rest',
       totalTime: metrics.split.timeSpent.rest,
+      calories: metrics.split.caloriesSpent.rest,
       endTime: metrics.timestamp,
       complete: true
     })
@@ -292,6 +295,8 @@ export function createFITRecorder (config) {
     sessionData.totalTime = metrics.workout.timeSpent.total
     sessionData.totalMovingTime = metrics.workout.timeSpent.moving
     sessionData.totalRestTime = metrics.workout.timeSpent.rest
+    sessionData.totalMovingCalories = metrics.workout.caloriesSpent.moving
+    sessionData.totalRestCalories = metrics.workout.caloriesSpent.rest
     sessionData.totalLinearDistance = metrics.workout.distance.fromStart
     sessionData.totalNumberOfStrokes = metrics.workout.numberOfStrokes
     sessionData.averageLinearVelocity = metrics.workout.linearVelocity.average
@@ -539,7 +544,7 @@ export function createFITRecorder (config) {
           avg_cadence: lapdata.summary.strokerate.average,
           max_cadence: lapdata.summary.strokerate.maximum,
           avg_stroke_distance: lapdata.summary.strokeDistance.average,
-          total_calories: lapdata.summary.calories.totalSpent,
+          total_calories: lapdata.summary.caloriesSpent.moving,
           avg_speed: lapdata.summary.linearVelocity.average,
           max_speed: lapdata.summary.linearVelocity.maximum,
           avg_power: lapdata.summary.power.average,
@@ -577,7 +582,7 @@ export function createFITRecorder (config) {
           avg_cadence: 0,
           max_cadence: 0,
           avg_stroke_distance: 0,
-          total_calories: 0,
+          total_calories: lapdata.summary.caloriesSpent.rest,
           avg_speed: 0,
           max_speed: 0,
           avg_power: 0,
@@ -618,6 +623,7 @@ export function createFITRecorder (config) {
         total_distance: workout.totalLinearDistance,
         avg_speed: workout.averageLinearVelocity,
         max_speed: workout.maximumLinearVelocity,
+        total_calories: sessionData.totalMovingCalories,
         ...(splitActiveHRMetrics.average() > 0 ? { avg_heart_rate: splitActiveHRMetrics.average() } : {}),
         ...(splitActiveHRMetrics.maximum() > 0 ? { max_heart_rate: splitActiveHRMetrics.maximum() } : {})
       },
@@ -634,10 +640,11 @@ export function createFITRecorder (config) {
           message_index: 1,
           split_type: 'interval_rest',
           num_splits: sessionData.noRestSplits,
-          total_timer_time: workout.totalTime - workout.totalMovingTime,
+          total_timer_time: sessionData.totalRestTime,
           total_distance: 0,
           avg_speed: 0,
           max_speed: 0,
+          total_calories: sessionData.totalRestCalories,
           ...(splitRestHRMetrics.average() > 0 ? { avg_heart_rate: splitRestHRMetrics.average() } : {}),
           ...(splitRestHRMetrics.maximum() > 0 ? { max_heart_rate: splitRestHRMetrics.maximum() } : {})
         },
@@ -667,6 +674,7 @@ export function createFITRecorder (config) {
           total_distance: splitdata.totalLinearDistance,
           avg_speed: splitdata.totalLinearDistance > 0 ? splitdata.totalLinearDistance / splitdata.totalTime : 0,
           max_speed: splitdata.maxSpeed,
+          total_calories: splitdata.calories,
           start_time: writer.time(splitdata.startTime),
           end_time: writer.time(splitdata.endTime)
         },
@@ -696,6 +704,7 @@ export function createFITRecorder (config) {
           total_distance: 0,
           avg_speed: 0,
           max_speed: 0,
+          total_calories: splitdata.calories,
           start_time: writer.time(splitdata.startTime),
           end_time: writer.time(splitdata.endTime)
         },
