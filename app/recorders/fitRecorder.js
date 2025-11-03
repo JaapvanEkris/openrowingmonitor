@@ -349,11 +349,11 @@ export function createFITRecorder (config) {
     }
   }
 
- /**
-  * @see {@link https://developer.garmin.com/fit/file-types/activity/|the fields and their meaning}. We use 'Smart Recording' per stroke.
-  * @see {@link https://developer.garmin.com/fit/cookbook/encoding-activity-files/|the description of the filestructure and how timestamps}
-  * We use 'summary last message sequencing' as the stream makes most sense that way
-  */
+  /**
+   * @see {@link https://developer.garmin.com/fit/file-types/activity/|the fields and their meaning}. We use 'Smart Recording' per stroke.
+   * @see {@link https://developer.garmin.com/fit/cookbook/encoding-activity-files/|the description of the filestructure and how timestamps}
+   * We use 'summary last message sequencing' as the stream makes most sense that way
+   */
   async function workoutToFit (workout) {
     // The file content is filled and hasn't changed
     if (fitfileContentIsCurrent === true && fitfileContent !== undefined) { return fitfileContent }
