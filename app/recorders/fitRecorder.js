@@ -115,6 +115,7 @@ export function createFITRecorder (config) {
         break
       case (metrics.metricsContext.isPauseEnd):
         // The session is resumed, so it was a pause instead of a stop. First add the rest split and lap
+        // eslint-disable-next-line no-case-declarations -- Code clarity outweighs lint rules
         const endTime = sessionData.splits[sessionData.splits.length - 1].endTime
         addRestSplit(metrics, endTime)
         addRestLap(metrics, endTime, metrics.interval.workoutStepNumber)
@@ -158,7 +159,7 @@ export function createFITRecorder (config) {
       cycleLinearVelocity: metrics.cycleLinearVelocity,
       cycleDistance: metrics.cycleDistance,
       dragFactor: metrics.dragFactor,
-      ...(!isNaN(heartRate) && heartRate > 0 ? { heartrate: heartRate } : {heartrate: undefined })
+      ...(!isNaN(heartRate) && heartRate > 0 ? { heartrate: heartRate } : { heartrate: undefined })
     })
     sessionData.totalMovingTime = metrics.workout.timeSpent.moving
     VO2max.push(metrics)
@@ -326,13 +327,13 @@ export function createFITRecorder (config) {
   async function fileContent () {
     if (Object.keys(lastMetrics).length === 0 || Object.keys(sessionData).length === 0) { return undefined }
 
-    if (sessionData.laps[sessionData.laps.length -1].complete !== true) {
+    if (sessionData.laps[sessionData.laps.length - 1].complete !== true) {
       addMetricsToStrokesArray(lastMetrics)
       calculateLapMetrics(lastMetrics)
     }
 
     if (sessionData.splits[sessionData.splits.length - 1].complete !== true) {
-        calculateSplitMetrics(lastMetrics)
+      calculateSplitMetrics(lastMetrics)
     }
 
     if (sessionData.complete !== true) {
@@ -376,7 +377,7 @@ export function createFITRecorder (config) {
 
     fitWriter.writeMessage(
       'file_creator',
-       {
+      {
         software_version: versionNumber
       },
       null,
@@ -706,7 +707,6 @@ export function createFITRecorder (config) {
 
   // Write the events
   async function writeEvents (writer, workout) {
-
     // Start of the session
     await addEvent(writer, workout.startTime, 'workout', 'start')
     await addEvent(writer, workout.startTime, 'timer', 'start')
@@ -718,6 +718,7 @@ export function createFITRecorder (config) {
         // This is a rest interval
         // eslint-disable-next-line no-await-in-loop -- This is inevitable if you want to have some decent order in the file
         await addEvent(writer, workout.laps[i].startTime, workout.laps[i].event, 'stop')
+        // eslint-disable-next-line no-await-in-loop -- This is inevitable if you want to have some decent order in the file
         await addEvent(writer, workout.laps[i].endTime, 'timer', 'start')
       }
       i++
@@ -964,8 +965,6 @@ export function createFITRecorder (config) {
 
   function reset () {
     heartRate = 0
-    splitnumber = 0
-    lapnumber = 0
     lapHRMetrics.reset()
     splitActiveHRMetrics.reset()
     splitRestHRMetrics.reset()
