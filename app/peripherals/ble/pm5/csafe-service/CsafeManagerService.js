@@ -269,5 +269,4 @@ export class CsafeManagerService {
     }
     this.#controlTransmitCharacteristic.notify(response.build())
   }
-  /* eslint-enable max-statements, max-depth */
 }
