@@ -425,6 +425,7 @@ export function createFITRecorder (config) {
         total_timer_time: workout.totalTime,
         total_moving_time: workout.totalMovingTime,
         total_distance: workout.totalLinearDistance,
+        total_calories: workout.totalMovingCalories + workout.totalRestCalories,
         total_cycles: workout.totalNumberOfStrokes,
         avg_speed: workout.averageLinearVelocity,
         max_speed: workout.maximumLinearVelocity,
