@@ -514,7 +514,7 @@ export function createWorkoutSegment (config) {
         totalSpent: spentCalories(baseMetrics),
         averagePerHour: _caloriesPerHour.average()
       },
-	  caloriesSpent: {
+      caloriesSpent: {
         total: totalCalories(baseMetrics),
         moving: spentCalories(baseMetrics),
         rest: restCalories(baseMetrics)
@@ -710,17 +710,17 @@ export function createWorkoutSegment (config) {
   function totalCalories(baseMetrics) {
     return spentCalories(baseMetrics) + restCalories(baseMetrics)
   }
-  
+
   /**
    * @returns {float} the rest calories since the start of the workoutSegment
    * Based on crude Basal Metabolic Rates, see https://my.clevelandclinic.org/health/body/basal-metabolic-rate-bmr
    */
   function restCalories (baseMetrics) {
     if (config.userSettings.sex === 'male') {
-	    return 0.0196296296296296 * restTime(baseMetrics)
-	  } else {
-	    return 0.0163194444444444 * restTime(baseMetrics)
-	  }
+      return 0.0196296296296296 * restTime(baseMetrics)
+    } else {
+      return 0.0163194444444444 * restTime(baseMetrics)
+    }
   }
 
   /**
