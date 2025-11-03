@@ -15,8 +15,8 @@ export function createGausianWeightFunction () {
   end = 0
   halfLength = 0
   middle = 0
-  
-  function setWindowWidth(beginpos, endpos) {
+
+  function setWindowWidth (beginpos, endpos) {
     begin = beginpos
     end = endpos
     halfLength = (end - begin) / 2
