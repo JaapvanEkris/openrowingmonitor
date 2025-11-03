@@ -177,7 +177,7 @@ export function createFlywheel (rowerSettings) {
   function totalWork () {
     return Math.max(_totalWork, 0)
   }
-  
+
   function deltaTime () {
     return _deltaTimeBeforeFlank
   }
