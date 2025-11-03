@@ -269,173 +269,17 @@ export function createWorkoutSegment (config) {
   }
 
   /**
-   * Updates projectiondata and segment metrics
+   * @returns {string} the type of the workoutSegment
    */
-  function push (baseMetrics) {
-    distanceOverTime.push(baseMetrics.totalMovingTime, baseMetrics.totalLinearDistance)
-    caloriesOverTime.push(baseMetrics.totalMovingTime, baseMetrics.totalCalories)
-    if (!!baseMetrics.cyclePower && !isNaN(baseMetrics.cyclePower) && baseMetrics.cyclePower > 0) { _power.push(baseMetrics.cyclePower) }
-    if (!!baseMetrics.cycleLinearVelocity && !isNaN(baseMetrics.cycleLinearVelocity) && baseMetrics.cycleLinearVelocity > 0) { _linearVelocity.push(baseMetrics.cycleLinearVelocity) }
-    if (!!baseMetrics.cycleStrokeRate && !isNaN(baseMetrics.cycleStrokeRate) && baseMetrics.cycleStrokeRate > 0) { _strokerate.push(baseMetrics.cycleStrokeRate) }
-    if (!!baseMetrics.cycleDistance && !isNaN(baseMetrics.cycleDistance) && baseMetrics.cycleDistance > 0) { _strokedistance.push(baseMetrics.cycleDistance) }
-    if (!!baseMetrics.totalCaloriesPerHour && !isNaN(baseMetrics.totalCaloriesPerHour) && baseMetrics.totalCaloriesPerHour > 0) { _caloriesPerHour.push(baseMetrics.totalCaloriesPerHour) }
-    if (!!baseMetrics.dragFactor && !isNaN(baseMetrics.dragFactor) && baseMetrics.dragFactor > 0) { _dragFactor.push(baseMetrics.dragFactor) }
+  function type () {
+    return _type
   }
 
-  /**
-   * @returns {float} the distance from te start of the workoutsegment
+  /*
+   * This function is return the underlying split of a workoutsegment (typically an interval)
    */
-  function distanceFromStart (baseMetrics) {
-    if (!isNaN(_startLinearDistance) && _startLinearDistance >= 0 && !isNaN(baseMetrics.totalLinearDistance) && baseMetrics.totalLinearDistance > _startLinearDistance) {
-      return baseMetrics.totalLinearDistance - _startLinearDistance
-    } else {
-      return 0
-    }
-  }
-
-  /**
-   * @returns {float} the remaining distance to the end of the workoutsegment
-   */
-  function distanceToEnd (baseMetrics) {
-    if (_type === 'distance' && _endLinearDistance > 0) {
-      // We have set a distance boundary
-      return _endLinearDistance - baseMetrics.totalLinearDistance
-    } else {
-      return undefined
-    }
-  }
-
-  /**
-   * @returns {float} the moving time since the start of the workoutsegment
-   */
-  function timeSinceStart (baseMetrics) {
-    if (!isNaN(_startMovingTime) && _startMovingTime >= 0 && !isNaN(baseMetrics.totalMovingTime) && baseMetrics.totalMovingTime > _startMovingTime) {
-      return baseMetrics.totalMovingTime - _startMovingTime
-    } else {
-      return 0
-    }
-  }
-
-  /**
-   * @returns {float} the projected time to the end of the workoutsegment
-   */
-  function projectedEndTime () {
-    switch (true) {
-      case (_type === 'distance' && _endLinearDistance > 0 && distanceOverTime.reliable()):
-        // We are in a distance based interval, so we need to project
-        return (distanceOverTime.projectY(_endLinearDistance) - _startMovingTime)
-      case (_type === 'time' && _endMovingTime > 0):
-        return _targetTime
-      case (_type === 'calories' && _endCalories > 0 && caloriesOverTime.reliable()):
-        return (caloriesOverTime.projectY(_endCalories) - _startMovingTime)
-      default:
-        return undefined
-    }
-  }
-
-  /**
-   * @returns {float} the projected time to the end of the workoutsegment
-   */
-  function projectedEndDistance () {
-    switch (true) {
-      case (_type === 'distance' && _endLinearDistance > 0):
-        return _targetDistance
-      case (_type === 'time' && _endMovingTime > 0 && distanceOverTime.reliable()):
-        // We are in a time based interval, so we need to project
-        return (distanceOverTime.projectX(_endMovingTime) - _startLinearDistance)
-      case (_type === 'calories' && _endCalories > 0 && distanceOverTime.reliable() && caloriesOverTime.reliable()):
-        return (distanceOverTime.projectX(caloriesOverTime.projectY(_endCalories)) - _startLinearDistance)
-      default:
-        return undefined
-    }
-  }
-
-  /**
-   * @returns {float} the remaining time to the end of the workoutsegment
-   */
-  function timeToEnd (baseMetrics) {
-    if ((_type === 'time' || _type === 'rest') && _endMovingTime > 0) {
-      // We are in a time based interval
-      return _endMovingTime - baseMetrics.totalMovingTime
-    } else {
-      return undefined
-    }
-  }
-
-  /**
-   * @returns {float} the remaining time to the end of the workoutsegment
-   */
-  function caloriesToEnd (baseMetrics) {
-    if (_type === 'calories' && _endCalories > 0) {
-      // We are in a time based interval
-      return _endCalories - baseMetrics.totalCalories
-    } else {
-      return undefined
-    }
-  }
-
-  /**
-   * @returns {float} the total time since start of the workoutsegment
-   */
-  function totalTime (baseMetrics) {
-    if (!isNaN(_startTimestamp) && _startTimestamp >= 0 && !isNaN(baseMetrics.timestamp) && baseMetrics.timestamp > _startTimestamp) {
-      return Math.max((baseMetrics.timestamp.getTime() - _startTimestamp.getTime()) / 1000, (baseMetrics.totalMovingTime - _startMovingTime))
-    } else {
-      return 0
-    }
-  }
-
-  /**
-   * @returns {float} the time spent not moving since start of the workoutsegment
-   */
-  function restTime (baseMetrics) {
-    if (!isNaN(_startMovingTime) && !isNaN(_startTimestamp) && _startTimestamp >= 0 && !isNaN(baseMetrics.totalMovingTime) && !isNaN(baseMetrics.timestamp) && baseMetrics.timestamp > _startTimestamp) {
-      return (Math.max(baseMetrics.timestamp.getTime() - _startTimestamp.getTime(), 0) / 1000) - Math.max(baseMetrics.totalMovingTime - _startMovingTime, 0)
-    } else {
-      return 0
-    }
-  }
-
-  /**
-   * @returns {float} the time spent not moving since the start of the workoutsgment
-   */
-  function averageLinearVelocity (baseMetrics) {
-    if (!isNaN(_startMovingTime) && _startMovingTime >= 0 && !isNaN(_startLinearDistance) && _startLinearDistance >= 0 && !isNaN(baseMetrics.totalMovingTime) && baseMetrics.totalMovingTime > _startMovingTime && !isNaN(baseMetrics.totalLinearDistance) && baseMetrics.totalLinearDistance > _startLinearDistance) {
-      return (baseMetrics.totalLinearDistance - _startLinearDistance) / (baseMetrics.totalMovingTime - _startMovingTime)
-    } else {
-      return _linearVelocity.average()
-    }
-  }
-
-  /**
-   * @param {float} linear velocity
-   * @returns {float} pace per 500 meters
-   */
-  function linearVelocityToPace (linearVel) {
-    if (!isNaN(linearVel) && linearVel > 0) {
-      return (500.0 / linearVel)
-    } else {
-      return Infinity
-    }
-  }
-
-  /**
-   * @returns {number} the number of strokes since the start of the segment
-   */
-  function numberOfStrokes (baseMetrics) {
-    if (!isNaN(_startStrokeNumber) && _startStrokeNumber >= 0 && !isNaN(baseMetrics.totalNumberOfStrokes) && baseMetrics.totalNumberOfStrokes > _startStrokeNumber) {
-      return baseMetrics.totalNumberOfStrokes - _startStrokeNumber
-    } else {
-      return 0
-    }
-  }
-
-  function spentCalories (baseMetrics) {
-    if (!isNaN(_startCalories) && _startCalories >= 0 && !isNaN(baseMetrics.totalCalories) && baseMetrics.totalCalories > _startCalories) {
-      return baseMetrics.totalCalories - _startCalories
-    } else {
-      return 0
-    }
+  function getSplit () {
+    return _split
   }
 
   /**
@@ -464,6 +308,48 @@ export function createWorkoutSegment (config) {
       default:
         return false
     }
+  }
+
+  /**
+   * This function returns the remaining split (used for managing unplanned pauses)
+   */
+  function remainder (baseMetrics) {
+    switch (_type) {
+      case ('distance'):
+        return {
+          type: _type,
+          targetDistance: distanceToEnd(baseMetrics)
+        }
+      case ('time'):
+        return {
+          type: _type,
+          targetTime: timeToEnd(baseMetrics)
+        }
+      case ('calories'):
+        return {
+          type: _type,
+          targetCalories: caloriesToEnd(baseMetrics)
+        }
+      default:
+        return {
+          type: _type,
+          targetTime: 0
+        }
+    }
+  }
+
+  /**
+   * Updates projectiondata and segment metrics
+   */
+  function push (baseMetrics) {
+    distanceOverTime.push(baseMetrics.totalMovingTime, baseMetrics.totalLinearDistance)
+    caloriesOverTime.push(baseMetrics.totalMovingTime, baseMetrics.totalCalories)
+    if (!!baseMetrics.cyclePower && !isNaN(baseMetrics.cyclePower) && baseMetrics.cyclePower > 0) { _power.push(baseMetrics.cyclePower) }
+    if (!!baseMetrics.cycleLinearVelocity && !isNaN(baseMetrics.cycleLinearVelocity) && baseMetrics.cycleLinearVelocity > 0) { _linearVelocity.push(baseMetrics.cycleLinearVelocity) }
+    if (!!baseMetrics.cycleStrokeRate && !isNaN(baseMetrics.cycleStrokeRate) && baseMetrics.cycleStrokeRate > 0) { _strokerate.push(baseMetrics.cycleStrokeRate) }
+    if (!!baseMetrics.cycleDistance && !isNaN(baseMetrics.cycleDistance) && baseMetrics.cycleDistance > 0) { _strokedistance.push(baseMetrics.cycleDistance) }
+    if (!!baseMetrics.totalCaloriesPerHour && !isNaN(baseMetrics.totalCaloriesPerHour) && baseMetrics.totalCaloriesPerHour > 0) { _caloriesPerHour.push(baseMetrics.totalCaloriesPerHour) }
+    if (!!baseMetrics.dragFactor && !isNaN(baseMetrics.dragFactor) && baseMetrics.dragFactor > 0) { _dragFactor.push(baseMetrics.dragFactor) }
   }
 
   /*
@@ -510,33 +396,50 @@ export function createWorkoutSegment (config) {
     return projectedMetrics
   }
 
+  /*
+   * This function is used to precisely calculate the end time of a workout segment based on a target distance
+   * @see {@link https://en.wikipedia.org/wiki/Linear_interpolation|the math behind interpolation}
+   * @returns {float} the exact time where the distance barrier was crossed
+   */
   function interpolatedTime (prevMetrics, currMetrics, targetDistance) {
     if (prevMetrics.totalLinearDistance < targetDistance && targetDistance < currMetrics.totalLinearDistance) {
-      // See https://en.wikipedia.org/wiki/Linear_interpolation
       return (prevMetrics.totalMovingTime + ((currMetrics.totalMovingTime - prevMetrics.totalMovingTime) * ((targetDistance - prevMetrics.totalLinearDistance) / (currMetrics.totalLinearDistance - prevMetrics.totalLinearDistance))))
     } else {
       return currMetrics.totalMovingTime
     }
   }
 
+  /*
+   * This function is used to precisely calculate the end distance of a workout segment based on a target time
+   * @see {@link https://en.wikipedia.org/wiki/Linear_interpolation|the math behind interpolation}
+   * @returns {float} the exact distance where the time barrier was crossed
+   */
   function interpolatedDistance (prevMetrics, currMetrics, targetTime) {
     if (prevMetrics.totalMovingTime < targetTime && targetTime < currMetrics.totalMovingTime) {
-      // See https://en.wikipedia.org/wiki/Linear_interpolation
       return (prevMetrics.totalLinearDistance + ((currMetrics.totalLinearDistance - prevMetrics.totalLinearDistance) * ((targetTime - prevMetrics.totalMovingTime) / (currMetrics.totalMovingTime - prevMetrics.totalMovingTime))))
     } else {
       return currMetrics.totalLinearDistance
     }
   }
 
+  /*
+   * This function is used to precisely calculate the end time of a workout segment based on a target calories
+   * @see {@link https://en.wikipedia.org/wiki/Linear_interpolation|the math behind interpolation}
+   * @returns {float} the exact time where the calories barrier was crossed
+   */
   function interpolatedTimeFromCalories (prevMetrics, currMetrics, targetCalories) {
     if (prevMetrics.totalCalories < targetCalories && targetCalories < currMetrics.totalCalories) {
-      // See https://en.wikipedia.org/wiki/Linear_interpolation
       return (prevMetrics.totalMovingTime + ((currMetrics.totalMovingTime - prevMetrics.totalMovingTime) * ((targetCalories - prevMetrics.totalCalories) / (currMetrics.totalCalories - prevMetrics.totalCalories))))
     } else {
       return currMetrics.totalMovingTime
     }
   }
 
+  /*
+   * This function is used to precisely calculate the end calories of a workout segment based on a target time
+   * @see {@link https://en.wikipedia.org/wiki/Linear_interpolation|the math behind interpolation}
+   * @returns {float} the exact calories where the time barrier was crossed
+   */
   function interpolatedCaloriesFromTime (prevMetrics, currMetrics, targetTime) {
     if (prevMetrics.totalMovingTime < targetTime && targetTime < currMetrics.totalMovingTime) {
       // See https://en.wikipedia.org/wiki/Linear_interpolation
@@ -544,31 +447,6 @@ export function createWorkoutSegment (config) {
     } else {
       return currMetrics.totalCalories
     }
-  }
-
-  function getSplit () {
-    return _split
-  }
-
-  function targetDistance () {
-    if (_type === 'distance' && _endLinearDistance > 0) {
-      return _targetDistance
-    } else {
-      return undefined
-    }
-  }
-
-  function targetTime () {
-    if (_type === 'time' && _endMovingTime > 0) {
-      // We have a distance boundary
-      return _targetTime
-    } else {
-      return undefined
-    }
-  }
-
-  function type () {
-    return _type
   }
 
   /**
@@ -635,36 +513,214 @@ export function createWorkoutSegment (config) {
         toEnd: caloriesToEnd(baseMetrics),
         totalSpent: spentCalories(baseMetrics),
         averagePerHour: _caloriesPerHour.average()
+      },
+	  caloriesSpent: {
+        total: totalCalories(baseMetrics),
+        moving: spentCalories(baseMetrics),
+        rest: restCalories(baseMetrics)
       }
     }
   }
 
   /**
-   * This function returns the remaining split (used for managing unplanned pausesremainder (baseMetrics)
+   * @returns {number} the number of strokes since the start of the segment
    */
-  function remainder (baseMetrics) {
-    switch (_type) {
-      case ('distance'):
-        return {
-          type: _type,
-          targetDistance: distanceToEnd(baseMetrics)
-        }
-      case ('time'):
-        return {
-          type: _type,
-          targetTime: timeToEnd(baseMetrics)
-        }
-      case ('calories'):
-        return {
-          type: _type,
-          targetCalories: caloriesToEnd(baseMetrics)
-        }
-      default:
-        return {
-          type: _type,
-          targetTime: 0
-        }
+  function numberOfStrokes (baseMetrics) {
+    if (!isNaN(_startStrokeNumber) && _startStrokeNumber >= 0 && !isNaN(baseMetrics.totalNumberOfStrokes) && baseMetrics.totalNumberOfStrokes > _startStrokeNumber) {
+      return baseMetrics.totalNumberOfStrokes - _startStrokeNumber
+    } else {
+      return 0
     }
+  }
+
+  /**
+   * @returns {float} the distance from the start of the workoutsegment
+   */
+  function distanceFromStart (baseMetrics) {
+    if (!isNaN(_startLinearDistance) && _startLinearDistance >= 0 && !isNaN(baseMetrics.totalLinearDistance) && baseMetrics.totalLinearDistance > _startLinearDistance) {
+      return baseMetrics.totalLinearDistance - _startLinearDistance
+    } else {
+      return 0
+    }
+  }
+
+  /**
+   * @returns {float} the target distance for this workoutsegment from the workout plan  (only if type === 'distance')
+   */
+  function targetDistance () {
+    if (_type === 'distance' && _endLinearDistance > 0) {
+      return _targetDistance
+    } else {
+      return undefined
+    }
+  }
+
+  /**
+   * @returns {float} the remaining distance to the end of the workoutsegment
+   */
+  function distanceToEnd (baseMetrics) {
+    if (_type === 'distance' && _endLinearDistance > 0) {
+      // We have set a distance boundary
+      return _endLinearDistance - baseMetrics.totalLinearDistance
+    } else {
+      return undefined
+    }
+  }
+
+  /**
+   * @returns {float} the projected distance at the end of the workoutsegment (if type !== 'distance')
+   */
+  function projectedEndDistance () {
+    switch (true) {
+      case (_type === 'distance' && _endLinearDistance > 0):
+        return _targetDistance
+      case (_type === 'time' && _endMovingTime > 0 && distanceOverTime.reliable()):
+        // We are in a time based interval, so we need to project
+        return (distanceOverTime.projectX(_endMovingTime) - _startLinearDistance)
+      case (_type === 'calories' && _endCalories > 0 && distanceOverTime.reliable() && caloriesOverTime.reliable()):
+        return (distanceOverTime.projectX(caloriesOverTime.projectY(_endCalories)) - _startLinearDistance)
+      default:
+        return undefined
+    }
+  }
+
+  /**
+   * @returns {float} the moving time since the start of the workoutsegment
+   */
+  function timeSinceStart (baseMetrics) {
+    if (!isNaN(_startMovingTime) && _startMovingTime >= 0 && !isNaN(baseMetrics.totalMovingTime) && baseMetrics.totalMovingTime > _startMovingTime) {
+      return baseMetrics.totalMovingTime - _startMovingTime
+    } else {
+      return 0
+    }
+  }
+
+  /**
+   * @returns {float} the target time for this workoutsegment from the workout plan (only if type === 'time')
+   */
+  function targetTime () {
+    if (_type === 'time' && _endMovingTime > 0) {
+      // We have a distance boundary
+      return _targetTime
+    } else {
+      return undefined
+    }
+  }
+
+  /**
+   * @returns {float} the remaining time to the end of the workoutsegment
+   */
+  function timeToEnd (baseMetrics) {
+    if ((_type === 'time' || _type === 'rest') && _endMovingTime > 0) {
+      // We are in a time based interval
+      return _endMovingTime - baseMetrics.totalMovingTime
+    } else {
+      return undefined
+    }
+  }
+
+  /**
+   * @returns {float} the projected time to the end of the workoutsegment  (if type !== 'time')
+   */
+  function projectedEndTime () {
+    switch (true) {
+      case (_type === 'distance' && _endLinearDistance > 0 && distanceOverTime.reliable()):
+        // We are in a distance based interval, so we need to project
+        return (distanceOverTime.projectY(_endLinearDistance) - _startMovingTime)
+      case (_type === 'time' && _endMovingTime > 0):
+        return _targetTime
+      case (_type === 'calories' && _endCalories > 0 && caloriesOverTime.reliable()):
+        return (caloriesOverTime.projectY(_endCalories) - _startMovingTime)
+      default:
+        return undefined
+    }
+  }
+
+  /**
+   * @returns {float} the total time since start of the workoutsegment
+   */
+  function totalTime (baseMetrics) {
+    if (!isNaN(_startTimestamp) && _startTimestamp >= 0 && !isNaN(baseMetrics.timestamp) && baseMetrics.timestamp > _startTimestamp) {
+      return Math.max((baseMetrics.timestamp.getTime() - _startTimestamp.getTime()) / 1000, (baseMetrics.totalMovingTime - _startMovingTime))
+    } else {
+      return 0
+    }
+  }
+
+  /**
+   * @returns {float} the time spent not moving since start of the workoutsegment
+   */
+  function restTime (baseMetrics) {
+    if (!isNaN(_startMovingTime) && !isNaN(_startTimestamp) && _startTimestamp >= 0 && !isNaN(baseMetrics.totalMovingTime) && !isNaN(baseMetrics.timestamp) && baseMetrics.timestamp > _startTimestamp) {
+      return (Math.max(baseMetrics.timestamp.getTime() - _startTimestamp.getTime(), 0) / 1000) - Math.max(baseMetrics.totalMovingTime - _startMovingTime, 0)
+    } else {
+      return 0
+    }
+  }
+
+  /**
+   * @returns {float} average linear velocity since the start of the workoutsgment
+   */
+  function averageLinearVelocity (baseMetrics) {
+    if (!isNaN(_startMovingTime) && _startMovingTime >= 0 && !isNaN(_startLinearDistance) && _startLinearDistance >= 0 && !isNaN(baseMetrics.totalMovingTime) && baseMetrics.totalMovingTime > _startMovingTime && !isNaN(baseMetrics.totalLinearDistance) && baseMetrics.totalLinearDistance > _startLinearDistance) {
+      return (baseMetrics.totalLinearDistance - _startLinearDistance) / (baseMetrics.totalMovingTime - _startMovingTime)
+    } else {
+      return _linearVelocity.average()
+    }
+  }
+
+  /**
+   * @param {float} linear velocity
+   * @returns {float} pace per 500 meters
+   */
+  function linearVelocityToPace (linearVel) {
+    if (!isNaN(linearVel) && linearVel > 0) {
+      return (500.0 / linearVel)
+    } else {
+      return Infinity
+    }
+  }
+
+  /**
+   * @returns {float} the calories spent moving since the start of the workoutsegment (i.e. active calories)
+   */
+  function spentCalories (baseMetrics) {
+    if (!isNaN(_startCalories) && _startCalories >= 0 && !isNaN(baseMetrics.totalCalories) && baseMetrics.totalCalories > _startCalories) {
+      return baseMetrics.totalCalories - _startCalories
+    } else {
+      return 0
+    }
+  }
+
+  /**
+   * @returns {float} the remaining calories to the end of the workoutsegment
+   */
+  function caloriesToEnd (baseMetrics) {
+    if (_type === 'calories' && _endCalories > 0) {
+      // We are in a time based interval
+      return _endCalories - baseMetrics.totalCalories
+    } else {
+      return undefined
+    }
+  }
+
+  /**
+   * @returns {float} the total calories since the start (active + rest) of the workoutSegment
+   */
+  function totalCalories(baseMetrics) {
+    return spentCalories(baseMetrics) + restCalories(baseMetrics)
+  }
+  
+  /**
+   * @returns {float} the rest calories since the start of the workoutSegment
+   * Based on crude Basal Metabolic Rates, see https://my.clevelandclinic.org/health/body/basal-metabolic-rate-bmr
+   */
+  function restCalories (baseMetrics) {
+    if (config.userSettings.sex === 'male') {
+	    return 0.0196296296296296 * restTime(baseMetrics)
+	  } else {
+	    return 0.0163194444444444 * restTime(baseMetrics)
+	  }
   }
 
   /**
