@@ -23,6 +23,9 @@ test('sample data for Sportstech WRX700 should produce plausible results for an 
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
@@ -50,6 +53,9 @@ test('sample data for Sportstech WRX700 should produce plausible results for a 1
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
@@ -86,6 +92,9 @@ test('sample data for Sportstech WRX700 should produce plausible results for a 4
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
@@ -122,6 +131,9 @@ test('sample data for Sportstech WRX700 should produce plausible results for a 4
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
@@ -157,6 +169,9 @@ test('sample data for DKN R-320 should produce plausible results', async () => {
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
@@ -184,6 +199,9 @@ test('sample data for NordicTrack RX800 should produce plausible results without
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
@@ -211,6 +229,9 @@ test('sample data for NordicTrack RX800 should produce plausible results for a 2
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
@@ -247,6 +268,9 @@ test('sample data for NordicTrack RX800 should produce plausible results for a 2
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
@@ -282,6 +306,9 @@ test('sample data for NordicTrack RX800 should produce plausible results for a 7
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
@@ -318,6 +345,9 @@ test('A full unlimited session for SportsTech WRX700 should produce plausible re
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
@@ -345,6 +375,9 @@ test('A 8000 meter session for SportsTech WRX700 should produce plausible result
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
@@ -381,6 +414,9 @@ test('A 2300 sec session for SportsTech WRX700 should produce plausible results'
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
@@ -417,6 +453,9 @@ test('A 2400 sec session for SportsTech WRX700 should produce plausible results'
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
@@ -453,6 +492,9 @@ test('A full session for a Concept2 Model C should produce plausible results', a
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
@@ -480,6 +522,9 @@ test('A 500 meter session for a Concept2 Model C should produce plausible result
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
@@ -516,6 +561,9 @@ test('A 3 minute session for a Concept2 Model C should produce plausible results
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
@@ -552,6 +600,9 @@ test('A 500 calorie session for a Concept2 Model C should produce plausible resu
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
@@ -587,6 +638,9 @@ test('A full session for a Concept2 RowErg should produce plausible results', as
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
@@ -614,6 +668,9 @@ test('A 2000 meter session for a Concept2 RowErg should produce plausible result
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
@@ -650,6 +707,9 @@ test('A 580 seconds session for a Concept2 RowErg should produce plausible resul
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
@@ -686,6 +746,9 @@ test('A 200 calories session for a Concept2 RowErg should produce plausible resu
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
