@@ -14,7 +14,7 @@ import { createGaussianWeightFunction } from './Gaussian.js'
  */
 test('Test of weight function for basic -1 to +1 domain', () => {
   const gaussianWeight = createGaussianWeightFunction()
-  gaussianWeight.setWindowWidth(-1 , 1)
+  gaussianWeight.setWindowWidth(-1, 1)
   testWeight(gaussianWeight, -1.125, 0)
   testWeight(gaussianWeight, -1, 0.6065306597126334)
   testWeight(gaussianWeight, -0.875, 0.6819407511903481)
@@ -41,7 +41,7 @@ test('Test of weight function for basic -1 to +1 domain', () => {
  */
 test('Test of weight function for basic -10 to +10 domain', () => {
   const gaussianWeight = createGaussianWeightFunction()
-  gaussianWeight.setWindowWidth(-10 , 10)
+  gaussianWeight.setWindowWidth(-10, 10)
   testWeight(gaussianWeight, -11.25, 0)
   testWeight(gaussianWeight, -10, 0.6065306597126334)
   testWeight(gaussianWeight, -8.75, 0.6819407511903481)
@@ -68,7 +68,7 @@ test('Test of weight function for basic -10 to +10 domain', () => {
  */
 test('Test of weight function for basic 100 to +120 domain', () => {
   const gaussianWeight = createGaussianWeightFunction()
-  gaussianWeight.setWindowWidth(100 , 120)
+  gaussianWeight.setWindowWidth(100, 120)
   testWeight(gaussianWeight, 98.75, 0)
   testWeight(gaussianWeight, 100, 0.6065306597126334)
   testWeight(gaussianWeight, 101.25, 0.6819407511903481)
