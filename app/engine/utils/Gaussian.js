@@ -12,7 +12,7 @@ let end
 let halfLength
 let middle
 
-export function createGausianWeightFunction () {
+export function createGaussianWeightFunction () {
   begin = 0
   end = 0
   halfLength = 0
