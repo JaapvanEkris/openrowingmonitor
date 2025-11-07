@@ -9,12 +9,12 @@
 
 import { createTSQuadraticSeries } from './FullTSQuadraticSeries.js'
 import { createWeighedSeries } from './WeighedSeries.js'
-import { createGausianWeightFunction } from './Gausian.js'
+import { createGaussianWeightFunction } from './Gaussian.js'
 
 export function createMovingRegressor (bandwith) {
   const flankLength = bandwith
   const quadraticTheilSenRegressor = createTSQuadraticSeries(flankLength)
-  const gausianWeight = createGausianWeightFunction()
+  const gaussianWeight = createGaussianWeightFunction()
   let aMatrix = []
   let bMatrix = []
   let cMatrix = []
@@ -43,11 +43,11 @@ export function createMovingRegressor (bandwith) {
 
     let i = 0
     let weight = 0
-    gausianWeight.setWindowWidth(quadraticTheilSenRegressor.X.atSeriesBegin(), quadraticTheilSenRegressor.X.atSeriesEnd())
+    gaussianWeight.setWindowWidth(quadraticTheilSenRegressor.X.atSeriesBegin(), quadraticTheilSenRegressor.X.atSeriesEnd())
 
     // Let's calculate the first and second derivatives for each datapoint and store them in their matrices
     while (i < aMatrix.length && quadraticTheilSenRegressor.reliable()) {
-      weight = quadraticTheilSenRegressor.goodnessOfFit() * quadraticTheilSenRegressor.localGoodnessOfFit(i) * gausianWeight.weight(quadraticTheilSenRegressor.X.get(i))
+      weight = quadraticTheilSenRegressor.goodnessOfFit() * quadraticTheilSenRegressor.localGoodnessOfFit(i) * gaussianWeight.weight(quadraticTheilSenRegressor.X.get(i))
       aMatrix[i].push(quadraticTheilSenRegressor.coefficientA(), weight)
       bMatrix[i].push(quadraticTheilSenRegressor.coefficientB(), weight)
       cMatrix[i].push(quadraticTheilSenRegressor.coefficientC(), weight)
