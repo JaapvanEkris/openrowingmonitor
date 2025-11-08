@@ -205,7 +205,7 @@ function testAverage (series, expectedValue) {
   assert.ok(series.average() === expectedValue, `Expected average to be ${expectedValue}, encountered ${series.average()}`)
 }
 
-function testweighedAverage (series, expectedValue) {
+function testWeighedAverage (series, expectedValue) {
   assert.ok(series.weighedAverage() === expectedValue, `Expected weighedAverage to be ${expectedValue}, encountered ${series.average()}`)
 }
 
