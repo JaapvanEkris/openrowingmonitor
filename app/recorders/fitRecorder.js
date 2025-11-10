@@ -125,7 +125,6 @@ export function createFITRecorder (config) {
         addMetricsToStrokesArray(metrics)
         break
       case (metrics.metricsContext.isIntervalEnd):
-        // if (metrics.metricsContext.isDriveStart) { addMetricsToStrokesArray(metrics) }
         addMetricsToStrokesArray(metrics) // Add a trackpoint to provide the lap and split with an anchor
         calculateSplitMetrics(metrics)
         calculateLapMetrics(metrics)
@@ -134,7 +133,6 @@ export function createFITRecorder (config) {
         startLap(metrics)
         break
       case (metrics.metricsContext.isSplitEnd):
-        // if (metrics.metricsContext.isDriveStart) { addMetricsToStrokesArray(metrics) }
         addMetricsToStrokesArray(metrics) // Add a trackpoint to provide the lap and split with an anchor
         calculateLapMetrics(metrics)
         resetLapMetrics()
@@ -234,8 +232,12 @@ export function createFITRecorder (config) {
         sessionData.laps[lapnumber].trigger = 'manual'
         sessionData.laps[lapnumber].event = 'workoutStep'
         break
-      case (metrics.metricsContext.isIntervalEnd && (metrics.interval.type === 'distance' || metrics.interval.type === 'time' || metrics.interval.type === 'calories')):
+      case (metrics.metricsContext.isIntervalEnd && (metrics.interval.type === 'distance' || metrics.interval.type === 'time')):
         sessionData.laps[lapnumber].trigger = metrics.interval.type
+        sessionData.laps[lapnumber].event = 'workoutStep'
+        break
+      case (metrics.metricsContext.isIntervalEnd && metrics.interval.type === 'calories'):
+        sessionData.laps[lapnumber].trigger = 'manual'
         sessionData.laps[lapnumber].event = 'workoutStep'
         break
       case (metrics.metricsContext.isIntervalEnd):
@@ -247,8 +249,12 @@ export function createFITRecorder (config) {
         sessionData.laps[lapnumber].trigger = 'manual'
         sessionData.laps[lapnumber].event = 'speedLowAlert'
         break
-      case (metrics.metricsContext.isSplitEnd && (metrics.split.type === 'distance' || metrics.split.type === 'time' || metrics.split.type === 'calories')):
+      case (metrics.metricsContext.isSplitEnd && (metrics.split.type === 'distance' || metrics.split.type === 'time')):
         sessionData.laps[lapnumber].trigger = metrics.split.type
+        sessionData.laps[lapnumber].event = 'lap'
+        break
+      case (metrics.metricsContext.isSplitEnd && metrics.split.type === 'calories'):
+        sessionData.laps[lapnumber].trigger = 'manual'
         sessionData.laps[lapnumber].event = 'lap'
         break
       case (metrics.metricsContext.isSplitEnd):
