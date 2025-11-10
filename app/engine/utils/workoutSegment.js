@@ -707,7 +707,7 @@ export function createWorkoutSegment (config) {
   /**
    * @returns {float} the total calories since the start (active + rest) of the workoutSegment
    */
-  function totalCalories(baseMetrics) {
+  function totalCalories (baseMetrics) {
     return spentCalories(baseMetrics) + restCalories(baseMetrics)
   }
 
