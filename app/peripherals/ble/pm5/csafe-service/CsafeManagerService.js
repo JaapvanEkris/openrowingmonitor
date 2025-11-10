@@ -167,7 +167,7 @@ export class CsafeManagerService {
             case (DurationTypes.CSAFE_CALORIES_DURATION):
               this.#workoutplan.addInterval('calories', commands[i].data)
               response.addCommand(commands[i].command)
-              log.debug(`command ${i + 1}, CSAFE_PM_SET_WORKOUTDURATION, ${swapObjectPropertyValues(DurationTypes)[commandData[0]]}, mapped to '${this.#workoutplan.lastInterval().type}' interval, duration ${this.#workoutplan.lastInterval().targetTime} seconds`)
+              log.debug(`command ${i + 1}, CSAFE_PM_SET_WORKOUTDURATION, ${swapObjectPropertyValues(DurationTypes)[commandData[0]]}, mapped to '${this.#workoutplan.lastInterval().type}' interval, duration ${this.#workoutplan.lastInterval().targetCalories} calories`)
               break
             default:
               this.#workoutplan.addInterval('time', commands[i].data)
@@ -188,9 +188,9 @@ export class CsafeManagerService {
               log.debug(`command ${i + 1}, CSAFE_PM_SET_SPLITDURATION, ${swapObjectPropertyValues(DurationTypes)[commandData[0]]}, mapped to '${this.#workoutplan.lastInterval().split.type}' split, duration ${this.#workoutplan.lastInterval().split.targetTime} seconds`)
               break
             case (DurationTypes.CSAFE_CALORIES_DURATION):
-              this.#workoutplan.addSplit('time', commands[i].data)
+              this.#workoutplan.addSplit('calories', commands[i].data)
               response.addCommand(commands[i].command)
-              log.debug(`command ${i + 1}, CSAFE_PM_SET_SPLITDURATION, ${swapObjectPropertyValues(DurationTypes)[commandData[0]]}, mapped to '${this.#workoutplan.lastInterval().split.type}' split, duration ${this.#workoutplan.lastInterval().split.targetTime} seconds`)
+              log.debug(`command ${i + 1}, CSAFE_PM_SET_SPLITDURATION, ${swapObjectPropertyValues(DurationTypes)[commandData[0]]}, mapped to '${this.#workoutplan.lastInterval().split.type}' split, duration ${this.#workoutplan.lastInterval().split.targetCalories} calories`)
               break
             default:
               this.#workoutplan.addSplit('time', commands[i].data)
@@ -233,7 +233,6 @@ export class CsafeManagerService {
           log.debug(`command ${i + 1}, CSAFE_PM_GET_DATETIME`)
           break
         case (ProprietaryLongSetConfigCommands.CSAFE_PM_SET_SCREENSTATE):
-          /* eslint-disable max-depth -- Screenstate is a nasty beast to handle, requiring quite some layers to make sense of it */
           if (commandData[0] === ScreenTypes.SCREENTYPE_WORKOUT) {
             switch (commandData[1]) {
               case ScreenValue.SCREENVALUEWORKOUT_TERMINATEWORKOUT:
@@ -257,7 +256,6 @@ export class CsafeManagerService {
               // no default
             }
           }
-          /* eslint-enable max-depth */
           response.addCommand(commands[i].command)
           log.debug(`command ${i + 1}, CSAFE_PM_SET_SCREENSTATE data: ${swapObjectPropertyValues(ScreenTypes)[commandData[0]]}, ${swapObjectPropertyValues(ScreenValue)[commandData[1]]}`)
           break
