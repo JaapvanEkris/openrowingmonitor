@@ -22,7 +22,7 @@ export function createCyclicErrorFilter (size, flankSize, agressiveness) {
   let weightCorrection = 1
   let i = 0
   let startPosition
-  while(i < cycle) {
+  while (i < cycle) {
     filterArray[i] = createInfiniteAverager(1000, 1000)
     filterConfig[i] = 1
     i++
@@ -49,7 +49,7 @@ export function createCyclicErrorFilter (size, flankSize, agressiveness) {
   function reset () { // @ToDo: connect this to the appropriate Flywheel.js situations where the flywheel is stopped (and thus tracking of flywheel position breaks!
     startPosition = undefined
     i = 0
-    while(i < cycle) {
+    while (i < cycle) {
       filterArray[i] = {}
       filterArray[i] = createInfiniteAverager(1000, 1000)
       filterConfig[i] = 1
