@@ -30,8 +30,8 @@ export default {
 
     // NOISE FILTER SETTINGS
     // Filter Settings to reduce noise in the measured data
-    // Smoothing determines the length of the running average for filtering the currentDt, 1 effectively turns it off
-    smoothing: 1,
+    // Systematic error agressibveness determines the strength of the systematic error filter. 0 turns it off, 1 turns it on. A value of 0.10 is known to work well.
+    systematicErrorAgressiveness: 0,
 
     // Flank length determines the number of measuments that are used for determining the angular velocity and angular acceleration
     flankLength: 3,
