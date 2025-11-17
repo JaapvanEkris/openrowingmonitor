@@ -113,13 +113,17 @@ export function createMovingRegressor (bandwith) {
         return [quadraticTheilSenRegressor.X.get(position)]
       case (aMatrix[position].weighedAverage() === 0):
         // The function is a tilted line, we need to handle this to prevent a division by zero
+        // eslint-disable-next-line no-case-declarations -- Code clarity outweighs lint rules
         const projection = (y - cMatrix[position].weighedAverage()) / bMatrix[position].weighedAverage()
         return [projection]
       case (discriminant > 0):
+        // eslint-disable-next-line no-case-declarations -- Code clarity outweighs lint rules
         const root1 = (-bMatrix[position].weighedAverage() + Math.sqrt(discriminant)) / (2 * aMatrix[position].weighedAverage())
+        // eslint-disable-next-line no-case-declarations -- Code clarity outweighs lint rules
         const root2 = (-bMatrix[position].weighedAverage() - Math.sqrt(discriminant)) / (2 * aMatrix[position].weighedAverage())
         return [root1, root2]
       case (discriminant === 0):
+        // eslint-disable-next-line no-case-declarations -- Code clarity outweighs lint rules
         const root = -bMatrix[position].weighedAverage() / (2 * aMatrix[position].weighedAverage())
         return [root]
       default:
