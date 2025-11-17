@@ -50,17 +50,17 @@ export class GeneralStatusCharacteristic extends GattNotifyCharacteristic {
     // totalWorkDistance: UInt24LE in 1 m
     bufferBuilder.writeUInt24LE(data.interval.distance.absoluteStart > 0 ? Math.round(data.interval.distance.absoluteStart) : 0)
     // workoutDuration: UInt24LE in 0.01 sec (if type TIME)
-    switch(data.interval.type) {
-      case('distance'):
+    switch (data.interval.type) {
+      case ('distance'):
         bufferBuilder.writeUInt24LE(data.interval.distance.target > 0 ? Math.round(data.interval.distance.target) : 0)
         break
-     case('time'):
+      case ('time'):
         bufferBuilder.writeUInt24LE(data.interval.movingTime.target > 0 ? Math.round(data.interval.movingTime.target * 100) : 0)
         break
-     case('calories'):
+      case ('calories'):
         bufferBuilder.writeUInt24LE(data.interval.calories.target > 0 ? Math.round(data.interval.calories.target) : 0)
         break
-     default:
+      default:
         bufferBuilder.writeUInt24LE(0)
     }
     // workoutDurationType: UInt8, see DurationTypes enum
