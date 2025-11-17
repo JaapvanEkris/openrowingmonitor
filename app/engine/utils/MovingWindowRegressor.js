@@ -95,6 +95,56 @@ export function createMovingRegressor (bandwith) {
     }
   }
 
+  function projectX (position, x) {
+    if (aMatrix[position].length() >= 3) {
+      return ((aMatrix[position].weighedAverage() * Math.pow(x, 2)) + (bMatrix[position].weighedAverage() * x) + cMatrix[position].weighedAverage())
+    } else {
+      return 0
+    }
+  }
+
+  function projectY (position, y) {
+    // Calculate the discriminant
+    const discriminant = Math.pow(bMatrix[position].weighedAverage(), 2) - (4 * aMatrix[position].weighedAverage() * (cMatrix[position].weighedAverage() - y))
+
+    switch (true) {
+      case (aMatrix[position].weighedAverage() === 0 && bMatrix[position].weighedAverage() === 0):
+        // The function is a horizontal flat line, let's return the orignal observation
+        return [quadraticTheilSenRegressor.X.get(position)]
+      case (aMatrix[position].weighedAverage() === 0):
+        // The function is a tilted line, we need to handle this to prevent a division by zero
+        const projection = (y - cMatrix[position].weighedAverage()) / bMatrix[position].weighedAverage()
+        return [projection]
+      case (discriminant > 0):
+        const root1 = (-bMatrix[position].weighedAverage() + Math.sqrt(discriminant)) / (2 * aMatrix[position].weighedAverage())
+        const root2 = (-bMatrix[position].weighedAverage() - Math.sqrt(discriminant)) / (2 * aMatrix[position].weighedAverage())
+        return [root1, root2]
+      case (discriminant === 0):
+        const root = -bMatrix[position].weighedAverage() / (2 * aMatrix[position].weighedAverage())
+        return [root]
+      default:
+        return []
+    }
+  }
+
+  function expectedX (position = 0) {
+    const solutions = projectY(position, quadraticTheilSenRegressor.Y.get(position))
+    switch (true) {
+       case (solutions.length === 0):
+         return quadraticTheilSenRegressor.X.get(position)
+       case (solutions.length === 1):
+         return solutions[0]
+       case (solutions.length === 2):
+         if (Math.abs(solutions[0] - quadraticTheilSenRegressor.X.get(position)) < Math.abs(solutions[1] - quadraticTheilSenRegressor.X.get(position))) {
+           return solutions[0]
+         } else {
+           return solutions[1]
+         }
+       default:
+         return quadraticTheilSenRegressor.X.get(position)
+    }
+  }
+
   function reset () {
     quadraticTheilSenRegressor.reset()
     let i = aMatrix.length
@@ -157,6 +207,9 @@ export function createMovingRegressor (bandwith) {
     coefficientC,
     firstDerivative,
     secondDerivative,
+    projectX,
+    projectY,
+    expectedX,
     reset
   }
 }
