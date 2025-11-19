@@ -134,18 +134,18 @@ export function createMovingRegressor (bandwith) {
   function expectedX (position = 0) {
     const solutions = projectY(position, quadraticTheilSenRegressor.Y.get(position))
     switch (true) {
-       case (solutions.length === 0):
-         return quadraticTheilSenRegressor.X.get(position)
-       case (solutions.length === 1):
-         return solutions[0]
-       case (solutions.length === 2):
-         if (Math.abs(solutions[0] - quadraticTheilSenRegressor.X.get(position)) < Math.abs(solutions[1] - quadraticTheilSenRegressor.X.get(position))) {
-           return solutions[0]
-         } else {
-           return solutions[1]
-         }
-       default:
-         return quadraticTheilSenRegressor.X.get(position)
+      case (solutions.length === 0):
+        return quadraticTheilSenRegressor.X.get(position)
+      case (solutions.length === 1):
+        return solutions[0]
+      case (solutions.length === 2):
+        if (Math.abs(solutions[0] - quadraticTheilSenRegressor.X.get(position)) < Math.abs(solutions[1] - quadraticTheilSenRegressor.X.get(position))) {
+          return solutions[0]
+        } else {
+          return solutions[1]
+        }
+      default:
+        return quadraticTheilSenRegressor.X.get(position)
     }
   }
 
