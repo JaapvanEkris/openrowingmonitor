@@ -10,28 +10,43 @@
 import { createInfiniteAverager } from './InfiniteAverager.js'
 import { createSeries } from './Series.js'
 
-export function createCyclicErrorFilter (size, flankSize, agressiveness) {
+export function createCyclicErrorFilter (size, flankSize, agressiveness, deltaTime) {
   const cycle = size
   const flankLength = flankSize
   const raw = createSeries(flankSize)
   const clean = createSeries(flankSize)
   const weight = agressiveness
+  const linearRegressor = deltaTime
   let filterArray = []
   let filterConfig = []
+  let recordedRelativePosition = []
+  let recordedAbsolutePosition = []
+  let recordedRawValue = []
+  let startPosition
+  let cursor
   let filterSum = cycle
   let weightCorrection = 1
-  let i = 0
-  let startPosition
-  while (i < cycle) {
-    filterArray[i] = createInfiniteAverager(1000, 1000)
-    filterConfig[i] = 1
-    i++
-  }
+  reset()
 
   function applyFilter (rawValue, position) {
     if (startPosition === undefined) { startPosition = position + flankLength }
     raw.push(rawValue)
     clean.push(rawValue * filterConfig[position % cycle] * weightCorrection)
+  }
+
+  function recordRawDatapoint (relativePosition, absolutePosition, rawValue) {
+    recordedRelativePosition.push(relativePosition)
+    recordedAbsolutePosition.push(absolutePosition)
+    recordedRawValue.push(rawValue)
+  }
+
+  function processNextRawDatapoint () {
+    if (cursor === undefined) { cursor = Math.ceil(recordedRelativePosition.length * 0.25) }
+    if (cursor < Math.floor(recordedRelativePosition.length * 0.75)) {
+      const perfectCurrentDt = linearRegressor.projectX(recordedAbsolutePosition[cursor])
+      updateFilter(recordedRelativePosition[cursor], recordedRawValue[cursor], perfectCurrentDt)
+      cursor++
+    }
   }
 
   function updateFilter (position, rawValue, cleanValue) {
@@ -46,12 +61,20 @@ export function createCyclicErrorFilter (size, flankSize, agressiveness) {
     }
   }
 
-  function reset () { // @ToDo: connect this to the appropriate Flywheel.js situations where the flywheel is stopped (and thus tracking of flywheel position breaks!
+  function restart () {
+    recordedRelativePosition = []
+    recordedAbsolutePosition = []
+    recordedRawValue = []
+	cursor = undefined
+  }
+
+  function reset () {
+    restart()
     startPosition = undefined
-    i = 0
+    let i = 0
     while (i < cycle) {
       filterArray[i] = {}
-      filterArray[i] = createInfiniteAverager(1000, 1000)
+      filterArray[i] = createInfiniteAverager(100, 100)
       filterConfig[i] = 1
       i++
     }
@@ -61,9 +84,12 @@ export function createCyclicErrorFilter (size, flankSize, agressiveness) {
 
   return {
     applyFilter,
+    recordRawDatapoint,
+    processNextRawDatapoint,
     updateFilter,
     raw,
     clean,
+    restart,
     reset
   }
 }
