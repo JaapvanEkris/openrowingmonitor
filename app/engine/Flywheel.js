@@ -35,11 +35,11 @@ export function createFlywheel (rowerSettings) {
   const minimumDragFactorSamples = Math.floor(rowerSettings.minimumRecoveryTime / rowerSettings.maximumTimeBetweenImpulses)
   const minimumAngularVelocity = angularDisplacementPerImpulse / rowerSettings.maximumTimeBetweenImpulses
   const minimumTorqueBeforeStroke = rowerSettings.minimumForceBeforeStroke * (rowerSettings.sprocketRadius / 100)
-  const currentDt = createCyclicErrorFilter(rowerSettings.numOfImpulsesPerRevolution, flankLength, rowerSettings.systematicErrorAgressiveness)
-  const _deltaTime = createTSLinearSeries(flankLength)
   const _angularDistance = createMovingRegressor(flankLength)
+  const _deltaTime = createTSLinearSeries(flankLength)
   const drag = createWeighedSeries(rowerSettings.dragFactorSmoothing, (rowerSettings.dragFactor / 1000000))
   const recoveryDeltaTime = createTSLinearSeries()
+  const currentDt = createCyclicErrorFilter(rowerSettings.numOfImpulsesPerRevolution, flankLength, rowerSettings.systematicErrorAgressiveness, recoveryDeltaTime)
   const strokedetectionMinimalGoodnessOfFit = rowerSettings.minimumStrokeQuality
   const minimumRecoverySlope = createWeighedSeries(rowerSettings.dragFactorSmoothing, rowerSettings.minimumRecoverySlope)
   let totalTime
@@ -88,10 +88,6 @@ export function createFlywheel (rowerSettings) {
       // value before the shift is certain to be part of a specific rowing phase (i.e. Drive or Recovery), once the buffer is filled completely
       totalNumberOfImpulses += 1
 
-      // Update the systematic erroor filter
-      const perfectCurrentDt = _angularDistance.expectedX(0) - (_angularDistance.X.get(0) - currentDt.raw.atSeriesBegin())
-      currentDt.updateFilter(totalNumberOfImpulses, currentDt.raw.atSeriesBegin(), perfectCurrentDt)
-
       _deltaTimeBeforeFlank = currentDt.clean.atSeriesBegin()
       totalTimeSpinning += _deltaTimeBeforeFlank
       _angularVelocityBeforeFlank = _angularVelocityAtBeginFlank
@@ -102,9 +98,13 @@ export function createFlywheel (rowerSettings) {
       if (inRecoveryPhase) {
         // Feed the drag calculation, as we didn't reset the Semaphore in the previous cycle based on the current flank
         recoveryDeltaTime.push(totalTimeSpinning, _deltaTimeBeforeFlank)
+        // Feed the systematic error filter buffer
+        currentDt.recordRawDatapoint(totalNumberOfImpulses, totalTimeSpinning, currentDt.raw.atSeriesBegin())
       } else {
         // Accumulate the energy total as we are in the drive phase
         _totalWork += Math.max(_torqueBeforeFlank * angularDisplacementPerImpulse, 0)
+        // Process a value in the systematic error filter buffer. We need to do this slowly to prevent radical changes which might disturbe the force curve etc.
+        currentDt.processNextRawDatapoint()
       }
     } else {
       _deltaTimeBeforeFlank = 0
@@ -134,11 +134,13 @@ export function createFlywheel (rowerSettings) {
 
   function maintainStateAndMetrics () {
     maintainMetrics = true
+    currentDt.reset()
   }
 
   function markRecoveryPhaseStart () {
     inRecoveryPhase = true
     recoveryDeltaTime.reset()
+    currentDt.restart()
   }
 
   /**
@@ -161,6 +163,8 @@ export function createFlywheel (rowerSettings) {
         log.debug(`*** Calculated recovery slope: ${recoveryDeltaTime.slope().toFixed(6)}, Goodness of Fit: ${recoveryDeltaTime.goodnessOfFit().toFixed(4)}, not used as autoAdjustRecoverySlope isn't set to true`)
       }
     } else {
+      // As the drag calculation is considered unreliable, we must skip updating the systematic error filter that depends on it
+      currentDt.restart()
       if (!rowerSettings.autoAdjustDragFactor) {
         // autoAdjustDampingConstant = false, thus the update is skipped, but let's log the dragfactor anyway
         log.debug(`*** Calculated drag factor: ${(slopeToDrag(recoveryDeltaTime.slope()) * 1000000).toFixed(4)}, slope: ${recoveryDeltaTime.slope().toFixed(8)}, not used because autoAdjustDragFactor is not true`)
