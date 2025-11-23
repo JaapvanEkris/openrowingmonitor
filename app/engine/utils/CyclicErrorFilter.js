@@ -27,7 +27,7 @@ export function createCyclicErrorFilter (numberOfMagnets, flankLength, minimumDr
   let recordedAbsolutePosition = []
   let recordedRawValue = []
   let startPosition
-  let cursor
+  let _cursor
   let filterSum = _numberOfMagnets
   let weightCorrection = 1
   reset()
@@ -45,16 +45,16 @@ export function createCyclicErrorFilter (numberOfMagnets, flankLength, minimumDr
   }
 
   function processNextRawDatapoint () {
-    if (cursor === undefined) { cursor = Math.ceil(recordedRelativePosition.length * 0.25) }
-    if (cursor < Math.floor(recordedRelativePosition.length * 0.75)) {
-      const perfectCurrentDt = linearRegressor.projectX(recordedAbsolutePosition[cursor])
+    if (_cursor === undefined) { _cursor = Math.ceil(recordedRelativePosition.length * 0.25) }
+    if (_cursor < Math.floor(recordedRelativePosition.length * 0.75)) {
+      const perfectCurrentDt = linearRegressor.projectX(recordedAbsolutePosition[_cursor])
       const weight = linearRegressor.goodnessOfFit()
-      updateFilter(recordedRelativePosition[cursor], recordedRawValue[cursor], perfectCurrentDt, weight)
-      cursor++
+      updateFilter(_cursor, recordedRelativePosition[_cursor], recordedRawValue[_cursor], perfectCurrentDt, weight)
+      _cursor++
     }
   }
 
-  function updateFilter (position, rawValue, cleanValue, goodnessOfFit) {
+  function updateFilter (cursor, position, rawValue, cleanValue, goodnessOfFit) {
     if (position > startPosition) {
       const correctionFactor = (cleanValue / rawValue)
       const weightCorrectedCorrectionFactor = ((correctionFactor - 1) * _agressiveness) + 1
@@ -65,11 +65,13 @@ export function createCyclicErrorFilter (numberOfMagnets, flankLength, minimumDr
           break
         case (weightCorrectedCorrectionFactor < (filterConfig[position % _numberOfMagnets] * 0.9)):
           log.debug(`*** WARNING: cyclic error filter detected a radical decrease of ${weightCorrectedCorrectionFactor}, where about ${filterConfig[position % _numberOfMagnets]} is expected, clipping`)
-          filterArray[position % _numberOfMagnets].push(filterConfig[position % _numberOfMagnets] * 0.9, goodnessOfFit)
+          // As this probably is a huge outlier in the recovery calculation, we need to explicitly consider localGoodnessOfFit
+          filterArray[position % _numberOfMagnets].push(filterConfig[position % _numberOfMagnets] * 0.9, goodnessOfFit * linearRegressor.localGoodnessOfFit(cursor))
           break
         case (weightCorrectedCorrectionFactor > filterConfig[position % _numberOfMagnets] * 1.1):
           log.debug(`*** WARNING: cyclic error filter detected a radical increase of ${weightCorrectedCorrectionFactor}, where about ${filterConfig[position % _numberOfMagnets]} is expected, clipping`)
-          filterArray[position % _numberOfMagnets].push(filterConfig[position % _numberOfMagnets] * 1.1, goodnessOfFit)
+          // As this probably is a huge outlier in the recovery calculation, we need to explicitly consider localGoodnessOfFit
+          filterArray[position % _numberOfMagnets].push(filterConfig[position % _numberOfMagnets] * 1.1, goodnessOfFit * linearRegressor.localGoodnessOfFit(cursor))
           break
         // no default
       }
@@ -84,7 +86,7 @@ export function createCyclicErrorFilter (numberOfMagnets, flankLength, minimumDr
     recordedRelativePosition = []
     recordedAbsolutePosition = []
     recordedRawValue = []
-    cursor = undefined
+    _cursor = undefined
   }
 
   function reset () {
