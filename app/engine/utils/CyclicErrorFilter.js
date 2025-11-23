@@ -8,7 +8,6 @@
  * the weightCorrection ensures that the sum of corrections will converge to an average of 1 (thus preventing time dilation)
  */
 import loglevel from 'loglevel'
-import { createInfiniteAverager } from './InfiniteAverager.js'
 import { createSeries } from './Series.js'
 import { createWeighedSeries } from './WeighedSeries.js'
 
@@ -72,7 +71,7 @@ export function createCyclicErrorFilter (numberOfMagnets, flankLength, minimumDr
           log.debug(`*** WARNING: cyclic error filter detected a radical increase of ${weightCorrectedCorrectionFactor}, where about ${filterConfig[position % _numberOfMagnets]} is expected, clipping`)
           filterArray[position % _numberOfMagnets].push(filterConfig[position % _numberOfMagnets] * 1.1, goodnessOfFit)
           break
-        // No default as above covers all possible cases
+        // no default
       }
       filterSum -= filterConfig[position % _numberOfMagnets]
       filterConfig[position % _numberOfMagnets] = filterArray[position % _numberOfMagnets].weighedAverage()
