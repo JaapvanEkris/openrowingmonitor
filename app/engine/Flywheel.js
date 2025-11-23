@@ -39,7 +39,7 @@ export function createFlywheel (rowerSettings) {
   const _deltaTime = createTSLinearSeries(flankLength)
   const drag = createWeighedSeries(rowerSettings.dragFactorSmoothing, (rowerSettings.dragFactor / 1000000))
   const recoveryDeltaTime = createTSLinearSeries()
-  const currentDt = createCyclicErrorFilter(rowerSettings.numOfImpulsesPerRevolution, flankLength, rowerSettings.systematicErrorAgressiveness, recoveryDeltaTime)
+  const currentDt = createCyclicErrorFilter(rowerSettings.numOfImpulsesPerRevolution, flankLength, minimumDragFactorSamples, rowerSettings.systematicErrorAgressiveness, recoveryDeltaTime)
   const strokedetectionMinimalGoodnessOfFit = rowerSettings.minimumStrokeQuality
   const minimumRecoverySlope = createWeighedSeries(rowerSettings.dragFactorSmoothing, rowerSettings.minimumRecoverySlope)
   let totalTime
