@@ -36,11 +36,9 @@ export function createCyclicErrorFilter (numberOfMagnets, flankLength, minimumDr
     if (startPosition === undefined) { startPosition = position + _flankLength }
     raw.push(rawValue)
     clean.push(rawValue * filterConfig[position % _numberOfMagnets] * weightCorrection)
-    // if (position % 1000 === 0) { console.log(`CyclicFilter: Appying filter to datapoint ${position}: raw currentDt ${rawValue}, clean currentDt ${clean.atSeriesEnd()}`) }
   }
 
   function recordRawDatapoint (relativePosition, absolutePosition, rawValue) {
-    // if (relativePosition % 1000 === 0) { console.log(`CyclicFilter: Recording raw datapoint ${relativePosition}: raw currentDt ${rawValue}, totalTime ${absolutePosition}`) }
     recordedRelativePosition.push(relativePosition)
     recordedAbsolutePosition.push(absolutePosition)
     recordedRawValue.push(rawValue)
@@ -52,7 +50,6 @@ export function createCyclicErrorFilter (numberOfMagnets, flankLength, minimumDr
       const perfectCurrentDt = linearRegressor.projectX(recordedAbsolutePosition[cursor])
       const weight = linearRegressor.goodnessOfFit()
       updateFilter(recordedRelativePosition[cursor], recordedRawValue[cursor], perfectCurrentDt, weight)
-      // if (recordedRelativePosition[cursor] % 1000 === 0) { console.log(`CyclicFilter: Processing datapoint ${recordedRelativePosition[cursor]}: raw currentDt ${recordedRawValue[cursor]}, perfect currentDt ${perfectCurrentDt}`) }
       cursor++
     }
   }
