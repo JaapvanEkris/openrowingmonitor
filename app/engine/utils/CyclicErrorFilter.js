@@ -8,6 +8,7 @@
  * the weightCorrection ensures that the sum of corrections will converge to an average of 1 (thus preventing time dilation)
  */
 import loglevel from 'loglevel'
+import { createInfiniteAverager } from './InfiniteAverager.js'
 import { createSeries } from './Series.js'
 import { createWeighedSeries } from './WeighedSeries.js'
 
@@ -19,7 +20,7 @@ export function createCyclicErrorFilter (numberOfMagnets, flankLength, minimumDr
   const _numberOfFilterSamples = (minimumDragFactorSamples / numberOfMagnets) * 3
   const raw = createSeries(_flankLength)
   const clean = createSeries(_flankLength)
-  const weight = agressiveness
+  const _agressiveness = agressiveness
   const linearRegressor = deltaTime
   let filterArray = []
   let filterConfig = []
@@ -54,23 +55,24 @@ export function createCyclicErrorFilter (numberOfMagnets, flankLength, minimumDr
     }
   }
 
-  function updateFilter (position, rawValue, cleanValue, weight) {
+  function updateFilter (position, rawValue, cleanValue, goodnessOfFit) {
     if (position > startPosition) {
       const correctionFactor = (cleanValue / rawValue)
-      const weightCorrectedCorrectionFactor = ((correctionFactor - 1) * weight) + 1
+      const weightCorrectedCorrectionFactor = ((correctionFactor - 1) * _agressiveness) + 1
       switch (true) {
         // Prevent a single measurement to add radical change (measurement error), offsetting the entire filter
         case (weightCorrectedCorrectionFactor >= (filterConfig[position % _numberOfMagnets] * 0.9) && (filterConfig[position % _numberOfMagnets] * 1.1) >= weightCorrectedCorrectionFactor):
-          filterArray[position % _numberOfMagnets].push(weightCorrectedCorrectionFactor, weight)
+          filterArray[position % _numberOfMagnets].push(weightCorrectedCorrectionFactor, goodnessOfFit)
           break
         case (weightCorrectedCorrectionFactor < (filterConfig[position % _numberOfMagnets] * 0.9)):
           log.debug(`*** WARNING: cyclic error filter detected a radical decrease of ${weightCorrectedCorrectionFactor}, where about ${filterConfig[position % _numberOfMagnets]} is expected, clipping`)
-          filterArray[position % _numberOfMagnets].push(filterConfig[position % _numberOfMagnets] * 0.9, weight)
+          filterArray[position % _numberOfMagnets].push(filterConfig[position % _numberOfMagnets] * 0.9, goodnessOfFit)
           break
         case (weightCorrectedCorrectionFactor > filterConfig[position % _numberOfMagnets] * 1.1):
           log.debug(`*** WARNING: cyclic error filter detected a radical increase of ${weightCorrectedCorrectionFactor}, where about ${filterConfig[position % _numberOfMagnets]} is expected, clipping`)
-          filterArray[position % _numberOfMagnets].push(filterConfig[position % _numberOfMagnets] * 1.1, weight)
+          filterArray[position % _numberOfMagnets].push(filterConfig[position % _numberOfMagnets] * 1.1, goodnessOfFit)
           break
+        // No default as above covers all possible cases
       }
       filterSum -= filterConfig[position % _numberOfMagnets]
       filterConfig[position % _numberOfMagnets] = filterArray[position % _numberOfMagnets].weighedAverage()
