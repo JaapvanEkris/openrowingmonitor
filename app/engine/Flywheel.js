@@ -74,6 +74,7 @@ export function createFlywheel (rowerSettings) {
     if (dataPoint < rowerSettings.minimumTimeBetweenImpulses) {
       if (_deltaTime.length() >= flankLength && maintainMetrics) {
         // We are in a normal operational mode, so this shouldn't happen, but let's log it to clarify there is some issue going on here, but accept the value as the TS estimator can handle it
+        currentDt.reset() // As it probably is a bounce, we need to reset the filtering as that will result in a filter shift
         log.debug(`*** WARNING: currentDt of ${dataPoint} sec is below minimumTimeBetweenImpulses (${rowerSettings.minimumTimeBetweenImpulses} sec)`)
       } else {
         // This is probably due to the start-up noise of a slow but accelerating flywheel as the flink isn't filled or we aren't maintaining metrics
