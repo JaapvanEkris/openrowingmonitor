@@ -3,54 +3,77 @@
   Open Rowing Monitor, https://github.com/jaapvanekris/openrowingmonitor
 */
 /**
- * This creates an ordered series with labels to retrieve and destroy them
- * It allows for efficient determining the Median, Tukey's Mean, Number of Above and Below
+ * This creates an ordered series with labels and optional weights
+ * It allows for efficient determining the Weighted Median, Number of Above and Below
  */
+
 export function createLabelledBinarySearchTree () {
   let tree = null
 
-  function push (label, value) {
+  /**
+   * @param {float} label to use to destroy it later
+   * @param {float} value to store
+   * @param {float} weight attributed to the value (default = 1)
+   */
+  function push (label, value, weight = 1) {
     if (value === undefined || isNaN(value)) { return }
     if (tree === null) {
-      tree = newNode(label, value)
+      tree = newNode(label, value, weight)
     } else {
-      tree = pushInTree(tree, label, value)
+      tree = pushInTree(tree, label, value, weight)
     }
   }
 
-  function pushInTree (currentTree, label, value) {
+  function pushInTree (currentTree, label, value, weight) {
     if (value <= currentTree.value) {
       // The value should be on the left side of currentTree
       if (currentTree.leftNode === null) {
-        currentTree.leftNode = newNode(label, value)
+        currentTree.leftNode = newNode(label, value, weight)
       } else {
-        currentTree.leftNode = pushInTree(currentTree.leftNode, label, value)
+        currentTree.leftNode = pushInTree(currentTree.leftNode, label, value, weight)
       }
     } else {
       // The value should be on the right side of currentTree
       if (currentTree.rightNode === null) {
-        currentTree.rightNode = newNode(label, value)
+        currentTree.rightNode = newNode(label, value, weight)
       } else {
-        currentTree.rightNode = pushInTree(currentTree.rightNode, label, value)
+        currentTree.rightNode = pushInTree(currentTree.rightNode, label, value, weight)
       }
     }
     currentTree.numberOfLeafsAndNodes = currentTree.numberOfLeafsAndNodes + 1
+    currentTree.totalWeight = currentTree.totalWeight + weight
     return currentTree
   }
 
-  function newNode (label, value) {
+  function newNode (label, value, weight) {
     return {
       label,
       value,
+      weight,
       leftNode: null,
       rightNode: null,
-      numberOfLeafsAndNodes: 1
+      numberOfLeafsAndNodes: 1,
+      totalWeight: weight
     }
   }
 
+  /**
+   * @result {integer} number of values stored in the tree
+   */
   function size () {
     if (tree !== null) {
       return tree.numberOfLeafsAndNodes
+    } else {
+      return 0
+    }
+  }
+
+  /**
+   * @result {float} total weight stored in the tree
+   */
+  function totalWeight () {
+    if (tree !== null) {
+      return tree.totalWeight
     } else {
       return 0
     }
@@ -137,9 +160,12 @@ export function createLabelledBinarySearchTree () {
     if (currentTree.label === label) {
       // First we need to remove the current node, then we need to investigate the underlying sub-trees to determine how it is resolved
       // First, release the memory of the current node before we start to rearrange the tree, as this might cause a memory leak
+      const removedWeight = currentTree.weight
       currentTree.label = null
       currentTree.value = null
+      currentTree.weight = null
       currentTree.numberOfLeafsAndNodes = null
+      currentTree.totalWeight = null
       switch (true) {
         case (currentTree.leftNode === null && currentTree.rightNode === null):
           // As the underlying sub-trees are empty as well, we return an empty tree
@@ -158,21 +184,25 @@ export function createLabelledBinarySearchTree () {
           // as there are two potential nodes to use, we try to balance the tree a bit more as this increases performance
           if (currentTree.leftNode.numberOfLeafsAndNodes > currentTree.rightNode.numberOfLeafsAndNodes) {
             // The left sub-tree is bigger then the right one, lets use the closest predecessor to restore some balance
-            currentTree.value = clostestPredecessor(currentTree.leftNode).value
-            currentTree.label = clostestPredecessor(currentTree.leftNode).label
-            currentTree.leftNode = destroyClostestPredecessor(currentTree.leftNode)
+            const _closestPredecessor = closestPredecessor(currentTree.leftNode)
+            currentTree.value = _closestPredecessor.value
+            currentTree.label = _closestPredecessor.label
+            currentTree.weight = _closestPredecessor.weight
+            currentTree.leftNode = destroyclosestPredecessor(currentTree.leftNode)
           } else {
             // The right sub-tree is smaller then the right one, lets use the closest successor to restore some balance
-            currentTree.value = clostestSuccesor(currentTree.rightNode).value
-            currentTree.label = clostestSuccesor(currentTree.rightNode).label
-            currentTree.rightNode = destroyClostestSuccessor(currentTree.rightNode)
+            const _closestSuccesor = closestSuccesor(currentTree.rightNode)
+            currentTree.value = _closestSuccesor.value
+            currentTree.label = _closestSuccesor.label
+            currentTree.weight = _closestSuccesor.weight
+            currentTree.rightNode = destroyclosestSuccessor(currentTree.rightNode)
           }
           break
         // no default
       }
     }
 
-    // Recalculate the tree size
+    // Recalculate the tree size and total weight
     switch (true) {
       case (currentTree === null):
         // We are now an empty leaf, nothing to do here
@@ -180,90 +210,109 @@ export function createLabelledBinarySearchTree () {
       case (currentTree.leftNode === null && currentTree.rightNode === null):
         // This is a filled leaf
         currentTree.numberOfLeafsAndNodes = 1
+        currentTree.totalWeight = currentTree.weight
         break
       case (currentTree.leftNode !== null && currentTree.rightNode === null):
         currentTree.numberOfLeafsAndNodes = currentTree.leftNode.numberOfLeafsAndNodes + 1
+        currentTree.totalWeight = currentTree.leftNode.totalWeight + currentTree.weight
         break
       case (currentTree.leftNode === null && currentTree.rightNode !== null):
         currentTree.numberOfLeafsAndNodes = currentTree.rightNode.numberOfLeafsAndNodes + 1
+        currentTree.totalWeight = currentTree.rightNode.totalWeight + currentTree.weight
         break
       case (currentTree.leftNode !== null && currentTree.rightNode !== null):
         currentTree.numberOfLeafsAndNodes = currentTree.leftNode.numberOfLeafsAndNodes + currentTree.rightNode.numberOfLeafsAndNodes + 1
+        currentTree.totalWeight = currentTree.leftNode.totalWeight + currentTree.rightNode.totalWeight + currentTree.weight
         break
       // no default
     }
     return currentTree
   }
 
-  function clostestPredecessor (currentTree) {
+  function closestPredecessor (currentTree) {
     // This function finds the maximum value in a tree
     if (currentTree.rightNode !== null) {
       // We haven't reached the end of the tree yet
-      return clostestPredecessor(currentTree.rightNode)
+      return closestPredecessor(currentTree.rightNode)
     } else {
       // We reached the largest value in the tree
       return {
         label: currentTree.label,
-        value: currentTree.value
+        value: currentTree.value,
+        weight: currentTree.weight
       }
     }
   }
 
-  function destroyClostestPredecessor (currentTree) {
+  function destroyclosestPredecessor (currentTree) {
     // This function finds the maximum value in a tree
     if (currentTree.rightNode !== null) {
       // We haven't reached the end of the tree yet
-      currentTree.rightNode = destroyClostestPredecessor(currentTree.rightNode)
+      currentTree.rightNode = destroyclosestPredecessor(currentTree.rightNode)
       currentTree.numberOfLeafsAndNodes = currentTree.numberOfLeafsAndNodes - 1
+      let totalWeight = currentTree.weight
+      if (currentTree.rightNode !== null && currentTree.rightNode.totalWeight !== undefined) { totalWeight += currentTree.rightNode.totalWeight }
+      if (currentTree.leftNode !== null && currentTree.leftNode.totalWeight !== undefined) { totalWeight += currentTree.leftNode.totalWeight }
+      currentTree.totalWeight = totalWeight
       return currentTree
     } else {
       // We reached the largest value in the tree
       // First, release the memory of the current node before we start to rearrange the tree, as this might cause a memory leak
       currentTree.label = null
       currentTree.value = null
+      currentTree.weight = null
       currentTree.numberOfLeafsAndNodes = null
+      currentTree.totalWeight = null
       return currentTree.leftNode
     }
   }
 
-  function clostestSuccesor (currentTree) {
+  function closestSuccesor (currentTree) {
     // This function finds the maximum value in a tree
     if (currentTree.leftNode !== null) {
       // We haven't reached the end of the tree yet
-      return clostestSuccesor(currentTree.leftNode)
+      return closestSuccesor(currentTree.leftNode)
     } else {
       // We reached the smallest value in the tree
       return {
         label: currentTree.label,
-        value: currentTree.value
+        value: currentTree.value,
+        weight: currentTree.weight
       }
     }
   }
 
-  function destroyClostestSuccessor (currentTree) {
+  function destroyclosestSuccessor (currentTree) {
     // This function finds the maximum value in a tree
     if (currentTree.leftNode !== null) {
       // We haven't reached the end of the tree yet
-      currentTree.leftNode = destroyClostestSuccessor(currentTree.leftNode)
+      currentTree.leftNode = destroyclosestSuccessor(currentTree.leftNode)
       currentTree.numberOfLeafsAndNodes = currentTree.numberOfLeafsAndNodes - 1
+      let totalWeight = currentTree.weight
+      if (currentTree.rightNode !== null && currentTree.rightNode.totalWeight !== undefined) { totalWeight += currentTree.rightNode.totalWeight }
+      if (currentTree.leftNode !== null && currentTree.leftNode.totalWeight !== undefined) { totalWeight += currentTree.leftNode.totalWeight }
+      currentTree.totalWeight = totalWeight
       return currentTree
     } else {
       // We reached the smallest value in the tree
       // First, release the memory of the current node before we start to rearrange the tree, as this might cause a memory leak
       currentTree.label = null
       currentTree.value = null
+      currentTree.weight = null
       currentTree.numberOfLeafsAndNodes = null
+      currentTree.totalWeight = null
       return currentTree.rightNode
     }
   }
 
   /**
-   * This function implements the median of all inserted values
+   * BE AWARE, UNLIKE WITH ARRAYS, THE COUNTING STARTS WITH THE WEIGHT SUM! !!! !!!
+   * THIS LOGIC THUS WORKS DIFFERENT THAN STANDARD MEDIAN! !!!!!!
+   * @returns {float} the median of the tree
    */
   function median () {
     if (tree !== null && tree.numberOfLeafsAndNodes > 0) {
-      // BE AWARE, UNLIKE WITH ARRAYS, THE COUNTING OF THE ELEMENTS STARTS WITH 1 !!!!!!!
-      // THIS LOGIC THUS WORKS DIFFERENT THAN MOST ARRAYS FOUND IN ORM!!!!!!!
+      // Standard median calculation (weight = 1 for all nodes)
       const mid = Math.floor(tree.numberOfLeafsAndNodes / 2)
       return tree.numberOfLeafsAndNodes % 2 !== 0 ? valueAtInorderPosition(tree, mid + 1) : (valueAtInorderPosition(tree, mid) + valueAtInorderPosition(tree, mid + 1)) / 2
     } else {
@@ -272,24 +321,77 @@ export function createLabelledBinarySearchTree () {
   }
 
   /**
-   * This function implements Tukey's mean.
+   * @returns {float} the weighed median of the entire tree, with linear interpolation between datapoints if needed
    */
-  function tukeysMean () {
-    if (tree !== null && tree.numberOfLeafsAndNodes > 0) {
-      // BE AWARE, UNLIKE WITH ARRAYS, THE COUNTING OF THE ELEMENTS STARTS WITH 1 !!!!!!!
-      // THIS LOGIC THUS WORKS DIFFERENT THAN MOST ARRAYS FOUND IN ORM!!!!!!!
-      const mid = Math.floor(tree.numberOfLeafsAndNodes / 2)
-      const median = tree.numberOfLeafsAndNodes % 2 !== 0 ? valueAtInorderPosition(tree, mid + 1) : (valueAtInorderPosition(tree, mid) + valueAtInorderPosition(tree, mid + 1)) / 2
-      const firstPercentile = valueAtInorderPosition(tree, Math.floor(tree.numberOfLeafsAndNodes / 4) + 1)
-      const thirdPercentile = valueAtInorderPosition(tree, Math.floor((3 * tree.numberOfLeafsAndNodes) / 4) + 1)
-      return (firstPercentile + (2 * median) + thirdPercentile) / 4
+  function weightedMedian () {
+    if (! tree || tree.totalWeight === 0) return undefined
+
+    const half = tree.totalWeight / 2
+    const underNode = findUndershootingNode(tree, half)
+    const overNode = findOvershootingNode(tree, half)
+
+    if (! underNode && ! overNode) return undefined
+    if (! underNode) return overNode.value
+    if (! overNode) return underNode.value
+
+    const lowerValue = underNode.value
+    const upperValue = overNode. value
+    const lowerWeight = underNode.cumulativeWeight
+    const upperWeight = overNode. cumulativeWeight
+
+    // If at exact boundary or weights are equal, return average
+    if (lowerWeight === upperWeight || (half === lowerWeight && lowerValue !== upperValue)) {
+      return (lowerValue + upperValue) / 2
+    }
+
+    // Interpolate based on where target falls in the weight range
+    const interpolationFactor = (half - lowerWeight) / (upperWeight - lowerWeight)
+
+    return lowerValue + (upperValue - lowerValue) * interpolationFactor
+  }
+
+  /**
+   * This helper function identifies the node that is closest below the set weight
+   */
+  function findUndershootingNode (node, targetWeight, accWeight = 0) {
+    if (! node) return null
+
+    const leftWeight = node.leftNode ? node.leftNode.totalWeight : 0
+    const weightBeforeNode = accWeight + leftWeight
+    const weightUpToNode = weightBeforeNode + node.weight
+
+    if (targetWeight <= weightBeforeNode) {
+      return findUndershootingNode(node.leftNode, targetWeight, accWeight)
+    } else if (targetWeight > weightUpToNode) {
+      const rightResult = findUndershootingNode(node.rightNode, targetWeight, weightUpToNode)
+      return rightResult || { value: node.value, cumulativeWeight: weightUpToNode }
     } else {
-      return 0
+      return { value: node.value, cumulativeWeight: weightUpToNode }
     }
   }
 
   /**
-   * @remark: // BE AWARE TESTING PURPOSSES ONLY
+   * This helper function identifies the node that is closest above the set weight
+   */
+  function findOvershootingNode (node, targetWeight, accWeight = 0) {
+    if (! node) return null
+
+    const leftWeight = node.leftNode ? node.leftNode.totalWeight : 0
+    const weightBeforeNode = accWeight + leftWeight
+    const weightUpToNode = weightBeforeNode + node. weight
+
+    if (targetWeight < weightBeforeNode) {
+      const leftResult = findOvershootingNode(node.leftNode, targetWeight, accWeight)
+      return leftResult || { value: node.value, cumulativeWeight: weightBeforeNode }
+    } else if (targetWeight >= weightUpToNode) {
+      return findOvershootingNode(node.rightNode, targetWeight, weightUpToNode)
+    } else {
+      return { value: node.value, cumulativeWeight: weightUpToNode }
+    }
+  }
+
+  /**
+   * @remark: BE AWARE TESTING PURPOSSES ONLY
    */
   function valueAtInorderPos (position) {
     if (tree !== null && position >= 1) {
@@ -331,6 +433,27 @@ export function createLabelledBinarySearchTree () {
     }
   }
 
+  function valueAtInorderWeightedPosition (currentTree, targetWeight) {
+    if (currentTree === null) {
+      return undefined
+    }
+
+    // Calculate the cumulative weight up to and including current node
+    const leftWeight = currentTree.leftNode !== null ? currentTree.leftNode.totalWeight : 0
+    const currentCumulativeWeight = leftWeight + currentTree.weight
+
+    if (targetWeight <= currentCumulativeWeight && targetWeight > leftWeight) {
+      // The target weight falls within the current node
+      return currentTree.value
+    } else if (targetWeight <= leftWeight) {
+      // The target weight is in the left subtree
+      return valueAtInorderWeightedPosition(currentTree.leftNode, targetWeight)
+    } else {
+      // The target weight is in the right subtree
+      return valueAtInorderWeightedPosition(currentTree.rightNode, targetWeight - currentCumulativeWeight)
+    }
+  }
+
   function orderedSeries () {
     return orderedTree(tree)
   }
@@ -353,6 +476,7 @@ export function createLabelledBinarySearchTree () {
     if (currentTree !== null) {
       currentTree.label = null
       currentTree.value = null
+      currentTree.weight = null
       if (currentTree.leftNode !== null) {
         resetTree(currentTree.leftNode)
         currentTree.leftNode = null
@@ -362,6 +486,7 @@ export function createLabelledBinarySearchTree () {
         currentTree.rightNode = null
       }
       currentTree.numberOfLeafsAndNodes = null
+      currentTree.totalWeight = null
     }
   }
 
@@ -369,12 +494,13 @@ export function createLabelledBinarySearchTree () {
     push,
     remove,
     size,
+    totalWeight,
     numberOfValuesAbove,
     numberOfValuesEqualOrBelow,
     minimum,
     maximum,
     median,
-    tukeysMean,
+    weightedMedian,
     valueAtInorderPos,
     orderedSeries,
     reset
