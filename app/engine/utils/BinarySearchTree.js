@@ -160,7 +160,6 @@ export function createLabelledBinarySearchTree () {
     if (currentTree.label === label) {
       // First we need to remove the current node, then we need to investigate the underlying sub-trees to determine how it is resolved
       // First, release the memory of the current node before we start to rearrange the tree, as this might cause a memory leak
-      const removedWeight = currentTree.weight
       currentTree.label = null
       currentTree.value = null
       currentTree.weight = null
@@ -324,20 +323,20 @@ export function createLabelledBinarySearchTree () {
    * @returns {float} the weighed median of the entire tree, with linear interpolation between datapoints if needed
    */
   function weightedMedian () {
-    if (! tree || tree.totalWeight === 0) return undefined
+    if (!tree || tree.totalWeight === 0) { return undefined }
 
     const half = tree.totalWeight / 2
     const underNode = findUndershootingNode(tree, half)
     const overNode = findOvershootingNode(tree, half)
 
-    if (! underNode && ! overNode) return undefined
-    if (! underNode) return overNode.value
-    if (! overNode) return underNode.value
+    if (!underNode && !overNode) { return undefined }
+    if (!underNode) { return overNode.value }
+    if (!overNode) { return underNode.value }
 
     const lowerValue = underNode.value
-    const upperValue = overNode. value
+    const upperValue = overNode.value
     const lowerWeight = underNode.cumulativeWeight
-    const upperWeight = overNode. cumulativeWeight
+    const upperWeight = overNode.cumulativeWeight
 
     // If at exact boundary or weights are equal, return average
     if (lowerWeight === upperWeight || (half === lowerWeight && lowerValue !== upperValue)) {
@@ -354,7 +353,7 @@ export function createLabelledBinarySearchTree () {
    * This helper function identifies the node that is closest below the set weight
    */
   function findUndershootingNode (node, targetWeight, accWeight = 0) {
-    if (! node) return null
+    if (!node) { return null }
 
     const leftWeight = node.leftNode ? node.leftNode.totalWeight : 0
     const weightBeforeNode = accWeight + leftWeight
@@ -374,11 +373,11 @@ export function createLabelledBinarySearchTree () {
    * This helper function identifies the node that is closest above the set weight
    */
   function findOvershootingNode (node, targetWeight, accWeight = 0) {
-    if (! node) return null
+    if (!node) { return null }
 
     const leftWeight = node.leftNode ? node.leftNode.totalWeight : 0
     const weightBeforeNode = accWeight + leftWeight
-    const weightUpToNode = weightBeforeNode + node. weight
+    const weightUpToNode = weightBeforeNode + node.weight
 
     if (targetWeight < weightBeforeNode) {
       const leftResult = findOvershootingNode(node.leftNode, targetWeight, accWeight)
@@ -430,27 +429,6 @@ export function createLabelledBinarySearchTree () {
         return valueAtInorderPosition(currentTree.rightNode, (position - currentNodePosition))
       default:
         return undefined
-    }
-  }
-
-  function valueAtInorderWeightedPosition (currentTree, targetWeight) {
-    if (currentTree === null) {
-      return undefined
-    }
-
-    // Calculate the cumulative weight up to and including current node
-    const leftWeight = currentTree.leftNode !== null ? currentTree.leftNode.totalWeight : 0
-    const currentCumulativeWeight = leftWeight + currentTree.weight
-
-    if (targetWeight <= currentCumulativeWeight && targetWeight > leftWeight) {
-      // The target weight falls within the current node
-      return currentTree.value
-    } else if (targetWeight <= leftWeight) {
-      // The target weight is in the left subtree
-      return valueAtInorderWeightedPosition(currentTree.leftNode, targetWeight)
-    } else {
-      // The target weight is in the right subtree
-      return valueAtInorderWeightedPosition(currentTree.rightNode, targetWeight - currentCumulativeWeight)
     }
   }
 
