@@ -6,7 +6,6 @@
  * This implements a Moving Regression Algorithm to obtain a coefficients, first (angular velocity) and
  * second derivative (angular acceleration) at the front of the flank
  */
-
 import { createTSQuadraticSeries } from './FullTSQuadraticSeries.js'
 import { createWeighedSeries } from './WeighedSeries.js'
 import { createGaussianWeightFunction } from './Gaussian.js'
@@ -37,6 +36,7 @@ export function createMovingRegressor (bandwith) {
     }
 
     // Let's make room for a new set of values for first and second derivatives
+    // Please note: a weighed median would work here, but results in much less fluid force curves
     aMatrix[aMatrix.length] = createWeighedSeries(flankLength, 0)
     bMatrix[bMatrix.length] = createWeighedSeries(flankLength, 0)
     cMatrix[cMatrix.length] = createWeighedSeries(flankLength, 0)
