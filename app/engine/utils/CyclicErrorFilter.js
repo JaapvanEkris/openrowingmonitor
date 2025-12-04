@@ -57,8 +57,8 @@ export function createCyclicErrorFilter (numberOfMagnets, flankLength, minimumDr
       const correctionFactor = (perfectCurrentDt / recordedRawValue[cursor])
       const weightCorrectedCorrectionFactor = ((correctionFactor - 1) * _agressiveness) + 1
       const nextPerfectCurrentDt = linearRegressor.projectX(recordedAbsolutePosition[cursor + 1])
-      const nextCorrectionFactor = (perfectCurrentDt / recordedRawValue[cursor + 1])
-      const nextWeightCorrectedCorrectionFactor = ((correctionFactor - 1) * _agressiveness) + 1
+      const nextCorrectionFactor = (nextPerfectCurrentDt / recordedRawValue[cursor + 1])
+      const nextWeightCorrectedCorrectionFactor = ((nextCorrectionFactor - 1) * _agressiveness) + 1
       const GoF = linearRegressor.goodnessOfFit() * linearRegressor.localGoodnessOfFit(cursor)
       updateFilter(recordedRelativePosition[cursor], weightCorrectedCorrectionFactor, nextWeightCorrectedCorrectionFactor, GoF)
       cursor++
