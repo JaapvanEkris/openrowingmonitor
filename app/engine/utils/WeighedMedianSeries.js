@@ -86,7 +86,7 @@ export function createWeighedMedianSeries (maxSeriesLength = 0) {
    */
   function numberOfValuesAbove (testedValue) {
     if (seriesArray.length > 0) {
-      return binarySearchTree.numberOfValuesAbove()
+      return binarySearchTree.numberOfValuesAbove(testedValue)
     } else {
       return 0
     }
