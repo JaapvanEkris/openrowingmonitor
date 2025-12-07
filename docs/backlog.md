@@ -8,22 +8,15 @@ If you would like to contribute to this project, you are more than welcome, but 
 
 * Add a lot of testcases to complete unit/integration testing of all functions used. Especially:
   * Testing core objects, like the Theil-Senn regression analysis functions (not the algorithm), as well as their integrated behaviour
-  * Testing all the `workoutSegment.js` object metrics and cutting capabilities
+  * Testing all the `workoutSegment.js` object metrics and cutting capabilities, including Calories
 * Add calories as interval type
   * Describe the physics
   * Add weight correction factor (see [C2 formula](https://www.concept2.com/training/calorie-calculator))
-  * Add moving uo and down the slide to the work performed definitions where relevant
-  * Make Calories a continuous metric (similar to distance) instead of a cycle based one
-  * Add it as a stop criterium for the session manager
-  * Add 'Calories' to the PM5 CSafe workout definition command set
-  * Add 'Calories' to the MQTT command set
-  * Add it as a workout option to the FIT recorder
-  * Modify the PM5 peripheral to broadcast the right data
-  * Update the GUI to allow selecting it
 
 ## Soon
 
 * Improve the user interface (We really need help on this!)
+* Look at an alternative for pigpio library as it doesn't work on a Raspberry Pi 5 (see [issue 52](https://github.com/JaapvanEkris/openrowingmonitor/issues/52))
 * Move to the Wayland window manager, to keep in step with Raspberry Pi OS
 * Introduce training plans (i.e. a distance/time to row):
   * Integrate with rowsandall.com to retrieve training planning

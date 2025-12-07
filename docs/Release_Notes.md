@@ -6,15 +6,20 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris)
 
 ### New functionality in 0.9.7
 
-- Nothing yet
+- **Addition of the 'Calories' workout type**. You can now program Intervals and splits based on calories to be burned
+- **Introduction of splits in the fit-file**. The fit-file now also has splits, which makes the fit-file closer to a native Garmin recording of the same session
 
 ### Bugfixes and robustness improvements in 0.9.7
 
 - Improvement of the Moving Least Squares regressor:
-  - Code refactoring to isolate this function from Flywheel.js, allowing a more thorough trsting of its behaviour
+  - Code refactoring to isolate this function from Flywheel.js, allowing a more thorough testing of its behaviour
   - Introduced the 'Local Goodness of Fit' function to improve the robustness against noise. This reduces the effect of outliers on stroke detection, the Force curve, Power curve and Handle speed curve
   - Introduction of a 'Gaussian Weight' filter to reduce the effects of flanks on the regression in a specific datapoint
+  - Added documentation about the mathematical foundations of the algorithms used
+- Upgrade of the flywheel position pre-filter, which now can handle systematic errors of flywheel positioning. This is more effective at reducing measurement noise and allows a reduction of the code complexity in `Flyhweel.js` as all dependent algorithms can use the same datastream again.
 - Fixed a bug in the initialisation of the Flywheel.js
+- Improved logging in the Strava uploader for better troubleshooting (see [issue 145](https://github.com/JaapvanEkris/openrowingmonitor/issues/145))
+- Increased the test coverage of key algorithms
 
 ## Version 0.9.6 (June 2025)
 

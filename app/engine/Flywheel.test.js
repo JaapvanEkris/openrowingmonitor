@@ -24,7 +24,7 @@ const baseConfig = { // Based on Concept 2 settings, as this is the validation s
   minimumTimeBetweenImpulses: 0.005,
   maximumTimeBetweenImpulses: 0.020,
   flankLength: 12,
-  smoothing: 1,
+  systematicErrorAgressiveness: 0,
   minimumStrokeQuality: 0.36,
   minimumForceBeforeStroke: 10,
   minimumRecoverySlope: 0.00070,

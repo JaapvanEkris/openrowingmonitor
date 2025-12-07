@@ -86,15 +86,15 @@ Each string of commands represents an interval. It is always closed with `CSAFE_
 | WORKOUTTYPE_JUSTROW_SPLITS | A simple unlimited session with splits | single interval, type = 'justrow' | Fixed 'time' or 'distance' |
 | WORKOUTTYPE_FIXEDDIST_NOSPLITS | A simple distance session | single interval, type = 'distance' | Undefined[^1] |
 | WORKOUTTYPE_FIXEDDIST_SPLITS | A simple distance session with splits | single interval, type = 'distance' | Fixed 'distance' |
+| WORKOUTTYPE_FIXEDDIST_INTERVAL | An unlimited repeating distance based interval | repeating intervals, type = 'distance'[^2] | Undefined[^1] |
 | WORKOUTTYPE_FIXEDTIME_NOSPLITS | A simple time limited session | single interval, type = 'time' | Undefined[^1] |
 | WORKOUTTYPE_FIXEDTIME_SPLITS | A simple time limited session with splits | single interval, type = 'time' | Fixed 'time' |
 | WORKOUTTYPE_FIXEDTIME_INTERVAL | An unlimited repeating time based interval | repeating intervals, type = 'time'[^2] | Undefined[^1] |
-| WORKOUTTYPE_FIXEDDIST_INTERVAL | An unlimited repeating distance based interval | repeating intervals, type = 'distance'[^2] | Undefined[^1] |
+| WORKOUTTYPE_FIXEDCALORIE_SPLITS | A simple calories session with splits | single interval, type = 'calories' | Fixed 'calories' |
+| WORKOUTTYPE_FIXEDCALS_INTERVAL | An unlimited repeating calories based interval | repeating intervals, type = 'calories'[^2] | Undefined[^1] |
 | WORKOUTTYPE_VARIABLE_INTERVAL | A series of different variable intervals | multiple intervals | Fixed 'time' or 'distance' per interval |
 | WORKOUTTYPE_VARIABLE_UNDEFINEDREST_INTERVAL | Not implemented | Not implemented | Not implemented |
-| WORKOUTTYPE_FIXEDCALORIE_SPLITS | Not implemented | Not implemented | Not implemented |
 | WORKOUTTYPE_FIXEDWATTMINUTE_SPLITS | Not implemented | Not implemented | Not implemented |
-| WORKOUTTYPE_FIXEDCALS_INTERVAL | Not implemented | Not implemented | Not implemented |
 
 > [!NOTE]
 > Please be aware that apps like ErgData and ErgZone actually do 'optimisations' behind the scene. Three intervals of 8 minutes with 2 minute rests are typically sent as a `WORKOUTTYPE_FIXEDTIME_INTERVAL`, despite this resulting in an endless series. If the planned rests are omited, it will result in a `WORKOUTTYPE_FIXEDTIME_SPLITS` with a single time interval with splits of the length of the intervals. If one would add a single second to any of the individual intervals, it becomes a `WORKOUTTYPE_VARIABLE_INTERVAL`, and all intervals are programmed manually. Obviously, from a user perspective the target displayed in the GUI will vary across these options (see [issue 118](https://github.com/JaapvanEkris/openrowingmonitor/issues/118)).

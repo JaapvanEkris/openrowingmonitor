@@ -4,19 +4,21 @@
 */
 /**
  * This implements a Gausian weight function, which is used in the moving regression filter
+ * @see {@link https://en.wikipedia.org/wiki/Kernel_(statistics)#Kernel_functions_in_common_use|the description of the various kernels}
+ * Please realize the constant factor 1/Math.Pow(2 * Math.pi(), 0.5) is omitted as it cancels out in the subsequent weight averaging filtering
  */
 let begin
 let end
 let halfLength
 let middle
 
-export function createGausianWeightFunction () {
+export function createGaussianWeightFunction () {
   begin = 0
   end = 0
   halfLength = 0
   middle = 0
-  
-  function setWindowWidth(beginpos, endpos) {
+
+  function setWindowWidth (beginpos, endpos) {
     begin = beginpos
     end = endpos
     halfLength = (end - begin) / 2

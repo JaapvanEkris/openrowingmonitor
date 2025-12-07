@@ -48,13 +48,13 @@ export const DASHBOARD_METRICS = {
     </dashboard-metric>`
   },
 
-  totalStk: { displayName: 'Total strokes', size: 1, template: (metrics, config) => simpleMetricFactory(metrics?.totalNumberOfStrokes, 'stk', config?.guiConfigs?.showIcons ? iconPaddle : '') },
+  totalStk: { displayName: 'Total strokes', size: 1, template: (metrics, config) => simpleMetricFactory(metrics?.interval?.numberOfStrokes, 'stk', config?.guiConfigs?.showIcons ? iconPaddle : '') },
 
   calories: {
     displayName: 'Calories',
     size: 1,
     template: (metrics, config) => {
-      const calories = metrics?.interval?.type === 'Calories' ? Math.max(metrics?.interval?.TargetCalories - metrics?.interval?.Calories, 0) : metrics?.totalCalories
+      const calories = metrics?.interval?.type === 'calories' ? Math.max(metrics?.interval?.calories?.toEnd, 0) : Math.max(metrics?.interval?.calories?.sinceStart, 0)
 
       return simpleMetricFactory(formatNumber(calories ?? 0), 'kcal', config?.guiConfigs?.showIcons ? iconFire : '')
     }

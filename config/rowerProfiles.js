@@ -30,8 +30,13 @@ export default {
 
     // NOISE FILTER SETTINGS
     // Filter Settings to reduce noise in the measured data
-    // Smoothing determines the length of the running average for filtering the currentDt, 1 effectively turns it off
-    smoothing: 1,
+    // Systematic error agressibveness determines the strength of the systematic error filter. 0 turns it off, 1 turns it to its maximum.
+    // A value of 0.10 is known to work well, but some machines can handle 0.90.
+    systematicErrorAgressiveness: 0,
+
+    // Systematic error maximum change determines the maximum change the systematic error filter will allow by a single datapoint.
+    // This is a percentage, with a minimum of 0, and a maximum of 1. Values closer to 0 will make the filter behave more smoothly, but react slower to changes
+    systematicErrorMaximumChange: 1,
 
     // Flank length determines the number of measuments that are used for determining the angular velocity and angular acceleration
     flankLength: 3,
@@ -155,7 +160,8 @@ export default {
     minimumTimeBetweenImpulses: 0.005,
     maximumTimeBetweenImpulses: 0.0145,
     flankLength: 12,
-    smoothing: 1,
+    systematicErrorAgressiveness: 0.85,
+    systematicErrorMaximumChange: 0.0065,
     minimumStrokeQuality: 0.34,
     minimumForceBeforeStroke: 11,
     minimumRecoverySlope: 0.00070,
