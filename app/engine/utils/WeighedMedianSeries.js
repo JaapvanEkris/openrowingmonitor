@@ -3,8 +3,8 @@
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 */
 /**
- * This creates a series with a maximum number of values. It allows for determining the Minimum, Maximum, Average, Median, WeighedMedian, Number above, number below
- * @remark It is optimized for handling Median and WeighedMedian operations as it abstracts away from the bookkeeping of maintaining a BST buffer
+ * This creates a series with a maximum number of values. It allows for determining the Average, Median, Number of Positive, number of Negative
+ * @remark This object uses BinairySearchTrees for determining the Median, Min and Max values, making it usefull for larger series without hurting the CPU too much
  *
  * @param {number} [maxSeriesLength] The maximum length of the series (0 for unlimited)
  */
@@ -20,23 +20,29 @@ export function createWeighedMedianSeries (maxSeriesLength = 0) {
   let seriesSum = 0
 
   /**
+   * @param {float} unique identifyer for destroying the datapoint
    * @param {float} value to be added to the series
+   * @param {float} weight of value
    */
   function push (position, value, weight) {
     if (value === undefined || isNaN(value)) { return }
 
-    if (maxSeriesLength > 0 && seriesArray.length >= maxSeriesLength) {
-      // The maximum of the array has been reached, we have to create room by removing the first
-      // value from the array
-      seriesSum -= seriesArray[0]
-      binarySearchTree.remove(positionArray[0])
-      positionArray.shift()
-      seriesArray.shift()
-    }
     binarySearchTree.push(position, value, weight)
+    // As we manage the size of the series based on weight, a single new value might trigger the removal of two old ones
+    if (maxSeriesLength > 0 && binarySearchTree.totalWeight() >= maxSeriesLength) { removeHead() }
+    if (maxSeriesLength > 0 && binarySearchTree.totalWeight() >= maxSeriesLength) { removeHead() }
     seriesArray.push(value)
     positionArray.push(position)
     seriesSum += value
+  }
+
+  function removeHead () {
+    // The maximum of the array has been reached, we have to create room by removing the first
+    // value from the array
+    seriesSum -= seriesArray[0]
+    binarySearchTree.remove(positionArray[0])
+    positionArray.shift()
+    seriesArray.shift()
   }
 
   /**
