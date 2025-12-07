@@ -339,18 +339,16 @@ export function createLabelledBinarySearchTree () {
     switch (true) {
       case (!underNode && !overNode):
         return undefined
-        break
       case (!underNode):
         return overNode.value
-        break
       case (!overNode):
         return underNode.value
-        break
       case (underNode.cumulativeWeight === overNode.cumulativeWeight || (half === underNode.cumulativeWeight && underNode.value !== overNode.value)):
         // If at exact boundary or weights are equal, return average
         return (underNode.value + overNode.value) / 2
       default:
         // Interpolate based on where target falls in the weight range
+        // eslint-disable-next-line no-case-declarations -- Code clarity outweighs lint rules
         const interpolationFactor = (half - underNode.cumulativeWeight) / (overNode.cumulativeWeight - underNode.cumulativeWeight)
         return underNode.value + (overNode.value - underNode.value) * interpolationFactor
     }
@@ -369,11 +367,10 @@ export function createLabelledBinarySearchTree () {
     switch (true) {
       case (targetWeight <= weightBeforeNode):
         return findUndershootingNode(node.leftNode, targetWeight, accWeight)
-        break
       case (targetWeight > weightUpToNode):
+        // eslint-disable-next-line no-case-declarations -- Code clarity outweighs lint rules
         const rightResult = findUndershootingNode(node.rightNode, targetWeight, weightUpToNode)
         return rightResult || { value: node.value, cumulativeWeight: weightUpToNode }
-        break
       default:
         return { value: node.value, cumulativeWeight: weightUpToNode }
     }
@@ -383,22 +380,21 @@ export function createLabelledBinarySearchTree () {
    * This helper function identifies the node that is closest above the set weight
    */
   function findOvershootingNode (node, targetWeight, accWeight = 0) {
-    if (!node)  { return null }
+    if (!node) { return null }
 
     const leftWeight = node.leftNode ? node.leftNode.totalWeight : 0
     const weightBeforeNode = accWeight + leftWeight
-    const weightUpToNode = weightBeforeNode + node. weight
+    const weightUpToNode = weightBeforeNode + node.weight
 
     switch (true) {
       case (targetWeight < weightBeforeNode):
+        // eslint-disable-next-line no-case-declarations -- Code clarity outweighs lint rules
         const leftResult = findOvershootingNode(node.leftNode, targetWeight, accWeight)
         return leftResult || { value: node.value, cumulativeWeight: weightBeforeNode }
-        break
       case (targetWeight >= weightUpToNode):
         return findOvershootingNode(node.rightNode, targetWeight, weightUpToNode)
-        break
       default:
-      return { value: node.value, cumulativeWeight: weightUpToNode }
+        return { value: node.value, cumulativeWeight: weightUpToNode }
     }
   }
 
