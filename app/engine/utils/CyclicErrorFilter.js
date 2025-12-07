@@ -13,16 +13,18 @@ import { createWeighedMedianSeries } from './WeighedMedianSeries.js'
 
 const log = loglevel.getLogger('RowingEngine')
 
-export function createCyclicErrorFilter (numberOfMagnets, flankLength, minimumDragFactorSamples, agressiveness, deltaTime) {
-  const upperBound = 1.01
-  const lowerBound = 0.99
-  const _numberOfMagnets = numberOfMagnets
-  const _flankLength = flankLength
-  const _numberOfFilterSamples = (minimumDragFactorSamples / numberOfMagnets) * 2
+export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples, deltaTime) {
+  const upperBound = 1 + rowerSettings.systematicErrorMaximumChange
+  const lowerBound = 1 - rowerSettings.systematicErrorMaximumChange
+  const _numberOfMagnets = rowerSettings.numOfImpulsesPerRevolution
+  const _flankLength = rowerSettings.flankLength
+  const _agressiveness = rowerSettings.systematicErrorAgressiveness
+  const _numberOfFilterSamples = Math.max((minimumDragFactorSamples / _numberOfMagnets) * 2.5, 5)
+  const _minimumTimeBetweenImpulses = rowerSettings.minimumTimeBetweenImpulses
+  const _maximumTimeBetweenImpulses = rowerSettings.maximumTimeBetweenImpulses
   const raw = createSeries(_flankLength)
   const magnet = createSeries(_flankLength)
   const clean = createSeries(_flankLength)
-  const _agressiveness = agressiveness
   const linearRegressor = deltaTime
   let filterArray = []
   let filterConfig = []
@@ -45,9 +47,11 @@ export function createCyclicErrorFilter (numberOfMagnets, flankLength, minimumDr
   }
 
   function recordRawDatapoint (relativePosition, absolutePosition, rawValue) {
-    recordedRelativePosition.push(relativePosition)
-    recordedAbsolutePosition.push(absolutePosition)
-    recordedRawValue.push(rawValue)
+    if (rawValue >= _minimumTimeBetweenImpulses && _maximumTimeBetweenImpulses >= rawValue) {
+      recordedRelativePosition.push(relativePosition)
+      recordedAbsolutePosition.push(absolutePosition)
+      recordedRawValue.push(rawValue)
+    }
   }
 
   function processNextRawDatapoint () {
@@ -101,11 +105,11 @@ export function createCyclicErrorFilter (numberOfMagnets, flankLength, minimumDr
           filterArray[workPosition].push(position, weightCorrectedCorrectionFactor, goodnessOfFit)
           break
         case (belowLowerBound):
-          log.debug(`*** WARNING: cyclic error filter detected a radical decrease of ${weightCorrectedCorrectionFactor} at magnet ${workPosition}, where about ${filterConfig[workPosition]} is expected, clipping`)
+          log.debug(`*** WARNING: cyclic error filter detected a too rapid decrease from ${filterConfig[workPosition]} to ${weightCorrectedCorrectionFactor} at magnet ${workPosition}, clipping`)
           filterArray[workPosition].push(position, filterConfig[workPosition] * lowerBound, goodnessOfFit)
           break
         case (aboveUpperBound):
-          log.debug(`*** WARNING: cyclic error filter detected a radical increase of ${weightCorrectedCorrectionFactor} at magnet ${workPosition}, where about ${filterConfig[workPosition]} is expected, clipping`)
+          log.debug(`*** WARNING: cyclic error filter detected a too rapid increase from ${filterConfig[workPosition]} to ${weightCorrectedCorrectionFactor} at magnet ${workPosition}, clipping`)
           filterArray[workPosition].push(position, filterConfig[workPosition] * upperBound, goodnessOfFit)
           break
         default:
@@ -120,6 +124,7 @@ export function createCyclicErrorFilter (numberOfMagnets, flankLength, minimumDr
   }
 
   function restart () {
+    if (isNaN(cursor)) { log.debug('*** WARNING: cyclic error filter has forcefully been restarted') }
     recordedRelativePosition = []
     recordedAbsolutePosition = []
     recordedRawValue = []
@@ -134,11 +139,15 @@ export function createCyclicErrorFilter (numberOfMagnets, flankLength, minimumDr
     while (i < _numberOfMagnets) {
       filterArray[i] = {}
       filterArray[i] = createWeighedMedianSeries(_numberOfFilterSamples)
-      filterArray[i].push(1, 1, 0.5)
-      filterArray[i].push(2, 0.90, 0.5)
-      filterArray[i].push(3, 0.95, 0.5)
-      filterArray[i].push(4, 1.05, 0.5)
-      filterArray[i].push(5, 1.10, 0.5)
+      filterArray[i].push(-9, 1, 0.5)
+      filterArray[i].push(-8, 0.90, 0.5)
+      filterArray[i].push(-7, 1.10, 0.5)
+      filterArray[i].push(-6, 0.95, 0.5)
+      filterArray[i].push(-5, 1.05, 0.5)
+      filterArray[i].push(-4, 0.925, 0.5)
+      filterArray[i].push(-3, 1.075, 0.5)
+      filterArray[i].push(-2, 0.975, 0.5)
+      filterArray[i].push(-1, 1.025, 0.5)
       filterConfig[i] = 1
       i++
     }
