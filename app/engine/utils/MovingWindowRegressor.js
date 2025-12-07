@@ -6,7 +6,6 @@
  * This implements a Moving Regression Algorithm to obtain a coefficients, first (angular velocity) and
  * second derivative (angular acceleration) at the front of the flank
  */
-
 import { createTSQuadraticSeries } from './FullTSQuadraticSeries.js'
 import { createWeighedSeries } from './WeighedSeries.js'
 import { createGaussianWeightFunction } from './Gaussian.js'
@@ -37,6 +36,7 @@ export function createMovingRegressor (bandwith) {
     }
 
     // Let's make room for a new set of values for first and second derivatives
+    // Please note: a weighed median would work here, but results in much less fluid force curves
     aMatrix[aMatrix.length] = createWeighedSeries(flankLength, 0)
     bMatrix[bMatrix.length] = createWeighedSeries(flankLength, 0)
     cMatrix[cMatrix.length] = createWeighedSeries(flankLength, 0)
@@ -134,18 +134,18 @@ export function createMovingRegressor (bandwith) {
   function expectedX (position = 0) {
     const solutions = projectY(position, quadraticTheilSenRegressor.Y.get(position))
     switch (true) {
-       case (solutions.length === 0):
-         return quadraticTheilSenRegressor.X.get(position)
-       case (solutions.length === 1):
-         return solutions[0]
-       case (solutions.length === 2):
-         if (Math.abs(solutions[0] - quadraticTheilSenRegressor.X.get(position)) < Math.abs(solutions[1] - quadraticTheilSenRegressor.X.get(position))) {
-           return solutions[0]
-         } else {
-           return solutions[1]
-         }
-       default:
-         return quadraticTheilSenRegressor.X.get(position)
+      case (solutions.length === 0):
+        return quadraticTheilSenRegressor.X.get(position)
+      case (solutions.length === 1):
+        return solutions[0]
+      case (solutions.length === 2):
+        if (Math.abs(solutions[0] - quadraticTheilSenRegressor.X.get(position)) < Math.abs(solutions[1] - quadraticTheilSenRegressor.X.get(position))) {
+          return solutions[0]
+        } else {
+          return solutions[1]
+        }
+      default:
+        return quadraticTheilSenRegressor.X.get(position)
     }
   }
 

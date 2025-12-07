@@ -3,7 +3,7 @@
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 */
 /**
- * Implementation of the StrokeData as defined in:
+ * Implementation of the Force Curve Data as defined in:
  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
  * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf
  */
@@ -65,8 +65,8 @@ export class ForceCurveCharacteristic extends GattNotifyCharacteristic {
       bufferBuilder.writeUInt8(i)
 
       currentChunkedData.forEach((data) => {
-        // Data
-        bufferBuilder.writeUInt16LE(Math.round(data * 0.224809))
+        // Data, clipped to a maximum of 255 to prevent an overflow
+        bufferBuilder.writeUInt16LE(Math.min(Math.round(data * 0.224809), 255))
       })
 
       i++
