@@ -39,7 +39,7 @@ export function createFlywheel (rowerSettings) {
   const _deltaTime = createTSLinearSeries(flankLength)
   const drag = createWeighedSeries(rowerSettings.dragFactorSmoothing, (rowerSettings.dragFactor / 1000000))
   const recoveryDeltaTime = createTSLinearSeries()
-  const currentDt = createCyclicErrorFilter(rowerSettings.numOfImpulsesPerRevolution, flankLength, minimumDragFactorSamples, rowerSettings.systematicErrorAgressiveness, recoveryDeltaTime)
+  const currentDt = createCyclicErrorFilter(rowerSettings, minimumDragFactorSamples, recoveryDeltaTime)
   const strokedetectionMinimalGoodnessOfFit = rowerSettings.minimumStrokeQuality
   const minimumRecoverySlope = createWeighedSeries(rowerSettings.dragFactorSmoothing, rowerSettings.minimumRecoverySlope)
   let totalTime
@@ -74,7 +74,6 @@ export function createFlywheel (rowerSettings) {
     if (dataPoint < rowerSettings.minimumTimeBetweenImpulses) {
       if (_deltaTime.length() >= flankLength && maintainMetrics) {
         // We are in a normal operational mode, so this shouldn't happen, but let's log it to clarify there is some issue going on here, but accept the value as the TS estimator can handle it
-        currentDt.reset() // As it probably is a bounce, we need to reset the filtering as that will result in a filter shift
         log.debug(`*** WARNING: currentDt of ${dataPoint} sec is below minimumTimeBetweenImpulses (${rowerSettings.minimumTimeBetweenImpulses} sec)`)
       } else {
         // This is probably due to the start-up noise of a slow but accelerating flywheel as the flink isn't filled or we aren't maintaining metrics
@@ -100,7 +99,7 @@ export function createFlywheel (rowerSettings) {
         // Feed the drag calculation, as we didn't reset the Semaphore in the previous cycle based on the current flank
         recoveryDeltaTime.push(totalTimeSpinning, _deltaTimeBeforeFlank)
         // Feed the systematic error filter buffer
-        currentDt.recordRawDatapoint(totalNumberOfImpulses, totalTimeSpinning, currentDt.raw.atSeriesBegin())
+        if (rowerSettings.autoAdjustDragFactor) { currentDt.recordRawDatapoint(totalNumberOfImpulses, totalTimeSpinning, currentDt.raw.atSeriesBegin()) }
       } else {
         // Accumulate the energy total as we are in the drive phase
         _totalWork += Math.max(_torqueBeforeFlank * angularDisplacementPerImpulse, 0)
@@ -165,12 +164,12 @@ export function createFlywheel (rowerSettings) {
       }
     } else {
       // As the drag calculation is considered unreliable, we must skip updating the systematic error filter that depends on it
-      currentDt.restart()
       if (!rowerSettings.autoAdjustDragFactor) {
         // autoAdjustDampingConstant = false, thus the update is skipped, but let's log the dragfactor anyway
         log.debug(`*** Calculated drag factor: ${(slopeToDrag(recoveryDeltaTime.slope()) * 1000000).toFixed(4)}, slope: ${recoveryDeltaTime.slope().toFixed(8)}, not used because autoAdjustDragFactor is not true`)
       } else {
         log.debug(`*** Calculated drag factor: ${(slopeToDrag(recoveryDeltaTime.slope()) * 1000000).toFixed(4)}, not used because reliability was too low. no. samples: ${recoveryDeltaTime.length()}, fit: ${recoveryDeltaTime.goodnessOfFit().toFixed(4)}`)
+        currentDt.restart()
       }
     }
   }
