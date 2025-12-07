@@ -30,8 +30,13 @@ export default {
 
     // NOISE FILTER SETTINGS
     // Filter Settings to reduce noise in the measured data
-    // Systematic error agressibveness determines the strength of the systematic error filter. 0 turns it off, 1 turns it on. A value of 0.10 is known to work well.
+    // Systematic error agressibveness determines the strength of the systematic error filter. 0 turns it off, 1 turns it to its maximum.
+    // A value of 0.10 is known to work well, but some machines can handle 0.90.
     systematicErrorAgressiveness: 0,
+
+    // Systematic error maximum change determines the maximum change the systematic error filter will allow by a single datapoint.
+    // This is a percentage, with a minimum of 0, and a maximum of 1. Values closer to 0 will make the filter behave more smoothly, but react slower to changes
+    systematicErrorMaximumChange: 1,
 
     // Flank length determines the number of measuments that are used for determining the angular velocity and angular acceleration
     flankLength: 3,
