@@ -24,6 +24,13 @@ export function createLabelledBinarySearchTree () {
     }
   }
 
+  /**
+   * Helper function to actually push value in the current tree
+   * @param {object} the current tree
+   * @param {float} label to use to destroy it later
+   * @param {float} value to store
+   * @param {float} weight attributed to the value
+   */
   function pushInTree (currentTree, label, value, weight) {
     if (value <= currentTree.value) {
       // The value should be on the left side of currentTree
@@ -159,7 +166,7 @@ export function createLabelledBinarySearchTree () {
     // Next, handle the situation when we need to remove the node itself
     if (currentTree.label === label) {
       // First we need to remove the current node, then we need to investigate the underlying sub-trees to determine how it is resolved
-      // First, release the memory of the current node before we start to rearrange the tree, as this might cause a memory leak
+      // We start by releasing the memory of the current node before we start to rearrange the tree, as this might cause a memory leak
       currentTree.label = null
       currentTree.value = null
       currentTree.weight = null
@@ -326,27 +333,27 @@ export function createLabelledBinarySearchTree () {
     if (!tree || tree.totalWeight === 0) { return undefined }
 
     const half = tree.totalWeight / 2
-    const underNode = findUndershootingNode(tree, half)
-    const overNode = findOvershootingNode(tree, half)
+    const underNode = findUndershootingNode(tree, half, 0)
+    const overNode = findOvershootingNode(tree, half, 0)
 
-    if (!underNode && !overNode) { return undefined }
-    if (!underNode) { return overNode.value }
-    if (!overNode) { return underNode.value }
-
-    const lowerValue = underNode.value
-    const upperValue = overNode.value
-    const lowerWeight = underNode.cumulativeWeight
-    const upperWeight = overNode.cumulativeWeight
-
-    // If at exact boundary or weights are equal, return average
-    if (lowerWeight === upperWeight || (half === lowerWeight && lowerValue !== upperValue)) {
-      return (lowerValue + upperValue) / 2
+    switch (true) {
+      case (!underNode && !overNode):
+        return undefined
+        break
+      case (!underNode):
+        return overNode.value
+        break
+      case (!overNode):
+        return underNode.value
+        break
+      case (underNode.cumulativeWeight === overNode.cumulativeWeight || (half === underNode.cumulativeWeight && underNode.value !== overNode.value)):
+        // If at exact boundary or weights are equal, return average
+        return (underNode.value + overNode.value) / 2
+      default:
+        // Interpolate based on where target falls in the weight range
+        const interpolationFactor = (half - underNode.cumulativeWeight) / (overNode.cumulativeWeight - underNode.cumulativeWeight)
+        return underNode.value + (overNode.value - underNode.value) * interpolationFactor
     }
-
-    // Interpolate based on where target falls in the weight range
-    const interpolationFactor = (half - lowerWeight) / (upperWeight - lowerWeight)
-
-    return lowerValue + (upperValue - lowerValue) * interpolationFactor
   }
 
   /**
@@ -359,13 +366,16 @@ export function createLabelledBinarySearchTree () {
     const weightBeforeNode = accWeight + leftWeight
     const weightUpToNode = weightBeforeNode + node.weight
 
-    if (targetWeight <= weightBeforeNode) {
-      return findUndershootingNode(node.leftNode, targetWeight, accWeight)
-    } else if (targetWeight > weightUpToNode) {
-      const rightResult = findUndershootingNode(node.rightNode, targetWeight, weightUpToNode)
-      return rightResult || { value: node.value, cumulativeWeight: weightUpToNode }
-    } else {
-      return { value: node.value, cumulativeWeight: weightUpToNode }
+    switch (true) {
+      case (targetWeight <= weightBeforeNode):
+        return findUndershootingNode(node.leftNode, targetWeight, accWeight)
+        break
+      case (targetWeight > weightUpToNode):
+        const rightResult = findUndershootingNode(node.rightNode, targetWeight, weightUpToNode)
+        return rightResult || { value: node.value, cumulativeWeight: weightUpToNode }
+        break
+      default:
+        return { value: node.value, cumulativeWeight: weightUpToNode }
     }
   }
 
@@ -373,18 +383,21 @@ export function createLabelledBinarySearchTree () {
    * This helper function identifies the node that is closest above the set weight
    */
   function findOvershootingNode (node, targetWeight, accWeight = 0) {
-    if (!node) { return null }
+    if (!node)  { return null }
 
     const leftWeight = node.leftNode ? node.leftNode.totalWeight : 0
     const weightBeforeNode = accWeight + leftWeight
-    const weightUpToNode = weightBeforeNode + node.weight
+    const weightUpToNode = weightBeforeNode + node. weight
 
-    if (targetWeight < weightBeforeNode) {
-      const leftResult = findOvershootingNode(node.leftNode, targetWeight, accWeight)
-      return leftResult || { value: node.value, cumulativeWeight: weightBeforeNode }
-    } else if (targetWeight >= weightUpToNode) {
-      return findOvershootingNode(node.rightNode, targetWeight, weightUpToNode)
-    } else {
+    switch (true) {
+      case (targetWeight < weightBeforeNode):
+        const leftResult = findOvershootingNode(node.leftNode, targetWeight, accWeight)
+        return leftResult || { value: node.value, cumulativeWeight: weightBeforeNode }
+        break
+      case (targetWeight >= weightUpToNode):
+        return findOvershootingNode(node.rightNode, targetWeight, weightUpToNode)
+        break
+      default:
       return { value: node.value, cumulativeWeight: weightUpToNode }
     }
   }
