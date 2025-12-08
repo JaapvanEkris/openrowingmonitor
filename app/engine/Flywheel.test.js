@@ -25,6 +25,7 @@ const baseConfig = { // Based on Concept 2 settings, as this is the validation s
   maximumTimeBetweenImpulses: 0.020,
   flankLength: 12,
   systematicErrorAgressiveness: 0,
+  systematicErrorMaximumChange: 1,
   minimumStrokeQuality: 0.36,
   minimumForceBeforeStroke: 10,
   minimumRecoverySlope: 0.00070,
@@ -73,7 +74,8 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Fl
     minimumTimeBetweenImpulses: 0,
     maximumTimeBetweenImpulses: 1,
     flankLength: 12,
-    smoothing: 1,
+    systematicErrorAgressiveness: 0,
+    systematicErrorMaximumChange: 1,
     minimumStrokeQuality: 0.36,
     minimumForceBeforeStroke: 0,
     minimumRecoverySlope: 0.00070,
@@ -295,7 +297,8 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Fl
     minimumTimeBetweenImpulses: 0,
     maximumTimeBetweenImpulses: 1,
     flankLength: 12,
-    smoothing: 1,
+    systematicErrorAgressiveness: 0,
+    systematicErrorMaximumChange: 1,
     minimumStrokeQuality: 0.36,
     minimumForceBeforeStroke: 0,
     minimumRecoverySlope: 0.00070,
@@ -518,7 +521,8 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Fl
     minimumTimeBetweenImpulses: 0,
     maximumTimeBetweenImpulses: 1,
     flankLength: 12,
-    smoothing: 1,
+    systematicErrorAgressiveness: 0,
+    systematicErrorMaximumChange: 1,
     minimumStrokeQuality: 0.36,
     minimumForceBeforeStroke: 0,
     minimumRecoverySlope: 0.00070,
@@ -940,8 +944,8 @@ test('Correct Flywheel behaviour with a NordicTrack RX800', async () => {
   // Inject 10 strokes
   await replayRowingSession(flywheel.pushValue, { filename: 'recordings/RX800.csv', realtime: false, loop: false })
 
-  testSpinningTime(flywheel, 22.749217260999984)
-  testAngularPosition(flywheel, 1449.8450096316894)
+  testSpinningTime(flywheel, 22.721492397999985)
+  testAngularPosition(flywheel, 1448.2742133048946)
   // As we don't detect strokes here (this is a function of Rower.js, the dragcalculation shouldn't be triggered
   testDragFactor(flywheel, (rowerProfiles.NordicTrack_RX800.dragFactor / 1000000))
 })
@@ -986,8 +990,8 @@ test('A full session for a Concept2 RowErg should produce plausible results', as
 
   await replayRowingSession(flywheel.pushValue, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
 
-  testSpinningTime(flywheel, 591.0533060000008)
-  testAngularPosition(flywheel, 65961.92655232249)
+  testSpinningTime(flywheel, 591.0432650000008)
+  testAngularPosition(flywheel, 65960.87935477128)
   // As we don't detect strokes here (this is a function of Rower.js, the dragcalculation shouldn't be triggered
   testDragFactor(flywheel, (rowerProfiles.Concept2_RowErg.dragFactor / 1000000))
 })
