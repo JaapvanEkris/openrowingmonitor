@@ -68,7 +68,7 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
         while (i < X.length() - 2) {
           j = i + 1
           while (j < X.length() - 1) {
-            A.push(X.get(i), calculateA(i, j, X.length() - 1))
+            A.push(X.get(i), calculateA(i, j, X.length() - 1), 1)
             j++
           }
           i++
