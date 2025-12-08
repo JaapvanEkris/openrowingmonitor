@@ -27,7 +27,8 @@ const baseConfig = { // Based on Concept 2 settings, as this is the validation s
   minimumTimeBetweenImpulses: 0.005,
   maximumTimeBetweenImpulses: 0.017,
   flankLength: 12,
-  smoothing: 1,
+  systematicErrorAgressiveness: 0,
+  systematicErrorMaximumChange: 1,
   minimumStrokeQuality: 0.36,
   minimumForceBeforeStroke: 20, // Modification to standard settings to shorten test cases
   minimumRecoverySlope: 0.00070,
@@ -180,7 +181,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDriveDuration(rower, 0.143485717)
   testDriveLinearDistance(rower, 0.3895903211923076)
   testDriveLength(rower, 0.1759291886010284)
-  testDriveAverageHandleForce(rower, 224.9010226131843)
+  testDriveAverageHandleForce(rower, 236.9227932798214)
   testDrivePeakHandleForce(rower, 378.6022382024728)
   testRecoveryDuration(rower, 0.21654112800000003)
   testRecoveryDragFactor(rower, 281.5961372923874)
@@ -212,7 +213,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDriveDuration(rower, 0.22872752900000004)
   testDriveLinearDistance(rower, 1.0226745931298076)
   testDriveLength(rower, 0.3078760800517996)
-  testDriveAverageHandleForce(rower, 283.19013182409356)
+  testDriveAverageHandleForce(rower, 288.45140756250663)
   testDrivePeakHandleForce(rower, 447.10851434893794)
   testRecoveryDuration(rower, 0.21654112800000003)
   testRecoveryDragFactor(rower, 281.5961372923874)
@@ -381,11 +382,11 @@ test('sample data for NordicTrack RX800 should produce plausible results', async
 
   await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/RX800.csv', realtime: false, loop: false })
 
-  testTotalMovingTimeSinceStart(rower, 22.396083608999994)
-  testTotalLinearDistanceSinceStart(rower, 80.53187404607915)
+  testTotalMovingTimeSinceStart(rower, 22.368358745999995)
+  testTotalLinearDistanceSinceStart(rower, 80.8365747440095)
   testTotalNumberOfStrokes(rower, 10)
   // As dragFactor is dynamic, it should have changed
-  testRecoveryDragFactor(rower, 492.9300865757259)
+  testRecoveryDragFactor(rower, 493.8082148322739)
 })
 
 test('A full session for SportsTech WRX700 should produce plausible results', async () => {
@@ -429,11 +430,11 @@ test('A full session for a Concept2 RowErg should produce plausible results', as
 
   await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
 
-  testTotalMovingTimeSinceStart(rower, 590.121978)
-  testTotalLinearDistanceSinceStart(rower, 2027.4784558136782)
+  testTotalMovingTimeSinceStart(rower, 590.111937)
+  testTotalLinearDistanceSinceStart(rower, 2027.440419797022)
   testTotalNumberOfStrokes(rower, 206)
   // As dragFactor isn't static, it should have changed
-  testRecoveryDragFactor(rower, 80.67639163661059)
+  testRecoveryDragFactor(rower, 80.605730800097)
 })
 
 function testStrokeState (rower, expectedValue) {
