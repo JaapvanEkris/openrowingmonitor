@@ -364,6 +364,8 @@ export function createFlywheel (rowerSettings) {
     maintainMetrics = false
     inRecoveryPhase = false
     drag.reset()
+    currentDt.reset()
+    currentDt.applyFilter(0, flankLength - 1)
     recoveryDeltaTime.reset()
     _deltaTime.reset()
     _angularDistance.reset()
