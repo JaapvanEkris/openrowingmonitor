@@ -59,7 +59,7 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
       let i = 0
       while (i < X.length() - 1) {
         // Calculate the slope with all preceeding datapoints and X.length() - 1'th datapoint (as the array starts at zero)
-        A.push(X.get(i), calculateSlope(i, X.length() - 1))
+        A.push(X.get(i), calculateSlope(i, X.length() - 1), 1)
         i++
       }
     }
