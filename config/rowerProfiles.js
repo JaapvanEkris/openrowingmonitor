@@ -169,7 +169,7 @@ export default {
     autoAdjustRecoverySlopeMargin: 0.01,
     minimumDriveTime: 0.40,
     minimumRecoveryTime: 0.90,
-    flywheelInertia: 0.101255,
+    flywheelInertia: 0.10145,
     magicConstant: 2.8
   },
 
