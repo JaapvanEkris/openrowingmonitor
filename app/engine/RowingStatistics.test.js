@@ -8,7 +8,7 @@
  * to Linear physics. The combination with all possible known rowers is tested when testing the above function RowingStatistics, as
  * these statistics are dependent on these settings as well.
 */
-// ToDo: test the effects of smoothing parameters
+// @ToDo: test the effects of smoothing parameters
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 import rowerProfiles from '../../config/rowerProfiles.js'
@@ -220,7 +220,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDriveDuration(rowingStatistics, 0.22872752900000004)
   testDriveDistance(rowingStatistics, 1.0226745931298076)
   testDriveLength(rowingStatistics, 0.3078760800517996)
-  testDriveAverageHandleForce(rowingStatistics, 283.19013182409356)
+  testDriveAverageHandleForce(rowingStatistics, 288.45140756250663)
   testDrivePeakHandleForce(rowingStatistics, 447.10851434893794)
   testRecoveryDuration(rowingStatistics, 0.21654112800000003)
   testDragFactor(rowingStatistics, 281.5961372923874)
@@ -256,7 +256,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDriveDuration(rowingStatistics, 0.22872752900000004)
   testDriveDistance(rowingStatistics, 1.0226745931298076)
   testDriveLength(rowingStatistics, 0.3078760800517996)
-  testDriveAverageHandleForce(rowingStatistics, 283.19013182409356)
+  testDriveAverageHandleForce(rowingStatistics, 288.45140756250663)
   testDrivePeakHandleForce(rowingStatistics, 447.10851434893794)
   testRecoveryDuration(rowingStatistics, 0.09812447700000015)
   testDragFactor(rowingStatistics, 281.5961372923874)
@@ -415,11 +415,11 @@ test('sample data for NordicTrack RX800 should produce plausible results', async
 
   await replayRowingSession(rowingStatistics.handleRotationImpulse, { filename: 'recordings/RX800.csv', realtime: false, loop: false })
 
-  testTotalMovingTime(rowingStatistics, 22.396083608999994)
-  testTotalLinearDistance(rowingStatistics, 80.53187404607915)
+  testTotalMovingTime(rowingStatistics, 22.368358745999995)
+  testTotalLinearDistance(rowingStatistics, 80.8365747440095)
   testTotalNumberOfStrokes(rowingStatistics, 9)
   // As dragFactor is dynamic, it should have changed
-  testDragFactor(rowingStatistics, 492.9300865757259)
+  testDragFactor(rowingStatistics, 493.8082148322739)
 })
 
 test('A full session for SportsTech WRX700 should produce plausible results', async () => {
@@ -490,11 +490,11 @@ test('A full session for a Concept2 RowErg should produce plausible results', as
 
   await replayRowingSession(rowingStatistics.handleRotationImpulse, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
 
-  testTotalMovingTime(rowingStatistics, 590.121978)
-  testTotalLinearDistance(rowingStatistics, 2027.4784558136782)
+  testTotalMovingTime(rowingStatistics, 590.111937)
+  testTotalLinearDistance(rowingStatistics, 2027.440419797022)
   testTotalNumberOfStrokes(rowingStatistics, 205)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(rowingStatistics, 80.67639163661059)
+  testDragFactor(rowingStatistics, 80.605730800097)
 })
 
 function testStrokeState (rowingStatistics, expectedValue) {
