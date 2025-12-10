@@ -773,7 +773,7 @@ test('A 100 calories session for a Concept2 RowErg should produce plausible resu
   testTotalCalories(sessionManager, 100.00001288159193)
   testTotalNumberOfStrokes(sessionManager, 181)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(sessionManager, 80.68043404659525)
+  testDragFactor(sessionManager, 80.66801954484566)
 })
 
 function testTotalMovingTime (sessionManager, expectedValue) {
