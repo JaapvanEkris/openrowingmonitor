@@ -124,7 +124,7 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
   }
 
   function restart () {
-    if (isNaN(cursor)) { log.debug('*** WARNING: cyclic error filter has forcefully been restarted') }
+    if (!isNaN(cursor)) { log.debug('*** WARNING: cyclic error filter has forcefully been restarted') }
     recordedRelativePosition = []
     recordedAbsolutePosition = []
     recordedRawValue = []
