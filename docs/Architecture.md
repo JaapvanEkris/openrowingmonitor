@@ -411,7 +411,7 @@ Along with the introduction of Raspberry Pi 5, a new GPIO hardware architecture 
 * the possibility to measure on the upward or downward moving flank, or both
 * the provision of a built-in debounce filter
 
-An alternative is the `onoff` library, which was used in OpenRowingMonitor up to version 0.8.2, which does work with the new RPi5 architecture. Although the latter benefits could be moved to `GpioTimerService.js`, the two former benefits can't. Therefore, we decided to wait with moving to onoff until a decent alternative for `pigpio` emerges.
+An alternative is the `onoff` library, which was used in OpenRowingMonitor up to version 0.8.2. This does work with the new RPi5 architecture. Although the latter benefit could be moved to `GpioTimerService.js`, the two former benefits can't. Based on test runs with historic data, we see a significant drop in dataquality. For example, we see a significant drop in the average Goodness of Fit for drag detection from 0.97-0.99 to 0.80-0.85. We also see a very significant increase in cyclic error correction error messages, forced cyclic error filter resets and stroke detection errors, where in the `pigpio` setup these are very rare. Therefore, we decided to wait with moving to onoff until a decent alternative for `pigpio` emerges.
 
 ### Race conditions between commands and metrics
 
