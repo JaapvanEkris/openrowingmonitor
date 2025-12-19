@@ -23,7 +23,6 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
   const _minimumTimeBetweenImpulses = rowerSettings.minimumTimeBetweenImpulses
   const _maximumTimeBetweenImpulses = rowerSettings.maximumTimeBetweenImpulses
   const raw = createSeries(_flankLength)
-  const magnet = createSeries(_flankLength)
   const clean = createSeries(_flankLength)
   const linearRegressor = deltaTime
   let filterArray = []
@@ -42,7 +41,6 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
   function applyFilter (rawValue, position) {
     if (startPosition === undefined) { startPosition = position + _flankLength }
     raw.push(rawValue)
-    magnet.push(position % _numberOfMagnets)
     clean.push(rawValue * filterConfig[position % _numberOfMagnets] * weightCorrection)
   }
 
