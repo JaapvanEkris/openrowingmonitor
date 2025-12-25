@@ -73,8 +73,8 @@ export function createWLSLinearSeries (maxSeriesLength = 0) {
       // Calculate weighted R^2
       const yMean = WY.sum() / weight.sum()
       const ss_res = WYY.sum() - (2 * _intercept * WY.sum()) - (2 * _slope * WXY.sum()) + 
-                     (_intercept * _intercept * weight.sum()) + (2 * _slope * _intercept * WX.sum()) + 
-                     (_slope * _slope * WXX.sum())
+        (_intercept * _intercept * weight.sum()) + (2 * _slope * _intercept * WX.sum()) + 
+        (_slope * _slope * WXX.sum())
       const ss_tot = WYY.sum() - (yMean * yMean * weight.sum())
         
       _goodnessOfFit = (ss_tot !== 0) ? 1 - (ss_res / ss_tot) : 0
@@ -137,7 +137,7 @@ export function createWLSLinearSeries (maxSeriesLength = 0) {
     if (X.length() >= 2 && _slope !== 0) {
       return ((y - _intercept) / _slope)
     } else {
-      log. error('WLS Regressor, attempted a Y-projection while slope was zero!')
+      log.error('WLS Regressor, attempted a Y-projection while slope was zero!')
       return 0
     }
   }
@@ -152,7 +152,7 @@ export function createWLSLinearSeries (maxSeriesLength = 0) {
   function reset () {
     X.reset()
     Y.reset()
-    W.reset()
+    weight.reset()
     WX.reset()
     WY.reset()
     WXX.reset()
