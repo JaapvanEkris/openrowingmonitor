@@ -11,7 +11,7 @@
  * At creation it can be determined that the Series is limited (i.e. after it
  * is filled, the oldest will be pushed out of the queue) or that the series
  * is unlimited (will only expand). The latter is activated by calling the creation with
- * an empty argument. 
+ * an empty argument.
  *
  * please note that for unlimited series it is up to the calling function to handle resetting
  * the Linear Series when needed through the reset() call.
@@ -19,7 +19,7 @@
  * This implementation uses concepts that are described here:
  * https://www.colorado.edu/amath/sites/default/files/attached-files/ch12_0.pdf
  *
- * For weighted least squares:  
+ * For weighted least squares:
  * https://en.wikipedia.org/wiki/Weighted_least_squares
  */
 
@@ -51,10 +51,10 @@ export function createWLSLinearSeries (maxSeriesLength = 0) {
    */
   function push (x, y, w = 1) {
     if (x === undefined || isNaN(x) || y === undefined || isNaN(y)) { return }
-    
+
     // Ensure weight is valid and positive
     const _weight = (w === undefined || isNaN(w) || w <= 0) ? 1 : w
-    
+
     X.push(x)
     Y.push(y)
     weight.push(_weight)
@@ -65,19 +65,19 @@ export function createWLSLinearSeries (maxSeriesLength = 0) {
     WXY.push(_weight * x * y)
 
     // Calculate regression parameters using Weighted Least Squares
-	const denominator = (weight.sum() * WXX.sum()) - (WX.sum() * WX.sum())
+    const denominator = (weight.sum() * WXX.sum()) - (WX.sum() * WX.sum())
     if (X.length() >= 2 && denominator !== 0) {
       _slope = (weight.sum() * WXY.sum() - WX.sum() * WY.sum()) / denominator
       _intercept = (WY.sum() - _slope * WX.sum()) / weight.sum()
 
       // Calculate weighted R^2
       const yMean = WY.sum() / weight.sum()
-      const ss_res = WYY.sum() - (2 * _intercept * WY.sum()) - (2 * _slope * WXY.sum()) + 
-        (_intercept * _intercept * weight.sum()) + (2 * _slope * _intercept * WX.sum()) + 
+      const ssRes = WYY.sum() - (2 * _intercept * WY.sum()) - (2 * _slope * WXY.sum()) +
+        (_intercept * _intercept * weight.sum()) + (2 * _slope * _intercept * WX.sum()) +
         (_slope * _slope * WXX.sum())
-      const ss_tot = WYY.sum() - (yMean * yMean * weight.sum())
-        
-      _goodnessOfFit = (ss_tot !== 0) ? 1 - (ss_res / ss_tot) : 0
+      const ssTot = WYY.sum() - (yMean * yMean * weight.sum())
+
+      _goodnessOfFit = (ssTot !== 0) ? 1 - (ssRes / ssTot) : 0
     } else {
       _slope = 0
       _intercept = 0
