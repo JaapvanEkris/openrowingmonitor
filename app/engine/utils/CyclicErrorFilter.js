@@ -56,7 +56,7 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
   /**
    * @param {integer} the magnet number
    * @param {float} the raw value to be projected by the function for that magnet
-   * @returns {float} projected result 
+   * @returns {float} projected result
    */
   function projectX (magnet, rawValue) {
     return (rawValue * slope[magnet] * slopeCorrection) + (intercept[magnet] - interceptCorrection)
@@ -81,27 +81,27 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
   function processNextRawDatapoint () {
     let perfectCurrentDt
     let weightCorrectedCorrectedDatapoint
-    let GoF  
+    let GoF
     if (lowerCursor === undefined || upperCursor === undefined) {
-	    lowerCursor = Math.ceil(recordedRelativePosition.length * 0.1)
-	    upperCursor = Math.floor(recordedRelativePosition.length * 0.9)
-	  }
+      lowerCursor = Math.ceil(recordedRelativePosition.length * 0.1)
+      upperCursor = Math.floor(recordedRelativePosition.length * 0.9)
+    }
 
     if (lowerCursor < upperCursor && recordedRelativePosition[lowerCursor] > startPosition) {
       perfectCurrentDt = linearRegressor.projectX(recordedAbsolutePosition[lowerCursor])
-	    weightCorrectedCorrectedDatapoint = (_invAgressiveness * recordedRawValue[lowerCursor]) + (_agressiveness * perfectCurrentDt)
+      weightCorrectedCorrectedDatapoint = (_invAgressiveness * recordedRawValue[lowerCursor]) + (_agressiveness * perfectCurrentDt)
       GoF = linearRegressor.goodnessOfFit() * linearRegressor.localGoodnessOfFit(lowerCursor)
       updateFilter(recordedRelativePosition[lowerCursor] % _numberOfMagnets, recordedRawValue[lowerCursor], weightCorrectedCorrectedDatapoint, GoF)
-	  }
+    }
     lowerCursor++
 
     if (lowerCursor < upperCursor && recordedRelativePosition[upperCursor] > startPosition) {
       perfectCurrentDt = linearRegressor.projectX(recordedAbsolutePosition[upperCursor])
-	    weightCorrectedCorrectedDatapoint = (_invAgressiveness * recordedRawValue[upperCursor]) + (_agressiveness * perfectCurrentDt)
+      weightCorrectedCorrectedDatapoint = (_invAgressiveness * recordedRawValue[upperCursor]) + (_agressiveness * perfectCurrentDt)
       GoF = linearRegressor.goodnessOfFit() * linearRegressor.localGoodnessOfFit(upperCursor)
       updateFilter(recordedRelativePosition[upperCursor] % _numberOfMagnets, recordedRawValue[upperCursor], weightCorrectedCorrectedDatapoint, GoF)
     }
-	  upperCursor--
+    upperCursor--
   }
 
   function updateFilter (magnet, rawDatapoint, correctedDatapoint, goodnessOfFit) {
@@ -122,30 +122,30 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
     recordedAbsolutePosition = []
     recordedRawValue = []
     lowerCursor = undefined
-	  upperCursor = undefined
+    upperCursor = undefined
   }
 
   function reset () {
     if (slopeSum !== _numberOfMagnets || interceptSum !== 0) { log.debug('*** WARNING: cyclic error filter is reset') }
-	  const noIncrements = Math.max(Math.ceil(_numberOfFilterSamples / 4), 5)
-	  const increment = (_maximumTimeBetweenImpulses - _minimumTimeBetweenImpulses) / noIncrements
+    const noIncrements = Math.max(Math.ceil(_numberOfFilterSamples / 4), 5)
+    const increment = (_maximumTimeBetweenImpulses - _minimumTimeBetweenImpulses) / noIncrements
 
     lowerCursor = undefined
-	  restart()
+    restart()
 
     let i = 0
-	  let j = 0
-	  let datapoint = 0
+    let j = 0
+    let datapoint = 0
     while (i < _numberOfMagnets) {
       filterArray[i] = {}
       filterArray[i] = createWLSLinearSeries(_numberOfFilterSamples)
-	    j = 0
-	    while (j <= noIncrements) {
+      j = 0
+      while (j <= noIncrements) {
         datapoint = _maximumTimeBetweenImpulses - (j * increment)
-		    filterArray[i].push(datapoint, datapoint, 0.5)
-		    j++
-      }	  
-	    slope[i] = 1
+        filterArray[i].push(datapoint, datapoint, 0.8)
+        j++
+      }
+      slope[i] = 1
       intercept[i] = 0
       i++
     }
@@ -153,7 +153,7 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
     interceptSum = 0
     slopeCorrection = 1
     interceptCorrection = 0
-	  startPosition = undefined
+    startPosition = undefined
   }
 
   return {
