@@ -5,7 +5,7 @@
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 
-import { createWLSLinearSeries } from './OLSLinearSeries.js'
+import { createWLSLinearSeries } from './WLSLinearSeries.js'
 
 test('Correct behaviour of a series after initialisation', () => {
   const dataSeries = createWLSLinearSeries(3)
