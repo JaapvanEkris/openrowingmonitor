@@ -7,7 +7,7 @@
  * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Architecture.md#rowingstatisticsjs|the architecture description}
  */
 import { createRower } from './Rower.js'
-import { createWLSLinearSeries } from './utils/OLSLinearSeries.js'
+import { createWLSLinearSeries } from './utils/WLSLinearSeries.js'
 import { createStreamFilter } from './utils/StreamFilter.js'
 import { createCurveAligner } from './utils/CurveAligner.js'
 
