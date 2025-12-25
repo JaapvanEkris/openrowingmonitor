@@ -132,7 +132,7 @@ export function createMovingRegressor (bandwith) {
     }
   }
 
-/**
+  /**
    * @param {integer} the position in the flank of the requested value (default = 0)
    * @param {float} the y to project onto the function
    * @returns {array} the resulting x's from the projection
