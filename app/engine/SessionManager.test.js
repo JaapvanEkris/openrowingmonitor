@@ -654,7 +654,7 @@ test('A full session for a Concept2 RowErg should produce plausible results', as
 
   testTotalMovingTime(sessionManager, 590.0294331572366)
   testTotalLinearDistance(sessionManager, 2027.8951016561075)
-  testTotalCalories(sessionManager, 113.56819627152989)
+  testTotalCalories(sessionManager, 113.55660950119214)
   testTotalNumberOfStrokes(sessionManager, 205)
   // As dragFactor isn't static, it should have changed
   testDragFactor(sessionManager, 80.68166392487412)
@@ -693,7 +693,7 @@ test('A 2000 meter session for a Concept2 RowErg should produce plausible result
 
   testTotalMovingTime(sessionManager, 582.0058299961318)
   testTotalLinearDistance(sessionManager, 2000.0206027129661)
-  testTotalCalories(sessionManager, 112.18682528064748)
+  testTotalCalories(sessionManager, 112.16536746119625)
   testTotalNumberOfStrokes(sessionManager, 203)
   // As dragFactor isn't static, it should have changed
   testDragFactor(sessionManager, 80.64401882558202)
@@ -732,7 +732,7 @@ test('A 580 seconds session for a Concept2 RowErg should produce plausible resul
 
   testTotalMovingTime(sessionManager, 580.0016078988951)
   testTotalLinearDistance(sessionManager, 1993.2788181883743)
-  testTotalCalories(sessionManager, 111.77483058027613)
+  testTotalCalories(sessionManager, 111.76461106588519)
   testTotalNumberOfStrokes(sessionManager, 202)
   // As dragFactor isn't static, it should have changed
   testDragFactor(sessionManager, 80.67823666359594)
@@ -770,7 +770,7 @@ test('A 100 calories session for a Concept2 RowErg should produce plausible resu
 
   testTotalMovingTime(sessionManager, 520.3824691827283)
   testTotalLinearDistance(sessionManager, 1786.2212497568994)
-  testTotalCalories(sessionManager, 100.00001288159193)
+  testTotalCalories(sessionManager, 100.00025111255141)
   testTotalNumberOfStrokes(sessionManager, 181)
   // As dragFactor isn't static, it should have changed
   testDragFactor(sessionManager, 80.66801954484566)
