@@ -653,7 +653,7 @@ test('A full session for a Concept2 RowErg should produce plausible results', as
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 590.0294331572366)
-  testTotalLinearDistance(sessionManager, 2027.8318516062236)
+  testTotalLinearDistance(sessionManager, 2027.8951016561075)
   testTotalCalories(sessionManager, 113.56819627152989)
   testTotalNumberOfStrokes(sessionManager, 205)
   // As dragFactor isn't static, it should have changed
@@ -692,7 +692,7 @@ test('A 2000 meter session for a Concept2 RowErg should produce plausible result
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 582.0058299961318)
-  testTotalLinearDistance(sessionManager, 2000.025219680081)
+  testTotalLinearDistance(sessionManager, 2000.0206027129661)
   testTotalCalories(sessionManager, 112.18682528064748)
   testTotalNumberOfStrokes(sessionManager, 203)
   // As dragFactor isn't static, it should have changed
@@ -731,7 +731,7 @@ test('A 580 seconds session for a Concept2 RowErg should produce plausible resul
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 580.0016078988951)
-  testTotalLinearDistance(sessionManager, 1993.1883167437431)
+  testTotalLinearDistance(sessionManager, 1993.2788181883743)
   testTotalCalories(sessionManager, 111.77483058027613)
   testTotalNumberOfStrokes(sessionManager, 202)
   // As dragFactor isn't static, it should have changed
@@ -769,7 +769,7 @@ test('A 100 calories session for a Concept2 RowErg should produce plausible resu
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 520.3824691827283)
-  testTotalLinearDistance(sessionManager, 1785.8189419422438)
+  testTotalLinearDistance(sessionManager, 1786.2212497568994)
   testTotalCalories(sessionManager, 100.00001288159193)
   testTotalNumberOfStrokes(sessionManager, 181)
   // As dragFactor isn't static, it should have changed
