@@ -5,7 +5,7 @@
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 
-import { createTSLinearSeries } from './FullTSLinearSeries.js'
+import { createTSLinearSeries } from './TSLinearSeries.js'
 
 test('Correct behaviour of a series after initialisation', () => {
   const dataSeries = createTSLinearSeries(3)
