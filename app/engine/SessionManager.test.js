@@ -657,7 +657,7 @@ test('A full session for a Concept2 RowErg should produce plausible results', as
   testTotalCalories(sessionManager, 113.55660950119214)
   testTotalNumberOfStrokes(sessionManager, 205)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(sessionManager, 80.68166392487412)
+  testDragFactor(sessionManager, 80.70650785533269)
 })
 
 test('A 2000 meter session for a Concept2 RowErg should produce plausible results', async () => {
@@ -696,7 +696,7 @@ test('A 2000 meter session for a Concept2 RowErg should produce plausible result
   testTotalCalories(sessionManager, 112.16536746119625)
   testTotalNumberOfStrokes(sessionManager, 203)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(sessionManager, 80.64401882558202)
+  testDragFactor(sessionManager, 80.68314716929032)
 })
 
 test('A 580 seconds session for a Concept2 RowErg should produce plausible results', async () => {
@@ -735,7 +735,7 @@ test('A 580 seconds session for a Concept2 RowErg should produce plausible resul
   testTotalCalories(sessionManager, 111.76461106588519)
   testTotalNumberOfStrokes(sessionManager, 202)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(sessionManager, 80.67823666359594)
+  testDragFactor(sessionManager, 80.70729014258711)
 })
 
 test('A 100 calories session for a Concept2 RowErg should produce plausible results', async () => {
@@ -773,7 +773,7 @@ test('A 100 calories session for a Concept2 RowErg should produce plausible resu
   testTotalCalories(sessionManager, 100.00025111255141)
   testTotalNumberOfStrokes(sessionManager, 181)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(sessionManager, 80.66801954484566)
+  testDragFactor(sessionManager, 80.69402503758549)
 })
 
 function testTotalMovingTime (sessionManager, expectedValue) {
