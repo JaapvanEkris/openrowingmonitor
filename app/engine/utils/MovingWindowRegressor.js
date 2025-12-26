@@ -6,7 +6,7 @@
  * This implements a Moving Regression Algorithm to obtain a coefficients, first (angular velocity) and
  * second derivative (angular acceleration) at the front of the flank
  */
-import { createTSQuadraticSeries } from './FullTSQuadraticSeries.js'
+import { createTSQuadraticSeries } from './TSQuadraticSeries.js'
 import { createWeighedSeries } from './WeighedSeries.js'
 import { createGaussianWeightFunction } from './Gaussian.js'
 
