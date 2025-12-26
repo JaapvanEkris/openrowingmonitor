@@ -9,7 +9,7 @@
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 
-import { createTSQuadraticSeries } from './FullTSQuadraticSeries.js'
+import { createTSQuadraticSeries } from './TSQuadraticSeries.js'
 
 /**
  * This series of tests focusses on testing the reliability of the quadratic estimator algorithm
