@@ -91,7 +91,7 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
     return _A
   }
 
-    /**
+  /**
    * @returns {float} the intercept of the linear function
    */
   function intercept () {
