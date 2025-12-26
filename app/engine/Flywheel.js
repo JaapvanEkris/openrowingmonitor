@@ -23,7 +23,7 @@
  */
 import loglevel from 'loglevel'
 import { createCyclicErrorFilter } from './utils/CyclicErrorFilter.js'
-import { createTSLinearSeries } from './utils/FullTSLinearSeries.js'
+import { createTSLinearSeries } from './utils/TSLinearSeries.js'
 import { createWeighedSeries } from './utils/WeighedSeries.js'
 import { createMovingRegressor } from './utils/MovingWindowRegressor.js'
 
