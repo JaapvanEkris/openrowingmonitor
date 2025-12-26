@@ -29,6 +29,9 @@ import { createLabelledBinarySearchTree } from './BinarySearchTree.js'
 import loglevel from 'loglevel'
 const log = loglevel.getLogger('RowingEngine')
 
+/**
+ * @param {integer} the maximum length of the quadratic series, 0 for unlimited
+ */
 export function createTSLinearSeries (maxSeriesLength = 0) {
   const X = createSeries(maxSeriesLength)
   const Y = createSeries(maxSeriesLength)
@@ -39,9 +42,13 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
   let _sst = 0
   let _goodnessOfFit = 0
 
+  /**
+   * @param {float} the x value of the datapoint
+   * @param {float} the y value of the datapoint
+   * Invariant: BinarySearchTree A contains all calculated a's (as in the general formula y = a * x + b),
+   * where the a's are labeled in the BinarySearchTree with their Xi when they BEGIN in the point (Xi, Yi)
+   */
   function push (x, y) {
-    // Invariant: A contains all a's (as in the general formula y = a * x + b)
-    // Where the a's are labeled in the Binary Search Tree with their xi when they BEGIN in the point (xi, yi)
     if (x === undefined || isNaN(x) || y === undefined || isNaN(y)) { return }
 
     if (maxSeriesLength > 0 && X.length() >= maxSeriesLength) {
@@ -77,34 +84,50 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
     _goodnessOfFit = null
   }
 
+  /**
+   * @returns {float} the slope of the linear function
+   */
   function slope () {
     return _A
   }
 
+    /**
+   * @returns {float} the intercept of the linear function
+   */
   function intercept () {
     calculateIntercept()
     return _B
   }
 
+  /**
+   * @returns {float} the coefficient a of the linear function y = a * x + b
+   */
   function coefficientA () {
-    // For testing purposses only!
     return _A
   }
 
+  /**
+   * @returns {float} the coefficient b of the linear function y = a * x + b
+   */
   function coefficientB () {
-    // For testing purposses only!
     calculateIntercept()
     return _B
   }
 
+  /**
+   * @returns {integer} the lenght of the stored series
+   */
   function length () {
     return X.length()
   }
 
+  /**
+   * @returns {float} the R^2 as a goodness of fit indicator
+   * It will automatically recalculate the _goodnessOfFit when it isn't defined
+   * This lazy approach is intended to prevent unneccesary calculations, especially when there is a batch of datapoint pushes
+   * from the TSQuadratic regressor processing its linear residu
+   */
   function goodnessOfFit () {
-    // This function returns the R^2 as a goodness of fit indicator
-    // It will automatically recalculate the _goodnessOfFit when it isn't defined
-    // This lazy approach is intended to prevent unneccesary calculations
     let i = 0
     let sse = 0
     if (_goodnessOfFit === null) {
@@ -137,6 +160,9 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
     return _goodnessOfFit
   }
 
+  /**
+   * @returns {float} the local R^2 as a local goodness of fit indicator
+   */
   function localGoodnessOfFit (position) {
     if (_sst === null) {
       // Force the recalculation of the _sst
@@ -166,6 +192,10 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
     }
   }
 
+  /**
+   * @param {float} the x value to be projected
+   * @returns {float} the resulting y value when projected via the linear function
+   */
   function projectX (x) {
     if (X.length() >= 2) {
       calculateIntercept()
@@ -175,6 +205,10 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
     }
   }
 
+  /**
+   * @param {float} the y value to be projected
+   * @returns {float} the resulting x value when projected via the linear function
+   */
   function projectY (y) {
     if (X.length() >= 2 && _A !== 0) {
       calculateIntercept()
@@ -215,6 +249,9 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
     B.reset()
   }
 
+  /**
+   * @returns {boolean} whether the linear regression should be considered reliable to produce results
+   */
   function reliable () {
     return (X.length() >= 2)
   }
