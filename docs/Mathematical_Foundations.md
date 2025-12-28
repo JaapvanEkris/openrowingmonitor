@@ -28,11 +28,11 @@ In our design of the physics engine, we obey the following principles (see also 
 
 ### Filtering on systematic noise on *CurrentDt*
 
-Several machines, including the Concept2 RowErg, [are known to have small errors in their magnet placement](./rower_settings.md#fixing-magnet-placement-errors). The systematic error filter is designed to reduce the effects of these systematic errors. Although the subsequent calcuations are designed to be robust against noise, the repeating nature has tendency to 
+Several machines, including the Concept2 RowErg, [are known to have small errors in their magnet placement](./rower_settings.md#fixing-magnet-placement-errors). The systematic error filter is designed to reduce the effects of these systematic errors. Although the subsequent calcuations are designed to be robust against noise, the repeating nature has tendency to still disturbe measurements, requiring a different approach to noise supression.
 
 As the synchronisation with the actual flywheel position is essential (as somehow it should be known which specific misplaced magnet produces which error) and quite hard to solve, we've chosen the approach to continuously dynamically calculate the error correction value, rather than provide a static value beforehand that has to be synchronised.
 
-A key assumption is that these structural errors will always be present as part of the random noise, and by comparing multiple observations across time, systematic errors can be identified. In essence, the residual between the raw input and the regression corrected projection is used as a basis for future corrections. These concepts are shared with [Kalman filters](https://en.wikipedia.org/wiki/Kalman_filter). Here, as the error is specific for each magnet, we need to maintain such a filter per magnet. 
+A key assumption is that these structural errors will always be present as part of the random noise, and by comparing multiple observations across time, systematic errors can be identified. In essence, the residual between the raw input and the regression corrected projection is used as a basis for future corrections. These concepts are shared with [Kalman filters](https://en.wikipedia.org/wiki/Kalman_filter). Here, as the error is specific for each magnet, we need to maintain such a filter per magnet.
 
 Here, we use a linear regressor to determine the relation between the raw value and the 'perfect values' (i.e. noise free) per individual magnet. By maintaining a function per magnet, we can calculate the error per magnet as a function of the raw value, allowing for an effective error correction of systematic placement errors in the magnet array.
 
