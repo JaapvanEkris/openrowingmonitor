@@ -44,6 +44,8 @@ Here, we use a linear regressor to determine the relation between the raw value 
 
 Practical experiments support the above argument: where feeding the algorithm using the Quadratic regression for systematic error correction results in a Goodness Of Fit for the recovery slope of 0.9990, feeding from the linear regression results in a Goodness Of Fit often exceeding 0.9996.
 
+A key element is the use of a weighed linear regression method, where the weight is based on the Goodness of Fit of the datapoint to prevent badly fitted drag slopes or badly fitting specific datapoints from throwing off the systematic error correction filter too much.
+
 A key issue is preventing time contraction/delution: maintaining a correction factor per magnet will not guarantee that all corrections over all magnets across a session will not cause a drift in time (as the corrected *currentDt* is also used for calculating the moving time since start [`Flywheel.js`](../app/engine/Flywheel.js)). To keep time drift under controll, the [`CyclicErrorFilter.js`](../app/engine/utils/CyclicErrorFilter.js) will guarantee that the average of all slopes will be 1 at all times, and the slopes of all intercepts be 0. This is a bit crude, but it is shown to be effective.
 
 ### Linear regression algorithm for dragfactor calculation based on *CurrentDt* and time
@@ -65,6 +67,8 @@ This is expected to be a straight line, where its slope is essentially the dragf
 * Use of trimming, for example to prevent heads or tails of the drive entering the drag-calculation has negative effects. Where a test sample (a Concept2 RowErg on drag 68, which is the most difficult for OpenRowingMonitor) the recovery slope with the current algorithm has an R<sup>2</sup> of 0.96, applying trimming reduced this to a R<sup>2</sup> of 0.93, suggesting that trimming makes the fit worse instead of better;
 
 Therefore, we choose to apply the Linear Theil-Sen estimator for the calculation of the dragfactor and the closely related recovery slope.
+
+As the cyclic error correction filter can provide an indication (i.e. the general Goodness of Fit of the relation between raw values and perfect values, essentially representing the variance), we also include that as weight. This prevents results from badly fitting error corrections of individual magnets to pollute the drag calculation too much, stabilising its slope calculation. At first glance, this might lead to feedback loops, as the systematic error correction is fed by the drag calculation, and the systematic error correction will influence drag calculation. The feeding algorithm of the systematic error correction indeed uses a goodness of fit that is both global and local, where a specific badly fitted magnet might further loose its influence (especially via the local fit) as it local fit will deviate further and further from the regression line as it looses influence. As the Goodness of Fit reported by the systematic error correction focusses on the variance in the relation between raw and perfect values, a enduring low Goodness of Fit for a specific error correction of a magnet indicates that new updates provide a different relation between raw and perfect values each recovery. As this relation in a large part is determined by the slope of the drag calculation (as that determines the perfect value) we consider this unlikely as other magnets tend to stabilise this effect. In practice, we haven't seen this happen yet.
 
 ### Linear regression algorithms applied for recovery detection based on *CurrentDt* and time
 
