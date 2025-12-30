@@ -27,6 +27,7 @@ test('Correct behaviour of a series after initialisation', () => {
   testSlopeEquals(dataSeries, 0)
   testInterceptEquals(dataSeries, 0)
   testGoodnessOfFitEquals(dataSeries, 0)
+  testLocalGoodnessOfFitEquals(dataSeries, 0, 0)
 })
 
 test('Correct behaviour of a series after several puhed values, function y = 3x + 6, noisefree, 1 datapoint', () => {
@@ -51,6 +52,7 @@ test('Correct behaviour of a series after several puhed values, function y = 3x 
   testSlopeEquals(dataSeries, 0)
   testInterceptEquals(dataSeries, 0)
   testGoodnessOfFitEquals(dataSeries, 0)
+  testLocalGoodnessOfFitEquals(dataSeries, 0, 0)
 })
 
 test('Correct behaviour of a series after several puhed values, function y = 3x + 6, noisefree, 2 datapoints', () => {
@@ -75,6 +77,8 @@ test('Correct behaviour of a series after several puhed values, function y = 3x 
   testSlopeEquals(dataSeries, 3)
   testInterceptEquals(dataSeries, -6)
   testGoodnessOfFitEquals(dataSeries, 1)
+  testLocalGoodnessOfFitEquals(dataSeries, 0, 1)
+  testLocalGoodnessOfFitEquals(dataSeries, 1, 1)
 })
 
 test('Correct behaviour of a series after several puhed values, function y = 3x + 6, noisefree, 3 datapoints', () => {
@@ -100,6 +104,9 @@ test('Correct behaviour of a series after several puhed values, function y = 3x 
   testSlopeEquals(dataSeries, 3)
   testInterceptEquals(dataSeries, -6)
   testGoodnessOfFitEquals(dataSeries, 1)
+  testLocalGoodnessOfFitEquals(dataSeries, 0, 1)
+  testLocalGoodnessOfFitEquals(dataSeries, 1, 1)
+  testLocalGoodnessOfFitEquals(dataSeries, 2, 1)
 })
 
 test('Correct behaviour of a series after several puhed values, function y = 3x + 6, noisefree, 4 datapoints', () => {
@@ -126,6 +133,10 @@ test('Correct behaviour of a series after several puhed values, function y = 3x 
   testSlopeEquals(dataSeries, 3)
   testInterceptEquals(dataSeries, -6)
   testGoodnessOfFitEquals(dataSeries, 1)
+  testLocalGoodnessOfFitEquals(dataSeries, 0, 1)
+  testLocalGoodnessOfFitEquals(dataSeries, 1, 1)
+  testLocalGoodnessOfFitEquals(dataSeries, 2, 1)
+  testLocalGoodnessOfFitEquals(dataSeries, 3, 1)
 })
 
 test('Correct behaviour of a series after several puhed values, function y = 3x + 6, noisefree, 5 datapoints', () => {
@@ -153,6 +164,11 @@ test('Correct behaviour of a series after several puhed values, function y = 3x 
   testSlopeEquals(dataSeries, 3)
   testInterceptEquals(dataSeries, -6)
   testGoodnessOfFitEquals(dataSeries, 1)
+  testLocalGoodnessOfFitEquals(dataSeries, 0, 1)
+  testLocalGoodnessOfFitEquals(dataSeries, 1, 1)
+  testLocalGoodnessOfFitEquals(dataSeries, 2, 1)
+  testLocalGoodnessOfFitEquals(dataSeries, 3, 1)
+  testLocalGoodnessOfFitEquals(dataSeries, 4, 1)
 })
 
 test('Correct behaviour of a series after several puhed values, function y = 3x + 6, noisefree, 4 datapoints and a reset', () => {
@@ -180,6 +196,7 @@ test('Correct behaviour of a series after several puhed values, function y = 3x 
   testSlopeEquals(dataSeries, 0)
   testInterceptEquals(dataSeries, 0)
   testGoodnessOfFitEquals(dataSeries, 0)
+  testLocalGoodnessOfFitEquals(dataSeries, 0, 0)
 })
 
 test('Series with 5 elements, with 2 noisy datapoints', () => {
@@ -192,6 +209,11 @@ test('Series with 5 elements, with 2 noisy datapoints', () => {
   testSlopeBetween(dataSeries, 2.9, 3.1)
   testInterceptBetween(dataSeries, -6.3, -5.8)
   testGoodnessOfFitBetween(dataSeries, 0.9, 1.0)
+  testLocalGoodnessOfFitEquals(dataSeries, 0, 1)
+  testLocalGoodnessOfFitEquals(dataSeries, 1, 1)
+  testLocalGoodnessOfFitEquals(dataSeries, 2, 1)
+  testLocalGoodnessOfFitEquals(dataSeries, 3, 1)
+  testLocalGoodnessOfFitEquals(dataSeries, 4, 1)
 })
 
 function testLength (series, expectedValue) {
@@ -263,6 +285,10 @@ function testGoodnessOfFitEquals (series, expectedValue) {
 function testGoodnessOfFitBetween (series, expectedValueAbove, expectedValueBelow) {
   assert.ok(series.goodnessOfFit() > expectedValueAbove, `Expected goodnessOfFit to be above ${expectedValueAbove}, encountered ${series.goodnessOfFit()}`)
   assert.ok(series.goodnessOfFit() < expectedValueBelow, `Expected goodnessOfFit to be below ${expectedValueBelow}, encountered ${series.goodnessOfFit()}`)
+}
+
+function testLocalGoodnessOfFitEquals (series, position, expectedValue) {
+  assert.ok(series.localGoodnessOfFit(position) === expectedValue, `Expected localGoodnessOfFit at position ${position}to be ${expectedValue}, encountered ${series.localGoodnessOfFit(position)}`)
 }
 
 test.run()
