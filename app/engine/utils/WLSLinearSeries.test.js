@@ -206,7 +206,7 @@ test('Unweighted series with 7 elements based on Galton dataset (OLS)', () => {
   dataSeries.push(0.16, 0.1617, 1)
   dataSeries.push(0.15, 0.1598, 1)
   testSlopeEquals(dataSeries, 0.2100000000000111)
-  testInterceptEquals(dataSeries, 0.12703)
+  testInterceptEquals(dataSeries, 0.12702857142856944)
   testGoodnessOfFitBetween(dataSeries, 0.9, 1.0)
 })
 
@@ -222,7 +222,7 @@ test('Weighted series with 7 elements based on Galton dataset (WLS)', () => {
   dataSeries.push(0.16, 0.1617, 3935.712498)
   dataSeries.push(0.15, 0.1598, 3217.328273)
   testSlopeEquals(dataSeries, 0.20480116324222641)
-  testInterceptEquals(dataSeries, 0.12796)
+  testInterceptEquals(dataSeries, 0.12796416521509518)
   testGoodnessOfFitBetween(dataSeries, 0.9, 1.0)
 })
 
