@@ -168,7 +168,7 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
       // Force the recalculation of the _sst
       goodnessOfFit()
     }
-    if (X.length() >= 3 && position < X.length()) {
+    if (X.length() >= 2 && position < X.length()) {
       const squaredError = Math.pow((Y.get(position) - projectX(X.get(position))), 2)
       /* eslint-disable no-unreachable -- rather be systematic and add a break in all case statements */
       switch (true) {
