@@ -210,6 +210,8 @@ test('Series for function y = 3x - 6, with 5 elements, with 2 noisy datapoints',
   testLocalGoodnessOfFitEquals(dataSeries, 0, 1)
   testLocalGoodnessOfFitEquals(dataSeries, 1, 0.9645892351274787)
   testLocalGoodnessOfFitEquals(dataSeries, 2, 0.9645892351274787)
+  testLocalGoodnessOfFitEquals(dataSeries, 3, 1)
+  testLocalGoodnessOfFitEquals(dataSeries, 4, 1)
 })
 
 function testLength (series, expectedValue) {
