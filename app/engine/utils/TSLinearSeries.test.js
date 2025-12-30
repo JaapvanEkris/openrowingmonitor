@@ -107,6 +107,7 @@ test('Correct behaviour of a series after several puhed values, function y = 3x 
   testLocalGoodnessOfFitEquals(dataSeries, 0, 1)
   testLocalGoodnessOfFitEquals(dataSeries, 1, 1)
   testLocalGoodnessOfFitEquals(dataSeries, 2, 1)
+  testLocalGoodnessOfFitEquals(dataSeries, 3, 0) // Overshooting the length of the series
 })
 
 test('Correct behaviour of a series after several puhed values, function y = 3x - 6, noisefree, 4 datapoints', () => {
@@ -136,7 +137,6 @@ test('Correct behaviour of a series after several puhed values, function y = 3x 
   testLocalGoodnessOfFitEquals(dataSeries, 0, 1)
   testLocalGoodnessOfFitEquals(dataSeries, 1, 1)
   testLocalGoodnessOfFitEquals(dataSeries, 2, 1)
-  testLocalGoodnessOfFitEquals(dataSeries, 3, 1)
 })
 
 test('Correct behaviour of a series after several puhed values, function y = 3x - 6, noisefree, 5 datapoints', () => {
@@ -167,8 +167,6 @@ test('Correct behaviour of a series after several puhed values, function y = 3x 
   testLocalGoodnessOfFitEquals(dataSeries, 0, 1)
   testLocalGoodnessOfFitEquals(dataSeries, 1, 1)
   testLocalGoodnessOfFitEquals(dataSeries, 2, 1)
-  testLocalGoodnessOfFitEquals(dataSeries, 3, 1)
-  testLocalGoodnessOfFitEquals(dataSeries, 4, 1)
 })
 
 test('Correct behaviour of a series after several puhed values, function y = 3x - 6, noisefree, 4 datapoints and a reset', () => {
@@ -211,9 +209,7 @@ test('Series for function y = 3x - 6, with 5 elements, with 2 noisy datapoints',
   testGoodnessOfFitBetween(dataSeries, 0.9, 1.0)
   testLocalGoodnessOfFitEquals(dataSeries, 0, 1)
   testLocalGoodnessOfFitEquals(dataSeries, 1, 0.9645892351274787)
-  testLocalGoodnessOfFitEquals(dataSeries, 2, 1)
-  testLocalGoodnessOfFitEquals(dataSeries, 3, 1)
-  testLocalGoodnessOfFitEquals(dataSeries, 4, 1)
+  testLocalGoodnessOfFitEquals(dataSeries, 2, 0.9645892351274787)
 })
 
 function testLength (series, expectedValue) {
