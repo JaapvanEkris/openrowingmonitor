@@ -194,6 +194,38 @@ test('Series with 5 elements, with 2 noisy datapoints', () => {
   testGoodnessOfFitBetween(dataSeries, 0.9, 1.0)
 })
 
+// Test based on the Galton dataset, using unweighted (=OLS) regression
+// Example found at https://online.stat.psu.edu/stat501/lesson/13/13.1
+test('Unweighted series with 7 elements based on Galton dataset (OLS)', () => {
+  const dataSeries = createWLSLinearSeries(7)
+  dataSeries.push(0.21, 0.1726, 1)
+  dataSeries.push(0.2, 0.1707, 1)
+  dataSeries.push(0.19, 0.1637, 1)
+  dataSeries.push(0.18, 0.164, 1)
+  dataSeries.push(0.17, 0.1613, 1)
+  dataSeries.push(0.16, 0.1617, 1)
+  dataSeries.push(0.15, 0.1598, 1)
+  testSlopeEquals(dataSeries, 0.2100)
+  testInterceptEquals(dataSeries, 0.12703)
+  testGoodnessOfFitBetween(dataSeries, 0.9, 1.0)
+})
+
+// Test based on the Galton dataset, using weighted (=WLS) regression
+// Example found at https://online.stat.psu.edu/stat501/lesson/13/13.1
+test('Weighted series with 7 elements based on Galton dataset (WLS)', () => {
+  const dataSeries = createWLSLinearSeries(7)
+  dataSeries.push(0.21, 0.1726, 2530.272176)
+  dataSeries.push(0.2, 0.1707, 2662.5174)
+  dataSeries.push(0.19, 0.1637, 2781.783546)
+  dataSeries.push(0.18, 0.164, 2410.004991)
+  dataSeries.push(0.17, 0.1613, 3655.35019)
+  dataSeries.push(0.16, 0.1617, 3935.712498)
+  dataSeries.push(0.15, 0.1598, 3217.328273)
+  testSlopeEquals(dataSeries, 0.2048)
+  testInterceptEquals(dataSeries, 0.12796)
+  testGoodnessOfFitBetween(dataSeries, 0.9, 1.0)
+})
+
 function testLength (series, expectedValue) {
   assert.ok(series.length() === expectedValue, `Expected length should be ${expectedValue}, encountered a ${series.length()}`)
 }
