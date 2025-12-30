@@ -177,6 +177,7 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
           break
         case (squaredError > _sst):
           // This is a pretty bad fit as the error is bigger than just using the line for the average y as intercept
+          console.log('squaredError > _sst')
           return 0
           break
         case (_sst !== 0):
@@ -184,6 +185,7 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
           break
         default:
           // When _SST = 0, localGoodnessOfFit isn't defined
+          console.log('_sst === 0')
           return 0
       }
       /* eslint-enable no-unreachable */
