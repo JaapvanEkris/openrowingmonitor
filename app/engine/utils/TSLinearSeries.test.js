@@ -30,7 +30,7 @@ test('Correct behaviour of a series after initialisation', () => {
   testLocalGoodnessOfFitEquals(dataSeries, 0, 0)
 })
 
-test('Correct behaviour of a series after several puhed values, function y = 3x + 6, noisefree, 1 datapoint', () => {
+test('Correct behaviour of a series after several puhed values, function y = 3x - 6, noisefree, 1 datapoint', () => {
   const dataSeries = createTSLinearSeries(3)
   testLength(dataSeries, 0)
   dataSeries.push(5, 9)
@@ -55,7 +55,7 @@ test('Correct behaviour of a series after several puhed values, function y = 3x 
   testLocalGoodnessOfFitEquals(dataSeries, 0, 0)
 })
 
-test('Correct behaviour of a series after several puhed values, function y = 3x + 6, noisefree, 2 datapoints', () => {
+test('Correct behaviour of a series after several puhed values, function y = 3x - 6, noisefree, 2 datapoints', () => {
   const dataSeries = createTSLinearSeries(3)
   dataSeries.push(5, 9)
   dataSeries.push(3, 3)
@@ -81,7 +81,7 @@ test('Correct behaviour of a series after several puhed values, function y = 3x 
   testLocalGoodnessOfFitEquals(dataSeries, 1, 1)
 })
 
-test('Correct behaviour of a series after several puhed values, function y = 3x + 6, noisefree, 3 datapoints', () => {
+test('Correct behaviour of a series after several puhed values, function y = 3x - 6, noisefree, 3 datapoints', () => {
   const dataSeries = createTSLinearSeries(3)
   dataSeries.push(5, 9)
   dataSeries.push(3, 3)
@@ -109,7 +109,7 @@ test('Correct behaviour of a series after several puhed values, function y = 3x 
   testLocalGoodnessOfFitEquals(dataSeries, 2, 1)
 })
 
-test('Correct behaviour of a series after several puhed values, function y = 3x + 6, noisefree, 4 datapoints', () => {
+test('Correct behaviour of a series after several puhed values, function y = 3x - 6, noisefree, 4 datapoints', () => {
   const dataSeries = createTSLinearSeries(3)
   dataSeries.push(5, 9)
   dataSeries.push(3, 3)
@@ -139,7 +139,7 @@ test('Correct behaviour of a series after several puhed values, function y = 3x 
   testLocalGoodnessOfFitEquals(dataSeries, 3, 1)
 })
 
-test('Correct behaviour of a series after several puhed values, function y = 3x + 6, noisefree, 5 datapoints', () => {
+test('Correct behaviour of a series after several puhed values, function y = 3x - 6, noisefree, 5 datapoints', () => {
   const dataSeries = createTSLinearSeries(3)
   dataSeries.push(5, 9)
   dataSeries.push(3, 3)
@@ -171,7 +171,7 @@ test('Correct behaviour of a series after several puhed values, function y = 3x 
   testLocalGoodnessOfFitEquals(dataSeries, 4, 1)
 })
 
-test('Correct behaviour of a series after several puhed values, function y = 3x + 6, noisefree, 4 datapoints and a reset', () => {
+test('Correct behaviour of a series after several puhed values, function y = 3x - 6, noisefree, 4 datapoints and a reset', () => {
   const dataSeries = createTSLinearSeries(3)
   dataSeries.push(5, 9)
   dataSeries.push(3, 3)
@@ -199,7 +199,7 @@ test('Correct behaviour of a series after several puhed values, function y = 3x 
   testLocalGoodnessOfFitEquals(dataSeries, 0, 0)
 })
 
-test('Series with 5 elements, with 2 noisy datapoints', () => {
+test('Series for function y = 3x - 6, with 5 elements, with 2 noisy datapoints', () => {
   const dataSeries = createTSLinearSeries(5)
   dataSeries.push(5, 9)
   dataSeries.push(3, 2)
@@ -209,7 +209,7 @@ test('Series with 5 elements, with 2 noisy datapoints', () => {
   testSlopeBetween(dataSeries, 2.9, 3.1)
   testInterceptBetween(dataSeries, -6.3, -5.8)
   testGoodnessOfFitBetween(dataSeries, 0.9, 1.0)
-  testLocalGoodnessOfFitEquals(dataSeries, 0, 1)
+  testLocalGoodnessOfFitEquals(dataSeries, 0, 0.9645892351274787)
   testLocalGoodnessOfFitEquals(dataSeries, 1, 1)
   testLocalGoodnessOfFitEquals(dataSeries, 2, 1)
   testLocalGoodnessOfFitEquals(dataSeries, 3, 1)
@@ -288,7 +288,7 @@ function testGoodnessOfFitBetween (series, expectedValueAbove, expectedValueBelo
 }
 
 function testLocalGoodnessOfFitEquals (series, position, expectedValue) {
-  assert.ok(series.localGoodnessOfFit(position) === expectedValue, `Expected localGoodnessOfFit at position ${position}to be ${expectedValue}, encountered ${series.localGoodnessOfFit(position)}`)
+  assert.ok(series.localGoodnessOfFit(position) === expectedValue, `Expected localGoodnessOfFit at position ${position} to be ${expectedValue}, encountered ${series.localGoodnessOfFit(position)}`)
 }
 
 test.run()
