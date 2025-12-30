@@ -192,6 +192,8 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
       }
       /* eslint-enable no-unreachable */
     } else {
+      // eslint-disable-next-line no-console
+      console.log('_sst === 0')
       return 0
     }
   }
