@@ -113,12 +113,12 @@ export function createFlywheel (rowerSettings) {
       _torqueBeforeFlank = 0
     }
 
-    currentDt.applyFilter(dataPoint, totalNumberOfImpulses + flankLength)
-    totalTime += currentDt.clean.atSeriesEnd()
+    const cleanCurrentDt = currentDt.applyFilter(dataPoint, totalNumberOfImpulses + flankLength)
+    totalTime += cleanCurrentDt.value
     currentAngularDistance += angularDisplacementPerImpulse
 
     // Let's feed the stroke detection algorithm
-    _deltaTime.push(totalTime, currentDt.clean.atSeriesEnd())
+    _deltaTime.push(totalTime, cleanCurrentDt.value)
 
     // Calculate the metrics that are needed for more advanced metrics, like the foce curve
     _angularDistance.push(totalTime, currentAngularDistance)
