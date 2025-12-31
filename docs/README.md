@@ -14,7 +14,7 @@ OpenRowingMonitor runs fine on any rowing machine, as long as you can add someth
 
 ## Features
 
-OpenRowingMonitor can provide you with metrics directly, via smartwatches (ANT+), apps and games (bluetooth) and Home Automation (MQTT). It also allows you to export your data to the analysis tool of your choice.
+OpenRowingMonitor provides you with metrics directly, via smartwatches (ANT+), apps and games (bluetooth) and Home Automation (MQTT). You can also export your data to the analysis tool of your choice.
 
 <!-- markdownlint-disable-next-line no-inline-html -->
 <img src="img/openrowingmonitor_frontend.png" alt="Image showing the main OpenRowingMonitor screen" title="The main screen" width="700"><br clear="left">
@@ -42,26 +42,24 @@ OpenRowingMonitor can display the following key metrics on the user interface:
 * Distance per stroke (meters)
 * Force curve with Peak power (Newtons)
 
-It calculates and can export many other key rowing metrics, including Recovery Heart Rate, Average handle force (Newton), Peak handle force (Newton) and the associated handle force curve, handle velocity curve and handle power curve.
+It also calculates and exports many other key rowing metrics, including Recovery Heart Rate, Average handle force (Newton), Peak handle force (Newton) and the associated handle force curve, handle velocity curve and handle power curve.
 
 ### Web Interface
 
-The web interface visualizes the basic rowing metrics on any device that can run a web browser (i.e. a smartphone that you attach to your rowing machine while training) in realtime. You can set up the user interface as you like, with the metrics you find important:
+The web interface shows the basic rowing metrics on any device that can run a web browser (i.e. a smartphone that you attach to your rowing machine while training) in realtime. You can set up the user interface as you like, with the metrics you find important:
 
 <!-- markdownlint-disable-next-line no-inline-html -->
 <img src="img/Metrics_Selection.png" title="The metrics selection screen" alt="Image showing the metrics selection screen" width="700"><br clear="left">
 
-Via the Action tile, it can also be used to reset the training metrics and to select the type of bluetooth and ANT+ connection.
-
-If you connect a (optional) physical screen directly to the Raspberry Pi, then this interface can also be directly shown on the device. The installation script can set up a web browser in kiosk mode that runs on the Raspberry Pi.
+If you connect a (optional) physical screen directly to the Raspberry Pi, then this interface can also be directly shown on the device. The installation script helps you set this up.
 
 ### Device connections via Bluetooth, ANT+ and MQTT
 
-OpenRowingMonitor can receive heartrate data via Bluetooth Low Energy (BLE) and ANT+. But you can also share your rowing metrics with different applications and devices. We support most common industry standards to help you connect to your app and game of choice, OpenRowingMonitor currently supports the following protocols:
+OpenRowingMonitor can recieve heartrate data via Bluetooth Low Energy (BLE) and ANT+. But you can also share your rowing metrics with different applications and devices. We support most common industry standards to help you connect to your app and game of choice. OpenRowingMonitor currently supports the following protocols:
 
-* **Concept2 PM**: OpenRowingMonitor can simulate a Concept2 PM5, providing compatibility with most rowing apps. This implements the most common parts of the spec, so it might not work with all applications. It is known to work with [EXR](https://www.exrgame.com) (preferred method), [ErgZone](https://Erg.Zone), [Kinomap](https://www.kinomap.com) and all the samples from [The Erg Arcade](https://ergarcade.com).
+* **Concept2 PM**: OpenRowingMonitor can simulate a Concept2 PM5, which is compatible with most rowing apps. This implements the most common parts of the specificarion, so it might not work with all applications. It is known to work with [EXR](https://www.exrgame.com) (preferred method), [ErgZone](https://Erg.Zone), [Kinomap](https://www.kinomap.com) and all the samples from [The Erg Arcade](https://ergarcade.com).
 
-* **FTMS Rower**: This is the FTMS profile for rowing machines and supports all rowing specific metrics (such as stroke rate). We've successfully tested it with [EXR](https://www.exrgame.com), [Peleton](https://www.onepeloton.com/app), [MyHomeFit](https://myhomefit.de) and [Kinomap](https://www.kinomap.com).
+* **FTMS Rower**: This is the FTMS profile for rowing machines and supports all key rowing specific metrics (such as pace and stroke rate). We've successfully tested it with [EXR](https://www.exrgame.com), [Peleton](https://www.onepeloton.com/app), [MyHomeFit](https://myhomefit.de) and [Kinomap](https://www.kinomap.com).
 
 * **ANT+ FE-C**: OpenRowingMonitor can broadcast rowing metrics via ANT+ FE-C, which can be received by several series of Garmin smartwatches like the Epix/Fenix series, which then can calculate metrics like training load etc..
 
@@ -100,7 +98,7 @@ You will need a Raspberry Pi Zero 2 W, Raspberry Pi 3, Raspberry Pi 4 with a fre
 
 ## Further information
 
-This project is in a very stable stage, as it is used daily by many rowers, and the engine is structurally validated against the Concept2 PM5. OpenRowingMonitor is tested extensively for weeks before being released to mainstream users. However, it might contain some things that are still a bit rough on the edges.
+This project is in a very stable stage, as it is used daily by many rowers. The engine is structurally validated against the Concept2 PM5. OpenRowingMonitor usually is tested extensively for weeks before being released to mainstream users. However, it might contain some things that are still a bit rough on the edges.
 
 This is a larger team effort and OpenRowingMonitor had much direct and indirect support by many people during the years, see the [Attribution to these people here](attribution.md). You can see its development throughout the years [here in the Release notes](Release_Notes.md). Our work is never done, so more functionality will be added in the future, so check the [Development Roadmap](backlog.md) if you are curious.
 

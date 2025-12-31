@@ -349,6 +349,9 @@ After getting the stroke detection right, we now turn to getting the basic linea
 
 This results in a number, which works and can't be compared to anything else on the planet as that drag factor is highly dependent on the physical construction of the flywheel and mechanical properties of the transmission of power to the flywheel. For example, the Drag Factor for a Concept 2 ranges between 69 (Damper setting 1) and 220 (Damper setting 10). The NordicTrack RX-800 ranges from 150 to 450, where the 150 feels much lighter than a 150 on the Concept2. The Sportstech WRX700 water rower has a drag factor of 32000.
 
+> [!TIP]
+> Please realize that changing the `dragfactor` wil affect stroke detection of the first stroke, and all subsequent strokes if `autoAdjustDragFactor` is false, as increasing it makes the reported forces on the flywheel bigger. So the `minimumForceBeforeStroke` might need adjustment too.
+
 ### Setting the flywheel inertia
 
 **flywheelInertia** is the moment of inertia of the flywheel (in kg\*m<sup>2</sup>), which in practice influences the dynamically calculated dragfactor (and thus power, distance, speed and pace), but also the calculated force and power on the handle. A formal way to measure it is outlined in [Flywheel moment of inertia](https://dvernooy.github.io/projects/ergware/). However, the most practical way to set it is by rowing and see if the calculated drag factor approximates the previously set dragfactor needed to get a certain pace.
@@ -362,6 +365,9 @@ The easiest way to test this value is by rowing (or simulating rowing): in the l
 If your flywheel inertia is set correctly, the calculated drag factor will be very close to the drag factor you set manually. Please look at the "Goodness of Fit" before using the data. Due to noise, the dragfactor sometimes can't be calculated accurately, which is reflected in this Goodness of Fit being low. So when comparing the calculated dragfactor with the manually determned dragfactor, use the calculated dragffactors where the Goodness of Fit is highest.
 
 Please note that this logmessage will change when autoAdjustDragFactor is set to true, but this content will always be reported in debug mode.
+
+> [!TIP]
+> Please realize that changing the `flywheelInertia` wil affect stroke detection if `autoAdjustDragFactor` is true, as increasing it makes the reported forces on the flywheel bigger. So the `minimumForceBeforeStroke` might need adjustment too.
 
 ## Settings you COULD change for a new rower
 

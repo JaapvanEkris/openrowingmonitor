@@ -1,18 +1,32 @@
 # OpenRowingMonitor Release Notes
 
+## Version 0.9.7 (January 2026)
+
+Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris), with support of [Abasz](https://github.com/Abasz)
+
+### New functionality in 0.9.7
+
+- **Addition of the 'Calories' workout type**. You can now program Intervals and splits based on calories to be burned
+- **Introduction of splits in the fit-file**. The fit-file now also has splits, which makes the fit-file closer to a native Garmin recording of the same session
+
+### Bugfixes and robustness improvements in 0.9.7
+
+- **Improvement of the Moving Least Squares regressor**:
+  - Code refactoring to isolate this function from `Flywheel.js`, allowing a more thorough testing of this function's behaviour
+  - Introduced the 'Local Goodness of Fit' function to improve the robustness against noise. This reduces the effect of outliers on stroke detection, the Force curve, Power curve and Handle speed curve
+  - Introduction of a 'Gaussian Weight' filter to reduce the effects of flanks on the regression in a specific datapoint
+  - Added documentation about the mathematical foundations of the algorithms used
+- **Upgrade of the flywheel systematic error filter**, which now can handle systematic errors of magnet positioning on the flywheel. This is more effective at reducing structural measurement noise and allows a reduction of the code complexity in `Flyhweel.js` as all dependent algorithms can use the same datastream again.
+- **Fixed a bug in the initialisation of the `Flywheel.js`**
+- **Improved logging in the Strava uploader** for better troubleshooting (see [issue 145](https://github.com/JaapvanEkris/openrowingmonitor/issues/145))
+- **Fixed a bug where VO2Max calculation missed heartrate data** (see [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/156))
+- **Increased the test coverage of key algorithms**
+
 ## Version 0.9.6 (June 2025)
 
 Main contributors: [Abasz](https://github.com/Abasz) and [Jaap van Ekris](https://github.com/JaapvanEkris)
 
 Beta testers: [fkh-bims](https://github.com/fkh-bims), [jryd2000](https://github.com/jryd2000) and [carlito1979](https://github.com/carlito1979)
-
-### Upgrade instructions for 0.9.6
-
-> [!IMPORTANT]
-> When upgrading from an existing install, several things have to be done by hand:
->
-> - If you use an attached screen, you need to install firefox by `sudo apt-get install firefox`
-> - If you use the automated Strava upload, you have to configure your Strava setup in `config.js` again. Please look at the [integrations manual](Integrations.md) for how to do this.
 
 ### New functionality in 0.9.6
 
@@ -59,7 +73,7 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz]
 
 ### Known issues in 0.9.5
 
-- **Bluetooth Heartrate can't be switched dynamically**: due to some underlying OS changes, BLE heartrate monitors can't be activated through the GUI without crashing the BLE metrics broadcast (see [the description of issue 69](https://github.com/JaapvanEkris/openrowingmonitor/issues/69)). As this is an issue in the OS, **all current and previous versions of OpenRowingMonitor are also affected by this issue**. Version 0.9.5 has a workaround implemented: configuring the use of a BLE heartrate monitor in the config file should work. However, dynamic switching via the GUI will crash the BLE connections. This issue is resolved in version 0.9.6.
+- **Bluetooth Heartrate can't be switched dynamically**: due to some underlying OS changes, BLE heartrate monitors can't be activated through the GUI without crashing the BLE metrics broadcast (see [the description of issue 69](https://github.com/JaapvanEkris/openrowingmonitor/issues/69)). As this is an issue in the OS, **all current and previous versions of OpenRowingMonitor are also affected by this issue**. Version 0.9.5 has a workaround implemented: configuring the use of a BLE heartrate monitor in the config file should work. However, dynamic switching via the GUI will crash the BLE connections. This issue has been resolved in version 0.9.6.
 
 ## Version 0.9.0 (January 2024)
 
@@ -80,7 +94,7 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris), [Abasz](ht
 - **Added a configuration sanity check** which logs obvious errors and (if possible) repairs settings, after several users messed up their config and got completely stuck. This configuration sanity check also provides an automated upgrade path for 0.8.2 (old config) users to 0.9.0 (new config), as all the newly added configuration items between these two versions are automatically detected, logged and repaired.
 - **Added restart limits** to prevent infinite boot loops of the app crashing and rebooting when there is a config error
 - **Fixed the GPIO tick rollover**, which led to a minor hickup in data in rows over 30 minutes
-- **Made Flywheel.js more robust** against faulty GPIO data
+- **Made `Flywheel.js` more robust** against faulty GPIO data
 - **Fixed a lot of small memory leaks** which were to untidy closure of dynamic data structures. Although this wasn't encountered in regular training sessions, it did show in long simulations (over 10.000K);
 - **Fixed an application crash** in the RowingData generation when the target directory doesn't exist yet;
 - **Improved the structure of the peripherals** to allow a more robust BLE and ANT use
@@ -101,15 +115,15 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz]
 - **Improved metrics through BLE FTMS and BLE C2-PM5**: Based on the new engine, many metrics are added to both FTMS Rower and PM5, making them as complete as they can be. Most metrics also have over a 1000 km of testing with EXR, and both types of interface have been used with EXR intensly.
 - **New export format**: There is a RowingData export, which can export all metrics in .csv, which is accepted by both RowingData and RowsAndAll. It is also useable for users to read their data into Excel. This export brings the force curve to users, although it will require a small subscription to see it in RowsAndAll;
 - **Simpler set-up**: a better out-of-the-box experience for new users. We trimmed the number of required settings, and for many cases we’ve succeeded: several settings are brought down to their key elements (like a minimal handle force, which can be set more easily for all rowers) or can be told by looking at the logs (like the recovery slope). For several other settings, their need to set them perfectly has been reduced, requiring less tweaking before OpenRowingMonitor starts producing good data. To support this, there also is a new setup document, to help users set up their own rower;
-- **Switch to 64Bit**: OpenRowingMonitor supports the 64 Bit Lite core, which has a PREEEMPT-kernel. The setup-script accepts this as well, as this should be the preferred kernel to use. The PREEMPT-kernel is optimized for low latency measurements, like IoT applications. As PREEMPT kernels can handle a lot higher priority for the GPIO-thread, this setting has been switched from a binary setting to a priority setting.
-- **An initial stub for session mangement**: As a first step towards sessions and splits, a session object in Server.js is added as a placeholder for session targets. If a target is set, it will termintate the session at the exact right time. As is with the PM5, ORM counts down if a target is set. You can't set these targets through the webGUI or through BLE yet. However, it is a first step towards functional completeness as it lays a preliminary foundation for such functionality.
+- **An initial stub for session management**: As a first step towards sessions and splits, a session object in `Server.js` is added as a placeholder for session targets. If a target is set, it will termintate the session at the exact right time. As is with the PM5, ORM counts down if a target is set. You can't set these targets through the webGUI or through BLE yet. However, it is a first step towards functional completeness as it lays a preliminary foundation for such functionality.
 
 ### Bugfixes and robustness improvements in 0.8.4
 
 - **Totally redesigned rowing engine**: Linear and Quadratic Regression models are now the core of the rowing engine, leaving the classical numerical approximation model. The new model is much more robust against noise, and completely removes the need for noise filtering from OpenRowingMonitor.
+- **Switch to 64Bit**: OpenRowingMonitor supports the 64 Bit Lite core, which has a PREEEMPT-kernel. The setup-script accepts this as well, as this should be the preferred kernel to use. The PREEMPT-kernel is optimized for low latency measurements, like IoT applications. As PREEMPT kernels can handle a lot higher priority for the GPIO-thread, this setting has been switched from a binary setting to a priority setting.
 - **Improved logging**: the logging has been more focussed on helping the user fix a bad setting, focussing on the underlying state of the engine and its settings (for example the drive time and drive length). Goal is to have users be able to tune their engine based on the log.
 - **Finite State Machine based state management**: OpenRowingEngine will now maintain an explicit state for the rower, and RowingStatistics will maintain an explicit state for the session. Aside reducing the code complexity significantly, it greatly impoved robustness.
-- **Added a new GPIO-library**, making measurement of the flywheel data much more accurate and allowing to "debounce" the measurements, as many sensors have this issue
+- **Added a new GPIO-library**, making measurement of the flywheel data much more accurate and allowing to "debounce" the measurements, as many sensors have this issue (see [issue 85](https://github.com/laberning/openrowingmonitor/issues/85))
 
 ## Version 0.8.2 (Febuary 2022)
 

@@ -5,10 +5,10 @@
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 
-import { createOLSLinearSeries } from './OLSLinearSeries.js'
+import { createWLSLinearSeries } from './WLSLinearSeries.js'
 
 test('Correct behaviour of a series after initialisation', () => {
-  const dataSeries = createOLSLinearSeries(3)
+  const dataSeries = createWLSLinearSeries(3)
   testLength(dataSeries, 0)
   testXAtSeriesBegin(dataSeries, 0)
   testYAtSeriesBegin(dataSeries, 0)
@@ -30,9 +30,9 @@ test('Correct behaviour of a series after initialisation', () => {
 })
 
 test('Correct behaviour of a series after several puhed values, function y = 3x + 6, noisefree, 1 datapoint', () => {
-  const dataSeries = createOLSLinearSeries(3)
+  const dataSeries = createWLSLinearSeries(3)
   testLength(dataSeries, 0)
-  dataSeries.push(5, 9)
+  dataSeries.push(5, 9, 1)
   testLength(dataSeries, 1)
   testXAtSeriesBegin(dataSeries, 5)
   testYAtSeriesBegin(dataSeries, 9)
@@ -54,9 +54,9 @@ test('Correct behaviour of a series after several puhed values, function y = 3x 
 })
 
 test('Correct behaviour of a series after several puhed values, function y = 3x + 6, noisefree, 2 datapoints', () => {
-  const dataSeries = createOLSLinearSeries(3)
-  dataSeries.push(5, 9)
-  dataSeries.push(3, 3)
+  const dataSeries = createWLSLinearSeries(3)
+  dataSeries.push(5, 9, 1)
+  dataSeries.push(3, 3, 1)
   testLength(dataSeries, 2)
   testXAtSeriesBegin(dataSeries, 5)
   testYAtSeriesBegin(dataSeries, 9)
@@ -78,10 +78,10 @@ test('Correct behaviour of a series after several puhed values, function y = 3x 
 })
 
 test('Correct behaviour of a series after several puhed values, function y = 3x + 6, noisefree, 3 datapoints', () => {
-  const dataSeries = createOLSLinearSeries(3)
-  dataSeries.push(5, 9)
-  dataSeries.push(3, 3)
-  dataSeries.push(4, 6)
+  const dataSeries = createWLSLinearSeries(3)
+  dataSeries.push(5, 9, 1)
+  dataSeries.push(3, 3, 1)
+  dataSeries.push(4, 6, 1)
   testLength(dataSeries, 3)
   testXAtSeriesBegin(dataSeries, 5)
   testYAtSeriesBegin(dataSeries, 9)
@@ -103,11 +103,11 @@ test('Correct behaviour of a series after several puhed values, function y = 3x 
 })
 
 test('Correct behaviour of a series after several puhed values, function y = 3x + 6, noisefree, 4 datapoints', () => {
-  const dataSeries = createOLSLinearSeries(3)
-  dataSeries.push(5, 9)
-  dataSeries.push(3, 3)
-  dataSeries.push(4, 6)
-  dataSeries.push(6, 12)
+  const dataSeries = createWLSLinearSeries(3)
+  dataSeries.push(5, 9, 1)
+  dataSeries.push(3, 3, 1)
+  dataSeries.push(4, 6, 1)
+  dataSeries.push(6, 12, 1)
   testLength(dataSeries, 3)
   testXAtSeriesBegin(dataSeries, 3)
   testYAtSeriesBegin(dataSeries, 3)
@@ -129,12 +129,12 @@ test('Correct behaviour of a series after several puhed values, function y = 3x 
 })
 
 test('Correct behaviour of a series after several puhed values, function y = 3x + 6, noisefree, 5 datapoints', () => {
-  const dataSeries = createOLSLinearSeries(3)
-  dataSeries.push(5, 9)
-  dataSeries.push(3, 3)
-  dataSeries.push(4, 6)
-  dataSeries.push(6, 12)
-  dataSeries.push(1, -3)
+  const dataSeries = createWLSLinearSeries(3)
+  dataSeries.push(5, 9, 1)
+  dataSeries.push(3, 3, 1)
+  dataSeries.push(4, 6, 1)
+  dataSeries.push(6, 12, 1)
+  dataSeries.push(1, -3, 1)
   testLength(dataSeries, 3)
   testXAtSeriesBegin(dataSeries, 4)
   testYAtSeriesBegin(dataSeries, 6)
@@ -156,11 +156,11 @@ test('Correct behaviour of a series after several puhed values, function y = 3x 
 })
 
 test('Correct behaviour of a series after several puhed values, function y = 3x + 6, noisefree, 4 datapoints and a reset', () => {
-  const dataSeries = createOLSLinearSeries(3)
-  dataSeries.push(5, 9)
-  dataSeries.push(3, 3)
-  dataSeries.push(4, 6)
-  dataSeries.push(6, 12)
+  const dataSeries = createWLSLinearSeries(3)
+  dataSeries.push(5, 9, 1)
+  dataSeries.push(3, 3, 1)
+  dataSeries.push(4, 6, 1)
+  dataSeries.push(6, 12, 1)
   dataSeries.reset()
   testLength(dataSeries, 0)
   testXAtSeriesBegin(dataSeries, 0)
@@ -183,15 +183,47 @@ test('Correct behaviour of a series after several puhed values, function y = 3x 
 })
 
 test('Series with 5 elements, with 2 noisy datapoints', () => {
-  const dataSeries = createOLSLinearSeries(5)
-  dataSeries.push(5, 9)
-  dataSeries.push(3, 2)
-  dataSeries.push(4, 7)
-  dataSeries.push(6, 12)
-  dataSeries.push(1, -3)
+  const dataSeries = createWLSLinearSeries(5)
+  dataSeries.push(5, 9, 1)
+  dataSeries.push(3, 2, 1)
+  dataSeries.push(4, 7, 1)
+  dataSeries.push(6, 12, 1)
+  dataSeries.push(1, -3, 1)
   testSlopeBetween(dataSeries, 2.9, 3.1)
   testInterceptBetween(dataSeries, -6.3, -5.8)
   testGoodnessOfFitBetween(dataSeries, 0.9, 1.0)
+})
+
+// Test based on the Galton dataset, using unweighted (=OLS) regression
+// Example found at https://online.stat.psu.edu/stat501/lesson/13/13.1
+test('Unweighted series with 7 elements based on Galton dataset (OLS)', () => {
+  const dataSeries = createWLSLinearSeries(7)
+  dataSeries.push(0.21, 0.1726, 1)
+  dataSeries.push(0.2, 0.1707, 1)
+  dataSeries.push(0.19, 0.1637, 1)
+  dataSeries.push(0.18, 0.164, 1)
+  dataSeries.push(0.17, 0.1613, 1)
+  dataSeries.push(0.16, 0.1617, 1)
+  dataSeries.push(0.15, 0.1598, 1)
+  testSlopeEquals(dataSeries, 0.2100000000000111)
+  testInterceptEquals(dataSeries, 0.12702857142856944)
+  testGoodnessOfFitEquals(dataSeries, 0.8553954556248868)
+})
+
+// Test based on the Galton dataset, using weighted (=WLS) regression
+// Example found at https://online.stat.psu.edu/stat501/lesson/13/13.1
+test('Weighted series with 7 elements based on Galton dataset (WLS)', () => {
+  const dataSeries = createWLSLinearSeries(7)
+  dataSeries.push(0.21, 0.1726, 2530.272176)
+  dataSeries.push(0.2, 0.1707, 2662.5174)
+  dataSeries.push(0.19, 0.1637, 2781.783546)
+  dataSeries.push(0.18, 0.164, 2410.004991)
+  dataSeries.push(0.17, 0.1613, 3655.35019)
+  dataSeries.push(0.16, 0.1617, 3935.712498)
+  dataSeries.push(0.15, 0.1598, 3217.328273)
+  testSlopeEquals(dataSeries, 0.20480116324222641)
+  testInterceptEquals(dataSeries, 0.12796416521509518)
+  testGoodnessOfFitEquals(dataSeries, 0.8521213232768868)
 })
 
 function testLength (series, expectedValue) {

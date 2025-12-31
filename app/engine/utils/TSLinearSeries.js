@@ -1,26 +1,27 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  The TSLinearSeries is a datatype that represents a Linear Series. It allows
-  values to be retrieved (like a FiFo buffer, or Queue) but it also includes
-  a Theil-Sen estimator Linear Regressor to determine the slope of this timeseries.
-
-  At creation its length is determined. After it is filled, the oldest will be pushed
-  out of the queue) automatically. This is a property of the Series object
-
-  A key constraint is to prevent heavy calculations at the end (due to large
-  array based curve fitting), which might happen on a Pi zero
-
-  In order to prevent unneccessary calculations, this implementation uses lazy evaluation,
-  so it will calculate the intercept and goodnessOfFit only when needed, as many uses only
-  (first) need the slope.
-
-  This implementation uses concepts that are described here:
-  https://en.wikipedia.org/wiki/Theil%E2%80%93Sen_estimator
-
-  The array is ordered such that x[0] is the oldest, and x[x.length-1] is the youngest
 */
+/**
+ * The TSLinearSeries is a datatype that represents a Linear Series. It allows
+ * values to be retrieved (like a FiFo buffer, or Queue) but it also includes
+ * a Theil-Sen estimator Linear Regressor to determine the slope of this timeseries.
+ *
+ * At creation its length is determined. After it is filled, the oldest will be pushed
+ * out of the queue) automatically. This is a property of the Series object
+ *
+ * A key constraint is to prevent heavy calculations at the end (due to large
+ * array based curve fitting), which might happen on a Pi zero
+ *
+ * In order to prevent unneccessary calculations, this implementation uses lazy evaluation,
+ * so it will calculate the intercept and goodnessOfFit only when needed, as many uses only
+ * (first) need the slope.
+ *
+ * This implementation uses concepts that are described here:
+ * https://en.wikipedia.org/wiki/Theil%E2%80%93Sen_estimator
+ *
+ * The array is ordered such that x[0] is the oldest, and x[x.length-1] is the youngest
+ */
 
 import { createSeries } from './Series.js'
 import { createLabelledBinarySearchTree } from './BinarySearchTree.js'
@@ -28,6 +29,9 @@ import { createLabelledBinarySearchTree } from './BinarySearchTree.js'
 import loglevel from 'loglevel'
 const log = loglevel.getLogger('RowingEngine')
 
+/**
+ * @param {integer} the maximum length of the quadratic series, 0 for unlimited
+ */
 export function createTSLinearSeries (maxSeriesLength = 0) {
   const X = createSeries(maxSeriesLength)
   const Y = createSeries(maxSeriesLength)
@@ -35,11 +39,16 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
 
   let _A = 0
   let _B = 0
+  let _sst = 0
   let _goodnessOfFit = 0
 
+  /**
+   * @param {float} the x value of the datapoint
+   * @param {float} the y value of the datapoint
+   * Invariant: BinarySearchTree A contains all calculated a's (as in the general formula y = a * x + b),
+   * where the a's are labeled in the BinarySearchTree with their Xi when they BEGIN in the point (Xi, Yi)
+   */
   function push (x, y) {
-    // Invariant: A contains all a's (as in the general formula y = a * x + b)
-    // Where the a's are labeled in the Binary Search Tree with their xi when they BEGIN in the point (xi, yi)
     if (x === undefined || isNaN(x) || y === undefined || isNaN(y)) { return }
 
     if (maxSeriesLength > 0 && X.length() >= maxSeriesLength) {
@@ -57,7 +66,7 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
       let i = 0
       while (i < X.length() - 1) {
         // Calculate the slope with all preceeding datapoints and X.length() - 1'th datapoint (as the array starts at zero)
-        A.push(X.get(i), calculateSlope(i, X.length() - 1))
+        A.push(X.get(i), calculateSlope(i, X.length() - 1), 1)
         i++
       }
     }
@@ -71,57 +80,74 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
 
     // Invalidate the previously calculated intercept and goodnessOfFit. We'll only calculate them if we need them
     _B = null
+    _sst = null
     _goodnessOfFit = null
   }
 
+  /**
+   * @returns {float} the slope of the linear function
+   */
   function slope () {
     return _A
   }
 
+  /**
+   * @returns {float} the intercept of the linear function
+   */
   function intercept () {
     calculateIntercept()
     return _B
   }
 
+  /**
+   * @returns {float} the coefficient a of the linear function y = a * x + b
+   */
   function coefficientA () {
-    // For testing purposses only!
     return _A
   }
 
+  /**
+   * @returns {float} the coefficient b of the linear function y = a * x + b
+   */
   function coefficientB () {
-    // For testing purposses only!
     calculateIntercept()
     return _B
   }
 
+  /**
+   * @returns {integer} the lenght of the stored series
+   */
   function length () {
     return X.length()
   }
 
+  /**
+   * @returns {float} the R^2 as a goodness of fit indicator
+   * It will automatically recalculate the _goodnessOfFit when it isn't defined
+   * This lazy approach is intended to prevent unneccesary calculations, especially when there is a batch of datapoint pushes
+   * from the TSQuadratic regressor processing its linear residu
+   */
   function goodnessOfFit () {
-    // This function returns the R^2 as a goodness of fit indicator
-    // It will automatically recalculate the _goodnessOfFit when it isn't defined
-    // This lazy approach is intended to prevent unneccesary calculations
     let i = 0
     let sse = 0
-    let sst = 0
     if (_goodnessOfFit === null) {
       if (X.length() >= 2) {
+        _sst = 0
         while (i < X.length()) {
           sse += Math.pow((Y.get(i) - projectX(X.get(i))), 2)
-          sst += Math.pow((Y.get(i) - Y.average()), 2)
+          _sst += Math.pow((Y.get(i) - Y.average()), 2)
           i++
         }
         switch (true) {
           case (sse === 0):
             _goodnessOfFit = 1
             break
-          case (sse > sst):
+          case (sse > _sst):
             // This is a pretty bad fit as the error is bigger than just using the line for the average y as intercept
             _goodnessOfFit = 0
             break
-          case (sst !== 0):
-            _goodnessOfFit = 1 - (sse / sst)
+          case (_sst !== 0):
+            _goodnessOfFit = 1 - (sse / _sst)
             break
           default:
             // When SST = 0, R2 isn't defined
@@ -134,6 +160,42 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
     return _goodnessOfFit
   }
 
+  /**
+   * @returns {float} the local R^2 as a local goodness of fit indicator
+   */
+  function localGoodnessOfFit (position) {
+    if (_sst === null) {
+      // Force the recalculation of the _sst
+      goodnessOfFit()
+    }
+    if (X.length() >= 2 && position < X.length()) {
+      const squaredError = Math.pow((Y.get(position) - projectX(X.get(position))), 2)
+      /* eslint-disable no-unreachable -- rather be systematic and add a break in all case statements */
+      switch (true) {
+        case (squaredError === 0):
+          return 1
+          break
+        case (squaredError > _sst):
+          // This is a pretty bad fit as the error is bigger than just using the line for the average y as intercept
+          return 0
+          break
+        case (_sst !== 0):
+          return Math.min(Math.max(1 - ((squaredError * X.length()) / _sst), 0), 1)
+          break
+        default:
+          // When _SST = 0, localGoodnessOfFit isn't defined
+          return 0
+      }
+      /* eslint-enable no-unreachable */
+    } else {
+      return 0
+    }
+  }
+
+  /**
+   * @param {float} the x value to be projected
+   * @returns {float} the resulting y value when projected via the linear function
+   */
   function projectX (x) {
     if (X.length() >= 2) {
       calculateIntercept()
@@ -143,6 +205,10 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
     }
   }
 
+  /**
+   * @param {float} the y value to be projected
+   * @returns {float} the resulting x value when projected via the linear function
+   */
   function projectY (y) {
     if (X.length() >= 2 && _A !== 0) {
       calculateIntercept()
@@ -183,6 +249,9 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
     B.reset()
   }
 
+  /**
+   * @returns {boolean} whether the linear regression should be considered reliable to produce results
+   */
   function reliable () {
     return (X.length() >= 2)
   }
@@ -209,6 +278,7 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
     coefficientB,
     length,
     goodnessOfFit,
+    localGoodnessOfFit,
     projectX,
     projectY,
     reliable,

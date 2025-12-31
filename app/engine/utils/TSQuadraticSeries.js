@@ -1,36 +1,40 @@
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  The FullTSQuadraticSeries is a datatype that represents a Quadratic Series. It allows
-  values to be retrieved (like a FiFo buffer, or Queue) but it also includes
-  a Theil-Sen Quadratic Regressor to determine the coefficients of this dataseries.
-
-  At creation its length is determined. After it is filled, the oldest will be pushed
-  out of the queue) automatically.
-
-  A key constraint is to prevent heavy calculations at the end of a stroke (due to large
-  array based curve fitting), which might be performed on a Pi zero or Zero 2W
-
-  In order to prevent unneccessary calculations, this implementation uses lazy evaluation,
-  so it will calculate the B, C and goodnessOfFit only when needed, as many uses only
-  (first) need the first and second direvative.
-
-  The Theil-Senn implementation uses concepts that are described here:
-  https://stats.stackexchange.com/questions/317777/theil-sen-estimator-for-polynomial,
-
-  The determination of the coefficients is based on the Lagrange interpolation, which is descirbed here:
-  https://www.quora.com/How-do-I-find-a-quadratic-equation-from-points/answer/Robert-Paxson,
-  https://www.physicsforums.com/threads/quadratic-equation-from-3-points.404174/
 */
+/**
+ * The FullTSQuadraticSeries is a datatype that represents a Quadratic Series. It allows
+ * values to be retrieved (like a FiFo buffer, or Queue) but it also includes
+ * a Theil-Sen Quadratic Regressor to determine the coefficients of this dataseries.
+ *
+ * At creation its maximum length is set. After the buffer is filled, the oldest will be pushed
+ * out of the buffer automatically.
+ *
+ * A key constraint is to prevent heavy calculations at the end of a stroke (due to large
+ * array based curve fitting), which might be performed on a Pi zero or Zero 2W
+ *
+ * In order to prevent unneccessary calculations, this implementation uses lazy evaluation,
+ * so it will calculate the B, C and goodnessOfFit only when needed, as many uses only
+ * (first) need the first and second direvative.
+ *
+ * The Theil-Senn implementation uses concepts that are described here:
+ * https://stats.stackexchange.com/questions/317777/theil-sen-estimator-for-polynomial,
+ *
+ * The determination of the coefficients is based on the Lagrange interpolation, which is descirbed here:
+ * https://www.quora.com/How-do-I-find-a-quadratic-equation-from-points/answer/Robert-Paxson,
+ * https://www.physicsforums.com/threads/quadratic-equation-from-3-points.404174/
+ */
 
 import { createSeries } from './Series.js'
-import { createTSLinearSeries } from './FullTSLinearSeries.js'
+import { createTSLinearSeries } from './TSLinearSeries.js'
 import { createLabelledBinarySearchTree } from './BinarySearchTree.js'
 
 import loglevel from 'loglevel'
 const log = loglevel.getLogger('RowingEngine')
 
+/**
+ * @param {integer} the maximum length of the quadratic series, 0 for unlimited
+ */
 export function createTSQuadraticSeries (maxSeriesLength = 0) {
   const X = createSeries(maxSeriesLength)
   const Y = createSeries(maxSeriesLength)
@@ -39,11 +43,16 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
   let _A = 0
   let _B = 0
   let _C = 0
+  let _sst = 0
   let _goodnessOfFit = 0
 
+  /**
+   * @param {float} the x value of the datapoint
+   * @param {float} the y value of the datapoint
+   * Invariant: BinrySearchTree A contains all calculated a's (as in the general formula y = a * x^2 + b * x + c),
+   * where the a's are labeled in the BinarySearchTree with their Xi when they BEGIN in the point (Xi, Yi)
+   */
   function push (x, y) {
-    // Invariant: A contains all a's (as in the general formula y = a * x^2 + b * x + c)
-    // Where the a's are labeled in the Binary Search Tree with their Xi when they BEGIN in the point (Xi, Yi)
     if (x === undefined || isNaN(x) || y === undefined || isNaN(y)) { return }
 
     if (maxSeriesLength > 0 && X.length() >= maxSeriesLength) {
@@ -66,7 +75,7 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
         while (i < X.length() - 2) {
           j = i + 1
           while (j < X.length() - 1) {
-            A.push(X.get(i), calculateA(i, j, X.length() - 1))
+            A.push(X.get(i), calculateA(i, j, X.length() - 1), 1)
             j++
           }
           i++
@@ -77,17 +86,23 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
         linearResidu.reset()
         _B = null
         _C = null
+        _sst = null
         _goodnessOfFit = null
         break
       default:
         _A = 0
         _B = 0
         _C = 0
+        _sst = 0
         _goodnessOfFit = 0
     }
   }
 
-  function firstDerivativeAtPosition (position) {
+  /**
+   * @param {integer} the position in the flank of the requested value (default = 0)
+   * @returns {float} the firdt derivative of the quadratic function y = a x^2 + b x + c
+   */
+  function firstDerivativeAtPosition (position = 0) {
     if (X.length() >= 3 && position < X.length()) {
       calculateB()
       return ((_A * 2 * X.get(position)) + _B)
@@ -96,7 +111,11 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     }
   }
 
-  function secondDerivativeAtPosition (position) {
+  /**
+   * @param {integer} the position in the flank of the requested value (default = 0)
+   * @returns {float} the second derivative of the quadratic function y = a x^2 + b x + c
+   */
+  function secondDerivativeAtPosition (position = 0) {
     if (X.length() >= 3 && position < X.length()) {
       return (_A * 2)
     } else {
@@ -104,6 +123,10 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     }
   }
 
+  /**
+   * @param {float} the x value of the requested value
+   * @returns {float} the slope of the linear function
+   */
   function slope (x) {
     if (X.length() >= 3) {
       calculateB()
@@ -113,59 +136,73 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     }
   }
 
+  /**
+   * @returns {float} the coefficient a of the quadratic function y = a x^2 + b x + c
+   */
   function coefficientA () {
-    // For testing purposses only!
     return _A
   }
 
+  /**
+   * @returns {float} the coefficient b of the quadratic function y = a x^2 + b x + c
+   */
   function coefficientB () {
-    // For testing purposses only!
     calculateB()
     return _B
   }
 
+  /**
+   * @returns {float} the coefficient c of the quadratic function y = a x^2 + b x + c
+   */
   function coefficientC () {
-    // For testing purposses only!
     calculateB()
     calculateC()
     return _C
   }
 
+  /**
+   * @returns {float} the intercept of the quadratic function
+   */
   function intercept () {
     calculateB()
     calculateC()
     return _C
   }
 
+  /**
+   * @returns {integer} the lenght of the stored series
+   */
   function length () {
     return X.length()
   }
 
+  /**
+   * @returns {float} the R^2 as a goodness of fit indicator
+   */
   function goodnessOfFit () {
-    // This function returns the R^2 as a goodness of fit indicator
     let i = 0
     let sse = 0
-    let sst = 0
     if (_goodnessOfFit === null) {
       if (X.length() >= 3) {
+        _sst = 0
         while (i < X.length()) {
           sse += Math.pow((Y.get(i) - projectX(X.get(i))), 2)
-          sst += Math.pow((Y.get(i) - Y.average()), 2)
+          _sst += Math.pow((Y.get(i) - Y.average()), 2)
           i++
         }
         switch (true) {
           case (sse === 0):
             _goodnessOfFit = 1
             break
-          case (sse > sst):
+          case (sse > _sst):
             // This is a pretty bad fit as the error is bigger than just using the line for the average y as intercept
             _goodnessOfFit = 0
             break
-          case (sst !== 0):
-            _goodnessOfFit = 1 - (sse / sst)
+          case (_sst !== 0):
+            _goodnessOfFit = 1 - (sse / _sst)
             break
           default:
-            // When SST = 0, R2 isn't defined
+            // When _SST = 0, R2 isn't defined
             _goodnessOfFit = 0
         }
       } else {
@@ -175,6 +212,42 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     return _goodnessOfFit
   }
 
+  /**
+   * @returns {float} the local R^2 as a local goodness of fit indicator
+   */
+  function localGoodnessOfFit (position) {
+    if (_sst === null) {
+      // Force the recalculation of the _sst
+      goodnessOfFit()
+    }
+    if (X.length() >= 3 && position < X.length()) {
+      const squaredError = Math.pow((Y.get(position) - projectX(X.get(position))), 2)
+      /* eslint-disable no-unreachable -- rather be systematic and add a break in all case statements */
+      switch (true) {
+        case (squaredError === 0):
+          return 1
+          break
+        case (squaredError > _sst):
+          // This is a pretty bad fit as the error is bigger than just using the line for the average y as intercept
+          return 0
+          break
+        case (_sst !== 0):
+          return Math.min(Math.max(1 - ((squaredError * X.length()) / _sst), 0), 1)
+          break
+        default:
+          // When _SST = 0, localGoodnessOfFit isn't defined
+          return 0
+      }
+      /* eslint-enable no-unreachable */
+    } else {
+      return 0
+    }
+  }
+
+  /**
+   * @param {float} the x value to be projected
+   * @returns {float} the resulting y value when projected via the linear function
+   */
   function projectX (x) {
     if (X.length() >= 3) {
       calculateB()
@@ -234,6 +307,9 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     }
   }
 
+  /**
+   * @returns {boolean} whether the quadratic regression should be considered reliable to produce results
+   */
   function reliable () {
     return (X.length() >= 3)
   }
@@ -265,6 +341,7 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     intercept,
     length,
     goodnessOfFit,
+    localGoodnessOfFit,
     projectX,
     reliable,
     reset

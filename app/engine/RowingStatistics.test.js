@@ -8,7 +8,7 @@
  * to Linear physics. The combination with all possible known rowers is tested when testing the above function RowingStatistics, as
  * these statistics are dependent on these settings as well.
 */
-// ToDo: test the effects of smoothing parameters
+// @ToDo: test the effects of smoothing parameters
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 import rowerProfiles from '../../config/rowerProfiles.js'
@@ -111,7 +111,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   rowingStatistics.handleRotationImpulse(0.010386684)
   testStrokeState(rowingStatistics, 'Drive')
   testTotalMovingTime(rowingStatistics, 0.077918634)
-  testTotalLinearDistance(rowingStatistics, 0.2491943602992768)
+  testTotalLinearDistance(rowingStatistics, 0.2135951659708087)
   testTotalNumberOfStrokes(rowingStatistics, 0)
   testCycleDuration(rowingStatistics, undefined) // still default value
   testCycleDistance(rowingStatistics, undefined)
@@ -143,17 +143,17 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   rowingStatistics.handleRotationImpulse(0.011209919)
   testStrokeState(rowingStatistics, 'Recovery')
   testTotalMovingTime(rowingStatistics, 0.23894732900000007)
-  testTotalLinearDistance(rowingStatistics, 0.7831822752262985)
+  testTotalLinearDistance(rowingStatistics, 0.7475830808978304)
   testTotalNumberOfStrokes(rowingStatistics, 0)
   testCycleDuration(rowingStatistics, undefined)
   testCycleDistance(rowingStatistics, undefined)
   testCycleLinearVelocity(rowingStatistics, undefined)
   testCyclePower(rowingStatistics, undefined)
   testDriveDuration(rowingStatistics, undefined)
-  testDriveDistance(rowingStatistics, 0.46278952627008546)
-  testDriveLength(rowingStatistics, 0.19058995431778075)
-  testDriveAverageHandleForce(rowingStatistics, 276.20193475035796)
-  testDrivePeakHandleForce(rowingStatistics, 325.1619554833936)
+  testDriveDistance(rowingStatistics, 0.4271903319416174)
+  testDriveLength(rowingStatistics, 0.1759291886010284)
+  testDriveAverageHandleForce(rowingStatistics, 276.6342676838766)
+  testDrivePeakHandleForce(rowingStatistics, 332.9918222212992)
   testRecoveryDuration(rowingStatistics, undefined)
   testDragFactor(rowingStatistics, undefined)
   testInstantHandlePower(rowingStatistics, undefined)
@@ -179,19 +179,19 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   rowingStatistics.handleRotationImpulse(0.010386684)
   testStrokeState(rowingStatistics, 'Drive')
   testTotalMovingTime(rowingStatistics, 0.44915539800000004)
-  testTotalLinearDistance(rowingStatistics, 1.828822466846578)
+  testTotalLinearDistance(rowingStatistics, 1.790756456114694)
   testTotalNumberOfStrokes(rowingStatistics, 1)
   testCycleDuration(rowingStatistics, undefined)
   testCycleDistance(rowingStatistics, undefined)
   testCycleLinearVelocity(rowingStatistics, undefined)
   testCyclePower(rowingStatistics, undefined)
   testDriveDuration(rowingStatistics, 0.143485717)
-  testDriveDistance(rowingStatistics, 0.46278952627008546)
-  testDriveLength(rowingStatistics, 0.19058995431778075)
-  testDriveAverageHandleForce(rowingStatistics, 276.20193475035796)
-  testDrivePeakHandleForce(rowingStatistics, 325.1619554833936)
-  testRecoveryDuration(rowingStatistics, 0.20540926600000003)
-  testDragFactor(rowingStatistics, 283.12720365097886)
+  testDriveDistance(rowingStatistics, 0.4271903319416174)
+  testDriveLength(rowingStatistics, 0.1759291886010284)
+  testDriveAverageHandleForce(rowingStatistics, 276.6342676838766)
+  testDrivePeakHandleForce(rowingStatistics, 332.9918222212992)
+  testRecoveryDuration(rowingStatistics, 0.21654112800000003)
+  testDragFactor(rowingStatistics, 281.5961372923874)
   testInstantHandlePower(rowingStatistics, undefined)
   // Recovery second stroke starts here
   rowingStatistics.handleRotationImpulse(0.010769)
@@ -211,19 +211,19 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   rowingStatistics.handleRotationImpulse(0.011209919)
   testStrokeState(rowingStatistics, 'Recovery')
   testTotalMovingTime(rowingStatistics, 0.6101840930000001)
-  testTotalLinearDistance(rowingStatistics, 2.5606258278697)
+  testTotalLinearDistance(rowingStatistics, 2.521238308350271)
   testTotalNumberOfStrokes(rowingStatistics, 1)
   testCycleDuration(rowingStatistics, undefined)
   testCycleDistance(rowingStatistics, undefined)
   testCycleLinearVelocity(rowingStatistics, undefined)
   testCyclePower(rowingStatistics, undefined)
-  testDriveDuration(rowingStatistics, 0.23985939100000003)
-  testDriveDistance(rowingStatistics, 1.0733115961672441)
-  testDriveLength(rowingStatistics, 0.322536845768552)
-  testDriveAverageHandleForce(rowingStatistics, 285.0923064376231)
-  testDrivePeakHandleForce(rowingStatistics, 439.7407274840117)
-  testRecoveryDuration(rowingStatistics, 0.20540926600000003)
-  testDragFactor(rowingStatistics, 283.12720365097886) // As we decelerate the flywheel quite fast, this is expected
+  testDriveDuration(rowingStatistics, 0.22872752900000004)
+  testDriveDistance(rowingStatistics, 1.0226745931298076)
+  testDriveLength(rowingStatistics, 0.3078760800517996)
+  testDriveAverageHandleForce(rowingStatistics, 288.45140756250663)
+  testDrivePeakHandleForce(rowingStatistics, 447.10851434893794)
+  testRecoveryDuration(rowingStatistics, 0.21654112800000003)
+  testDragFactor(rowingStatistics, 281.5961372923874)
   testInstantHandlePower(rowingStatistics, undefined)
   // Drive third stroke starts here
   rowingStatistics.handleRotationImpulse(0.011221636)
@@ -247,19 +247,19 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   rowingStatistics.handleRotationImpulse(0.010386684)
   testStrokeState(rowingStatistics, 'Drive')
   testTotalMovingTime(rowingStatistics, 0.8203921620000004)
-  testTotalLinearDistance(rowingStatistics, 3.4875767518323193)
+  testTotalLinearDistance(rowingStatistics, 3.4465153211820017)
   testTotalNumberOfStrokes(rowingStatistics, 2)
   testCycleDuration(rowingStatistics, undefined)
   testCycleDistance(rowingStatistics, undefined)
   testCycleLinearVelocity(rowingStatistics, undefined)
   testCyclePower(rowingStatistics, undefined)
-  testDriveDuration(rowingStatistics, 0.23985939100000003)
-  testDriveDistance(rowingStatistics, 1.0733115961672441)
-  testDriveLength(rowingStatistics, 0.322536845768552)
-  testDriveAverageHandleForce(rowingStatistics, 285.0923064376231)
-  testDrivePeakHandleForce(rowingStatistics, 439.7407274840117)
+  testDriveDuration(rowingStatistics, 0.22872752900000004)
+  testDriveDistance(rowingStatistics, 1.0226745931298076)
+  testDriveLength(rowingStatistics, 0.3078760800517996)
+  testDriveAverageHandleForce(rowingStatistics, 288.45140756250663)
+  testDrivePeakHandleForce(rowingStatistics, 447.10851434893794)
   testRecoveryDuration(rowingStatistics, 0.09812447700000015)
-  testDragFactor(rowingStatistics, 283.12720365097886)
+  testDragFactor(rowingStatistics, 281.5961372923874)
   testInstantHandlePower(rowingStatistics, undefined)
   // Recovery third stroke starts here
   rowingStatistics.handleRotationImpulse(0.010769)
@@ -279,19 +279,19 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   rowingStatistics.handleRotationImpulse(0.011209919)
   testStrokeState(rowingStatistics, 'Recovery')
   testTotalMovingTime(rowingStatistics, 0.9814208570000005)
-  testTotalLinearDistance(rowingStatistics, 4.219380112855441)
+  testTotalLinearDistance(rowingStatistics, 4.176997173417578)
   testTotalNumberOfStrokes(rowingStatistics, 2)
   testCycleDuration(rowingStatistics, undefined)
   testCycleDistance(rowingStatistics, undefined)
   testCycleLinearVelocity(rowingStatistics, undefined)
   testCyclePower(rowingStatistics, undefined)
   testDriveDuration(rowingStatistics, 0.27311228700000023)
-  testDriveDistance(rowingStatistics, 1.2196722683718688)
-  testDriveLength(rowingStatistics, 0.3665191429188092)
-  testDriveAverageHandleForce(rowingStatistics, 254.91449219500532)
-  testDrivePeakHandleForce(rowingStatistics, 439.74072748282515)
+  testDriveDistance(rowingStatistics, 1.2174697537259611)
+  testDriveLength(rowingStatistics, 0.36651914291880905)
+  testDriveAverageHandleForce(rowingStatistics, 256.5447026919334)
+  testDrivePeakHandleForce(rowingStatistics, 447.1085143475723)
   testRecoveryDuration(rowingStatistics, 0.09812447700000015)
-  testDragFactor(rowingStatistics, 283.12720365097886)
+  testDragFactor(rowingStatistics, 281.5961372923874)
   testInstantHandlePower(rowingStatistics, undefined)
   // Dwelling state starts here
   rowingStatistics.handleRotationImpulse(0.020769)
@@ -312,7 +312,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testStrokeState(rowingStatistics, 'WaitingForDrive')
   testTotalMovingTime(rowingStatistics, 1.1137102920000004)
   testTotalNumberOfStrokes(rowingStatistics, 2)
-  testTotalLinearDistance(rowingStatistics, 4.804822801673938)
+  testTotalLinearDistance(rowingStatistics, 4.76138265520604)
   testCycleDuration(rowingStatistics, undefined)
   testCycleDistance(rowingStatistics, undefined)
   testCycleLinearVelocity(rowingStatistics, undefined)
@@ -323,7 +323,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDriveAverageHandleForce(rowingStatistics, undefined)
   testDrivePeakHandleForce(rowingStatistics, undefined)
   testRecoveryDuration(rowingStatistics, undefined)
-  testDragFactor(rowingStatistics, 283.12720365097886)
+  testDragFactor(rowingStatistics, 281.5961372923874)
   testInstantHandlePower(rowingStatistics, undefined)
 })
 
@@ -366,7 +366,7 @@ test('sample data for Sportstech WRX700 should produce plausible results', async
   await replayRowingSession(rowingStatistics.handleRotationImpulse, { filename: 'recordings/WRX700_2magnets.csv', realtime: false, loop: false })
 
   testTotalMovingTime(rowingStatistics, 46.302522627)
-  testTotalLinearDistance(rowingStatistics, 166.29596716416734)
+  testTotalLinearDistance(rowingStatistics, 165.58832475070278)
   testTotalNumberOfStrokes(rowingStatistics, 15)
   // As dragFactor is static, it should remain in place
   testDragFactor(rowingStatistics, rowerProfiles.Sportstech_WRX700.dragFactor)
@@ -391,7 +391,7 @@ test('sample data for DKN R-320 should produce plausible results', async () => {
   await replayRowingSession(rowingStatistics.handleRotationImpulse, { filename: 'recordings/DKNR320.csv', realtime: false, loop: false })
 
   testTotalMovingTime(rowingStatistics, 21.701535821)
-  testTotalLinearDistance(rowingStatistics, 70.11298001986664)
+  testTotalLinearDistance(rowingStatistics, 69.20242183779045)
   testTotalNumberOfStrokes(rowingStatistics, 9)
   // As dragFactor is static, it should remain in place
   testDragFactor(rowingStatistics, rowerProfiles.DKN_R320.dragFactor)
@@ -415,11 +415,11 @@ test('sample data for NordicTrack RX800 should produce plausible results', async
 
   await replayRowingSession(rowingStatistics.handleRotationImpulse, { filename: 'recordings/RX800.csv', realtime: false, loop: false })
 
-  testTotalMovingTime(rowingStatistics, 22.259092749999997)
-  testTotalLinearDistance(rowingStatistics, 80.49260485116434)
+  testTotalMovingTime(rowingStatistics, 22.368358745999995)
+  testTotalLinearDistance(rowingStatistics, 80.8365747440095)
   testTotalNumberOfStrokes(rowingStatistics, 9)
   // As dragFactor is dynamic, it should have changed
-  testDragFactor(rowingStatistics, 491.1395313462149)
+  testDragFactor(rowingStatistics, 493.8082148322739)
 })
 
 test('A full session for SportsTech WRX700 should produce plausible results', async () => {
@@ -441,7 +441,7 @@ test('A full session for SportsTech WRX700 should produce plausible results', as
   await replayRowingSession(rowingStatistics.handleRotationImpulse, { filename: 'recordings/WRX700_2magnets_session.csv', realtime: false, loop: false })
 
   testTotalMovingTime(rowingStatistics, 2340.0100514160117)
-  testTotalLinearDistance(rowingStatistics, 8406.791871958883)
+  testTotalLinearDistance(rowingStatistics, 8406.084229545408)
   testTotalNumberOfStrokes(rowingStatistics, 845)
   // As dragFactor is static, it should remain in place
   testDragFactor(rowingStatistics, rowerProfiles.Sportstech_WRX700.dragFactor)
@@ -466,10 +466,10 @@ test('A full session for a Concept2 Model C should produce plausible results', a
   await replayRowingSession(rowingStatistics.handleRotationImpulse, { filename: 'recordings/Concept2_Model_C.csv', realtime: false, loop: false })
 
   testTotalMovingTime(rowingStatistics, 181.47141999999985)
-  testTotalLinearDistance(rowingStatistics, 552.0863658667265)
-  testTotalNumberOfStrokes(rowingStatistics, 83)
+  testTotalLinearDistance(rowingStatistics, 552.2056895088467)
+  testTotalNumberOfStrokes(rowingStatistics, 82)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(rowingStatistics, 123.82587294279575)
+  testDragFactor(rowingStatistics, 123.64632740545652)
 })
 
 test('A full session for a Concept2 RowErg should produce plausible results', async () => {
@@ -490,11 +490,11 @@ test('A full session for a Concept2 RowErg should produce plausible results', as
 
   await replayRowingSession(rowingStatistics.handleRotationImpulse, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
 
-  testTotalMovingTime(rowingStatistics, 590.111937)
-  testTotalLinearDistance(rowingStatistics, 2027.493082238415)
+  testTotalMovingTime(rowingStatistics, 590.0294331572366)
+  testTotalLinearDistance(rowingStatistics, 2027.8951016561075)
   testTotalNumberOfStrokes(rowingStatistics, 205)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(rowingStatistics, 80.60573080009686)
+  testDragFactor(rowingStatistics, 80.70650785533269)
 })
 
 function testStrokeState (rowingStatistics, expectedValue) {

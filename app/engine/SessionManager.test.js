@@ -6,7 +6,7 @@
  * This test is a test of the SessionManager, that tests wether this object fills all fields correctly,
  * and cuts off a session, interval and split decently
  */
-// ToDo: test the effects of smoothing parameters
+// @ToDo: test the effects of smoothing parameters
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 import rowerProfiles from '../../config/rowerProfiles.js'
@@ -23,18 +23,23 @@ test('sample data for Sportstech WRX700 should produce plausible results for an 
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
   testTotalMovingTime(sessionManager, 0)
   testTotalLinearDistance(sessionManager, 0)
+  testTotalCalories(sessionManager, 0)
   testTotalNumberOfStrokes(sessionManager, 0)
   testDragFactor(sessionManager, undefined)
 
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/WRX700_2magnets.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 46.302522627)
-  testTotalLinearDistance(sessionManager, 166.29596716416734)
+  testTotalLinearDistance(sessionManager, 165.58832475070278)
+  testTotalCalories(sessionManager, 13.14287499723497)
   testTotalNumberOfStrokes(sessionManager, 15)
   // As dragFactor is static, it should remain in place
   testDragFactor(sessionManager, rowerProfiles.Sportstech_WRX700.dragFactor)
@@ -48,6 +53,9 @@ test('sample data for Sportstech WRX700 should produce plausible results for a 1
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
@@ -62,13 +70,15 @@ test('sample data for Sportstech WRX700 should produce plausible results for a 1
 
   testTotalMovingTime(sessionManager, 0)
   testTotalLinearDistance(sessionManager, 0)
+  testTotalCalories(sessionManager, 0)
   testTotalNumberOfStrokes(sessionManager, 0)
   testDragFactor(sessionManager, undefined)
 
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/WRX700_2magnets.csv', realtime: false, loop: false })
 
-  testTotalMovingTime(sessionManager, 41.734896595)
+  testTotalMovingTime(sessionManager, 41.876875768000005)
   testTotalLinearDistance(sessionManager, 150.02019165448286)
+  testTotalCalories(sessionManager, 12.047320967434432)
   testTotalNumberOfStrokes(sessionManager, 14)
   // As dragFactor is static, it should remain in place
   testDragFactor(sessionManager, rowerProfiles.Sportstech_WRX700.dragFactor)
@@ -82,6 +92,9 @@ test('sample data for Sportstech WRX700 should produce plausible results for a 4
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
@@ -96,13 +109,53 @@ test('sample data for Sportstech WRX700 should produce plausible results for a 4
 
   testTotalMovingTime(sessionManager, 0)
   testTotalLinearDistance(sessionManager, 0)
+  testTotalCalories(sessionManager, 0)
   testTotalNumberOfStrokes(sessionManager, 0)
   testDragFactor(sessionManager, undefined)
 
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/WRX700_2magnets.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 45.077573161000004)
-  testTotalLinearDistance(sessionManager, 163.46539751030917)
+  testTotalLinearDistance(sessionManager, 162.75775509684462)
+  testTotalCalories(sessionManager, 13.040795875068302)
+  testTotalNumberOfStrokes(sessionManager, 15)
+  // As dragFactor is static, it should remain in place
+  testDragFactor(sessionManager, rowerProfiles.Sportstech_WRX700.dragFactor)
+})
+
+test('sample data for Sportstech WRX700 should produce plausible results for a 13 calories session', async () => {
+  const rowerProfile = deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Sportstech_WRX700)
+  const testConfig = {
+    loglevel: {
+      default: 'silent',
+      RowingEngine: 'silent'
+    },
+    numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
+    rowerSettings: rowerProfile
+  }
+  const sessionManager = createSessionManager(testConfig)
+
+  const intervalSettings = []
+  intervalSettings[0] = {
+    type: 'calories',
+    targetCalories: 13
+  }
+  sessionManager.handleCommand('updateIntervalSettings', intervalSettings)
+
+  testTotalMovingTime(sessionManager, 0)
+  testTotalLinearDistance(sessionManager, 0)
+  testTotalCalories(sessionManager, 0)
+  testTotalNumberOfStrokes(sessionManager, 0)
+  testDragFactor(sessionManager, undefined)
+
+  await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/WRX700_2magnets.csv', realtime: false, loop: false })
+
+  testTotalMovingTime(sessionManager, 44.674583250000005)
+  testTotalLinearDistance(sessionManager, 161.3424702699155)
+  testTotalCalories(sessionManager, 13.00721338248497)
   testTotalNumberOfStrokes(sessionManager, 15)
   // As dragFactor is static, it should remain in place
   testDragFactor(sessionManager, rowerProfiles.Sportstech_WRX700.dragFactor)
@@ -116,18 +169,23 @@ test('sample data for DKN R-320 should produce plausible results', async () => {
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
   testTotalMovingTime(sessionManager, 0)
   testTotalLinearDistance(sessionManager, 0)
+  testTotalCalories(sessionManager, 0)
   testTotalNumberOfStrokes(sessionManager, 0)
   testDragFactor(sessionManager, undefined)
 
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/DKNR320.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 21.701535821)
-  testTotalLinearDistance(sessionManager, 70.11298001986664)
+  testTotalLinearDistance(sessionManager, 69.20242183779045)
+  testTotalCalories(sessionManager, 6.761544006859074)
   testTotalNumberOfStrokes(sessionManager, 9)
   // As dragFactor is static, it should remain in place
   testDragFactor(sessionManager, rowerProfiles.DKN_R320.dragFactor)
@@ -141,21 +199,26 @@ test('sample data for NordicTrack RX800 should produce plausible results without
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
   testTotalMovingTime(sessionManager, 0)
   testTotalLinearDistance(sessionManager, 0)
+  testTotalCalories(sessionManager, 0)
   testTotalNumberOfStrokes(sessionManager, 0)
   testDragFactor(sessionManager, undefined)
 
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/RX800.csv', realtime: false, loop: false })
 
-  testTotalMovingTime(sessionManager, 22.259092749999997)
-  testTotalLinearDistance(sessionManager, 80.49260485116434)
+  testTotalMovingTime(sessionManager, 22.368358745999995)
+  testTotalLinearDistance(sessionManager, 80.8365747440095)
+  testTotalCalories(sessionManager, 4.848781772500018)
   testTotalNumberOfStrokes(sessionManager, 9)
   // As dragFactor is dynamic, it should have changed
-  testDragFactor(sessionManager, 491.1395313462149)
+  testDragFactor(sessionManager, 493.8082148322739)
 })
 
 test('sample data for NordicTrack RX800 should produce plausible results for a 20 seconds session', async () => {
@@ -166,6 +229,9 @@ test('sample data for NordicTrack RX800 should produce plausible results for a 2
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
@@ -180,16 +246,56 @@ test('sample data for NordicTrack RX800 should produce plausible results for a 2
 
   testTotalMovingTime(sessionManager, 0)
   testTotalLinearDistance(sessionManager, 0)
+  testTotalCalories(sessionManager, 0)
   testTotalNumberOfStrokes(sessionManager, 0)
   testDragFactor(sessionManager, undefined)
 
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/RX800.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 20.02496380499998)
-  testTotalLinearDistance(sessionManager, 72.3905525302199)
+  testTotalLinearDistance(sessionManager, 72.36563503912126)
+  testTotalCalories(sessionManager, 4.369289275331837)
   testTotalNumberOfStrokes(sessionManager, 8)
   // As dragFactor is dynamic, it should have changed
-  testDragFactor(sessionManager, 487.65077394777813)
+  testDragFactor(sessionManager, 489.6362497474688)
+})
+
+test('sample data for NordicTrack RX800 should produce plausible results for a 20 calories session', async () => {
+  const rowerProfile = deepMerge(rowerProfiles.DEFAULT, rowerProfiles.NordicTrack_RX800)
+  const testConfig = {
+    loglevel: {
+      default: 'silent',
+      RowingEngine: 'silent'
+    },
+    numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
+    rowerSettings: rowerProfile
+  }
+  const sessionManager = createSessionManager(testConfig)
+
+  const intervalSettings = []
+  intervalSettings[0] = {
+    type: 'calories',
+    targetCalories: 20
+  }
+  sessionManager.handleCommand('updateIntervalSettings', intervalSettings)
+
+  testTotalMovingTime(sessionManager, 0)
+  testTotalLinearDistance(sessionManager, 0)
+  testTotalCalories(sessionManager, 0)
+  testTotalNumberOfStrokes(sessionManager, 0)
+  testDragFactor(sessionManager, undefined)
+
+  await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/RX800.csv', realtime: false, loop: false })
+
+  testTotalMovingTime(sessionManager, 22.368358745999995)
+  testTotalLinearDistance(sessionManager, 80.8365747440095)
+  testTotalCalories(sessionManager, 4.848781772500018)
+  testTotalNumberOfStrokes(sessionManager, 9)
+  // As dragFactor is dynamic, it should have changed
+  testDragFactor(sessionManager, 493.8082148322739)
 })
 
 test('sample data for NordicTrack RX800 should produce plausible results for a 75 meter session', async () => {
@@ -200,6 +306,9 @@ test('sample data for NordicTrack RX800 should produce plausible results for a 7
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
@@ -214,16 +323,18 @@ test('sample data for NordicTrack RX800 should produce plausible results for a 7
 
   testTotalMovingTime(sessionManager, 0)
   testTotalLinearDistance(sessionManager, 0)
+  testTotalCalories(sessionManager, 0)
   testTotalNumberOfStrokes(sessionManager, 0)
   testDragFactor(sessionManager, undefined)
 
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/RX800.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 20.78640177499998)
-  testTotalLinearDistance(sessionManager, 75.04096463553918)
+  testTotalLinearDistance(sessionManager, 75.02272363260582)
+  testTotalCalories(sessionManager, 4.7014508748360155)
   testTotalNumberOfStrokes(sessionManager, 9)
   // As dragFactor is dynamic, it should have changed
-  testDragFactor(sessionManager, 491.1395313462149)
+  testDragFactor(sessionManager, 493.8082148322739)
 })
 
 test('A full unlimited session for SportsTech WRX700 should produce plausible results', async () => {
@@ -234,18 +345,23 @@ test('A full unlimited session for SportsTech WRX700 should produce plausible re
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
   testTotalMovingTime(sessionManager, 0)
   testTotalLinearDistance(sessionManager, 0)
+  testTotalCalories(sessionManager, 0)
   testTotalNumberOfStrokes(sessionManager, 0)
   testDragFactor(sessionManager, undefined)
 
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/WRX700_2magnets_session.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 2340.0100514160117)
-  testTotalLinearDistance(sessionManager, 8406.791871958883)
+  testTotalLinearDistance(sessionManager, 8406.084229545408)
+  testTotalCalories(sessionManager, 659.4761650968578)
   testTotalNumberOfStrokes(sessionManager, 845)
   // As dragFactor is static, it should remain in place
   testDragFactor(sessionManager, rowerProfiles.Sportstech_WRX700.dragFactor)
@@ -259,6 +375,9 @@ test('A 8000 meter session for SportsTech WRX700 should produce plausible result
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
@@ -273,13 +392,15 @@ test('A 8000 meter session for SportsTech WRX700 should produce plausible result
 
   testTotalMovingTime(sessionManager, 0)
   testTotalLinearDistance(sessionManager, 0)
+  testTotalCalories(sessionManager, 0)
   testTotalNumberOfStrokes(sessionManager, 0)
   testDragFactor(sessionManager, undefined)
 
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/WRX700_2magnets_session.csv', realtime: false, loop: false })
 
-  testTotalMovingTime(sessionManager, 2236.509317727007)
-  testTotalLinearDistance(sessionManager, 8000.605126630236)
+  testTotalMovingTime(sessionManager, 2236.631120457007)
+  testTotalLinearDistance(sessionManager, 8000.605126630226)
+  testTotalCalories(sessionManager, 625.5636651284267)
   testTotalNumberOfStrokes(sessionManager, 804)
   // As dragFactor is static, it should remain in place
   testDragFactor(sessionManager, rowerProfiles.Sportstech_WRX700.dragFactor)
@@ -293,6 +414,9 @@ test('A 2300 sec session for SportsTech WRX700 should produce plausible results'
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
@@ -307,13 +431,15 @@ test('A 2300 sec session for SportsTech WRX700 should produce plausible results'
 
   testTotalMovingTime(sessionManager, 0)
   testTotalLinearDistance(sessionManager, 0)
+  testTotalCalories(sessionManager, 0)
   testTotalNumberOfStrokes(sessionManager, 0)
   testDragFactor(sessionManager, undefined)
 
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/WRX700_2magnets_session.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 2300.00695516701)
-  testTotalLinearDistance(sessionManager, 8252.525825823619)
+  testTotalLinearDistance(sessionManager, 8251.818183410143)
+  testTotalCalories(sessionManager, 646.8205259437337)
   testTotalNumberOfStrokes(sessionManager, 830)
   // As dragFactor is static, it should remain in place
   testDragFactor(sessionManager, rowerProfiles.Sportstech_WRX700.dragFactor)
@@ -327,6 +453,9 @@ test('A 2400 sec session for SportsTech WRX700 should produce plausible results'
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
@@ -341,13 +470,15 @@ test('A 2400 sec session for SportsTech WRX700 should produce plausible results'
 
   testTotalMovingTime(sessionManager, 0)
   testTotalLinearDistance(sessionManager, 0)
+  testTotalCalories(sessionManager, 0)
   testTotalNumberOfStrokes(sessionManager, 0)
   testDragFactor(sessionManager, undefined)
 
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/WRX700_2magnets_session.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 2340.0100514160117)
-  testTotalLinearDistance(sessionManager, 8406.791871958883)
+  testTotalLinearDistance(sessionManager, 8406.084229545408)
+  testTotalCalories(sessionManager, 659.4761650968578)
   testTotalNumberOfStrokes(sessionManager, 845)
   // As dragFactor is static, it should remain in place
   testDragFactor(sessionManager, rowerProfiles.Sportstech_WRX700.dragFactor)
@@ -361,21 +492,26 @@ test('A full session for a Concept2 Model C should produce plausible results', a
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
   testTotalMovingTime(sessionManager, 0)
   testTotalLinearDistance(sessionManager, 0)
+  testTotalCalories(sessionManager, 0)
   testTotalNumberOfStrokes(sessionManager, 0)
   testDragFactor(sessionManager, undefined)
 
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/Concept2_Model_C.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 181.47141999999985)
-  testTotalLinearDistance(sessionManager, 552.0863658667265)
-  testTotalNumberOfStrokes(sessionManager, 83)
+  testTotalLinearDistance(sessionManager, 552.2056895088467)
+  testTotalCalories(sessionManager, 33.961418860794744)
+  testTotalNumberOfStrokes(sessionManager, 82)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(sessionManager, 123.82587294279575)
+  testDragFactor(sessionManager, 123.64632740545652)
 })
 
 test('A 500 meter session for a Concept2 Model C should produce plausible results', async () => {
@@ -386,6 +522,9 @@ test('A 500 meter session for a Concept2 Model C should produce plausible result
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
@@ -400,16 +539,18 @@ test('A 500 meter session for a Concept2 Model C should produce plausible result
 
   testTotalMovingTime(sessionManager, 0)
   testTotalLinearDistance(sessionManager, 0)
+  testTotalCalories(sessionManager, 0)
   testTotalNumberOfStrokes(sessionManager, 0)
   testDragFactor(sessionManager, undefined)
 
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/Concept2_Model_C.csv', realtime: false, loop: false })
 
-  testTotalMovingTime(sessionManager, 156.87138200000004)
-  testTotalLinearDistance(sessionManager, 500.03019828253076)
+  testTotalMovingTime(sessionManager, 156.83075199999985)
+  testTotalLinearDistance(sessionManager, 500.0178754492436)
+  testTotalCalories(sessionManager, 30.87012555729047)
   testTotalNumberOfStrokes(sessionManager, 73)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(sessionManager, 123.69864738410088)
+  testDragFactor(sessionManager, 123.18123281481081)
 })
 
 test('A 3 minute session for a Concept2 Model C should produce plausible results', async () => {
@@ -420,6 +561,9 @@ test('A 3 minute session for a Concept2 Model C should produce plausible results
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
@@ -434,16 +578,56 @@ test('A 3 minute session for a Concept2 Model C should produce plausible results
 
   testTotalMovingTime(sessionManager, 0)
   testTotalLinearDistance(sessionManager, 0)
+  testTotalCalories(sessionManager, 0)
   testTotalNumberOfStrokes(sessionManager, 0)
   testDragFactor(sessionManager, undefined)
 
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/Concept2_Model_C.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 180.96533299999987)
-  testTotalLinearDistance(sessionManager, 551.8641725505744)
-  testTotalNumberOfStrokes(sessionManager, 83)
+  testTotalLinearDistance(sessionManager, 551.9836036368948)
+  testTotalCalories(sessionManager, 33.91002250954926)
+  testTotalNumberOfStrokes(sessionManager, 82)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(sessionManager, 123.82587294279575)
+  testDragFactor(sessionManager, 123.64632740545652)
+})
+
+test('A 30 calorie session for a Concept2 Model C should produce plausible results', async () => {
+  const rowerProfile = deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Concept2_Model_C)
+  const testConfig = {
+    loglevel: {
+      default: 'silent',
+      RowingEngine: 'silent'
+    },
+    numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
+    rowerSettings: rowerProfile
+  }
+  const sessionManager = createSessionManager(testConfig)
+
+  const intervalSettings = []
+  intervalSettings[0] = {
+    type: 'calories',
+    targetCalories: 30
+  }
+  sessionManager.handleCommand('updateIntervalSettings', intervalSettings)
+
+  testTotalMovingTime(sessionManager, 0)
+  testTotalLinearDistance(sessionManager, 0)
+  testTotalCalories(sessionManager, 0)
+  testTotalNumberOfStrokes(sessionManager, 0)
+  testDragFactor(sessionManager, undefined)
+
+  await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/Concept2_Model_C.csv', realtime: false, loop: false })
+
+  testTotalMovingTime(sessionManager, 153.93554999999992)
+  testTotalLinearDistance(sessionManager, 490.5541073829962)
+  testTotalCalories(sessionManager, 30.018254906974597)
+  testTotalNumberOfStrokes(sessionManager, 72)
+  // As dragFactor isn't static, it should have changed
+  testDragFactor(sessionManager, 123.18123281481081)
 })
 
 test('A full session for a Concept2 RowErg should produce plausible results', async () => {
@@ -454,21 +638,26 @@ test('A full session for a Concept2 RowErg should produce plausible results', as
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
   testTotalMovingTime(sessionManager, 0)
   testTotalLinearDistance(sessionManager, 0)
+  testTotalCalories(sessionManager, 0)
   testTotalNumberOfStrokes(sessionManager, 0)
   testDragFactor(sessionManager, undefined)
 
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
 
-  testTotalMovingTime(sessionManager, 590.111937)
-  testTotalLinearDistance(sessionManager, 2027.493082238415)
+  testTotalMovingTime(sessionManager, 590.0294331572366)
+  testTotalLinearDistance(sessionManager, 2027.8951016561075)
+  testTotalCalories(sessionManager, 113.55660950119214)
   testTotalNumberOfStrokes(sessionManager, 205)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(sessionManager, 80.60573080009686)
+  testDragFactor(sessionManager, 80.70650785533269)
 })
 
 test('A 2000 meter session for a Concept2 RowErg should produce plausible results', async () => {
@@ -479,6 +668,9 @@ test('A 2000 meter session for a Concept2 RowErg should produce plausible result
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
@@ -493,16 +685,18 @@ test('A 2000 meter session for a Concept2 RowErg should produce plausible result
 
   testTotalMovingTime(sessionManager, 0)
   testTotalLinearDistance(sessionManager, 0)
+  testTotalCalories(sessionManager, 0)
   testTotalNumberOfStrokes(sessionManager, 0)
   testDragFactor(sessionManager, undefined)
 
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
 
-  testTotalMovingTime(sessionManager, 582.1907659999988)
-  testTotalLinearDistance(sessionManager, 2000.0158938948496)
+  testTotalMovingTime(sessionManager, 582.0058299961318)
+  testTotalLinearDistance(sessionManager, 2000.0206027129661)
+  testTotalCalories(sessionManager, 112.16536746119625)
   testTotalNumberOfStrokes(sessionManager, 203)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(sessionManager, 80.55270240035931)
+  testDragFactor(sessionManager, 80.68314716929032)
 })
 
 test('A 580 seconds session for a Concept2 RowErg should produce plausible results', async () => {
@@ -513,6 +707,9 @@ test('A 580 seconds session for a Concept2 RowErg should produce plausible resul
       RowingEngine: 'silent'
     },
     numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
     rowerSettings: rowerProfile
   }
   const sessionManager = createSessionManager(testConfig)
@@ -527,16 +724,56 @@ test('A 580 seconds session for a Concept2 RowErg should produce plausible resul
 
   testTotalMovingTime(sessionManager, 0)
   testTotalLinearDistance(sessionManager, 0)
+  testTotalCalories(sessionManager, 0)
   testTotalNumberOfStrokes(sessionManager, 0)
   testDragFactor(sessionManager, undefined)
 
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
 
-  testTotalMovingTime(sessionManager, 580.0033639999992)
-  testTotalLinearDistance(sessionManager, 1992.6040191024413)
+  testTotalMovingTime(sessionManager, 580.0016078988951)
+  testTotalLinearDistance(sessionManager, 1993.2788181883743)
+  testTotalCalories(sessionManager, 111.76461106588519)
   testTotalNumberOfStrokes(sessionManager, 202)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(sessionManager, 80.5946092810885)
+  testDragFactor(sessionManager, 80.70729014258711)
+})
+
+test('A 100 calories session for a Concept2 RowErg should produce plausible results', async () => {
+  const rowerProfile = deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Concept2_RowErg)
+  const testConfig = {
+    loglevel: {
+      default: 'silent',
+      RowingEngine: 'silent'
+    },
+    numOfPhasesForAveragingScreenData: 2,
+    userSettings: {
+      sex: 'male'
+    },
+    rowerSettings: rowerProfile
+  }
+  const sessionManager = createSessionManager(testConfig)
+
+  const intervalSettings = []
+  intervalSettings[0] = {
+    type: 'calories',
+    targetCalories: 100
+  }
+  sessionManager.handleCommand('updateIntervalSettings', intervalSettings)
+
+  testTotalMovingTime(sessionManager, 0)
+  testTotalLinearDistance(sessionManager, 0)
+  testTotalCalories(sessionManager, 0)
+  testTotalNumberOfStrokes(sessionManager, 0)
+  testDragFactor(sessionManager, undefined)
+
+  await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
+
+  testTotalMovingTime(sessionManager, 520.3824691827283)
+  testTotalLinearDistance(sessionManager, 1786.2212497568994)
+  testTotalCalories(sessionManager, 100.00025111255141)
+  testTotalNumberOfStrokes(sessionManager, 181)
+  // As dragFactor isn't static, it should have changed
+  testDragFactor(sessionManager, 80.69402503758549)
 })
 
 function testTotalMovingTime (sessionManager, expectedValue) {
@@ -550,6 +787,10 @@ function testTotalNumberOfStrokes (sessionManager, expectedValue) {
 
 function testTotalLinearDistance (sessionManager, expectedValue) {
   assert.ok(sessionManager.getMetrics().totalLinearDistance === expectedValue, `totalLinearDistance should be ${expectedValue} meters at ${sessionManager.getMetrics().totalMovingTime} sec, is ${sessionManager.getMetrics().totalLinearDistance}`)
+}
+
+function testTotalCalories (sessionManager, expectedValue) {
+  assert.ok(sessionManager.getMetrics().totalCalories === expectedValue, `totalCalories should be ${expectedValue} kCal at ${sessionManager.getMetrics().totalMovingTime} sec, is ${sessionManager.getMetrics().totalCalories}`)
 }
 
 function testDragFactor (sessionManager, expectedValue) {
