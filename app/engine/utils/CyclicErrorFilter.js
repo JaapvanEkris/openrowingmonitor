@@ -28,6 +28,7 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
   const _maximumTimeBetweenImpulses = rowerSettings.maximumTimeBetweenImpulses
   const raw = createSeries(_flankLength)
   const clean = createSeries(_flankLength)
+  const goodnessOfFit = createSeries(_flankLength)
   const linearRegressor = deltaTime
   let recordedRelativePosition = []
   let recordedAbsolutePosition = []
@@ -46,11 +47,18 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
 
   /**
    * @param {integer} the maximum length of the linear series, 0 for unlimited
+   * @returns {{value: float, goodnessOfFit: float}} clean value and goodness of fit indication
    */
   function applyFilter (rawValue, position) {
     if (startPosition === undefined) { startPosition = position + _flankLength }
+    const magnet = position % _numberOfMagnets
     raw.push(rawValue)
-    clean.push(projectX(position % _numberOfMagnets, rawValue))
+    clean.push(projectX(magnet, rawValue))
+    goodnessOfFit.push(filterArray[magnet].goodnessOfFit())
+    return {
+      value: clean.atSeriesEnd(),
+      goodnessOfFit: goodnessOfFit.atSeriesEnd()
+    }
   }
 
   /**
