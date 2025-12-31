@@ -46,8 +46,10 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
   reset()
 
   /**
-   * @param {integer} the maximum length of the linear series, 0 for unlimited
+   * @param {float} the raw recorded value to be cleaned up
+   * @param {integer} the position of the flywheel
    * @returns {{value: float, goodnessOfFit: float}} clean value and goodness of fit indication
+   * @description Applies the filter on the raw value for the given position (i.e. magnet). Please note: this function is NOT stateless, it also fills a hystoric buffer of raw and clean values
    */
   function applyFilter (rawValue, position) {
     if (startPosition === undefined) { startPosition = position + _flankLength }
