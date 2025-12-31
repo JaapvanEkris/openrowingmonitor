@@ -39,7 +39,7 @@ export function createFlywheel (rowerSettings) {
   const _deltaTime = createTSLinearSeries(flankLength)
   const drag = createWeighedSeries(rowerSettings.dragFactorSmoothing, (rowerSettings.dragFactor / 1000000))
   const recoveryDeltaTime = createTSLinearSeries()
-  const currentDt = createCyclicErrorFilter(rowerSettings, minimumDragFactorSamples, recoveryDeltaTime)
+  const cyclicErrorFilter = createCyclicErrorFilter(rowerSettings, minimumDragFactorSamples, recoveryDeltaTime)
   const strokedetectionMinimalGoodnessOfFit = rowerSettings.minimumStrokeQuality
   const minimumRecoverySlope = createWeighedSeries(rowerSettings.dragFactorSmoothing, rowerSettings.minimumRecoverySlope)
   let totalTime
@@ -88,7 +88,7 @@ export function createFlywheel (rowerSettings) {
       // value before the shift is certain to be part of a specific rowing phase (i.e. Drive or Recovery), once the buffer is filled completely
       totalNumberOfImpulses += 1
 
-      _deltaTimeBeforeFlank = currentDt.clean.atSeriesBegin()
+      _deltaTimeBeforeFlank = cyclicErrorFilter.clean.atSeriesBegin()
       totalTimeSpinning += _deltaTimeBeforeFlank
       _angularVelocityBeforeFlank = _angularVelocityAtBeginFlank
       _angularAccelerationBeforeFlank = _angularAccelerationAtBeginFlank
@@ -99,12 +99,12 @@ export function createFlywheel (rowerSettings) {
         // Feed the drag calculation, as we didn't reset the Semaphore in the previous cycle based on the current flank
         recoveryDeltaTime.push(totalTimeSpinning, _deltaTimeBeforeFlank)
         // Feed the systematic error filter buffer
-        if (rowerSettings.autoAdjustDragFactor) { currentDt.recordRawDatapoint(totalNumberOfImpulses, totalTimeSpinning, currentDt.raw.atSeriesBegin()) }
+        if (rowerSettings.autoAdjustDragFactor) { cyclicErrorFilter.recordRawDatapoint(totalNumberOfImpulses, totalTimeSpinning, cyclicErrorFilter.raw.atSeriesBegin()) }
       } else {
         // Accumulate the energy total as we are in the drive phase
         _totalWork += Math.max(_torqueBeforeFlank * angularDisplacementPerImpulse, 0)
         // Process a value in the systematic error filter buffer. We need to do this slowly to prevent radical changes which might disturbe the force curve etc.
-        currentDt.processNextRawDatapoint()
+        cyclicErrorFilter.processNextRawDatapoint()
       }
     } else {
       _deltaTimeBeforeFlank = 0
@@ -113,7 +113,7 @@ export function createFlywheel (rowerSettings) {
       _torqueBeforeFlank = 0
     }
 
-    const cleanCurrentDt = currentDt.applyFilter(dataPoint, totalNumberOfImpulses + flankLength)
+    const cleanCurrentDt = cyclicErrorFilter.applyFilter(dataPoint, totalNumberOfImpulses + flankLength)
     totalTime += cleanCurrentDt.value
     currentAngularDistance += angularDisplacementPerImpulse
 
@@ -134,13 +134,13 @@ export function createFlywheel (rowerSettings) {
 
   function maintainStateAndMetrics () {
     maintainMetrics = true
-    currentDt.reset()
+    cyclicErrorFilter.reset()
   }
 
   function markRecoveryPhaseStart () {
     inRecoveryPhase = true
     recoveryDeltaTime.reset()
-    currentDt.restart()
+    cyclicErrorFilter.restart()
   }
 
   /**
@@ -169,7 +169,7 @@ export function createFlywheel (rowerSettings) {
         log.debug(`*** Calculated drag factor: ${(slopeToDrag(recoveryDeltaTime.slope()) * 1000000).toFixed(4)}, slope: ${recoveryDeltaTime.slope().toFixed(8)}, not used because autoAdjustDragFactor is not true`)
       } else {
         log.debug(`*** Calculated drag factor: ${(slopeToDrag(recoveryDeltaTime.slope()) * 1000000).toFixed(4)}, not used because reliability was too low. no. samples: ${recoveryDeltaTime.length()}, fit: ${recoveryDeltaTime.goodnessOfFit().toFixed(4)}`)
-        currentDt.restart()
+        cyclicErrorFilter.restart()
       }
     }
   }
@@ -364,8 +364,8 @@ export function createFlywheel (rowerSettings) {
     maintainMetrics = false
     inRecoveryPhase = false
     drag.reset()
-    currentDt.reset()
-    currentDt.applyFilter(0, flankLength - 1)
+    cyclicErrorFilter.reset()
+    cyclicErrorFilter.applyFilter(0, flankLength - 1)
     recoveryDeltaTime.reset()
     _deltaTime.reset()
     _angularDistance.reset()
