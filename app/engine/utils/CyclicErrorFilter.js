@@ -153,9 +153,11 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
     let j = 0
     let datapoint = 0
     while (i < _numberOfMagnets) {
-      if (!!filterArray[i].slope()) {filterArray[i].reset()}
-      filterArray[i] = {}
-      filterArray[i] = createWLSLinearSeries(_numberOfFilterSamples)
+      if (i < filterArray.length) {
+        filterArray[i]?.reset()
+      } else {
+        filterArray[i] = createWLSLinearSeries(_numberOfFilterSamples)
+      }
       j = 0
       while (j <= noIncrements) {
         datapoint = _maximumTimeBetweenImpulses - (j * increment)
