@@ -13,9 +13,14 @@ import { createWLSLinearSeries } from './WLSLinearSeries.js'
 const log = loglevel.getLogger('RowingEngine')
 
 /**
- * @param {{numOfImpulsesPerRevolution: integer, flankLength: integer, systematicErrorAgressiveness: float, minimumTimeBetweenImpulses: float, maximumTimeBetweenImpulses: float}}the rower settings configuration object
- * @param {integer} the number of expected dragfactor samples
- * @param {function} the linear regression function for the drag calculation
+ * @param {object} rowerSettings - The rower settings configuration object
+ * @param {integer} rowerSettings.numOfImpulsesPerRevolution - Number of impulses per flywheel revolution
+ * @param {integer} rowerSettings.flankLength - Length of the flank used
+ * @param {float} rowerSettings.systematicErrorAgressiveness - Agressiveness of the systematic error correction algorithm (0 turns it off)
+ * @param {float} rowerSettings.minimumTimeBetweenImpulses - minimum expected time between impulses (in seconds)
+ * @param {float} rowerSettings.maximumTimeBetweenImpulses - maximum expected time between impulses (in seconds)
+ * @param {integer} minimumDragFactorSamples - the number of expected dragfactor samples
+ * @param {function} deltaTime - injection of the linear regression function used for the drag calculation
  */
 export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples, deltaTime) {
   const _numberOfMagnets = rowerSettings.numOfImpulsesPerRevolution
@@ -47,7 +52,9 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
   /**
    * @param {float} the raw recorded value to be cleaned up
    * @param {integer} the position of the flywheel
-   * @returns {{value: float, goodnessOfFit: float}} clean value and goodness of fit indication
+   * @returns {object} result
+   * @returns {float} result.value - the resulting clean value 
+   * @returns {float} result.goodnessOfFit - The goodness of fit indication for the specific datapoint
    * @description Applies the filter on the raw value for the given position (i.e. magnet). Please note: this function is NOT stateless, it also fills a hystoric buffer of raw and clean values
    */
   function applyFilter (rawValue, position) {
@@ -69,8 +76,8 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
   }
 
   /**
-   * @param {integer} the magnet number
-   * @param {float} the raw value to be projected by the function for that magnet
+   * @param {integer} magnet - the magnet number
+   * @param {float} rawValue - the raw value to be projected by the function for that magnet
    * @returns {float} projected result
    */
   function projectX (magnet, rawValue) {
@@ -78,9 +85,9 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
   }
 
   /**
-   * @param {integer} the position of the recorded datapoint (i.e the sequence number of the datapoint)
-   * @param {float} the total spinning time of the flywheel
-   * @param {float} the raw value
+   * @param {integer} relativePosition - the position of the recorded datapoint (i.e the sequence number of the datapoint)
+   * @param {float} absolutePosition - the total spinning time of the flywheel
+   * @param {float} rawValue - the raw value
    */
   function recordRawDatapoint (relativePosition, absolutePosition, rawValue) {
     if (_agressiveness > 0 && rawValue >= _minimumTimeBetweenImpulses && _maximumTimeBetweenImpulses >= rawValue) {
