@@ -1,7 +1,9 @@
 'use strict'
-/*
-  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-*/
+/**
+ * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
+ * 
+ * @file This constains all tests for the WLS Linear Series
+ */
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 
@@ -128,7 +130,7 @@ test('Correct behaviour of a series after several puhed values, function y = 3x 
   testGoodnessOfFitEquals(dataSeries, 1)
 })
 
-test('Correct behaviour of a series after several puhed values, function y = 3x + 6, noisefree, 5 datapoints', () => {
+test('Correct behaviour of an unweighted series after several puhed values, function y = 3x + 6, noisefree, 5 datapoints', () => {
   const dataSeries = createWLSLinearSeries(3)
   dataSeries.push(5, 9, 1)
   dataSeries.push(3, 3, 1)
@@ -155,31 +157,31 @@ test('Correct behaviour of a series after several puhed values, function y = 3x 
   testGoodnessOfFitEquals(dataSeries, 1)
 })
 
-test('Correct behaviour of a series after several puhed values, function y = 3x + 6, noisefree, 4 datapoints and a reset', () => {
+test('Correct behaviour of a uniformly weighted series after several puhed values, function y = 3x + 6, noisefree, 5 datapoints', () => {
   const dataSeries = createWLSLinearSeries(3)
-  dataSeries.push(5, 9, 1)
-  dataSeries.push(3, 3, 1)
-  dataSeries.push(4, 6, 1)
-  dataSeries.push(6, 12, 1)
-  dataSeries.reset()
-  testLength(dataSeries, 0)
-  testXAtSeriesBegin(dataSeries, 0)
-  testYAtSeriesBegin(dataSeries, 0)
-  testXAtSeriesEnd(dataSeries, 0)
-  testYAtSeriesEnd(dataSeries, 0)
-  testNumberOfXValuesAbove(dataSeries, 0, 0)
-  testNumberOfYValuesAbove(dataSeries, 0, 0)
+  dataSeries.push(5, 9, 0.5)
+  dataSeries.push(3, 3, 0.5)
+  dataSeries.push(4, 6, 0.5)
+  dataSeries.push(6, 12, 0.5)
+  dataSeries.push(1, -3, 0.5)
+  testLength(dataSeries, 3)
+  testXAtSeriesBegin(dataSeries, 4)
+  testYAtSeriesBegin(dataSeries, 6)
+  testXAtSeriesEnd(dataSeries, 1)
+  testYAtSeriesEnd(dataSeries, -3)
+  testNumberOfXValuesAbove(dataSeries, 0, 3)
+  testNumberOfYValuesAbove(dataSeries, 0, 2)
   testNumberOfXValuesEqualOrBelow(dataSeries, 0, 0)
-  testNumberOfYValuesEqualOrBelow(dataSeries, 0, 0)
+  testNumberOfYValuesEqualOrBelow(dataSeries, 0, 1)
   testNumberOfXValuesAbove(dataSeries, 10, 0)
-  testNumberOfYValuesAbove(dataSeries, 10, 0)
-  testNumberOfXValuesEqualOrBelow(dataSeries, 10, 0)
-  testNumberOfYValuesEqualOrBelow(dataSeries, 10, 0)
-  testXSum(dataSeries, 0)
-  testYSum(dataSeries, 0)
-  testSlopeEquals(dataSeries, 0)
-  testInterceptEquals(dataSeries, 0)
-  testGoodnessOfFitEquals(dataSeries, 0)
+  testNumberOfYValuesAbove(dataSeries, 10, 1)
+  testNumberOfXValuesEqualOrBelow(dataSeries, 10, 3)
+  testNumberOfYValuesEqualOrBelow(dataSeries, 10, 2)
+  testXSum(dataSeries, 11)
+  testYSum(dataSeries, 15)
+  testSlopeEquals(dataSeries, 3)
+  testInterceptEquals(dataSeries, -6)
+  testGoodnessOfFitEquals(dataSeries, 1)
 })
 
 test('Series with 5 elements, with 2 noisy datapoints', () => {
@@ -212,7 +214,7 @@ test('Unweighted series with 7 elements based on Galton dataset (OLS)', () => {
 
 // Test based on the Galton dataset, using weighted (=WLS) regression
 // Example found at https://online.stat.psu.edu/stat501/lesson/13/13.1
-test('Weighted series with 7 elements based on Galton dataset (WLS)', () => {
+test('Non-uniformly weighted series with 7 elements based on Galton dataset (WLS)', () => {
   const dataSeries = createWLSLinearSeries(7)
   dataSeries.push(0.21, 0.1726, 2530.272176)
   dataSeries.push(0.2, 0.1707, 2662.5174)
@@ -224,6 +226,33 @@ test('Weighted series with 7 elements based on Galton dataset (WLS)', () => {
   testSlopeEquals(dataSeries, 0.20480116324222641)
   testInterceptEquals(dataSeries, 0.12796416521509518)
   testGoodnessOfFitEquals(dataSeries, 0.8521213232768868)
+})
+
+test('Correct reset behaviour. Series with 4 datapoints and a reset', () => {
+  const dataSeries = createWLSLinearSeries(3)
+  dataSeries.push(5, 9, 1)
+  dataSeries.push(3, 3, 1)
+  dataSeries.push(4, 6, 1)
+  dataSeries.push(6, 12, 1)
+  dataSeries.reset()
+  testLength(dataSeries, 0)
+  testXAtSeriesBegin(dataSeries, 0)
+  testYAtSeriesBegin(dataSeries, 0)
+  testXAtSeriesEnd(dataSeries, 0)
+  testYAtSeriesEnd(dataSeries, 0)
+  testNumberOfXValuesAbove(dataSeries, 0, 0)
+  testNumberOfYValuesAbove(dataSeries, 0, 0)
+  testNumberOfXValuesEqualOrBelow(dataSeries, 0, 0)
+  testNumberOfYValuesEqualOrBelow(dataSeries, 0, 0)
+  testNumberOfXValuesAbove(dataSeries, 10, 0)
+  testNumberOfYValuesAbove(dataSeries, 10, 0)
+  testNumberOfXValuesEqualOrBelow(dataSeries, 10, 0)
+  testNumberOfYValuesEqualOrBelow(dataSeries, 10, 0)
+  testXSum(dataSeries, 0)
+  testYSum(dataSeries, 0)
+  testSlopeEquals(dataSeries, 0)
+  testInterceptEquals(dataSeries, 0)
+  testGoodnessOfFitEquals(dataSeries, 0)
 })
 
 function testLength (series, expectedValue) {
