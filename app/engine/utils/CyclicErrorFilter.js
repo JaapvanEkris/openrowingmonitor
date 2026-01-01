@@ -1,9 +1,8 @@
 'use strict'
-/*
-  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-*/
 /**
- * This implements a cyclic error filter. This is used to create a profile
+ * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
+ * 
+ * @file This implements a cyclic error filter. This is used to create a profile
  * The filterArray does the calculation, the slope and intercept arrays contain the results for easy retrieval
  * the slopeCorrection and interceptCorrection ensure preventing time dilation due to excessive corrections
  */
@@ -16,7 +15,7 @@ const log = loglevel.getLogger('RowingEngine')
 /**
  * @param {{numOfImpulsesPerRevolution: integer, flankLength: integer, systematicErrorAgressiveness: float, minimumTimeBetweenImpulses: float, maximumTimeBetweenImpulses: float}}the rower settings configuration object
  * @param {integer} the number of expected dragfactor samples
- * @param the linear regression function for the drag calculation
+ * @param {function} the linear regression function for the drag calculation
  */
 export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples, deltaTime) {
   const _numberOfMagnets = rowerSettings.numOfImpulsesPerRevolution
@@ -55,8 +54,14 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
     if (startPosition === undefined) { startPosition = position + _flankLength }
     const magnet = position % _numberOfMagnets
     raw.push(rawValue)
-    clean.push(projectX(magnet, rawValue))
-    goodnessOfFit.push(filterArray[magnet].goodnessOfFit())
+    if (_agressiveness > 0) {
+      clean.push(projectX(magnet, rawValue))
+      goodnessOfFit.push(filterArray[magnet].goodnessOfFit())
+    } else {
+      // In essence, the filter is turned off
+      clean.push(rawValue)
+      goodnessOfFit.push(1)
+    }
     return {
       value: clean.atSeriesEnd(),
       goodnessOfFit: goodnessOfFit.atSeriesEnd()
@@ -86,7 +91,7 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
   }
 
   /**
-   * This processes a next datapoint from the queue
+   * @description This processes a next two datapoints from the queue
    */
   function processNextRawDatapoint () {
     let perfectCurrentDt
@@ -114,6 +119,9 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
     upperCursor--
   }
 
+  /**
+   * @description Helper function to actually update the filter and calculate all dependent parameters
+   */
   function updateFilter (magnet, rawDatapoint, correctedDatapoint, goodnessOfFit) {
     slopeSum -= slope[magnet]
     interceptSum -= intercept[magnet]
@@ -127,7 +135,7 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
   }
 
   /**
-   * @description This is used for clearing the buffers in order to prepare to record for a new set of datapoints, or clear it when the buffer is filled with a recovery with too weak GoF
+   * @description This function is used for clearing the buffers in order to prepare to record for a new set of datapoints, or clear it when the buffer is filled with a recovery with too weak GoF
    */
   function warmRestart () {
     if (!isNaN(lowerCursor)) { log.debug('*** WARNING: cyclic error filter has forcefully been restarted (warm)') }
@@ -139,7 +147,7 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
   }
 
   /**
-   * @description This is used for clearing the predictive buffers as the flywheel seems to have stopped
+   * @description This function is used for clearing the predictive buffers as the flywheel seems to have stopped
    */
   function coldRestart () {
     if (slopeSum !== _numberOfMagnets || interceptSum !== 0) { log.debug('*** WARNING: cyclic error filter has forcefully been restarted (cold)') }
@@ -176,7 +184,7 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
   }
 
   /**
-   * @description This is used for clearing all buffers (i.e. the currentDt's maintained in the flank and the predictive buffers) when the flywheel is completely reset
+   * @description This function is used for clearing all buffers (i.e. the currentDt's maintained in the flank and the predictive buffers) when the flywheel is completely reset
    */
   function reset () {
     log.debug('*** WARNING: cyclic error filter is reset')
