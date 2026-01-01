@@ -103,13 +103,6 @@ export function createWeighedSeries (maxSeriesLength = 0, defaultValue) {
   }
 
   /**
-   * @returns {float} the total weight the series
-   */
-  function totalWeight () {
-    return weightArray.sum()
-  }
-
-  /**
    * @returns {float} smallest element in the series
    */
   function minimum () {
@@ -165,7 +158,6 @@ export function createWeighedSeries (maxSeriesLength = 0, defaultValue) {
     sum,
     average,
     weighedAverage,
-    totalWeight,
     minimum,
     maximum,
     median,
