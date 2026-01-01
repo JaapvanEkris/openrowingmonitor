@@ -1,11 +1,10 @@
 'use strict'
-/*
-  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-*/
 /**
- * The WLSLinearSeries is a datatype that represents a Linear Series. It allows
+ * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
+ * 
+ * @file The WLSLinearSeries is a datatype that represents a Linear Series. It allows
  * values to be retrieved (like a FiFo buffer, or Queue) but it also includes
- * a Weighted Linear Regressor to determine the slope, intercept and R^2 of this timeseries
+ * a Weighted Linear Regressor to determine the slope, intercept and R^2 of this series
  * of x and y coordinates through Weighted Least Squares Regression.
  *
  * At creation it can be determined that the Series is limited (i.e. after it
@@ -22,14 +21,13 @@
  * For weighted least squares:
  * https://en.wikipedia.org/wiki/Weighted_least_squares
  */
-
 import { createSeries } from './Series.js'
 
 import loglevel from 'loglevel'
 const log = loglevel.getLogger('RowingEngine')
 
 /**
- * @param {integer} the maximum length of the linear series, 0 for unlimited
+ * @param {integer} maxSeriesLength - the maximum length of the linear series, default = 0 for unlimited
  */
 export function createWLSLinearSeries (maxSeriesLength = 0) {
   const X = createSeries(maxSeriesLength)
@@ -45,9 +43,9 @@ export function createWLSLinearSeries (maxSeriesLength = 0) {
   let _goodnessOfFit = 0
 
   /**
-   * @param {float} the x value of the datapoint
-   * @param {float} the y value of the datapoint
-   * @param {float} the observation weight of the datapoint
+   * @param {float} x - the x value of the datapoint
+   * @param {float} y - the y value of the datapoint
+   * @param {float} w - the observation weight of the datapoint, default = 1
    */
   function push (x, y, w = 1) {
     if (x === undefined || isNaN(x) || y === undefined || isNaN(y)) { return }
@@ -118,7 +116,7 @@ export function createWLSLinearSeries (maxSeriesLength = 0) {
   }
 
   /**
-   * @param {float} the x value to be projected
+   * @param {float} x - the x value to be projected
    * @returns {float} the resulting y value when projected via the linear function
    */
   function projectX (x) {
@@ -130,8 +128,8 @@ export function createWLSLinearSeries (maxSeriesLength = 0) {
   }
 
   /**
-   * @param {float} the y value to be (reverse) projected
-   * @returns {float} the resulting x value when projected via the linear function
+   * @param {float} y - the y value to be solved
+   * @returns {float} the resulting x value when solved via the linear function
    */
   function projectY (y) {
     if (X.length() >= 2 && _slope !== 0) {
