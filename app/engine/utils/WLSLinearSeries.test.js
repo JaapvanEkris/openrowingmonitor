@@ -31,7 +31,7 @@ test('Correct behaviour of a series after initialisation', () => {
   testGoodnessOfFitEquals(dataSeries, 0)
 })
 
-test('Correct behaviour of a series after several puhed values, function y = 3x + 6, noisefree, 1 datapoint', () => {
+test('Correct behaviour of a series after several puhed values, function y = 3x - 6, noisefree, 1 datapoint', () => {
   const dataSeries = createWLSLinearSeries(3)
   testLength(dataSeries, 0)
   dataSeries.push(5, 9, 1)
@@ -55,7 +55,7 @@ test('Correct behaviour of a series after several puhed values, function y = 3x 
   testGoodnessOfFitEquals(dataSeries, 0)
 })
 
-test('Correct behaviour of a series after several puhed values, function y = 3x + 6, noisefree, 2 datapoints', () => {
+test('Correct behaviour of a series after several puhed values, function y = 3x - 6, noisefree, 2 datapoints', () => {
   const dataSeries = createWLSLinearSeries(3)
   dataSeries.push(5, 9, 1)
   dataSeries.push(3, 3, 1)
@@ -79,7 +79,7 @@ test('Correct behaviour of a series after several puhed values, function y = 3x 
   testGoodnessOfFitEquals(dataSeries, 1)
 })
 
-test('Correct behaviour of a series after several puhed values, function y = 3x + 6, noisefree, 3 datapoints', () => {
+test('Correct behaviour of a series after several puhed values, function y = 3x - 6, noisefree, 3 datapoints', () => {
   const dataSeries = createWLSLinearSeries(3)
   dataSeries.push(5, 9, 1)
   dataSeries.push(3, 3, 1)
@@ -104,7 +104,7 @@ test('Correct behaviour of a series after several puhed values, function y = 3x 
   testGoodnessOfFitEquals(dataSeries, 1)
 })
 
-test('Correct behaviour of a series after several puhed values, function y = 3x + 6, noisefree, 4 datapoints', () => {
+test('Correct behaviour of a series after several puhed values, function y = 3x - 6, noisefree, 4 datapoints', () => {
   const dataSeries = createWLSLinearSeries(3)
   dataSeries.push(5, 9, 1)
   dataSeries.push(3, 3, 1)
@@ -130,7 +130,7 @@ test('Correct behaviour of a series after several puhed values, function y = 3x 
   testGoodnessOfFitEquals(dataSeries, 1)
 })
 
-test('Correct behaviour of an unweighted series after several puhed values, function y = 3x + 6, noisefree, 5 datapoints', () => {
+test('Correct behaviour of an unweighted series after several puhed values, function y = 3x - 6, noisefree, 5 datapoints', () => {
   const dataSeries = createWLSLinearSeries(3)
   dataSeries.push(5, 9, 1)
   dataSeries.push(3, 3, 1)
@@ -157,7 +157,7 @@ test('Correct behaviour of an unweighted series after several puhed values, func
   testGoodnessOfFitEquals(dataSeries, 1)
 })
 
-test('Correct behaviour of a uniformly weighted series after several puhed values, function y = 3x + 6, noisefree, 5 datapoints', () => {
+test('Correct behaviour of a uniformly weighted series after several puhed values, function y = 3x - 6, noisefree, 5 datapoints', () => {
   const dataSeries = createWLSLinearSeries(3)
   dataSeries.push(5, 9, 0.5)
   dataSeries.push(3, 3, 0.5)
@@ -184,7 +184,7 @@ test('Correct behaviour of a uniformly weighted series after several puhed value
   testGoodnessOfFitEquals(dataSeries, 1)
 })
 
-test('Series with 5 elements, with 2 noisy datapoints, uniform weights', () => {
+test('Series with 5 elements, with 2 noisy datapoints, ideal function y = 3x - 6, uniform weights', () => {
   const dataSeries = createWLSLinearSeries(5)
   dataSeries.push(5, 9, 1)
   dataSeries.push(3, 2, 1)
@@ -192,7 +192,7 @@ test('Series with 5 elements, with 2 noisy datapoints, uniform weights', () => {
   dataSeries.push(6, 12, 1)
   dataSeries.push(1, -3, 1)
   testSlopeEquals(dataSeries, 3.0675675675675675)
-  testInterceptEquals(dataSeries, -6)
+  testInterceptEquals(dataSeries, -6.256756756756756)
   testGoodnessOfFitEquals(dataSeries, 1)
   testLocalGoodnessOfFitEquals(dataSeries, 0, 1)
   testLocalGoodnessOfFitEquals(dataSeries, 1, 0.9645892351274787)
@@ -201,7 +201,7 @@ test('Series with 5 elements, with 2 noisy datapoints, uniform weights', () => {
   testLocalGoodnessOfFitEquals(dataSeries, 4, 1)
 })
 
-test('Series with 5 elements, with 2 noisy datapoints, non-uniform weights', () => {
+test('Series with 5 elements, with 2 noisy datapoints, ideal function y = 3x - 6, non-uniform weights', () => {
   const dataSeries = createWLSLinearSeries(5)
   dataSeries.push(5, 9, 1)
   dataSeries.push(3, 2, 0.5)
@@ -209,7 +209,7 @@ test('Series with 5 elements, with 2 noisy datapoints, non-uniform weights', () 
   dataSeries.push(6, 12, 1)
   dataSeries.push(1, -3, 1)
   testSlopeEquals(dataSeries, 3.034632034632035)
-  testInterceptEquals(dataSeries, -6)
+  testInterceptEquals(dataSeries, -6.134199134199134)
   testGoodnessOfFitEquals(dataSeries, 1)
   testLocalGoodnessOfFitEquals(dataSeries, 0, 1)
   testLocalGoodnessOfFitEquals(dataSeries, 1, 0.9645892351274787)
