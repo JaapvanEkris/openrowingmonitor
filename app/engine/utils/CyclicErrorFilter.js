@@ -43,7 +43,7 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
   let interceptSum = 0
   let slopeCorrection = 1
   let interceptCorrection = 0
-  reset()
+  coldRestart()
 
   /**
    * @param {float} the raw recorded value to be cleaned up
@@ -126,8 +126,11 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
     interceptCorrection = interceptSum / _numberOfMagnets
   }
 
-  function restart () {
-    if (!isNaN(lowerCursor)) { log.debug('*** WARNING: cyclic error filter has forcefully been restarted') }
+  /**
+   * @description This is used for clearing the buffers in order to prepare to record for a new set of datapoints, or clear it when the buffer is filled with a recovery with too weak GoF
+   */
+  function warmRestart () {
+    if (!isNaN(lowerCursor)) { log.debug('*** WARNING: cyclic error filter has forcefully been restarted (warm)') }
     recordedRelativePosition = []
     recordedAbsolutePosition = []
     recordedRawValue = []
@@ -135,18 +138,22 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
     upperCursor = undefined
   }
 
-  function reset () {
-    if (slopeSum !== _numberOfMagnets || interceptSum !== 0) { log.debug('*** WARNING: cyclic error filter is reset') }
+  /**
+   * @description This is used for clearing the predictive buffers as the flywheel seems to have stopped
+   */
+  function coldRestart () {
+    if (slopeSum !== _numberOfMagnets || interceptSum !== 0) { log.debug('*** WARNING: cyclic error filter has forcefully been restarted (cold)') }
     const noIncrements = Math.max(Math.ceil(_numberOfFilterSamples / 4), 5)
     const increment = (_maximumTimeBetweenImpulses - _minimumTimeBetweenImpulses) / noIncrements
 
     lowerCursor = undefined
-    restart()
+    warmRestart()
 
     let i = 0
     let j = 0
     let datapoint = 0
     while (i < _numberOfMagnets) {
+      if (!!filterArray[i].slope()) {filterArray[i].reset()}
       filterArray[i] = {}
       filterArray[i] = createWLSLinearSeries(_numberOfFilterSamples)
       j = 0
@@ -166,6 +173,19 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
     startPosition = undefined
   }
 
+  /**
+   * @description This is used for clearing all buffers (i.e. the currentDt's maintained in the flank and the predictive buffers) when the flywheel is completely reset
+   */
+  function reset () {
+    log.debug('*** WARNING: cyclic error filter is reset')
+    slopeSum = _numberOfMagnets
+    interceptSum = 0
+    coldRestart()
+    raw.reset()
+    clean.reset()
+    goodnessOfFit.reset()
+  }
+
   return {
     applyFilter,
     recordRawDatapoint,
@@ -173,7 +193,8 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
     updateFilter,
     raw,
     clean,
-    restart,
+    warmRestart,
+    coldRestart,
     reset
   }
 }
