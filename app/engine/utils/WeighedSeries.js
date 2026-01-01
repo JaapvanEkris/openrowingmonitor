@@ -8,6 +8,7 @@ import { createSeries } from './Series.js'
 
 /**
  * @param {integer} the maximum length of the weighed series, 0 for unlimited
+ * @param {float|undefined} the default value to return if a function can't calculate a value
  */
 export function createWeighedSeries (maxSeriesLength = 0, defaultValue) {
   const dataArray = createSeries(maxSeriesLength)
