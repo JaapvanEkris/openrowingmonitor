@@ -184,16 +184,38 @@ test('Correct behaviour of a uniformly weighted series after several puhed value
   testGoodnessOfFitEquals(dataSeries, 1)
 })
 
-test('Series with 5 elements, with 2 noisy datapoints', () => {
+test('Series with 5 elements, with 2 noisy datapoints, uniform weights', () => {
   const dataSeries = createWLSLinearSeries(5)
   dataSeries.push(5, 9, 1)
   dataSeries.push(3, 2, 1)
   dataSeries.push(4, 7, 1)
   dataSeries.push(6, 12, 1)
   dataSeries.push(1, -3, 1)
-  testSlopeBetween(dataSeries, 2.9, 3.1)
-  testInterceptBetween(dataSeries, -6.3, -5.8)
-  testGoodnessOfFitBetween(dataSeries, 0.9, 1.0)
+  testSlopeEquals(dataSeries, 3)
+  testInterceptEquals(dataSeries, -6)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testLocalGoodnessOfFitEquals(dataSeries, 0, 1)
+  testLocalGoodnessOfFitEquals(dataSeries, 1, 0.9645892351274787)
+  testLocalGoodnessOfFitEquals(dataSeries, 2, 0.9645892351274787)
+  testLocalGoodnessOfFitEquals(dataSeries, 3, 1)
+  testLocalGoodnessOfFitEquals(dataSeries, 4, 1)
+})
+
+test('Series with 5 elements, with 2 noisy datapoints, non-uniform weights', () => {
+  const dataSeries = createWLSLinearSeries(5)
+  dataSeries.push(5, 9, 1)
+  dataSeries.push(3, 2, 0.5)
+  dataSeries.push(4, 7, 0.5)
+  dataSeries.push(6, 12, 1)
+  dataSeries.push(1, -3, 1)
+  testSlopeEquals(dataSeries, 3)
+  testInterceptEquals(dataSeries, -6)
+  testGoodnessOfFitEquals(dataSeries, 1)
+  testLocalGoodnessOfFitEquals(dataSeries, 0, 1)
+  testLocalGoodnessOfFitEquals(dataSeries, 1, 0.9645892351274787)
+  testLocalGoodnessOfFitEquals(dataSeries, 2, 0.9645892351274787)
+  testLocalGoodnessOfFitEquals(dataSeries, 3, 1)
+  testLocalGoodnessOfFitEquals(dataSeries, 4, 1)
 })
 
 // Test based on the Galton dataset, using unweighted (=OLS) regression
@@ -303,27 +325,16 @@ function testSlopeEquals (series, expectedValue) {
   assert.ok(series.slope() === expectedValue, `Expected slope to be ${expectedValue}, encountered a ${series.slope()}`)
 }
 
-function testSlopeBetween (series, expectedValueAbove, expectedValueBelow) {
-  assert.ok(series.slope() > expectedValueAbove, `Expected slope to be above ${expectedValueAbove}, encountered a ${series.slope()}`)
-  assert.ok(series.slope() < expectedValueBelow, `Expected slope to be below ${expectedValueBelow}, encountered a ${series.slope()}`)
-}
-
 function testInterceptEquals (series, expectedValue) {
   assert.ok(series.intercept() === expectedValue, `Expected intercept to be ${expectedValue}, encountered ${series.intercept()}`)
-}
-
-function testInterceptBetween (series, expectedValueAbove, expectedValueBelow) {
-  assert.ok(series.intercept() > expectedValueAbove, `Expected intercept to be above ${expectedValueAbove}, encountered ${series.intercept()}`)
-  assert.ok(series.intercept() < expectedValueBelow, `Expected intercept to be below ${expectedValueBelow}, encountered ${series.intercept()}`)
 }
 
 function testGoodnessOfFitEquals (series, expectedValue) {
   assert.ok(series.goodnessOfFit() === expectedValue, `Expected goodnessOfFit to be ${expectedValue}, encountered ${series.goodnessOfFit()}`)
 }
 
-function testGoodnessOfFitBetween (series, expectedValueAbove, expectedValueBelow) {
-  assert.ok(series.goodnessOfFit() > expectedValueAbove, `Expected goodnessOfFit to be above ${expectedValueAbove}, encountered ${series.goodnessOfFit()}`)
-  assert.ok(series.goodnessOfFit() < expectedValueBelow, `Expected goodnessOfFit to be below ${expectedValueBelow}, encountered ${series.goodnessOfFit()}`)
+function testLocalGoodnessOfFitEquals (series, position, expectedValue) {
+  assert.ok(series.localGoodnessOfFit(position) === expectedValue, `Expected localGoodnessOfFit at position ${position} to be ${expectedValue}, encountered ${series.localGoodnessOfFit(position)}`)
 }
 
 test.run()
