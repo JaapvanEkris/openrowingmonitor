@@ -1,11 +1,10 @@
 'use strict'
-/*
-  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-*/
 /**
- * This creates a series with a maximum number of values. It allows for determining the Average, Median, Number of Positive, number of Negative
- * @remark BE AWARE: The median function is extremely CPU intensive for larger series. Use the BinarySearchTree for that situation instead!
- *
+ * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
+ * 
+ * @file This creates a series with a maximum number of values. It allows for determining the Average, Median, Number of Positive, number of Negative BE AWARE: The median function is extremely CPU intensive for larger series. Use the BinarySearchTree for that situation instead!
+ */
+/**
  * @param {number} [maxSeriesLength] The maximum length of the series (0 for unlimited)
  */
 export function createSeries (maxSeriesLength = 0) {
@@ -55,14 +54,14 @@ export function createSeries (maxSeriesLength = 0) {
   }
 
   /**
-   * @output {number} length of the series
+   * @returns {number} length of the series
    */
   function length () {
     return seriesArray.length
   }
 
   /**
-   * @output {float} value at the head of the series (i.e. the one first added)
+   * @returns {float} the oldest value of the series (i.e. the one first added)
    */
   function atSeriesBegin () {
     if (seriesArray.length > 0) {
@@ -73,7 +72,7 @@ export function createSeries (maxSeriesLength = 0) {
   }
 
   /**
-   * @output {float} value at the tail of the series (i.e. the one last added)
+   * @returns {float} the youngest value of the series (i.e. the one last added)
    */
   function atSeriesEnd () {
     if (seriesArray.length > 0) {
@@ -84,8 +83,8 @@ export function createSeries (maxSeriesLength = 0) {
   }
 
   /**
-   * @param {number} position
-   * @output {float} value at a specific postion, starting at 0
+   * @param {integer} position to be retrieved, starting at 0
+   * @returns {float} value at that specific postion in the series
    */
   function get (position) {
     if (position >= 0 && position < seriesArray.length) {
@@ -96,8 +95,8 @@ export function createSeries (maxSeriesLength = 0) {
   }
 
   /**
-   * @param {number} testedValue
-   * @output {number} number of values in the series above the tested value
+   * @param {float} tested value
+   * @returns {integer} count of values in the series above the tested value
    */
   function numberOfValuesAbove (testedValue) {
     if (testedValue === 0) {
@@ -116,8 +115,8 @@ export function createSeries (maxSeriesLength = 0) {
   }
 
   /**
-   * @param {number} testedValue
-   * @output {number} number of values in the series below or equal to the tested value
+   * @param {float} tested value
+   * @returns {integer} number of values in the series below or equal to the tested value
    */
   function numberOfValuesEqualOrBelow (testedValue) {
     if (testedValue === 0) {
@@ -136,14 +135,14 @@ export function createSeries (maxSeriesLength = 0) {
   }
 
   /**
-   * @output {float} sum of the entire series
+   * @returns {float} sum of the entire series
    */
   function sum () {
     return seriesSum
   }
 
   /**
-   * @output {float} average of the entire series
+   * @returns {float} average of the entire series
    */
   function average () {
     if (seriesArray.length > 0) {
@@ -154,7 +153,7 @@ export function createSeries (maxSeriesLength = 0) {
   }
 
   /**
-   * @output {float} smallest element in the series
+   * @returns {float} smallest element in the series
    */
   function minimum () {
     if (seriesArray.length > 0) {
@@ -166,7 +165,7 @@ export function createSeries (maxSeriesLength = 0) {
   }
 
   /**
-   * @output {float} largest value in the series
+   * @returns {float} largest value in the series
    */
   function maximum () {
     if (seriesArray.length > 0) {
@@ -178,7 +177,8 @@ export function createSeries (maxSeriesLength = 0) {
   }
 
   /**
-   * @output {float} median of the series (DO NOT USE FOR LARGE SERIES!)
+   * @returns {float} median of the series 
+   * @description returns the median of the series. As this is a CPU intensive approach, DO NOT USE FOR LARGE SERIES!. For larger series, use the BinarySearchTree.js instead
    */
   function median () {
     if (seriesArray.length > 0) {
@@ -191,7 +191,7 @@ export function createSeries (maxSeriesLength = 0) {
   }
 
   /**
-   * @output {array} returns the entire series
+   * @returns {array} returns the entire series
    */
   function series () {
     if (seriesArray.length > 0) {
