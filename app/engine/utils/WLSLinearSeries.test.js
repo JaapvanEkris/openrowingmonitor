@@ -196,7 +196,7 @@ test('Series with 5 elements, with 2 noisy datapoints, ideal function y = 3x - 6
   testGoodnessOfFitEquals(dataSeries, 0.9863142179006205) // Ideal value 1
   testXProjectionEquals(dataSeries, 1, -3.1891891891891886) // Theoretical value -3
   testXProjectionEquals(dataSeries, 3, 2.9459459459459456) // Theoretical value 3
-  testXProjectionEquals(dataSeries, 4, 7) // Theoretical value 6
+  testXProjectionEquals(dataSeries, 4, 6.013513513513514) // Theoretical value 6
   testXProjectionEquals(dataSeries, 5, 9) // Theoretical value 9
   testXProjectionEquals(dataSeries, 6, 12) // Theoretical value 12
 })
@@ -213,7 +213,7 @@ test('Series with 5 elements, with 2 noisy datapoints, ideal function y = 3x - 6
   testGoodnessOfFitEquals(dataSeries, 0.9926631153882663) // Ideal value 1
   testXProjectionEquals(dataSeries, 1, -3.0995670995670994) // Theoretical value -3
   testXProjectionEquals(dataSeries, 3, 2.9696969696969706) // Theoretical value 3
-  testXProjectionEquals(dataSeries, 4, 7) // Theoretical value 6
+  testXProjectionEquals(dataSeries, 4, 6.004329004329005) // Theoretical value 6
   testXProjectionEquals(dataSeries, 5, 9) // Theoretical value 9
   testXProjectionEquals(dataSeries, 6, 12) // Theoretical value 12
 })
