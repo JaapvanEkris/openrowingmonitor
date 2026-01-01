@@ -191,14 +191,14 @@ test('Series with 5 elements, with 2 noisy datapoints, ideal function y = 3x - 6
   dataSeries.push(4, 7, 1)
   dataSeries.push(6, 12, 1)
   dataSeries.push(1, -3, 1)
-  testSlopeEquals(dataSeries, 3.0675675675675675)
-  testInterceptEquals(dataSeries, -6.256756756756756)
-  testGoodnessOfFitEquals(dataSeries, 0.9863142179006205)
-  testXProjectionEquals(dataSeries, 1, -3.1891891891891886)
-  testXProjectionEquals(dataSeries, 3, 2)
-  testXProjectionEquals(dataSeries, 4, 7)
-  testXProjectionEquals(dataSeries, 5, 9)
-  testXProjectionEquals(dataSeries, 6, 12)
+  testSlopeEquals(dataSeries, 3.0675675675675675) // Theoretical value 3
+  testInterceptEquals(dataSeries, -6.256756756756756) // Theoretical value -6
+  testGoodnessOfFitEquals(dataSeries, 0.9863142179006205) // Ideal value 1
+  testXProjectionEquals(dataSeries, 1, -3.1891891891891886) // Theoretical value -3
+  testXProjectionEquals(dataSeries, 3, 2.9459459459459456) // Theoretical value 3
+  testXProjectionEquals(dataSeries, 4, 7) // Theoretical value 6
+  testXProjectionEquals(dataSeries, 5, 9) // Theoretical value 9
+  testXProjectionEquals(dataSeries, 6, 12) // Theoretical value 12
 })
 
 test('Series with 5 elements, with 2 noisy datapoints, ideal function y = 3x - 6, non-uniform weights', () => {
@@ -208,14 +208,14 @@ test('Series with 5 elements, with 2 noisy datapoints, ideal function y = 3x - 6
   dataSeries.push(4, 7, 0.5)
   dataSeries.push(6, 12, 1)
   dataSeries.push(1, -3, 1)
-  testSlopeEquals(dataSeries, 3.034632034632035)
-  testInterceptEquals(dataSeries, -6.134199134199134)
-  testGoodnessOfFitEquals(dataSeries, 0.9926631153882663)
-  testXProjectionEquals(dataSeries, 1, -3.0995670995670994)
-  testXProjectionEquals(dataSeries, 3, 2)
-  testXProjectionEquals(dataSeries, 4, 7)
-  testXProjectionEquals(dataSeries, 5, 9)
-  testXProjectionEquals(dataSeries, 6, 12)
+  testSlopeEquals(dataSeries, 3.034632034632035) // Theoretical value 3
+  testInterceptEquals(dataSeries, -6.134199134199134) // Theoretical value -6
+  testGoodnessOfFitEquals(dataSeries, 0.9926631153882663) // Ideal value 1
+  testXProjectionEquals(dataSeries, 1, -3.0995670995670994) // Theoretical value -3
+  testXProjectionEquals(dataSeries, 3, 2.9696969696969706) // Theoretical value 3
+  testXProjectionEquals(dataSeries, 4, 7) // Theoretical value 6
+  testXProjectionEquals(dataSeries, 5, 9) // Theoretical value 9
+  testXProjectionEquals(dataSeries, 6, 12) // Theoretical value 12
 })
 
 // Test based on the Galton dataset, using unweighted (=OLS) regression
