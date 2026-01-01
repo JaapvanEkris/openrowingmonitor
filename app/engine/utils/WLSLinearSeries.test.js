@@ -194,11 +194,11 @@ test('Series with 5 elements, with 2 noisy datapoints, ideal function y = 3x - 6
   testSlopeEquals(dataSeries, 3.0675675675675675)
   testInterceptEquals(dataSeries, -6.256756756756756)
   testGoodnessOfFitEquals(dataSeries, 0.9863142179006205)
-  testLocalGoodnessOfFitEquals(dataSeries, 0, 1)
-  testLocalGoodnessOfFitEquals(dataSeries, 1, 0.9645892351274787)
-  testLocalGoodnessOfFitEquals(dataSeries, 2, 0.9645892351274787)
-  testLocalGoodnessOfFitEquals(dataSeries, 3, 1)
-  testLocalGoodnessOfFitEquals(dataSeries, 4, 1)
+  testXProjectionEquals(dataSeries, 1, -3)
+  testXProjectionEquals(dataSeries, 3, 2)
+  testXProjectionEquals(dataSeries, 4, 7)
+  testXProjectionEquals(dataSeries, 5, 9)
+  testXProjectionEquals(dataSeries, 6, 12)
 })
 
 test('Series with 5 elements, with 2 noisy datapoints, ideal function y = 3x - 6, non-uniform weights', () => {
@@ -211,11 +211,11 @@ test('Series with 5 elements, with 2 noisy datapoints, ideal function y = 3x - 6
   testSlopeEquals(dataSeries, 3.034632034632035)
   testInterceptEquals(dataSeries, -6.134199134199134)
   testGoodnessOfFitEquals(dataSeries, 0.9926631153882663)
-  testLocalGoodnessOfFitEquals(dataSeries, 0, 1)
-  testLocalGoodnessOfFitEquals(dataSeries, 1, 0.9645892351274787)
-  testLocalGoodnessOfFitEquals(dataSeries, 2, 0.9645892351274787)
-  testLocalGoodnessOfFitEquals(dataSeries, 3, 1)
-  testLocalGoodnessOfFitEquals(dataSeries, 4, 1)
+  testXProjectionEquals(dataSeries, 1, -3)
+  testXProjectionEquals(dataSeries, 3, 2)
+  testXProjectionEquals(dataSeries, 4, 7)
+  testXProjectionEquals(dataSeries, 5, 9)
+  testXProjectionEquals(dataSeries, 6, 12)
 })
 
 // Test based on the Galton dataset, using unweighted (=OLS) regression
@@ -333,8 +333,8 @@ function testGoodnessOfFitEquals (series, expectedValue) {
   assert.ok(series.goodnessOfFit() === expectedValue, `Expected goodnessOfFit to be ${expectedValue}, encountered ${series.goodnessOfFit()}`)
 }
 
-function testLocalGoodnessOfFitEquals (series, position, expectedValue) {
-  assert.ok(series.localGoodnessOfFit(position) === expectedValue, `Expected localGoodnessOfFit at position ${position} to be ${expectedValue}, encountered ${series.localGoodnessOfFit(position)}`)
+function testXProjectionEquals (series, value, expectedValue) {
+  assert.ok(series.projectX(value) === expectedValue, `Expected projectX at value ${value} to be ${expectedValue}, encountered ${series.projectX(value)}`)
 }
 
 test.run()
