@@ -1,7 +1,7 @@
 'use strict'
 /**
  * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
- * 
+ *
  * @file This models the flywheel with all of its attributes, which we can also test for being powered
  *
  * All times and distances are defined as being before the beginning of the flank, as RowingEngine's metrics
@@ -76,7 +76,7 @@ export function createFlywheel (rowerSettings) {
   let totalTimeSpinning
   let _totalWork
   reset()
-  
+
   /**
    * @param {float} dataPoint - The lenght of the impuls (currentDt) in seconds
    * @description This function is called from Rower.js each time the sensor detected an impulse. It transforms this (via the buffers) into a robust flywheel position, speed and acceleration.
