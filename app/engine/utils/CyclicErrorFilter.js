@@ -86,6 +86,28 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
   }
 
   /**
+   * @returns {object} result - provides the (oldest) object at the head of the FiFo buffer, as once returned as a repsonse to the 'applyFilter()' function
+   * @returns {float} result.clean - the resulting clean value as once returned
+   * @returns {float} result.raw - the initial (raw) datapoint before applying the filter
+   * @returns {float} result.goodnessOfFit - The goodness of fit indication for the specific datapoint
+   */
+  function atSeriesBegin () {
+    if (clean.length() > 0) {
+      return {
+        clean: clean.atSeriesBegin(),
+        raw: raw.atSeriesBegin(),
+        goodnessOfFit: goodnessOfFit.atSeriesBegin()
+      }
+    } else {
+      return {
+        clean: undefined,
+        raw: undefined,
+        goodnessOfFit: 0
+      }
+    }
+  }
+
+  /**
    * @param {integer} relativePosition - the position of the recorded datapoint (i.e the sequence number of the datapoint)
    * @param {float} absolutePosition - the total spinning time of the flywheel
    * @param {float} rawValue - the raw value
@@ -209,9 +231,7 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
     recordRawDatapoint,
     processNextRawDatapoint,
     updateFilter,
-    raw,
-    clean,
-    goodnessOfFit,
+    atSeriesBegin,
     warmRestart,
     coldRestart,
     reset
