@@ -169,6 +169,51 @@ test('Correct behaviour of a series after several puhed values, function y = 3x 
   testLocalGoodnessOfFitEquals(dataSeries, 2, 1)
 })
 
+test('Series with 5 elements, with 2 noisy datapoints, ideal function y = 3x - 6, uniform weights', () => {
+  const dataSeries = createTSLinearSeries(5)
+  dataSeries.push(5, 9)
+  dataSeries.push(3, 2)
+  dataSeries.push(4, 7)
+  dataSeries.push(6, 12)
+  dataSeries.push(1, -3)
+  testSlopeEquals(dataSeries, 3) // Theoretical noisefree value 3
+  testInterceptEquals(dataSeries, -6) // Theoretical noisefree value -6
+  testGoodnessOfFitEquals(dataSeries, 0.9863142179006205) // Ideal value 1
+  testLocalGoodnessOfFitEquals(dataSeries, 0, 1)
+  testXProjectionEquals(dataSeries, 1, -3) // Theoretical noisefree value -3
+  testLocalGoodnessOfFitEquals(dataSeries, 1, 0.9645892351274787)
+  testXProjectionEquals(dataSeries, 3, 3) // Theoretical noisefree value 3
+  testLocalGoodnessOfFitEquals(dataSeries, 2, 0.9645892351274787)
+  testXProjectionEquals(dataSeries, 4, 6) // Theoretical noisefree value 6
+  testLocalGoodnessOfFitEquals(dataSeries, 3, 1)
+  testXProjectionEquals(dataSeries, 5, 9) // Theoretical noisefree value 9
+  testLocalGoodnessOfFitEquals(dataSeries, 4, 1)
+  testXProjectionEquals(dataSeries, 6, 12) // Theoretical noisefree value 12
+})
+
+test('Series with 5 elements, with 2 noisy datapoints, ideal function y = 3x - 6, non-uniform weights', () => {
+  const dataSeries = createTSLinearSeries(5)
+  dataSeries.push(5, 9, 1)
+  dataSeries.push(3, 2, 0.5)
+  dataSeries.push(4, 7, 0.5)
+  dataSeries.push(6, 12, 1)
+  dataSeries.push(1, -3, 1)
+  testSlopeEquals(dataSeries, 3) // Theoretical noisefree value 3
+  testInterceptEquals(dataSeries, -6) // Theoretical noisefree value -6
+  testGoodnessOfFitEquals(dataSeries, 0.9863142179006205) // Ideal value 1
+  testLocalGoodnessOfFitEquals(dataSeries, 0, 1)
+  testXProjectionEquals(dataSeries, 1, -3) // Theoretical noisefree value -3
+  testLocalGoodnessOfFitEquals(dataSeries, 1, 0.9645892351274787)
+  testXProjectionEquals(dataSeries, 3, 3) // Theoretical noisefree value 3
+  testLocalGoodnessOfFitEquals(dataSeries, 2, 0.9645892351274787)
+  testXProjectionEquals(dataSeries, 4, 6) // Theoretical noisefree value 6
+  testLocalGoodnessOfFitEquals(dataSeries, 3, 1)
+  testXProjectionEquals(dataSeries, 5, 9) // Theoretical noisefree value 9
+  testLocalGoodnessOfFitEquals(dataSeries, 4, 1)
+  testXProjectionEquals(dataSeries, 6, 12) // Theoretical noisefree value 12
+})
+
+
 test('Correct behaviour of a series after several puhed values, function y = 3x - 6, noisefree, 4 datapoints and a reset', () => {
   const dataSeries = createTSLinearSeries(3)
   dataSeries.push(5, 9)
@@ -195,23 +240,6 @@ test('Correct behaviour of a series after several puhed values, function y = 3x 
   testInterceptEquals(dataSeries, 0)
   testGoodnessOfFitEquals(dataSeries, 0)
   testLocalGoodnessOfFitEquals(dataSeries, 0, 0)
-})
-
-test('Series for function y = 3x - 6, with 5 elements, with 2 noisy datapoints', () => {
-  const dataSeries = createTSLinearSeries(5)
-  dataSeries.push(5, 9)
-  dataSeries.push(3, 2)
-  dataSeries.push(4, 7)
-  dataSeries.push(6, 12)
-  dataSeries.push(1, -3)
-  testSlopeBetween(dataSeries, 2.9, 3.1)
-  testInterceptBetween(dataSeries, -6.3, -5.8)
-  testGoodnessOfFitBetween(dataSeries, 0.9, 1.0)
-  testLocalGoodnessOfFitEquals(dataSeries, 0, 1)
-  testLocalGoodnessOfFitEquals(dataSeries, 1, 0.9645892351274787)
-  testLocalGoodnessOfFitEquals(dataSeries, 2, 0.9645892351274787)
-  testLocalGoodnessOfFitEquals(dataSeries, 3, 1)
-  testLocalGoodnessOfFitEquals(dataSeries, 4, 1)
 })
 
 function testLength (series, expectedValue) {
@@ -287,6 +315,10 @@ function testGoodnessOfFitBetween (series, expectedValueAbove, expectedValueBelo
 
 function testLocalGoodnessOfFitEquals (series, position, expectedValue) {
   assert.ok(series.localGoodnessOfFit(position) === expectedValue, `Expected localGoodnessOfFit at position ${position} to be ${expectedValue}, encountered ${series.localGoodnessOfFit(position)}`)
+}
+
+function testXProjectionEquals (series, value, expectedValue) {
+  assert.ok(series.projectX(value) === expectedValue, `Expected projectX at value ${value} to be ${expectedValue}, encountered ${series.projectX(value)}`)
 }
 
 test.run()
