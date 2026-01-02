@@ -5,6 +5,7 @@
  * @file This implements a cyclic error filter. This is used to create a profile
  * The filterArray does the calculation, the slope and intercept arrays contain the results for easy retrieval
  * the slopeCorrection and interceptCorrection ensure preventing time dilation due to excessive corrections
+ * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Mathematical_Foundations.md|for the underlying math description)
  */
 import loglevel from 'loglevel'
 import { createSeries } from './Series.js'
