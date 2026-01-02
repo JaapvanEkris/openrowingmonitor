@@ -1,7 +1,7 @@
 'use strict'
 /**
  * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
- * 
+ *
  * @file The TSLinearSeries is a datatype that represents a Weighted Linear Series. It allows
  * values to be retrieved (like a FiFo buffer, or Queue) but it also includes
  * a Weighted Theil-Sen estimator Linear Regressor to determine the slope of this timeseries.
@@ -63,7 +63,7 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
     X.push(x)
     Y.push(y)
     weight.push(w)
-	  WY.push(y, w)
+    WY.push(y, w)
 
     // Calculate all the slopes of the newly added point
     if (X.length() > 1) {
