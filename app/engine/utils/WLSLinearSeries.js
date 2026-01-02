@@ -1,7 +1,7 @@
 'use strict'
 /**
  * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
- * 
+ *
  * @file The WLSLinearSeries is a datatype that represents a Linear Series. It allows
  * values to be retrieved (like a FiFo buffer, or Queue) but it also includes
  * a Weighted Linear Regressor to determine the slope, intercept and R^2 of this series
@@ -147,6 +147,9 @@ export function createWLSLinearSeries (maxSeriesLength = 0) {
     return (X.length() >= 2 && _slope !== 0)
   }
 
+  /**
+   * @description This function is used for clearing all data, typically when flywheel.js is completely reset
+   */
   function reset () {
     X.reset()
     Y.reset()
