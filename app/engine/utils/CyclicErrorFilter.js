@@ -1,7 +1,7 @@
 'use strict'
 /**
  * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
- * 
+ *
  * @file This implements a cyclic error filter. This is used to create a profile
  * The filterArray does the calculation, the slope and intercept arrays contain the results for easy retrieval
  * the slopeCorrection and interceptCorrection ensure preventing time dilation due to excessive corrections
@@ -54,7 +54,7 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
    * @param {float} the raw recorded value to be cleaned up
    * @param {integer} the position of the flywheel
    * @returns {object} result
-   * @returns {float} result.value - the resulting clean value 
+   * @returns {float} result.value - the resulting clean value
    * @returns {float} result.goodnessOfFit - The goodness of fit indication for the specific datapoint
    * @description Applies the filter on the raw value for the given position (i.e. magnet). Please note: this function is NOT stateless, it also fills a hystoric buffer of raw and clean values
    */
