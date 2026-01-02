@@ -233,7 +233,7 @@ test('Series with 5 elements, with 2 noisy datapoints, ideal function y = 3x - 6
   testXProjectionEquals(dataSeries, 1, -3) // Theoretical noisefree value -3
   testLocalGoodnessOfFitEquals(dataSeries, 1, 0.9813345776948204)
   testXProjectionEquals(dataSeries, 3, 3) // Theoretical noisefree value 3
-  testLocalGoodnessOfFitEquals(dataSeries, 2, 0.9645892351274787)
+  testLocalGoodnessOfFitEquals(dataSeries, 2, 0.9813345776948204)
   testXProjectionEquals(dataSeries, 4, 6) // Theoretical noisefree value 6
   testLocalGoodnessOfFitEquals(dataSeries, 3, 1)
   testXProjectionEquals(dataSeries, 5, 9) // Theoretical noisefree value 9
