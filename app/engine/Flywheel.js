@@ -63,7 +63,7 @@ export function createFlywheel (rowerSettings) {
   const minimumRecoverySlope = createWeighedSeries(rowerSettings.dragFactorSmoothing, rowerSettings.minimumRecoverySlope)
   let totalTime
   let currentAngularDistance
-  let _deltaTimeBeforeFlank
+  let _deltaTimeBeforeFlank = {}
   let _angularVelocityAtBeginFlank
   let _angularVelocityBeforeFlank
   let _angularAccelerationAtBeginFlank
@@ -112,8 +112,8 @@ export function createFlywheel (rowerSettings) {
       // value before the shift is certain to be part of a specific rowing phase (i.e. Drive or Recovery), once the buffer is filled completely
       totalNumberOfImpulses += 1
 
-      _deltaTimeBeforeFlank = cyclicErrorFilter.clean.atSeriesBegin()
-      totalTimeSpinning += _deltaTimeBeforeFlank
+      _deltaTimeBeforeFlank = cyclicErrorFilter.atSeriesBegin()
+      totalTimeSpinning += _deltaTimeBeforeFlank.clean
       _angularVelocityBeforeFlank = _angularVelocityAtBeginFlank
       _angularAccelerationBeforeFlank = _angularAccelerationAtBeginFlank
       // As drag is recalculated at the begin of the drive, we need to recalculate the torque
@@ -121,9 +121,9 @@ export function createFlywheel (rowerSettings) {
 
       if (inRecoveryPhase) {
         // Feed the drag calculation, as we didn't reset the Semaphore in the previous cycle based on the current flank
-        recoveryDeltaTime.push(totalTimeSpinning, _deltaTimeBeforeFlank, cyclicErrorFilter.goodnessOfFit.atSeriesBegin())
+        recoveryDeltaTime.push(totalTimeSpinning, _deltaTimeBeforeFlank.clean, _deltaTimeBeforeFlank.goodnessOfFit)
         // Feed the systematic error filter buffer
-        cyclicErrorFilter.recordRawDatapoint(totalNumberOfImpulses, totalTimeSpinning, cyclicErrorFilter.raw.atSeriesBegin())
+        cyclicErrorFilter.recordRawDatapoint(totalNumberOfImpulses, totalTimeSpinning, _deltaTimeBeforeFlank.raw)
       } else {
         // Accumulate the energy total as we are in the drive phase
         _totalWork += Math.max(_torqueBeforeFlank * angularDisplacementPerImpulse, 0)
@@ -131,7 +131,7 @@ export function createFlywheel (rowerSettings) {
         cyclicErrorFilter.processNextRawDatapoint()
       }
     } else {
-      _deltaTimeBeforeFlank = 0
+      _deltaTimeBeforeFlank.clean = 0
       _angularVelocityBeforeFlank = 0
       _angularAccelerationBeforeFlank = 0
       _torqueBeforeFlank = 0
@@ -225,7 +225,7 @@ export function createFlywheel (rowerSettings) {
    * @returns {float} the current DeltaTime BEFORE the flank
    */
   function deltaTime () {
-    return _deltaTimeBeforeFlank
+    return _deltaTimeBeforeFlank.clean
   }
 
   /**
@@ -417,7 +417,7 @@ export function createFlywheel (rowerSettings) {
     _totalWork = 0
     _deltaTime.push(0, 0)
     _angularDistance.push(0, 0)
-    _deltaTimeBeforeFlank = 0
+    _deltaTimeBeforeFlank.clean = 0
     _angularVelocityBeforeFlank = 0
     _angularAccelerationBeforeFlank = 0
     _torqueAtBeginFlank = 0
