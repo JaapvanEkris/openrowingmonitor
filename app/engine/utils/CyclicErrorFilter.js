@@ -211,6 +211,7 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
     updateFilter,
     raw,
     clean,
+    goodnessOfFit,
     warmRestart,
     coldRestart,
     reset
