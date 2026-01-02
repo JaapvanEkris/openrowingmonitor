@@ -16,7 +16,8 @@ const log = loglevel.getLogger('RowingEngine')
  * @param {object} rowerSettings - The rower settings configuration object
  * @param {integer} rowerSettings.numOfImpulsesPerRevolution - Number of impulses per flywheel revolution
  * @param {integer} rowerSettings.flankLength - Length of the flank used
- * @param {float} rowerSettings.systematicErrorAgressiveness - Agressiveness of the systematic error correction algorithm (0 turns it off)
+ * @param {boolean} rowerSettings.autoAdjustDragFactor - Indicates if the Flywheel.js is allowed to automatically adjust dragfactor (false turns the filter off)
+ * @param {float} rowerSettings.systematicErrorAgressiveness - Agressiveness of the systematic error correction algorithm (0 turns the filter off)
  * @param {float} rowerSettings.minimumTimeBetweenImpulses - minimum expected time between impulses (in seconds)
  * @param {float} rowerSettings.maximumTimeBetweenImpulses - maximum expected time between impulses (in seconds)
  * @param {integer} minimumDragFactorSamples - the number of expected dragfactor samples
@@ -61,7 +62,7 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
     if (startPosition === undefined) { startPosition = position + _flankLength }
     const magnet = position % _numberOfMagnets
     raw.push(rawValue)
-    if (_agressiveness > 0) {
+    if (rowerSettings.autoAdjustDragFactor && _agressiveness > 0) {
       clean.push(projectX(magnet, rawValue))
       goodnessOfFit.push(filterArray[magnet].goodnessOfFit())
     } else {
@@ -90,7 +91,7 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
    * @param {float} rawValue - the raw value
    */
   function recordRawDatapoint (relativePosition, absolutePosition, rawValue) {
-    if (_agressiveness > 0 && rawValue >= _minimumTimeBetweenImpulses && _maximumTimeBetweenImpulses >= rawValue) {
+    if (rowerSettings.autoAdjustDragFactor && _agressiveness > 0 && rawValue >= _minimumTimeBetweenImpulses && _maximumTimeBetweenImpulses >= rawValue) {
       recordedRelativePosition.push(relativePosition)
       recordedAbsolutePosition.push(absolutePosition)
       recordedRawValue.push(rawValue)
