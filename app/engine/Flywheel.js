@@ -1,9 +1,8 @@
 'use strict'
-/*
-  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-*/
 /**
- * This models the flywheel with all of its attributes, which we can also test for being powered
+ * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
+ * 
+ * @file This models the flywheel with all of its attributes, which we can also test for being powered
  *
  * All times and distances are defined as being before the beginning of the flank, as RowingEngine's metrics
  * solely depend on times and angular positions before the flank (as they are to be certain to belong to a specific
@@ -29,6 +28,26 @@ import { createMovingRegressor } from './utils/MovingWindowRegressor.js'
 
 const log = loglevel.getLogger('RowingEngine')
 
+/**
+ * @param {object} rowerSettings - The rower settings configuration object
+ * @param {integer} rowerSettings.numOfImpulsesPerRevolution - Number of impulses per flywheel revolution
+ * @param {integer} rowerSettings.flankLength - Length of the flank used
+ * @param {float} rowerSettings.minimumRecoveryTime - Minimum time a recovery should last (seconds)
+ * @param {float} rowerSettings.maximumStrokeTimeBeforePause - Minimum time that has to pass after the last drive for a pause to kick in (seconds)
+ * @param {float} rowerSettings.flywheelInertia - Inertia of the flywheel
+ * @param {float} rowerSettings.dragFactor - (initial) Dragfactor
+ * @param {boolean} rowerSettings.autoAdjustDragFactor - Indicates if the Flywheel.js is allowed to automatically adjust dragfactor (false turns the filter off)
+ * @param {integer} rowerSettings.dragFactorSmoothing - Number of recoveries to be weighed in the current dragfactor
+ * @param {float} rowerSettings.minimumRecoverySlope - (initial) recpvery slope
+ * @param {boolean} rowerSettings.autoAdjustRecoverySlope - Allow OpenRowingMonitor to adjust the recoverySlope based on the previous recoveries (and thus dragfactor)
+ * @param {float} rowerSettings.autoAdjustRecoverySlopeMargin - Margin to be maintained for the automatically adjusted recovery slope
+ * @param {float} rowerSettings.minimumStrokeQuality - Minimum Goodness Of Fit for a slope to be considered reliable for stroke detection
+ * @param {float} rowerSettings.sprocketRadius - Radius of the driving sprocket (centimeters)
+ * @param {float} rowerSettings.minimumForceBeforeStroke - Minimum force for the flywheel to be considered powered (Newton)
+ * @param {float} rowerSettings.systematicErrorAgressiveness - Agressiveness of the systematic error correction algorithm (0 turns the filter off)
+ * @param {float} rowerSettings.minimumTimeBetweenImpulses - minimum expected time between impulses (in seconds)
+ * @param {float} rowerSettings.maximumTimeBetweenImpulses - maximum expected time between impulses (in seconds)
+ */
 export function createFlywheel (rowerSettings) {
   const angularDisplacementPerImpulse = (2.0 * Math.PI) / rowerSettings.numOfImpulsesPerRevolution
   const flankLength = rowerSettings.flankLength
@@ -57,7 +76,12 @@ export function createFlywheel (rowerSettings) {
   let totalTimeSpinning
   let _totalWork
   reset()
-
+  
+  /**
+   * @param {float} dataPoint - The lenght of the impuls (currentDt) in seconds
+   * @description This function is called from Rower.js each time the sensor detected an impulse. It transforms this (via the buffers) into a robust flywheel position, speed and acceleration.
+   * It also calculates dragfactor and provides the indicators for stroke detection.
+   */
   /* eslint-disable max-statements -- we need to maintain a lot of metrics in the main loop, nothing we can do about that */
   function pushValue (dataPoint) {
     if (isNaN(dataPoint) || dataPoint < 0 || dataPoint > rowerSettings.maximumStrokeTimeBeforePause) {
@@ -99,7 +123,7 @@ export function createFlywheel (rowerSettings) {
         // Feed the drag calculation, as we didn't reset the Semaphore in the previous cycle based on the current flank
         recoveryDeltaTime.push(totalTimeSpinning, _deltaTimeBeforeFlank)
         // Feed the systematic error filter buffer
-        if (rowerSettings.autoAdjustDragFactor) { cyclicErrorFilter.recordRawDatapoint(totalNumberOfImpulses, totalTimeSpinning, cyclicErrorFilter.raw.atSeriesBegin()) }
+        cyclicErrorFilter.recordRawDatapoint(totalNumberOfImpulses, totalTimeSpinning, cyclicErrorFilter.raw.atSeriesBegin())
       } else {
         // Accumulate the energy total as we are in the drive phase
         _totalWork += Math.max(_torqueBeforeFlank * angularDisplacementPerImpulse, 0)
@@ -128,15 +152,24 @@ export function createFlywheel (rowerSettings) {
   }
   /* eslint-enable max-statements */
 
+  /**
+   * @description Function to handle the start of a pause/stop based on a trigger from Rower.js
+   */
   function maintainStateOnly () {
     maintainMetrics = false
   }
 
+  /**
+   * @description Function to handle the end of a pause/stop based on a trigger from Rower.js
+   */
   function maintainStateAndMetrics () {
     maintainMetrics = true
     cyclicErrorFilter.coldRestart()
   }
 
+  /**
+   * @description Function to handle the start of the recovery phase based on a trigger from Rower.js
+   */
   function markRecoveryPhaseStart () {
     inRecoveryPhase = true
     recoveryDeltaTime.reset()
@@ -144,7 +177,7 @@ export function createFlywheel (rowerSettings) {
   }
 
   /**
-   * Function to handle ompletion of the recovery phase
+   * @description Function to handle the completion of the recovery phase based on a trigger from Rower.js
    */
   function markRecoveryPhaseCompleted () {
     inRecoveryPhase = false
@@ -181,10 +214,16 @@ export function createFlywheel (rowerSettings) {
     return totalTimeSpinning
   }
 
+  /**
+   * @returns {float} the total energy produced onto the flywheel in Joules BEFORE the beginning of the flank
+   */
   function totalWork () {
     return Math.max(_totalWork, 0)
   }
 
+  /**
+   * @returns {float} the current DeltaTime BEFORE the flank
+   */
   function deltaTime () {
     return _deltaTimeBeforeFlank
   }
@@ -300,7 +339,8 @@ export function createFlywheel (rowerSettings) {
   }
 
   /**
-   * @returns {boolean} indicator if the currentDt slope is below a certain slope
+   * @param {float} threshold - Maximum slope
+   * @returns {boolean} indicator if the currentDt slope is below the specified slope
    * This is a typical indication that the flywheel is accelerating. We use the slope of successive currentDt's
    * A (more) negative slope indicates a powered flywheel. When set to 0, it determines whether the DeltaT's are decreasing
    * When set to a value below 0, it will become more stringent. In automatic, a percentage of the current slope (i.e. dragfactor) is used
@@ -315,7 +355,8 @@ export function createFlywheel (rowerSettings) {
   }
 
   /**
-   * @returns {boolean} indicator if the currentDt slope is above a certain slope
+   * @param {float} threshold - Maximum slope
+   * @returns {boolean} indicator if the currentDt slope is above the specified slope
    * This is a typical indication that the flywheel is deccelerating. We use the slope of successive currentDt's
    * A (more) positive slope indicates a unpowered flywheel. When set to 0,  it determines whether the DeltaT's are increasing
    * When set to a value below 0, it will become more stringent as it will detect a power inconsistent with the drag
