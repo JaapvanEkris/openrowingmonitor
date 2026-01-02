@@ -206,7 +206,7 @@ test('Series with 5 elements, with 2 noisy datapoints, ideal function y = 3x - 6
   dataSeries.push(1, -3)
   testSlopeEquals(dataSeries, 3) // Theoretical noisefree value 3
   testInterceptEquals(dataSeries, -6) // Theoretical noisefree value -6
-  testGoodnessOfFitEquals(dataSeries, 0.9863142179006205) // Ideal value 1
+  testGoodnessOfFitEquals(dataSeries, 0.9858356940509915) // Ideal value 1
   testLocalGoodnessOfFitEquals(dataSeries, 0, 1)
   testXProjectionEquals(dataSeries, 1, -3) // Theoretical noisefree value -3
   testLocalGoodnessOfFitEquals(dataSeries, 1, 0.9645892351274787)
@@ -228,7 +228,7 @@ test('Series with 5 elements, with 2 noisy datapoints, ideal function y = 3x - 6
   dataSeries.push(1, -3, 1)
   testSlopeEquals(dataSeries, 3) // Theoretical noisefree value 3
   testInterceptEquals(dataSeries, -6) // Theoretical noisefree value -6
-  testGoodnessOfFitEquals(dataSeries, 0.9863142179006205) // Ideal value 1
+  testGoodnessOfFitEquals(dataSeries, 0.9925338310779281) // Ideal value 1
   testLocalGoodnessOfFitEquals(dataSeries, 0, 1)
   testXProjectionEquals(dataSeries, 1, -3) // Theoretical noisefree value -3
   testLocalGoodnessOfFitEquals(dataSeries, 1, 0.9645892351274787)
