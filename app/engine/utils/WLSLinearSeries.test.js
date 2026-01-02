@@ -198,7 +198,7 @@ test('Series with 5 elements, with 2 noisy datapoints, ideal function y = 3x - 6
   testXProjectionEquals(dataSeries, 3, 2.9459459459459456) // Theoretical noisefree value 3
   testXProjectionEquals(dataSeries, 4, 6.013513513513514) // Theoretical noisefree value 6
   testXProjectionEquals(dataSeries, 5, 9.081081081081082) // Theoretical noisefree value 9
-  testXProjectionEquals(dataSeries, 6, 12) // Theoretical noisefree value 12
+  testXProjectionEquals(dataSeries, 6, 12.148648648648647) // Theoretical noisefree value 12
 })
 
 test('Series with 5 elements, with 2 noisy datapoints, ideal function y = 3x - 6, non-uniform weights', () => {
@@ -215,7 +215,7 @@ test('Series with 5 elements, with 2 noisy datapoints, ideal function y = 3x - 6
   testXProjectionEquals(dataSeries, 3, 2.9696969696969706) // Theoretical noisefree value 3
   testXProjectionEquals(dataSeries, 4, 6.004329004329005) // Theoretical noisefree value 6
   testXProjectionEquals(dataSeries, 5, 9.03896103896104) // Theoretical noisefree value 9
-  testXProjectionEquals(dataSeries, 6, 12) // Theoretical noisefree value 12
+  testXProjectionEquals(dataSeries, 6, 12.073593073593075) // Theoretical noisefree value 12
 })
 
 // Test based on the Galton dataset, using unweighted (=OLS) regression
