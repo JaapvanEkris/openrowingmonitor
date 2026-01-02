@@ -121,7 +121,7 @@ export function createFlywheel (rowerSettings) {
 
       if (inRecoveryPhase) {
         // Feed the drag calculation, as we didn't reset the Semaphore in the previous cycle based on the current flank
-        recoveryDeltaTime.push(totalTimeSpinning, _deltaTimeBeforeFlank)
+        recoveryDeltaTime.push(totalTimeSpinning, _deltaTimeBeforeFlank, cyclicErrorFilter.goodnessOfFit.atSeriesBegin())
         // Feed the systematic error filter buffer
         cyclicErrorFilter.recordRawDatapoint(totalNumberOfImpulses, totalTimeSpinning, cyclicErrorFilter.raw.atSeriesBegin())
       } else {
