@@ -169,7 +169,7 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
    * @description This function is used for clearing the buffers in order to prepare to record for a new set of datapoints, or clear it when the buffer is filled with a recovery with too weak GoF
    */
   function warmRestart () {
-    if (!isNaN(lowerCursor)) { log.debug('*** WARNING: cyclic error filter has forcefully been restarted (warm)') }
+    if (!isNaN(lowerCursor)) { log.trace('*** Cyclic error filter had a warm restart for the next recovery') }
     recordedRelativePosition = []
     recordedAbsolutePosition = []
     recordedRawValue = []
