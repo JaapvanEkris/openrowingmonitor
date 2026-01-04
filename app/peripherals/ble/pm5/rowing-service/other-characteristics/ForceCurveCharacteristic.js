@@ -1,11 +1,10 @@
 'use strict'
-/*
-  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-*/
 /**
- * Implementation of the Force Curve Data as defined in:
- * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf
- * https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf
+ * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
+ *
+ * @file Implementation of the Force Curve Data as defined in:
+ * - @see {@link https://www.concept2.co.uk/files/pdf/us/monitors/PM5_BluetoothSmartInterfaceDefinition.pdf|The PM5 Bluetooth Smart Interface Definition}
+ * - @see {@link https://www.concept2.co.uk/files/pdf/us/monitors/PM5_CSAFECommunicationDefinition.pdf|The PM5 CSAFE Communication Definition}
  */
 import loglevel from 'loglevel'
 
@@ -51,7 +50,7 @@ export class ForceCurveCharacteristic extends GattNotifyCharacteristic {
     const split = Math.floor(data.driveHandleForceCurve.length / chunkSize + (data.driveHandleForceCurve.length % chunkSize === 0 ? 0 : 1))
 
     let i = 0
-    log.debug(`Force curve data count: ${data.driveHandleForceCurve.length} chunk size(number of values): ${chunkSize}, number of chunks: ${split}`)
+    log.trace(`Force curve data count: ${data.driveHandleForceCurve.length} chunk size(number of values): ${chunkSize}, number of chunks: ${split}`)
 
     while (i < split) {
       const end = (i + 1) * chunkSize < data.driveHandleForceCurve.length ? chunkSize * (i + 1) : data.driveHandleForceCurve.length
