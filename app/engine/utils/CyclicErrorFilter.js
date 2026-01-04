@@ -1,158 +1,207 @@
 'use strict'
-/*
-  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-*/
 /**
- * This implements a cyclic error filter. This is used to create a profile
- * The filterArray does the calculation, the filterConfig contains the results for easy retrieval
- * the weightCorrection ensures that the sum of corrections will converge to an average of 1 (thus preventing time dilation)
+ * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
+ * 
+ * @file This implements a cyclic error filter. This is used to create a profile
+ * The filterArray does the calculation, the slope and intercept arrays contain the results for easy retrieval
+ * the slopeCorrection and interceptCorrection ensure preventing time dilation due to excessive corrections
  */
 import loglevel from 'loglevel'
 import { createSeries } from './Series.js'
-import { createWeighedMedianSeries } from './WeighedMedianSeries.js'
+import { createWLSLinearSeries } from './WLSLinearSeries.js'
 
 const log = loglevel.getLogger('RowingEngine')
 
+/**
+ * @param {object} rowerSettings - The rower settings configuration object
+ * @param {integer} rowerSettings.numOfImpulsesPerRevolution - Number of impulses per flywheel revolution
+ * @param {integer} rowerSettings.flankLength - Length of the flank used
+ * @param {boolean} rowerSettings.autoAdjustDragFactor - Indicates if the Flywheel.js is allowed to automatically adjust dragfactor (false turns the filter off)
+ * @param {float} rowerSettings.systematicErrorAgressiveness - Agressiveness of the systematic error correction algorithm (0 turns the filter off)
+ * @param {float} rowerSettings.minimumTimeBetweenImpulses - minimum expected time between impulses (in seconds)
+ * @param {float} rowerSettings.maximumTimeBetweenImpulses - maximum expected time between impulses (in seconds)
+ * @param {integer} minimumDragFactorSamples - the number of expected dragfactor samples
+ * @param {function} deltaTime - injection of the linear regression function used for the drag calculation
+ */
 export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples, deltaTime) {
-  const upperBound = 1 + rowerSettings.systematicErrorMaximumChange
-  const lowerBound = 1 - rowerSettings.systematicErrorMaximumChange
   const _numberOfMagnets = rowerSettings.numOfImpulsesPerRevolution
   const _flankLength = rowerSettings.flankLength
-  const _agressiveness = rowerSettings.systematicErrorAgressiveness
+  const _agressiveness = Math.min(Math.max(rowerSettings.systematicErrorAgressiveness, 0), 1)
+  const _invAgressiveness = Math.min(Math.max(1 - _agressiveness, 0), 1)
   const _numberOfFilterSamples = Math.max((minimumDragFactorSamples / _numberOfMagnets) * 2.5, 5)
   const _minimumTimeBetweenImpulses = rowerSettings.minimumTimeBetweenImpulses
   const _maximumTimeBetweenImpulses = rowerSettings.maximumTimeBetweenImpulses
   const raw = createSeries(_flankLength)
   const clean = createSeries(_flankLength)
+  const goodnessOfFit = createSeries(_flankLength)
   const linearRegressor = deltaTime
-  let filterArray = []
-  let filterConfig = []
   let recordedRelativePosition = []
   let recordedAbsolutePosition = []
   let recordedRawValue = []
+  let filterArray = []
+  let slope = []
+  let intercept = []
   let startPosition
-  let cursor
-  let totalNumberOfDatapointsProcessed
-  let filterSum = _numberOfMagnets
-  let weightCorrection = 1
-  let offset = 0
-  reset()
+  let lowerCursor
+  let upperCursor
+  let slopeSum = _numberOfMagnets
+  let interceptSum = 0
+  let slopeCorrection = 1
+  let interceptCorrection = 0
+  coldRestart()
 
+  /**
+   * @param {float} the raw recorded value to be cleaned up
+   * @param {integer} the position of the flywheel
+   * @returns {object} result
+   * @returns {float} result.value - the resulting clean value 
+   * @returns {float} result.goodnessOfFit - The goodness of fit indication for the specific datapoint
+   * @description Applies the filter on the raw value for the given position (i.e. magnet). Please note: this function is NOT stateless, it also fills a hystoric buffer of raw and clean values
+   */
   function applyFilter (rawValue, position) {
     if (startPosition === undefined) { startPosition = position + _flankLength }
+    const magnet = position % _numberOfMagnets
     raw.push(rawValue)
-    clean.push(rawValue * filterConfig[position % _numberOfMagnets] * weightCorrection)
+    if (rowerSettings.autoAdjustDragFactor && _agressiveness > 0) {
+      clean.push(projectX(magnet, rawValue))
+      goodnessOfFit.push(filterArray[magnet].goodnessOfFit())
+    } else {
+      // In essence, the filter is turned off
+      clean.push(rawValue)
+      goodnessOfFit.push(1)
+    }
+    return {
+      value: clean.atSeriesEnd(),
+      goodnessOfFit: goodnessOfFit.atSeriesEnd()
+    }
   }
 
+  /**
+   * @param {integer} magnet - the magnet number
+   * @param {float} rawValue - the raw value to be projected by the function for that magnet
+   * @returns {float} projected result
+   */
+  function projectX (magnet, rawValue) {
+    return (rawValue * slope[magnet] * slopeCorrection) + (intercept[magnet] - interceptCorrection)
+  }
+
+  /**
+   * @param {integer} relativePosition - the position of the recorded datapoint (i.e the sequence number of the datapoint)
+   * @param {float} absolutePosition - the total spinning time of the flywheel
+   * @param {float} rawValue - the raw value
+   */
   function recordRawDatapoint (relativePosition, absolutePosition, rawValue) {
-    if (rawValue >= _minimumTimeBetweenImpulses && _maximumTimeBetweenImpulses >= rawValue) {
+    if (rowerSettings.autoAdjustDragFactor && _agressiveness > 0 && rawValue >= _minimumTimeBetweenImpulses && _maximumTimeBetweenImpulses >= rawValue) {
       recordedRelativePosition.push(relativePosition)
       recordedAbsolutePosition.push(absolutePosition)
       recordedRawValue.push(rawValue)
     }
   }
 
+  /**
+   * @description This processes a next two datapoints from the queue
+   */
   function processNextRawDatapoint () {
-    if (cursor === undefined) { cursor = Math.ceil(recordedRelativePosition.length * 0.25) }
-    if (cursor < Math.floor(recordedRelativePosition.length * 0.75)) {
-      const perfectCurrentDt = linearRegressor.projectX(recordedAbsolutePosition[cursor])
-      const correctionFactor = (perfectCurrentDt / recordedRawValue[cursor])
-      const weightCorrectedCorrectionFactor = ((correctionFactor - 1) * _agressiveness) + 1
-      const nextPerfectCurrentDt = linearRegressor.projectX(recordedAbsolutePosition[cursor + 1])
-      const nextCorrectionFactor = (nextPerfectCurrentDt / recordedRawValue[cursor + 1])
-      const nextWeightCorrectedCorrectionFactor = ((nextCorrectionFactor - 1) * _agressiveness) + 1
-      const GoF = linearRegressor.goodnessOfFit() * linearRegressor.localGoodnessOfFit(cursor)
-      updateFilter(recordedRelativePosition[cursor], weightCorrectedCorrectionFactor, nextWeightCorrectedCorrectionFactor, GoF)
-      cursor++
+    let perfectCurrentDt
+    let weightCorrectedCorrectedDatapoint
+    let GoF
+    if (lowerCursor === undefined || upperCursor === undefined) {
+      lowerCursor = Math.ceil(recordedRelativePosition.length * 0.1)
+      upperCursor = Math.floor(recordedRelativePosition.length * 0.9)
     }
+
+    if (lowerCursor < upperCursor && recordedRelativePosition[lowerCursor] > startPosition) {
+      perfectCurrentDt = linearRegressor.projectX(recordedAbsolutePosition[lowerCursor])
+      weightCorrectedCorrectedDatapoint = (_invAgressiveness * recordedRawValue[lowerCursor]) + (_agressiveness * perfectCurrentDt)
+      GoF = linearRegressor.goodnessOfFit() * linearRegressor.localGoodnessOfFit(lowerCursor)
+      updateFilter(recordedRelativePosition[lowerCursor] % _numberOfMagnets, recordedRawValue[lowerCursor], weightCorrectedCorrectedDatapoint, GoF)
+    }
+    lowerCursor++
+
+    if (lowerCursor < upperCursor && recordedRelativePosition[upperCursor] > startPosition) {
+      perfectCurrentDt = linearRegressor.projectX(recordedAbsolutePosition[upperCursor])
+      weightCorrectedCorrectedDatapoint = (_invAgressiveness * recordedRawValue[upperCursor]) + (_agressiveness * perfectCurrentDt)
+      GoF = linearRegressor.goodnessOfFit() * linearRegressor.localGoodnessOfFit(upperCursor)
+      updateFilter(recordedRelativePosition[upperCursor] % _numberOfMagnets, recordedRawValue[upperCursor], weightCorrectedCorrectedDatapoint, GoF)
+    }
+    upperCursor--
   }
 
-  function updateFilter (position, weightCorrectedCorrectionFactor, nextWeightCorrectedCorrectionFactor, goodnessOfFit) {
-    if (position > startPosition) {
-      let workPosition = (position + offset) % _numberOfMagnets
-      const leftDistance = Math.abs(filterConfig[(workPosition - 1) % _numberOfMagnets] - weightCorrectedCorrectionFactor)
-      const middleDistance = Math.abs(filterConfig[workPosition] - weightCorrectedCorrectionFactor)
-      const rightDistance = Math.abs(filterConfig[(workPosition + 1) % _numberOfMagnets] - weightCorrectedCorrectionFactor)
-      const nextLeftDistance = Math.abs(filterConfig[(workPosition) % _numberOfMagnets] - nextWeightCorrectedCorrectionFactor)
-      const nextMiddleDistance = Math.abs(filterConfig[workPosition + 1] - nextWeightCorrectedCorrectionFactor)
-      const nextRightDistance = Math.abs(filterConfig[(workPosition + 2) % _numberOfMagnets] - nextWeightCorrectedCorrectionFactor)
-      const aboveUpperBound = (weightCorrectedCorrectionFactor > (filterConfig[workPosition] * upperBound))
-      const belowLowerBound = (weightCorrectedCorrectionFactor < (filterConfig[workPosition] * lowerBound))
-      const outsideBounds = (aboveUpperBound || belowLowerBound)
-      switch (true) {
-        // Prevent a single measurement to add radical change (measurement error), offsetting the entire filter
-        case (totalNumberOfDatapointsProcessed < (_numberOfFilterSamples * _numberOfMagnets)):
-          // We are still at filter startup
-          filterArray[position % _numberOfMagnets].push(position, weightCorrectedCorrectionFactor, goodnessOfFit)
-          break
-        case (!outsideBounds):
-          filterArray[workPosition].push(position, weightCorrectedCorrectionFactor, goodnessOfFit)
-          break
-        case (outsideBounds && leftDistance < middleDistance && leftDistance < rightDistance && nextLeftDistance < nextMiddleDistance && nextLeftDistance < nextRightDistance):
-          // We're outside the usual boundaries, and it seems that the previous point is a better match than the current one, potentially due to a missing datapoint
-          log.debug(`*** WARNING: cyclic error filter detected a positive shift at magnet ${workPosition}, most likely due to an unhandled switch bounce`)
-          offset--
-          workPosition = (position + offset) % _numberOfMagnets
-          filterArray[workPosition].push(position, weightCorrectedCorrectionFactor, goodnessOfFit)
-          break
-        case (outsideBounds && rightDistance < middleDistance && rightDistance < leftDistance && nextRightDistance < nextMiddleDistance && nextRightDistance < nextLeftDistance):
-          // We're outside the usual boundaries, and it seems that the next datapoint is a better match than the current one, potentially due to a switch bounce
-          log.debug(`*** WARNING: cyclic error filter detected a negative shift at magnet ${workPosition}, most likely due to a missing datapoint`)
-          offset++
-          workPosition = (position + offset) % _numberOfMagnets
-          filterArray[workPosition].push(position, weightCorrectedCorrectionFactor, goodnessOfFit)
-          break
-        case (belowLowerBound):
-          log.debug(`*** WARNING: cyclic error filter detected a too rapid decrease from ${filterConfig[workPosition]} to ${weightCorrectedCorrectionFactor} at magnet ${workPosition}, clipping`)
-          filterArray[workPosition].push(position, filterConfig[workPosition] * lowerBound, goodnessOfFit)
-          break
-        case (aboveUpperBound):
-          log.debug(`*** WARNING: cyclic error filter detected a too rapid increase from ${filterConfig[workPosition]} to ${weightCorrectedCorrectionFactor} at magnet ${workPosition}, clipping`)
-          filterArray[workPosition].push(position, filterConfig[workPosition] * upperBound, goodnessOfFit)
-          break
-        default:
-          filterArray[workPosition].push(position, weightCorrectedCorrectionFactor, goodnessOfFit)
-      }
-      filterSum -= filterConfig[position % _numberOfMagnets]
-      filterConfig[position % _numberOfMagnets] = filterArray[position % _numberOfMagnets].weighedMedian()
-      filterSum += filterConfig[position % _numberOfMagnets]
-      if (filterSum !== 0) { weightCorrection = _numberOfMagnets / filterSum }
-      totalNumberOfDatapointsProcessed++
-    }
+  /**
+   * @description Helper function to actually update the filter and calculate all dependent parameters
+   */
+  function updateFilter (magnet, rawDatapoint, correctedDatapoint, goodnessOfFit) {
+    slopeSum -= slope[magnet]
+    interceptSum -= intercept[magnet]
+    filterArray[magnet].push(rawDatapoint, correctedDatapoint, goodnessOfFit)
+    slope[magnet] = filterArray[magnet].slope()
+    slopeSum += slope[magnet]
+    if (slopeSum !== 0) { slopeCorrection = _numberOfMagnets / slopeSum }
+    intercept[magnet] = filterArray[magnet].intercept()
+    interceptSum += intercept[magnet]
+    interceptCorrection = interceptSum / _numberOfMagnets
   }
 
-  function restart () {
-    if (!isNaN(cursor)) { log.debug('*** WARNING: cyclic error filter has forcefully been restarted') }
+  /**
+   * @description This function is used for clearing the buffers in order to prepare to record for a new set of datapoints, or clear it when the buffer is filled with a recovery with too weak GoF
+   */
+  function warmRestart () {
+    if (!isNaN(lowerCursor)) { log.debug('*** WARNING: cyclic error filter has forcefully been restarted (warm)') }
     recordedRelativePosition = []
     recordedAbsolutePosition = []
     recordedRawValue = []
-    cursor = undefined
+    lowerCursor = undefined
+    upperCursor = undefined
   }
 
-  function reset () {
-    if (totalNumberOfDatapointsProcessed > 0) { log.debug('*** WARNING: cyclic error filter is reset') }
-    restart()
-    startPosition = undefined
+  /**
+   * @description This function is used for clearing the predictive buffers as the flywheel seems to have stopped
+   */
+  function coldRestart () {
+    if (slopeSum !== _numberOfMagnets || interceptSum !== 0) { log.debug('*** WARNING: cyclic error filter has forcefully been restarted (cold)') }
+    const noIncrements = Math.max(Math.ceil(_numberOfFilterSamples / 4), 5)
+    const increment = (_maximumTimeBetweenImpulses - _minimumTimeBetweenImpulses) / noIncrements
+
+    lowerCursor = undefined
+    warmRestart()
+
     let i = 0
+    let j = 0
+    let datapoint = 0
     while (i < _numberOfMagnets) {
-      filterArray[i] = {}
-      filterArray[i] = createWeighedMedianSeries(_numberOfFilterSamples)
-      filterArray[i].push(-9, 1, 0.5)
-      filterArray[i].push(-8, 0.90, 0.5)
-      filterArray[i].push(-7, 1.10, 0.5)
-      filterArray[i].push(-6, 0.95, 0.5)
-      filterArray[i].push(-5, 1.05, 0.5)
-      filterArray[i].push(-4, 0.925, 0.5)
-      filterArray[i].push(-3, 1.075, 0.5)
-      filterArray[i].push(-2, 0.975, 0.5)
-      filterArray[i].push(-1, 1.025, 0.5)
-      filterConfig[i] = 1
+      if (i < filterArray.length) {
+        filterArray[i]?.reset()
+      } else {
+        filterArray[i] = createWLSLinearSeries(_numberOfFilterSamples)
+      }
+      j = 0
+      while (j <= noIncrements) {
+        datapoint = _maximumTimeBetweenImpulses - (j * increment)
+        filterArray[i].push(datapoint, datapoint, 0.8)
+        j++
+      }
+      slope[i] = 1
+      intercept[i] = 0
       i++
     }
-    filterSum = _numberOfMagnets
-    weightCorrection = 1
-    totalNumberOfDatapointsProcessed = 0
-    offset = 0
+    slopeSum = _numberOfMagnets
+    interceptSum = 0
+    slopeCorrection = 1
+    interceptCorrection = 0
+    startPosition = undefined
+  }
+
+  /**
+   * @description This function is used for clearing all buffers (i.e. the currentDt's maintained in the flank and the predictive buffers) when the flywheel is completely reset
+   */
+  function reset () {
+    log.debug('*** WARNING: cyclic error filter is reset')
+    slopeSum = _numberOfMagnets
+    interceptSum = 0
+    coldRestart()
+    raw.reset()
+    clean.reset()
+    goodnessOfFit.reset()
   }
 
   return {
@@ -162,7 +211,8 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
     updateFilter,
     raw,
     clean,
-    restart,
+    warmRestart,
+    coldRestart,
     reset
   }
 }

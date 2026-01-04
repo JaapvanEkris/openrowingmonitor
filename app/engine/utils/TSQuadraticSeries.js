@@ -26,12 +26,15 @@
  */
 
 import { createSeries } from './Series.js'
-import { createTSLinearSeries } from './FullTSLinearSeries.js'
+import { createTSLinearSeries } from './TSLinearSeries.js'
 import { createLabelledBinarySearchTree } from './BinarySearchTree.js'
 
 import loglevel from 'loglevel'
 const log = loglevel.getLogger('RowingEngine')
 
+/**
+ * @param {integer} the maximum length of the quadratic series, 0 for unlimited
+ */
 export function createTSQuadraticSeries (maxSeriesLength = 0) {
   const X = createSeries(maxSeriesLength)
   const Y = createSeries(maxSeriesLength)
@@ -43,9 +46,13 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
   let _sst = 0
   let _goodnessOfFit = 0
 
+  /**
+   * @param {float} the x value of the datapoint
+   * @param {float} the y value of the datapoint
+   * Invariant: BinrySearchTree A contains all calculated a's (as in the general formula y = a * x^2 + b * x + c),
+   * where the a's are labeled in the BinarySearchTree with their Xi when they BEGIN in the point (Xi, Yi)
+   */
   function push (x, y) {
-    // Invariant: A contains all a's (as in the general formula y = a * x^2 + b * x + c)
-    // Where the a's are labeled in the Binary Search Tree with their Xi when they BEGIN in the point (Xi, Yi)
     if (x === undefined || isNaN(x) || y === undefined || isNaN(y)) { return }
 
     if (maxSeriesLength > 0 && X.length() >= maxSeriesLength) {
@@ -91,7 +98,11 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     }
   }
 
-  function firstDerivativeAtPosition (position) {
+  /**
+   * @param {integer} the position in the flank of the requested value (default = 0)
+   * @returns {float} the firdt derivative of the quadratic function y = a x^2 + b x + c
+   */
+  function firstDerivativeAtPosition (position = 0) {
     if (X.length() >= 3 && position < X.length()) {
       calculateB()
       return ((_A * 2 * X.get(position)) + _B)
@@ -100,7 +111,11 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     }
   }
 
-  function secondDerivativeAtPosition (position) {
+  /**
+   * @param {integer} the position in the flank of the requested value (default = 0)
+   * @returns {float} the second derivative of the quadratic function y = a x^2 + b x + c
+   */
+  function secondDerivativeAtPosition (position = 0) {
     if (X.length() >= 3 && position < X.length()) {
       return (_A * 2)
     } else {
@@ -108,6 +123,10 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     }
   }
 
+  /**
+   * @param {float} the x value of the requested value
+   * @returns {float} the slope of the linear function
+   */
   function slope (x) {
     if (X.length() >= 3) {
       calculateB()
@@ -117,36 +136,50 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     }
   }
 
+  /**
+   * @returns {float} the coefficient a of the quadratic function y = a x^2 + b x + c
+   */
   function coefficientA () {
-    // For testing purposses only!
     return _A
   }
 
+  /**
+   * @returns {float} the coefficient b of the quadratic function y = a x^2 + b x + c
+   */
   function coefficientB () {
-    // For testing purposses only!
     calculateB()
     return _B
   }
 
+  /**
+   * @returns {float} the coefficient c of the quadratic function y = a x^2 + b x + c
+   */
   function coefficientC () {
-    // For testing purposses only!
     calculateB()
     calculateC()
     return _C
   }
 
+  /**
+   * @returns {float} the intercept of the quadratic function
+   */
   function intercept () {
     calculateB()
     calculateC()
     return _C
   }
 
+  /**
+   * @returns {integer} the lenght of the stored series
+   */
   function length () {
     return X.length()
   }
 
+  /**
+   * @returns {float} the R^2 as a goodness of fit indicator
+   */
   function goodnessOfFit () {
-    // This function returns the R^2 as a goodness of fit indicator
     let i = 0
     let sse = 0
     if (_goodnessOfFit === null) {
@@ -179,6 +212,9 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     return _goodnessOfFit
   }
 
+  /**
+   * @returns {float} the local R^2 as a local goodness of fit indicator
+   */
   function localGoodnessOfFit (position) {
     if (_sst === null) {
       // Force the recalculation of the _sst
@@ -208,6 +244,10 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     }
   }
 
+  /**
+   * @param {float} the x value to be projected
+   * @returns {float} the resulting y value when projected via the linear function
+   */
   function projectX (x) {
     if (X.length() >= 3) {
       calculateB()
@@ -267,6 +307,9 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     }
   }
 
+  /**
+   * @returns {boolean} whether the quadratic regression should be considered reliable to produce results
+   */
   function reliable () {
     return (X.length() >= 3)
   }

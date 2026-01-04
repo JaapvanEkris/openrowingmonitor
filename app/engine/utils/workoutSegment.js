@@ -7,15 +7,15 @@
  * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Architecture.md#session-interval-and-split-boundaries-in-sessionmanagerjs|the description of the concepts used}
  */
 /* eslint-disable max-lines -- This contains a lot of defensive programming, so it is long */
-import { createOLSLinearSeries } from './OLSLinearSeries.js'
+import { createWLSLinearSeries } from './WLSLinearSeries.js'
 import { createSeries } from './Series.js'
 import loglevel from 'loglevel'
 const log = loglevel.getLogger('RowingEngine')
 
 export function createWorkoutSegment (config) {
   const numOfDataPointsForAveraging = config.numOfPhasesForAveragingScreenData
-  const distanceOverTime = createOLSLinearSeries(Math.min(4, numOfDataPointsForAveraging))
-  const caloriesOverTime = createOLSLinearSeries(Math.min(4, numOfDataPointsForAveraging))
+  const distanceOverTime = createWLSLinearSeries(Math.min(4, numOfDataPointsForAveraging))
+  const caloriesOverTime = createWLSLinearSeries(Math.min(4, numOfDataPointsForAveraging))
   const _power = createSeries()
   const _linearVelocity = createSeries()
   const _strokerate = createSeries()
@@ -342,8 +342,8 @@ export function createWorkoutSegment (config) {
    * Updates projectiondata and segment metrics
    */
   function push (baseMetrics) {
-    distanceOverTime.push(baseMetrics.totalMovingTime, baseMetrics.totalLinearDistance)
-    caloriesOverTime.push(baseMetrics.totalMovingTime, baseMetrics.totalCalories)
+    distanceOverTime.push(baseMetrics.totalMovingTime, baseMetrics.totalLinearDistance, 1)
+    caloriesOverTime.push(baseMetrics.totalMovingTime, baseMetrics.totalCalories, 1)
     if (!!baseMetrics.cyclePower && !isNaN(baseMetrics.cyclePower) && baseMetrics.cyclePower > 0) { _power.push(baseMetrics.cyclePower) }
     if (!!baseMetrics.cycleLinearVelocity && !isNaN(baseMetrics.cycleLinearVelocity) && baseMetrics.cycleLinearVelocity > 0) { _linearVelocity.push(baseMetrics.cycleLinearVelocity) }
     if (!!baseMetrics.cycleStrokeRate && !isNaN(baseMetrics.cycleStrokeRate) && baseMetrics.cycleStrokeRate > 0) { _strokerate.push(baseMetrics.cycleStrokeRate) }

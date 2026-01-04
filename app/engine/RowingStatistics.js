@@ -7,7 +7,7 @@
  * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Architecture.md#rowingstatisticsjs|the architecture description}
  */
 import { createRower } from './Rower.js'
-import { createOLSLinearSeries } from './utils/OLSLinearSeries.js'
+import { createWLSLinearSeries } from './utils/WLSLinearSeries.js'
 import { createStreamFilter } from './utils/StreamFilter.js'
 import { createCurveAligner } from './utils/CurveAligner.js'
 
@@ -32,7 +32,7 @@ export function createRowingStatistics (config) {
   let strokeCalories = 0
   let totalCalories = 0
   let strokeWork = 0
-  const calories = createOLSLinearSeries()
+  const calories = createWLSLinearSeries()
   const driveDuration = createStreamFilter(halfNumOfDataPointsForAveraging, undefined)
   const driveLength = createStreamFilter(halfNumOfDataPointsForAveraging, undefined)
   const driveDistance = createStreamFilter(halfNumOfDataPointsForAveraging, undefined)
@@ -211,7 +211,7 @@ export function createRowingStatistics (config) {
       strokeWork = rower.driveFlywheelWork()
       strokeCalories = ((4 * rower.driveFlywheelWork()) + (350 * cycleDuration.clean())) / 4200
       if (cyclePower.reliable() && cycleDuration.reliable()) {
-        calories.push(totalMovingTime, totalCalories)
+        calories.push(totalMovingTime, totalCalories, 1)
       }
     }
   }
@@ -230,7 +230,7 @@ export function createRowingStatistics (config) {
     }
 
     if (cyclePower.reliable() && cycleDuration.reliable()) {
-      calories.push(totalMovingTime, totalCalories)
+      calories.push(totalMovingTime, totalCalories, 1)
     }
   }
 
