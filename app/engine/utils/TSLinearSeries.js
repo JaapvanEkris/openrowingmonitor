@@ -23,7 +23,6 @@
  */
 
 import { createSeries } from './Series.js'
-import { createWeighedSeries } from './WeighedSeries.js'
 import { createLabelledBinarySearchTree } from './BinarySearchTree.js'
 
 import loglevel from 'loglevel'
@@ -36,7 +35,7 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
   const X = createSeries(maxSeriesLength)
   const Y = createSeries(maxSeriesLength)
   const weight = createSeries(maxSeriesLength)
-  const WY = createWeighedSeries(maxSeriesLength, undefined)
+  const WY = createSeries(maxSeriesLength)
   const A = createLabelledBinarySearchTree()
 
   let _A = 0
@@ -63,7 +62,7 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
     X.push(x)
     Y.push(y)
     weight.push(w)
-    WY.push(y, w)
+    WY.push(w * y)
 
     // Calculate all the slopes of the newly added point
     if (X.length() > 1) {
@@ -131,7 +130,7 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
   }
 
   /**
-   * @returns {float} the R^2 as a goodness of fit indicator
+   * @returns {float} the R^2 as a global goodness of fit indicator
    * It will automatically recalculate the _goodnessOfFit when it isn't defined
    * This lazy approach is intended to prevent unneccesary calculations, especially when there is a batch of datapoints
    * pushes from the TSQuadratic regressor processing its linear residu
@@ -140,13 +139,17 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
   function goodnessOfFit () {
     let i = 0
     let sse = 0
+    calculateIntercept()
     if (_goodnessOfFit === null) {
       if (X.length() >= 2) {
         _sst = 0
 
+        // Calculate weighted R^2
+        const weightedAverageY = WY.sum() / weight.sum()
+
         while (i < X.length()) {
           sse += weight.get(i) * Math.pow(Y.get(i) - projectX(X.get(i)), 2)
-          _sst += weight.get(i) * Math.pow(Y.get(i) - WY.weighedAverage(), 2)
+          _sst += weight.get(i) * Math.pow(Y.get(i) - weightedAverageY, 2)
           i++
         }
 
@@ -156,14 +159,14 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
             break
           case (sse > _sst):
             // This is a pretty bad fit as the error is bigger than just using the line for the average y as intercept
-            _goodnessOfFit = 0
+            _goodnessOfFit = 0.01
             break
           case (_sst !== 0):
             _goodnessOfFit = 1 - (sse / _sst)
             break
           default:
             // When SST = 0, R2 isn't defined
-            _goodnessOfFit = 0
+            _goodnessOfFit = 0.01
         }
       } else {
         _goodnessOfFit = 0
@@ -190,14 +193,14 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
           break
         case (weightedSquaredError > _sst):
           // This is a pretty bad fit as the error is bigger than just using the line for the average y as intercept
-          return 0
+          return 0.01
           break
         case (_sst !== 0):
           return Math.min(Math.max(1 - ((weightedSquaredError * X.length()) / _sst), 0), 1)
           break
         default:
           // When _SST = 0, localGoodnessOfFit isn't defined
-          return 0
+          return 0.01
       }
       /* eslint-enable no-unreachable */
     } else {
@@ -278,7 +281,7 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
   }
 
   /**
-   * @description This function is used for clearing data and state
+   * @description This function is used for clearing data and state, bringing it back to its original state
    */
   function reset () {
     if (X.length() > 0) {
