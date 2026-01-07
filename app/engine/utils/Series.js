@@ -81,7 +81,7 @@ export function createSeries (maxSeriesLength = 0) {
   }
 
   /**
-   * @param {integer} position to be retrieved, starting at 0
+   * @param {integer} position - position to be retrieved, starting at 0
    * @returns {float} value at that specific postion in the series
    */
   function get (position) {
@@ -176,7 +176,7 @@ export function createSeries (maxSeriesLength = 0) {
   }
 
   /**
-   * @returns {float} median of the series 
+   * @returns {float} median of the series
    * @description returns the median of the series. As this is a CPU intensive approach, DO NOT USE FOR LARGE SERIES!. For larger series, use the BinarySearchTree.js instead
    */
   function median () {
