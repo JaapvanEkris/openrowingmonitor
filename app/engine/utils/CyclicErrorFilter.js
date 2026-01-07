@@ -29,7 +29,7 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
   const _flankLength = rowerSettings.flankLength
   const _agressiveness = Math.min(Math.max(rowerSettings.systematicErrorAgressiveness, 0), 1)
   const _invAgressiveness = Math.min(Math.max(1 - _agressiveness, 0), 1)
-  const _numberOfFilterSamples = Math.max((minimumDragFactorSamples / _numberOfMagnets) * 2.5, 5)
+  const _numberOfFilterSamples = Math.max(Math.round((rowerSettings.systematicErrorNumberOfDatapoints / _numberOfMagnets)), 5)
   const _minimumTimeBetweenImpulses = rowerSettings.minimumTimeBetweenImpulses
   const _maximumTimeBetweenImpulses = rowerSettings.maximumTimeBetweenImpulses
   const raw = createSeries(_flankLength)
