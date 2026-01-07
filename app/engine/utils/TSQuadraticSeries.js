@@ -68,41 +68,38 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     weight.push(w)
     WY.push(w * y)
 
-    // Calculate the coefficient a for the new interval by adding the newly added datapoint
-    let i = 0
-    let j = 0
+    if (X.length() >= 3):
+      // There are now at least three datapoints in the X and Y arrays, so let's calculate the A portion belonging for the new datapoint via Quadratic Theil-Sen regression
+      let i = 0
+      let j = 0
 
-    switch (true) {
-      case (X.length() >= 3):
-        // There are now at least three datapoints in the X and Y arrays, so let's calculate the A portion belonging for the new datapoint via Quadratic Theil-Sen regression
-        // First we calculate the A for the formula
-        let combinedweight = 0
-        let coeffA = 1
-        while (i < X.length() - 2) {
-          j = i + 1
-          while (j < X.length() - 1) {
-            combinedweight = weight.get(i) *  weight.get(j) * w
-            coeffA = calculateA(i, j, X.length() - 1)
-            A.push(X.get(i), coeffA, combinedweight)
-            j++
-          }
-          i++
+      // First we calculate the A for the formula
+      let combinedweight = 0
+      let coeffA = 1
+      while (i < X.length() - 2) {
+        j = i + 1
+        while (j < X.length() - 1) {
+          combinedweight = weight.get(i) *  weight.get(j) * w
+          coeffA = calculateA(i, j, X.length() - 1)
+          A.push(X.get(i), coeffA, combinedweight)
+          j++
         }
-        _A = A.weightedMedian()
+        i++
+      }
+      _A = A.weightedMedian()
 
-        // We invalidate the linearResidu, B, C, and goodnessOfFit, as this will trigger a recalculate when they are needed
-        linearResidu.reset()
-        _B = null
-        _C = null
-        _sst = null
-        _goodnessOfFit = null
-        break
-      default:
-        _A = 0
-        _B = 0
-        _C = 0
-        _sst = 0
-        _goodnessOfFit = 0
+      // We invalidate the linearResidu, B, C, and goodnessOfFit, as this will trigger a recalculate when they are needed
+      linearResidu.reset()
+      _B = null
+      _C = null
+      _sst = null
+      _goodnessOfFit = null
+    } else {
+      _A = 0
+      _B = 0
+      _C = 0
+      _sst = 0
+      _goodnessOfFit = 0
     }
   }
 
