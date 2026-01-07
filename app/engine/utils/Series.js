@@ -4,6 +4,7 @@
  *
  * @file This creates a series with a maximum number of values. It allows for determining the Average, Median, Number of Positive, number of Negative
  * BE AWARE: The median function is extremely CPU intensive for larger series. Use the BinarySearchTree for that situation instead!
+ * BE AWARE: Accumulators (seriesSum especially) are vulnerable to floating point rounding errors causing drift. Special tests are present in the unit-tests, which should be run manually when this module is changed
  */
 /**
  * @param {number} maxSeriesLength - The maximum length of the series (0 for unlimited)
@@ -17,6 +18,7 @@ export function createSeries (maxSeriesLength = 0) {
   let numNeg = 0
   let min = undefined
   let max = undefined
+  let seriesSum = null
 
   /**
    * @param {float} value - value to be added to the series
@@ -43,6 +45,7 @@ export function createSeries (maxSeriesLength = 0) {
       seriesArray.shift()
     }
     seriesArray.push(value)
+    seriesSum = null
 
     if (value > 0) {
       numPos++
@@ -137,7 +140,10 @@ export function createSeries (maxSeriesLength = 0) {
    * @description This determines the total sum of the series. As a running sum becomes unstable after longer running sums, we need to summarise this via a reduce
    */
   function sum () {
-    return (seriesArray.length > 0 ? seriesArray.reduce((total, item) => total + item) : 0)
+    if (seriesSum === null) {
+      seriesSum = (seriesArray.length > 0 ? seriesArray.reduce((total, item) => total + item) : 0)
+    }
+    return seriesSum
   }
 
   /**
