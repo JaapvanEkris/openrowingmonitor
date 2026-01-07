@@ -1,9 +1,8 @@
 'use strict'
-/*
-  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-*/
 /**
- * This implements a Moving Regression Algorithm to obtain a coefficients, first (angular velocity) and
+ * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
+ *
+ * @file This implements a Moving Regression Algorithm to obtain a coefficients, first (angular velocity) and
  * second derivative (angular acceleration) at the front of the flank
  */
 import { createTSQuadraticSeries } from './TSQuadraticSeries.js'
@@ -22,8 +21,8 @@ export function createMovingRegressor (bandwith) {
    * @param {float} the x value of the datapoint
    * @param {float} the y value of the datapoint
    */
-  function push (x, y) {
-    quadraticTheilSenRegressor.push(x, y)
+  function push (x, y, w = 1) {
+    quadraticTheilSenRegressor.push(x, y, w)
 
     // Let's shift the matrix to make room for a new datapoint
     if (aMatrix.length >= flankLength) {
@@ -165,6 +164,9 @@ export function createMovingRegressor (bandwith) {
     }
   }
 
+  /**
+   * Resets the series to its initial state
+   */
   function reset () {
     quadraticTheilSenRegressor.reset()
     let i = aMatrix.length
@@ -198,6 +200,10 @@ export function createMovingRegressor (bandwith) {
     cMatrix = []
   }
 
+  /**
+   * @param {integer} position - position to be retrieved, starting at 0
+   * @returns {float} X value at that specific postion in the series
+   */
   function Xget (position = 0) {
     if (position < quadraticTheilSenRegressor.length()) {
       return quadraticTheilSenRegressor.X.get(position)
@@ -206,6 +212,10 @@ export function createMovingRegressor (bandwith) {
     }
   }
 
+  /**
+   * @param {integer} position - position to be retrieved, starting at 0
+   * @returns {float} Y value at that specific postion in the series
+   */
   function Yget (position = 0) {
     if (position < quadraticTheilSenRegressor.length()) {
       return quadraticTheilSenRegressor.Y.get(position)
