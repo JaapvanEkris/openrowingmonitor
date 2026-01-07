@@ -1,7 +1,7 @@
 'use strict'
 /**
  * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
- * 
+ *
  * @file This creates a weighed series with a maximum number of values. It allows for determining the Average, Weighed Averge, Median, Number of Positive, number of Negative. DO NOT USE MEDIAN ON LARGE SERIES!
  */
 import { createSeries } from './Series.js'
@@ -117,7 +117,7 @@ export function createWeighedSeries (maxSeriesLength = 0, defaultValue) {
   }
 
   /**
-   * @returns {float} median of the series 
+   * @returns {float} median of the series
    * @description returns the median of the series. As this is a CPU intensive approach, DO NOT USE FOR LARGE SERIES!. For larger series, use the BinarySearchTree.js instead
    */
   function median () {
@@ -126,7 +126,7 @@ export function createWeighedSeries (maxSeriesLength = 0, defaultValue) {
 
   /**
    * @returns {boolean} if the weighed series results are to be considered reliable
-   */  
+   */
   function reliable () {
     return dataArray.length() > 0
   }
