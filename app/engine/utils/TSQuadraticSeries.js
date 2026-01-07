@@ -68,7 +68,7 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     weight.push(w)
     WY.push(w * y)
 
-    if (X.length() >= 3):
+    if (X.length() >= 3) {
       // There are now at least three datapoints in the X and Y arrays, so let's calculate the A portion belonging for the new datapoint via Quadratic Theil-Sen regression
       let i = 0
       let j = 0
