@@ -1,8 +1,8 @@
-'use strict' /**
- * Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
- */
+'use strict'
 /**
- * Tests of the movingRegressor object
+ * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
+ *
+ * @file Tests of the movingRegressor object
  */
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
@@ -12,7 +12,9 @@ function flywheelPosition (position) {
   return ((position * Math.PI) / 3)
 }
 
-// Test behaviour for no datapoints
+/**
+ * @description Test behaviour for no datapoints
+ */
 test('Correct movingRegressor behaviour at initialisation', () => {
   const flankLength = 12
   const movingRegressor = createMovingRegressor(flankLength)
@@ -20,14 +22,20 @@ test('Correct movingRegressor behaviour at initialisation', () => {
   testSecondDerivative(movingRegressor, undefined)
 })
 
-// Test behaviour for one datapoint
-
-// Test behaviour for perfect upgoing flank
-
-// Test behaviour for perfect downgoing flank
+/**
+ * @todo Test behaviour for one datapoint
+ */
 
 /**
- * Test of the integration of the underlying FullTSQuadraticEstimator object
+ * @todo Test behaviour for perfect upgoing flank
+ */
+
+/**
+ * @todo Test behaviour for perfect downgoing flank
+ */
+
+/**
+ * @description Test of the integration of the underlying FullTSQuadraticEstimator object
  * This uses the same data as the function y = 2 x^2 + 4 * x
  */
 test('Test of correct algorithmic integration of FullTSQuadraticEstimator and movingRegressor object for quadratic function f(x) = 2 * x^2 + 4 * x', () => {
@@ -133,7 +141,7 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and mo
 })
 
 /**
- * Test of the integration of the underlying FullTSQuadraticEstimator object
+ * @description Test of the integration of the underlying FullTSQuadraticEstimator object
  * The data follows the function y = X^3 + 2 * x^2 + 4 * x
  * To test if multiple quadratic regressions can decently approximate a cubic function
  */
@@ -240,10 +248,10 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and mo
 })
 
 /**
- * Test of the integration of the underlying FullTSQuadraticEstimator object
+ * @description Test of the integration of the underlying FullTSQuadraticEstimator object
  * The data follows the function y = X^3 + 2 * x^2 + 4 * x with a +/-0.0001 sec injected noise in currentDt
  * To test if multiple quadratic regressions can decently approximate a cubic function with noise
- * Please note:  theoretical values are based on the perfect function (i.e. without noise)
+ * Please note: theoretical values are based on the perfect function (i.e. without noise)
  */
 test('Test of correct algorithmic integration of FullTSQuadraticEstimator and movingRegressor object for cubic function f(x) = X^3 + 2 * x^2 + 4 * x with +/- 0.0001 error', () => {
   const flankLength = 12
@@ -347,8 +355,12 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and mo
   testSecondDerivative(movingRegressor, 15.113402988997308) // Datapoint 20, Theoretical value: 14.90963951, error: -1.05%
 })
 
-// Test behaviour for no datapoints
-test('Test of correct algorithmic behaviourof FullTSQuadraticEstimator in movingRegressor object for function f(x) = = (x + 3,22398390803294)^3 + 33,5103216382911', () => {
+/**
+ * @description Test of the integration of the underlying FullTSQuadraticEstimator object
+ * The data follows the function y = (x + 3,22398390803294)^3 + 33,5103216382911
+ * To test if multiple quadratic regressions can decently approximate a cubic function
+ */
+test('Test of correct algorithmic behaviourof FullTSQuadraticEstimator in movingRegressor object for function f(x) = (x + 3,22398390803294)^3 + 33,5103216382911', () => {
   const flankLength = 11
   const movingRegressor = createMovingRegressor(flankLength)
 
@@ -432,62 +444,62 @@ test('Test of correct algorithmic behaviourof FullTSQuadraticEstimator in moving
   testFirstDerivative(movingRegressor, 14.287862296451902) // Datapoint: 22, Theoretical value: 14.3595335732101, Error: -0.4991%
   testSecondDerivative(movingRegressor, -12.86939888687925) // Datapoint: 22, Theoretical value: -13.1268580733747, Error: -1.9613%
   movingRegressor.push(4.2394752055962, flywheelPosition(33)) // Datapoint 33
-  testFirstDerivative(movingRegressor, 13.344069231831451) // Datapoint: 23, Theoretical value: 13.3855228467043, Error: -0.3097%
-  testSecondDerivative(movingRegressor, -12.596943554868657) // Datapoint: 23, Theoretical value: -12.6738421230679, Error: -0.6068%
+  testFirstDerivative(movingRegressor, 13.343446992890124) // Datapoint: 23, Theoretical value: 13.3855228467043, Error: -0.3097%
+  testSecondDerivative(movingRegressor, -12.593658621633756) // Datapoint: 23, Theoretical value: -12.6738421230679, Error: -0.6068%
   movingRegressor.push(4.50342276981795, flywheelPosition(34)) // Datapoint 34
-  testFirstDerivative(movingRegressor, 12.27277433707641) // Datapoint: 24, Theoretical value: 12.3746709051205, Error: -0.8234%
-  testSecondDerivative(movingRegressor, -11.94611298378567) // Datapoint: 24, Theoretical value: -12.1858955707591, Error: -1.9677%
+  testFirstDerivative(movingRegressor, 12.272424425339942) // Datapoint: 24, Theoretical value: 12.3746709051205, Error: -0.8234%
+  testSecondDerivative(movingRegressor, -11.943049564910012) // Datapoint: 24, Theoretical value: -12.1858955707591, Error: -1.9677%
   movingRegressor.push(4.68857579559446, flywheelPosition(35)) // Datapoint 35
-  testFirstDerivative(movingRegressor, 11.111270142918675) // Datapoint: 25, Theoretical value: 11.3206759756907, Error: -1.8498%
-  testSecondDerivative(movingRegressor, -11.104255084717169) // Datapoint: 25, Theoretical value: -11.6553898136565, Error: -4.7286%
+  testFirstDerivative(movingRegressor, 11.111275577176187) // Datapoint: 25, Theoretical value: 11.3206759756907, Error: -1.8498%
+  testSecondDerivative(movingRegressor, -11.10165547134061) // Datapoint: 25, Theoretical value: -11.6553898136565, Error: -4.7286%
   movingRegressor.push(4.83597586204941, flywheelPosition(36)) // Datapoint 36
-  testFirstDerivative(movingRegressor, 9.856257396415623) // Datapoint: 26, Theoretical value: 10.2150657644303, Error: -3.5125%
-  testSecondDerivative(movingRegressor, -10.133558490306132) // Datapoint: 26, Theoretical value: -11.0716208918642, Error: -8.4727%
+  testFirstDerivative(movingRegressor, 9.85670546231101) // Datapoint: 26, Theoretical value: 10.2150657644303, Error: -3.5125%
+  testSecondDerivative(movingRegressor, -10.131638260894363) // Datapoint: 26, Theoretical value: -11.0716208918642, Error: -8.4727%
   movingRegressor.push(4.96044960092562, flywheelPosition(37)) // Datapoint 37
-  testFirstDerivative(movingRegressor, 8.33034413131051) // Datapoint: 27, Theoretical value: 9.04593930777978, Error: -7.9107%
-  testSecondDerivative(movingRegressor, -8.90342412705638) // Datapoint: 27, Theoretical value: -10.4187941573561, Error: -14.5446%
+  testFirstDerivative(movingRegressor, 8.33150256290571) // Datapoint: 27, Theoretical value: 9.04593930777978, Error: -7.9107%
+  testSecondDerivative(movingRegressor, -8.90260010296994) // Datapoint: 27, Theoretical value: -10.4187941573561, Error: -14.5446%
   movingRegressor.push(5.06925405667697, flywheelPosition(38)) // Datapoint 38
-  testFirstDerivative(movingRegressor, 6.614017373941227) // Datapoint: 28, Theoretical value: 7.79555417944151, Error: -15.1565%
-  testSecondDerivative(movingRegressor, -7.485201796668778) // Datapoint: 28, Theoretical value: -9.67195172409882, Error: -22.6092%
+  testFirstDerivative(movingRegressor, 6.616103614905059) // Datapoint: 28, Theoretical value: 7.79555417944151, Error: -15.1565%
+  testSecondDerivative(movingRegressor, -7.485916659905859) // Datapoint: 28, Theoretical value: -9.67195172409882, Error: -22.6092%
   movingRegressor.push(5.16654887697569, flywheelPosition(39)) // Datapoint 39
-  testFirstDerivative(movingRegressor, 4.885955137652653) // Datapoint: 29, Theoretical value: 6.43508819133308, Error: -24.0732%
-  testSecondDerivative(movingRegressor, -5.954069768024937) // Datapoint: 29, Theoretical value: -8.78755132536914, Error: -32.2443%
+  testFirstDerivative(movingRegressor, 4.888940778715439) // Datapoint: 29, Theoretical value: 6.43508819133308, Error: -24.0732%
+  testSecondDerivative(movingRegressor, -5.956802316997369) // Datapoint: 29, Theoretical value: -8.78755132536914, Error: -32.2443%
   movingRegressor.push(5.25496650315946, flywheelPosition(40)) // Datapoint 40
-  testFirstDerivative(movingRegressor, 3.6285904570805947) // Datapoint: 30, Theoretical value: 4.91089140313715, Error: -26.1114%
-  testSecondDerivative(movingRegressor, -4.766667985585422) // Datapoint: 30, Theoretical value: -7.67663317071005, Error: -37.9068%
+  testFirstDerivative(movingRegressor, 3.6316979581923494) // Datapoint: 30, Theoretical value: 4.91089140313715, Error: -26.1114%
+  testSecondDerivative(movingRegressor, -4.771588801465927) // Datapoint: 30, Theoretical value: -7.67663317071005, Error: -37.9068%
   movingRegressor.push(5.33629092854426, flywheelPosition(41)) // Datapoint 41
-  testFirstDerivative(movingRegressor, 2.305636451416337) // Datapoint: 31, Theoretical value: 3.09366772628014, Error: -25.4724%
-  testSecondDerivative(movingRegressor, -3.5514156470006624) // Datapoint: 31, Theoretical value: -6.09294778537956, Error: -41.7127%
+  testFirstDerivative(movingRegressor, 2.3077423939611448) // Datapoint: 31, Theoretical value: 3.09366772628014, Error: -25.4724%
+  testSecondDerivative(movingRegressor, -3.5593152612469012) // Datapoint: 31, Theoretical value: -6.09294778537956, Error: -41.7127%
   movingRegressor.push(5.41179358692871, flywheelPosition(42)) // Datapoint 42
-  testFirstDerivative(movingRegressor, 1.5762722749892073) // Datapoint: 32, Theoretical value: 0
-  testSecondDerivative(movingRegressor, 3.845172493155469e-14) // Datapoint: 32, Theoretical value: 0
+  testFirstDerivative(movingRegressor, 1.5335044322403928) // Datapoint: 32, Theoretical value: 0
+  testSecondDerivative(movingRegressor, 3.8379764035844055e-14) // Datapoint: 32, Theoretical value: 0
   movingRegressor.push(5.48241633596003, flywheelPosition(43)) // Datapoint 43
-  testFirstDerivative(movingRegressor, 2.3056364514163405) // Datapoint: 33, Theoretical value: 3.09366772628014, Error: -25.4724%
-  testSecondDerivative(movingRegressor, 3.551415647000658) // Datapoint: 33, Theoretical value: 6.09294778537956, Error: -41.7127%
+  testFirstDerivative(movingRegressor, 2.3077423939611457) // Datapoint: 33, Theoretical value: 3.09366772628014, Error: -25.4724%
+  testSecondDerivative(movingRegressor, 3.5593152612468977) // Datapoint: 33, Theoretical value: 6.09294778537956, Error: -41.7127%
   movingRegressor.push(5.54887861105219, flywheelPosition(44)) // Datapoint 44
-  testFirstDerivative(movingRegressor, 3.6285904570805094) // Datapoint: 34, Theoretical value: 4.91089140313715, Error: -26.1114%
-  testSecondDerivative(movingRegressor, 4.766667985585649) // Datapoint: 34, Theoretical value: 7.67663317071005, Error: -37.9068%
+  testFirstDerivative(movingRegressor, 3.6316979581922624) // Datapoint: 34, Theoretical value: 4.91089140313715, Error: -26.1114%
+  testSecondDerivative(movingRegressor, 4.771588801466153) // Datapoint: 34, Theoretical value: 7.67663317071005, Error: -37.9068%
   movingRegressor.push(5.61174382107199, flywheelPosition(45)) // Datapoint 45
-  testFirstDerivative(movingRegressor, 4.885955137652726) // Datapoint: 35, Theoretical value: 6.43508819133308, Error: -24.0732%
-  testSecondDerivative(movingRegressor, 5.954069768025052) // Datapoint: 35, Theoretical value: 8.78755132536914, Error: -32.2443%
+  testFirstDerivative(movingRegressor, 4.888940778715508) // Datapoint: 35, Theoretical value: 6.43508819133308, Error: -24.0732%
+  testSecondDerivative(movingRegressor, 5.956802316997485) // Datapoint: 35, Theoretical value: 8.78755132536914, Error: -32.2443%
   movingRegressor.push(5.6714624031923, flywheelPosition(46)) // Datapoint 46
-  testFirstDerivative(movingRegressor, 6.614017373941454) // Datapoint: 36, Theoretical value: 7.79555417944151, Error: -15.1565%
-  testSecondDerivative(movingRegressor, 7.4852017966686715) // Datapoint: 36, Theoretical value: 9.67195172409882, Error: -22.6092%
+  testFirstDerivative(movingRegressor, 6.616103614905288) // Datapoint: 36, Theoretical value: 7.79555417944151, Error: -15.1565%
+  testSecondDerivative(movingRegressor, 7.485916659905754) // Datapoint: 36, Theoretical value: 9.67195172409882, Error: -22.6092%
   movingRegressor.push(5.72840080746097, flywheelPosition(47)) // Datapoint 47
-  testFirstDerivative(movingRegressor, 8.330344131310724) // Datapoint: 37, Theoretical value: 9.04593930777979, Error: -7.9107%
-  testSecondDerivative(movingRegressor, 8.903424127056287) // Datapoint: 37, Theoretical value: 10.4187941573561, Error: -14.5446%
+  testFirstDerivative(movingRegressor, 8.331502562905932) // Datapoint: 37, Theoretical value: 9.04593930777979, Error: -7.9107%
+  testSecondDerivative(movingRegressor, 8.902600102969847) // Datapoint: 37, Theoretical value: 10.4187941573561, Error: -14.5446%
   movingRegressor.push(5.78286163160296, flywheelPosition(48)) // Datapoint 48
-  testFirstDerivative(movingRegressor, 9.856257396415842) // Datapoint: 38, Theoretical value: 10.2150657644303, Error: -3.5125%
-  testSecondDerivative(movingRegressor, 10.133558490305996) // Datapoint: 38, Theoretical value: 11.0716208918642, Error: -8.4727%
+  testFirstDerivative(movingRegressor, 9.856705462311233) // Datapoint: 38, Theoretical value: 10.2150657644303, Error: -3.5125%
+  testSecondDerivative(movingRegressor, 10.131638260894228) // Datapoint: 38, Theoretical value: 11.0716208918642, Error: -8.4727%
   movingRegressor.push(5.83509798693099, flywheelPosition(49)) // Datapoint 49
-  testFirstDerivative(movingRegressor, 11.11127014291916) // Datapoint: 39, Theoretical value: 11.3206759756907, Error: -1.8498%
-  testSecondDerivative(movingRegressor, 11.104255084716218) // Datapoint: 39, Theoretical value: 11.6553898136565, Error: -4.7286%
+  testFirstDerivative(movingRegressor, 11.111275577176677) // Datapoint: 39, Theoretical value: 11.3206759756907, Error: -1.8498%
+  testSecondDerivative(movingRegressor, 11.101655471339662) // Datapoint: 39, Theoretical value: 11.6553898136565, Error: -4.7286%
   movingRegressor.push(5.88532398701588, flywheelPosition(50)) // Datapoint 50
-  testFirstDerivative(movingRegressor, 12.272774337076662) // Datapoint: 40, Theoretical value: 12.3746709051205, Error: -0.8234%
-  testSecondDerivative(movingRegressor, 11.946112983784932) // Datapoint: 40, Theoretical value: 12.1858955707591, Error: -1.9677%
+  testFirstDerivative(movingRegressor, 12.272424425340205) // Datapoint: 40, Theoretical value: 12.3746709051205, Error: -0.8234%
+  testSecondDerivative(movingRegressor, 11.943049564909279) // Datapoint: 40, Theoretical value: 12.1858955707591, Error: -1.9677%
   movingRegressor.push(5.93372256071353, flywheelPosition(51)) // Datapoint 51
-  testFirstDerivative(movingRegressor, 13.34406923183132) // Datapoint: 41, Theoretical value: 13.3855228467043, Error: -0.3097%
-  testSecondDerivative(movingRegressor, 12.59694355486861) // Datapoint: 41, Theoretical value: 12.6738421230679, Error: -0.6068%
+  testFirstDerivative(movingRegressor, 13.343446992889987) // Datapoint: 41, Theoretical value: 13.3855228467043, Error: -0.3097%
+  testSecondDerivative(movingRegressor, 12.593658621633706) // Datapoint: 41, Theoretical value: 12.6738421230679, Error: -0.6068%
   movingRegressor.push(5.98045137563747, flywheelPosition(52)) // Datapoint 52
   testFirstDerivative(movingRegressor, 14.287862296451628) // Datapoint: 42, Theoretical value: 14.3595335732101, Error: -0.4991%
   testSecondDerivative(movingRegressor, 12.869398886878852) // Datapoint: 42, Theoretical value: 13.1268580733747, Error: -1.9613%
@@ -624,62 +636,62 @@ test('Test of correct algorithmic behaviourof FullTSQuadraticEstimator in moving
   testFirstDerivative(movingRegressor, 14.287862296451593) // Datapoint: 86, Theoretical value: 14.3595335732101, Error: -0.4991%
   testSecondDerivative(movingRegressor, -12.86939888687885) // Datapoint: 86, Theoretical value: -13.1268580733747, Error: -1.9613%
   movingRegressor.push(10.6535038284662, flywheelPosition(97)) // Datapoint 97
-  testFirstDerivative(movingRegressor, 13.344069231831583) // Datapoint: 87, Theoretical value: 13.3855228467043, Error: -0.3097%
-  testSecondDerivative(movingRegressor, -12.596943554867401) // Datapoint: 87, Theoretical value: -12.6738421230679, Error: -0.6068%
+  testFirstDerivative(movingRegressor, 13.343446992890279) // Datapoint: 87, Theoretical value: 13.3855228467043, Error: -0.3097%
+  testSecondDerivative(movingRegressor, -12.5936586216325) // Datapoint: 87, Theoretical value: -12.6738421230679, Error: -0.6068%
   movingRegressor.push(10.9174513926879, flywheelPosition(98)) // Datapoint 98
-  testFirstDerivative(movingRegressor, 12.272774337077237) // Datapoint: 88, Theoretical value: 12.3746709051205, Error: -0.8234%
-  testSecondDerivative(movingRegressor, -11.94611298378346) // Datapoint: 88, Theoretical value: -12.1858955707591, Error: -1.9677%
+  testFirstDerivative(movingRegressor, 12.272424425340773) // Datapoint: 88, Theoretical value: 12.3746709051205, Error: -0.8234%
+  testSecondDerivative(movingRegressor, -11.943049564907804) // Datapoint: 88, Theoretical value: -12.1858955707591, Error: -1.9677%
   movingRegressor.push(11.1026044184645, flywheelPosition(99)) // Datapoint 99
-  testFirstDerivative(movingRegressor, 11.11127014291931) // Datapoint: 89, Theoretical value: 11.3206759756907, Error: -1.8498%
-  testSecondDerivative(movingRegressor, -11.10425508471583) // Datapoint: 89, Theoretical value: -11.6553898136565, Error: -4.7286%
+  testFirstDerivative(movingRegressor, 11.111275577176826) // Datapoint: 89, Theoretical value: 11.3206759756907, Error: -1.8498%
+  testSecondDerivative(movingRegressor, -11.10165547133927) // Datapoint: 89, Theoretical value: -11.6553898136565, Error: -4.7286%
   movingRegressor.push(11.2500044849194, flywheelPosition(100)) // Datapoint 100
-  testFirstDerivative(movingRegressor, 9.856257396415984) // Datapoint: 90, Theoretical value: 10.2150657644303, Error: -3.5125%
-  testSecondDerivative(movingRegressor, -10.133558490305735) // Datapoint: 90, Theoretical value: -11.0716208918642, Error: -8.4727%
+  testFirstDerivative(movingRegressor, 9.856705462311382) // Datapoint: 90, Theoretical value: 10.2150657644303, Error: -3.5125%
+  testSecondDerivative(movingRegressor, -10.131638260893967) // Datapoint: 90, Theoretical value: -11.0716208918642, Error: -8.4727%
   movingRegressor.push(11.3744782237956, flywheelPosition(101)) // Datapoint 101
-  testFirstDerivative(movingRegressor, 8.330344131310596) // Datapoint: 91, Theoretical value: 9.04593930777978, Error: -7.9107%
-  testSecondDerivative(movingRegressor, -8.903424127056597) // Datapoint: 91, Theoretical value: -10.4187941573561, Error: -14.5446%
+  testFirstDerivative(movingRegressor, 8.331502562905783) // Datapoint: 91, Theoretical value: 9.04593930777978, Error: -7.9107%
+  testSecondDerivative(movingRegressor, -8.902600102970158) // Datapoint: 91, Theoretical value: -10.4187941573561, Error: -14.5446%
   movingRegressor.push(11.483282679547, flywheelPosition(102)) // Datapoint 102
-  testFirstDerivative(movingRegressor, 6.614017373941209) // Datapoint: 92, Theoretical value: 7.79555417944151, Error: -15.1565%
-  testSecondDerivative(movingRegressor, -7.485201796668469) // Datapoint: 92, Theoretical value: -9.67195172409882, Error: -22.6092%
+  testFirstDerivative(movingRegressor, 6.616103614905029) // Datapoint: 92, Theoretical value: 7.79555417944151, Error: -15.1565%
+  testSecondDerivative(movingRegressor, -7.485916659905551) // Datapoint: 92, Theoretical value: -9.67195172409882, Error: -22.6092%
   movingRegressor.push(11.5805774998457, flywheelPosition(103)) // Datapoint 103
-  testFirstDerivative(movingRegressor, 4.885955137652751) // Datapoint: 93, Theoretical value: 6.43508819133308, Error: -24.0732%
-  testSecondDerivative(movingRegressor, -5.95406976802524) // Datapoint: 93, Theoretical value: -8.78755132536914, Error: -32.2443%
+  testFirstDerivative(movingRegressor, 4.888940778715536) // Datapoint: 93, Theoretical value: 6.43508819133308, Error: -24.0732%
+  testSecondDerivative(movingRegressor, -5.956802316997673) // Datapoint: 93, Theoretical value: -8.78755132536914, Error: -32.2443%
   movingRegressor.push(11.6689951260294, flywheelPosition(104)) // Datapoint 104
-  testFirstDerivative(movingRegressor, 3.628590457080918) // Datapoint: 94, Theoretical value: 4.91089140313715, Error: -26.1114%
-  testSecondDerivative(movingRegressor, -4.766667985586247) // Datapoint: 94, Theoretical value: -7.67663317071005, Error: -37.9068%
+  testFirstDerivative(movingRegressor, 3.6316979581926674) // Datapoint: 94, Theoretical value: 4.91089140313715, Error: -26.1114%
+  testSecondDerivative(movingRegressor, -4.771588801466752) // Datapoint: 94, Theoretical value: -7.67663317071005, Error: -37.9068%
   movingRegressor.push(11.7503195514143, flywheelPosition(105)) // Datapoint 105
-  testFirstDerivative(movingRegressor, 2.3056364514165004) // Datapoint: 95, Theoretical value: 3.09366772628014, Error: -25.4724%
-  testSecondDerivative(movingRegressor, -3.5514156470012384) // Datapoint: 95, Theoretical value: -6.09294778537956, Error: -41.7127%
+  testFirstDerivative(movingRegressor, 2.3077423939613055) // Datapoint: 95, Theoretical value: 3.09366772628014, Error: -25.4724%
+  testSecondDerivative(movingRegressor, -3.559315261247479) // Datapoint: 95, Theoretical value: -6.09294778537956, Error: -41.7127%
   movingRegressor.push(11.8258222097987, flywheelPosition(106)) // Datapoint 1066
-  testFirstDerivative(movingRegressor, 1.5762722749896647) // Datapoint: 96, Theoretical value: 0
-  testSecondDerivative(movingRegressor, -2.0664377115840596e-12) // Datapoint: 96, Theoretical value: 0
+  testFirstDerivative(movingRegressor, 1.5335044322408324) // Datapoint: 96, Theoretical value: 0
+  testSecondDerivative(movingRegressor, -2.0596270771553654e-12) // Datapoint: 96, Theoretical value: 0
   movingRegressor.push(11.89644495883, flywheelPosition(107)) // Datapoint 107
-  testFirstDerivative(movingRegressor, 2.3056364514154026) // Datapoint: 97, Theoretical value: 3.09366772628014, Error: -25.4724%
-  testSecondDerivative(movingRegressor, 3.551415647001751) // Datapoint: 97, Theoretical value: 6.09294778537956, Error: -41.7127%
+  testFirstDerivative(movingRegressor, 2.307742393960204) // Datapoint: 97, Theoretical value: 3.09366772628014, Error: -25.4724%
+  testSecondDerivative(movingRegressor, 3.559315261247989) // Datapoint: 97, Theoretical value: 6.09294778537956, Error: -41.7127%
   movingRegressor.push(11.9629072339222, flywheelPosition(108)) // Datapoint 108
-  testFirstDerivative(movingRegressor, 3.62859045708084) // Datapoint: 98, Theoretical value: 4.91089140313715, Error: -26.1114%
-  testSecondDerivative(movingRegressor, 4.766667985584684) // Datapoint: 98, Theoretical value: 7.67663317071005, Error: -37.9068%
+  testFirstDerivative(movingRegressor, 3.6316979581925963) // Datapoint: 98, Theoretical value: 4.91089140313715, Error: -26.1114%
+  testSecondDerivative(movingRegressor, 4.771588801465188) // Datapoint: 98, Theoretical value: 7.67663317071005, Error: -37.9068%
   movingRegressor.push(12.025772443942, flywheelPosition(109)) // Datapoint 109
-  testFirstDerivative(movingRegressor, 4.885955137653781) // Datapoint: 99, Theoretical value: 6.43508819133308, Error: -24.0732%
-  testSecondDerivative(movingRegressor, 5.954069768023376) // Datapoint: 99, Theoretical value: 8.78755132536914, Error: -32.2443%
+  testFirstDerivative(movingRegressor, 4.888940778716552) // Datapoint: 99, Theoretical value: 6.43508819133308, Error: -24.0732%
+  testSecondDerivative(movingRegressor, 5.956802316995809) // Datapoint: 99, Theoretical value: 8.78755132536914, Error: -32.2443%
   movingRegressor.push(12.0854910260623, flywheelPosition(110)) // Datapoint 110
-  testFirstDerivative(movingRegressor, 6.614017373942133) // Datapoint: 100, Theoretical value: 7.79555417944151, Error: -15.1565%
-  testSecondDerivative(movingRegressor, 7.485201796666093) // Datapoint: 100, Theoretical value: 9.67195172409882, Error: -22.6092%
+  testFirstDerivative(movingRegressor, 6.616103614905953) // Datapoint: 100, Theoretical value: 7.79555417944151, Error: -15.1565%
+  testSecondDerivative(movingRegressor, 7.485916659903175) // Datapoint: 100, Theoretical value: 9.67195172409882, Error: -22.6092%
   movingRegressor.push(12.142429430331, flywheelPosition(111)) // Datapoint 111
-  testFirstDerivative(movingRegressor, 8.330344131312316) // Datapoint: 101, Theoretical value: 9.04593930777979, Error: -7.9107%
-  testSecondDerivative(movingRegressor, 8.903424127051075) // Datapoint: 101, Theoretical value: 10.4187941573561, Error: -14.5446%
+  testFirstDerivative(movingRegressor, 8.331502562907502) // Datapoint: 101, Theoretical value: 9.04593930777979, Error: -7.9107%
+  testSecondDerivative(movingRegressor, 8.902600102964639) // Datapoint: 101, Theoretical value: 10.4187941573561, Error: -14.5446%
   movingRegressor.push(12.1968902544729, flywheelPosition(112)) // Datapoint 112
-  testFirstDerivative(movingRegressor, 9.856257396417504) // Datapoint: 102, Theoretical value: 10.2150657644303, Error: -3.5125%
-  testSecondDerivative(movingRegressor, 10.133558490300592) // Datapoint: 102, Theoretical value: 11.0716208918642, Error: -8.4727%
+  testFirstDerivative(movingRegressor, 9.856705462312902) // Datapoint: 102, Theoretical value: 10.2150657644303, Error: -3.5125%
+  testSecondDerivative(movingRegressor, 10.131638260888828) // Datapoint: 102, Theoretical value: 11.0716208918642, Error: -8.4727%
   movingRegressor.push(12.249126609801, flywheelPosition(113)) // Datapoint 113
-  testFirstDerivative(movingRegressor, 11.111270142920347) // Datapoint: 103, Theoretical value: 11.3206759756907, Error: -1.8498%
-  testSecondDerivative(movingRegressor, 11.104255084710369) // Datapoint: 103, Theoretical value: 11.6553898136565, Error: -4.7286%
+  testFirstDerivative(movingRegressor, 11.111275577177864) // Datapoint: 103, Theoretical value: 11.3206759756907, Error: -1.8498%
+  testSecondDerivative(movingRegressor, 11.101655471333814) // Datapoint: 103, Theoretical value: 11.6553898136565, Error: -4.7286%
   movingRegressor.push(12.2993526098859, flywheelPosition(114)) // Datapoint 114
-  testFirstDerivative(movingRegressor, 12.272774337075006) // Datapoint: 104, Theoretical value: 12.3746709051205, Error: -0.8234%
-  testSecondDerivative(movingRegressor, 11.946112983782152) // Datapoint: 104, Theoretical value: 12.1858955707591, Error: -1.9677%
+  testFirstDerivative(movingRegressor, 12.272424425338542) // Datapoint: 104, Theoretical value: 12.3746709051205, Error: -0.8234%
+  testSecondDerivative(movingRegressor, 11.943049564906497) // Datapoint: 104, Theoretical value: 12.1858955707591, Error: -1.9677%
   movingRegressor.push(12.3477511835835, flywheelPosition(115)) // Datapoint 115
-  testFirstDerivative(movingRegressor, 13.344069231830105) // Datapoint: 105, Theoretical value: 13.3855228467043, Error: -0.3097%
-  testSecondDerivative(movingRegressor, 12.596943554867831) // Datapoint: 105, Theoretical value: 12.6738421230679, Error: -0.6068%
+  testFirstDerivative(movingRegressor, 13.343446992888772) // Datapoint: 105, Theoretical value: 13.3855228467043, Error: -0.3097%
+  testSecondDerivative(movingRegressor, 12.59365862163293) // Datapoint: 105, Theoretical value: 12.6738421230679, Error: -0.6068%
   movingRegressor.push(12.3944799985075, flywheelPosition(116)) // Datapoint 116
   testFirstDerivative(movingRegressor, 14.28786229645084) // Datapoint: 106, Theoretical value: 14.3595335732101, Error: -0.4991%
   testSecondDerivative(movingRegressor, 12.86939888687176) // Datapoint: 106, Theoretical value: 13.1268580733747, Error: -1.9613%
@@ -821,68 +833,68 @@ test('Test of correct algorithmic behaviourof FullTSQuadraticEstimator in moving
   testFirstDerivative(movingRegressor, 35.03463828636044) // Datapoint: 21, Theoretical value: 35.3270234685551, Error: -0.8277%
   testSecondDerivative(movingRegressor, -84.72131405455713) // Datapoint: 21, Theoretical value: -86.6727901598317, Error: -2.2515%
   movingRegressor.push(2.01853237434599, flywheelPosition(32)) // Datapoint 32
-  testFirstDerivative(movingRegressor, 32.556646337181334) // Datapoint: 22, Theoretical value: 32.7335342472893, Error: -0.5404%
-  testSecondDerivative(movingRegressor, -81.74563687145616) // Datapoint: 22, Theoretical value: -81.8553682135038, Error: -0.1341%
+  testFirstDerivative(movingRegressor, 32.554704278009275) // Datapoint: 22, Theoretical value: 32.7335342472893, Error: -0.5404%
+  testSecondDerivative(movingRegressor, -81.7211071442608) // Datapoint: 22, Theoretical value: -81.8553682135038, Error: -0.1341%
   movingRegressor.push(3.02779856151898, flywheelPosition(33)) // Datapoint 33
-  testFirstDerivative(movingRegressor, 30.0053262177018) // Datapoint: 23, Theoretical value: 30.0875556300011, Error: -0.2733%
-  testSecondDerivative(movingRegressor, -78.8103638663143) // Datapoint: 23, Theoretical value: -76.8409405553369, Error: 2.563%
+  testFirstDerivative(movingRegressor, 30.000816353086208) // Datapoint: 23, Theoretical value: 30.0875556300011, Error: -0.2733%
+  testSecondDerivative(movingRegressor, -78.74803078952486) // Datapoint: 23, Theoretical value: -76.8409405553369, Error: 2.563%
   movingRegressor.push(3.17787478330574, flywheelPosition(34)) // Datapoint 34
-  testFirstDerivative(movingRegressor, 27.3590650062608) // Datapoint: 24, Theoretical value: 27.3819824840534, Error: -0.0837%
-  testSecondDerivative(movingRegressor, -75.91047202675192) // Datapoint: 24, Theoretical value: -71.5980441226457, Error: 6.0231%
+  testFirstDerivative(movingRegressor, 27.35085176667772) // Datapoint: 24, Theoretical value: 27.3819824840534, Error: -0.0837%
+  testSecondDerivative(movingRegressor, -75.79177233150754) // Datapoint: 24, Theoretical value: -71.5980441226457, Error: 6.0231%
   movingRegressor.push(3.27580649001517, flywheelPosition(35)) // Datapoint 35
-  testFirstDerivative(movingRegressor, 24.26443935991906) // Datapoint: 25, Theoretical value: 24.6077174058151, Error: -1.395%
-  testSecondDerivative(movingRegressor, -70.22915254416483) // Datapoint: 25, Theoretical value: -66.0854711273398, Error: 6.2702%
+  testFirstDerivative(movingRegressor, 24.26071071895941) // Datapoint: 25, Theoretical value: 24.6077174058151, Error: -1.395%
+  testSecondDerivative(movingRegressor, -70.11339732080359) // Datapoint: 25, Theoretical value: -66.0854711273398, Error: 6.2702%
   movingRegressor.push(3.35026709239635, flywheelPosition(36)) // Datapoint 36
-  testFirstDerivative(movingRegressor, 20.83493250613911) // Datapoint: 26, Theoretical value: 21.7527364967177, Error: -4.2193%
-  testSecondDerivative(movingRegressor, -63.20422464017087) // Datapoint: 26, Theoretical value: -60.2473455054648, Error: 4.9079%
+  testFirstDerivative(movingRegressor, 20.837518238274917) // Datapoint: 26, Theoretical value: 21.7527364967177, Error: -4.2193%
+  testSecondDerivative(movingRegressor, -63.09857048895648) // Datapoint: 26, Theoretical value: -60.2473455054648, Error: 4.9079%
   movingRegressor.push(3.41104686909844, flywheelPosition(37)) // Datapoint 37
-  testFirstDerivative(movingRegressor, 16.540358644462728) // Datapoint: 27, Theoretical value: 18.8004784715502, Error: -12.0216%
-  testSecondDerivative(movingRegressor, -53.9026545272266) // Datapoint: 27, Theoretical value: -54.0044029484732, Error: -0.1884%
+  testFirstDerivative(movingRegressor, 16.553286547446575) // Datapoint: 27, Theoretical value: 18.8004784715502, Error: -12.0216%
+  testSecondDerivative(movingRegressor, -53.82083440126937) // Datapoint: 27, Theoretical value: -54.0044029484732, Error: -0.1884%
   movingRegressor.push(3.46276108279553, flywheelPosition(38)) // Datapoint 38
-  testFirstDerivative(movingRegressor, 12.023279845406904) // Datapoint: 28, Theoretical value: 15.7268191179949, Error: -23.5492%
-  testSecondDerivative(movingRegressor, -44.515559757405676) // Datapoint: 28, Theoretical value: -47.2370928078489, Error: -5.7614%
+  testFirstDerivative(movingRegressor, 12.04945082759771) // Datapoint: 28, Theoretical value: 15.7268191179949, Error: -23.5492%
+  testSecondDerivative(movingRegressor, -44.46299143724117) // Datapoint: 28, Theoretical value: -47.2370928078489, Error: -5.7614%
   movingRegressor.push(3.50798032628076, flywheelPosition(39)) // Datapoint 39
-  testFirstDerivative(movingRegressor, 7.9550999676935525) // Datapoint: 29, Theoretical value: 12.4936663152318, Error: -36.3269%
-  testSecondDerivative(movingRegressor, -35.69289163563467) // Datapoint: 29, Theoretical value: -39.7484244987643, Error: -10.203%
+  testFirstDerivative(movingRegressor, 7.995979006137617) // Datapoint: 29, Theoretical value: 12.4936663152318, Error: -36.3269%
+  testSecondDerivative(movingRegressor, -35.67688197212385) // Datapoint: 29, Theoretical value: -39.7484244987643, Error: -10.203%
   movingRegressor.push(3.54829385426288, flywheelPosition(40)) // Datapoint 40
-  testFirstDerivative(movingRegressor, 4.490581497457299) // Datapoint: 30, Theoretical value: 9.03268562508831, Error: -50.2852%
-  testSecondDerivative(movingRegressor, -26.59823204822437) // Datapoint: 30, Theoretical value: -31.164858820935, Error: -14.6531%
+  testFirstDerivative(movingRegressor, 4.545499777144109) // Datapoint: 30, Theoretical value: 9.03268562508831, Error: -50.2852%
+  testSecondDerivative(movingRegressor, -26.644166155256052) // Datapoint: 30, Theoretical value: -31.164858820935, Error: -14.6531%
   movingRegressor.push(3.58475763981283, flywheelPosition(41)) // Datapoint 41
-  testFirstDerivative(movingRegressor, 3.815904626117252) // Datapoint: 31, Theoretical value: 5.18791555937216, Error: -26.4463%
-  testSecondDerivative(movingRegressor, -19.03067846863168) // Datapoint: 31, Theoretical value: -20.5611388761721, Error: -7.4435%
+  testFirstDerivative(movingRegressor, 3.8462783014954773) // Datapoint: 31, Theoretical value: 5.18791555937216, Error: -26.4463%
+  testSecondDerivative(movingRegressor, -19.207586578866348) // Datapoint: 31, Theoretical value: -20.5611388761721, Error: -7.4435%
   movingRegressor.push(3.61811148377765, flywheelPosition(42)) // Datapoint 42
-  testFirstDerivative(movingRegressor, 3.1453638235989767) // Datapoint: 32, Theoretical value: 0
-  testSecondDerivative(movingRegressor, 4.5598970291679296e-15) // Datapoint: 32, Theoretical value: 0
+  testFirstDerivative(movingRegressor, 3.1383576841321967) // Datapoint: 32, Theoretical value: 0
+  testSecondDerivative(movingRegressor, 4.409564582673597e-15) // Datapoint: 32, Theoretical value: 0
   movingRegressor.push(3.64889518617698, flywheelPosition(43)) // Datapoint 43
-  testFirstDerivative(movingRegressor, 3.8159046261167617) // Datapoint: 33, Theoretical value: 5.18791555937215, Error: -26.4463%
-  testSecondDerivative(movingRegressor, 19.03067846863373) // Datapoint: 33, Theoretical value: 20.5611388761721, Error: -7.4435%
+  testFirstDerivative(movingRegressor, 3.8462783014949977) // Datapoint: 33, Theoretical value: 5.18791555937215, Error: -26.4463%
+  testSecondDerivative(movingRegressor, 19.2075865788684) // Datapoint: 33, Theoretical value: 20.5611388761721, Error: -7.4435%
   movingRegressor.push(3.67751551598147, flywheelPosition(44)) // Datapoint 44
-  testFirstDerivative(movingRegressor, 4.490581497456901) // Datapoint: 34, Theoretical value: 9.03268562508831, Error: -50.2852%
-  testSecondDerivative(movingRegressor, 26.598232048227107) // Datapoint: 34, Theoretical value: 31.164858820935, Error: -14.6531%
+  testFirstDerivative(movingRegressor, 4.545499777143718) // Datapoint: 34, Theoretical value: 9.03268562508831, Error: -50.2852%
+  testSecondDerivative(movingRegressor, 26.64416615525877) // Datapoint: 34, Theoretical value: 31.164858820935, Error: -14.6531%
   movingRegressor.push(3.7042871320382, flywheelPosition(45)) // Datapoint 45
-  testFirstDerivative(movingRegressor, 7.955099967691808) // Datapoint: 35, Theoretical value: 12.4936663152318, Error: -36.3269%
-  testSecondDerivative(movingRegressor, 35.69289163564905) // Datapoint: 35, Theoretical value: 39.7484244987643, Error: -10.203%
+  testFirstDerivative(movingRegressor, 7.995979006135855) // Datapoint: 35, Theoretical value: 12.4936663152318, Error: -36.3269%
+  testSecondDerivative(movingRegressor, 35.67688197213815) // Datapoint: 35, Theoretical value: 39.7484244987643, Error: -10.203%
   movingRegressor.push(3.72945878658716, flywheelPosition(46)) // Datapoint 46
-  testFirstDerivative(movingRegressor, 12.023279845401277) // Datapoint: 36, Theoretical value: 15.7268191179949, Error: -23.5492%
-  testSecondDerivative(movingRegressor, 44.51555975743898) // Datapoint: 36, Theoretical value: 47.2370928078489, Error: -5.7614%
+  testFirstDerivative(movingRegressor, 12.049450827592068) // Datapoint: 36, Theoretical value: 15.7268191179949, Error: -23.5492%
+  testSecondDerivative(movingRegressor, 44.46299143727433) // Datapoint: 36, Theoretical value: 47.2370928078489, Error: -5.7614%
   movingRegressor.push(3.75323076432218, flywheelPosition(47)) // Datapoint 47
-  testFirstDerivative(movingRegressor, 16.540358644457484) // Datapoint: 37, Theoretical value: 18.8004784715502, Error: -12.0216%
-  testSecondDerivative(movingRegressor, 53.90265452726991) // Datapoint: 37, Theoretical value: 54.0044029484732, Error: -0.1884%
+  testFirstDerivative(movingRegressor, 16.55328654744136) // Datapoint: 37, Theoretical value: 18.8004784715502, Error: -12.0216%
+  testSecondDerivative(movingRegressor, 53.820834401312524) // Datapoint: 37, Theoretical value: 54.0044029484732, Error: -0.1884%
   movingRegressor.push(3.77576686986435, flywheelPosition(48)) // Datapoint 48
-  testFirstDerivative(movingRegressor, 20.834932506136) // Datapoint: 38, Theoretical value: 21.7527364967177, Error: -4.2193%
-  testSecondDerivative(movingRegressor, 63.20422464021262) // Datapoint: 38, Theoretical value: 60.2473455054648, Error: 4.9079%
+  testFirstDerivative(movingRegressor, 20.837518238271798) // Datapoint: 38, Theoretical value: 21.7527364967177, Error: -4.2193%
+  testSecondDerivative(movingRegressor, 63.0985704889981) // Datapoint: 38, Theoretical value: 60.2473455054648, Error: 4.9079%
   movingRegressor.push(3.79720289770384, flywheelPosition(49)) // Datapoint 49
-  testFirstDerivative(movingRegressor, 24.264439359918924) // Datapoint: 39, Theoretical value: 24.6077174058151, Error: -1.395%
-  testSecondDerivative(movingRegressor, 70.22915254420002) // Datapoint: 39, Theoretical value: 66.0854711273397, Error: 6.2702%
+  testFirstDerivative(movingRegressor, 24.260710718959217) // Datapoint: 39, Theoretical value: 24.6077174058151, Error: -1.395%
+  testSecondDerivative(movingRegressor, 70.11339732083867) // Datapoint: 39, Theoretical value: 66.0854711273397, Error: 6.2702%
   movingRegressor.push(3.81765276034255, flywheelPosition(50)) // Datapoint 50
-  testFirstDerivative(movingRegressor, 27.359065006261318) // Datapoint: 40, Theoretical value: 27.3819824840534, Error: -0.0837%
-  testSecondDerivative(movingRegressor, 75.91047202678642) // Datapoint: 40, Theoretical value: 71.5980441226458, Error: 6.0231%
+  testFirstDerivative(movingRegressor, 27.35085176667826) // Datapoint: 40, Theoretical value: 27.3819824840534, Error: -0.0837%
+  testSecondDerivative(movingRegressor, 75.79177233154196) // Datapoint: 40, Theoretical value: 71.5980441226458, Error: 6.0231%
   movingRegressor.push(3.83721301460343, flywheelPosition(51)) // Datapoint 51
-  testFirstDerivative(movingRegressor, 30.005326217703555) // Datapoint: 41, Theoretical value: 30.0875556300011, Error: -0.2733%
-  testSecondDerivative(movingRegressor, 78.81036386634156) // Datapoint: 41, Theoretical value: 76.8409405553369, Error: 2.563%
+  testFirstDerivative(movingRegressor, 30.000816353087885) // Datapoint: 41, Theoretical value: 30.0875556300011, Error: -0.2733%
+  testSecondDerivative(movingRegressor, 78.74803078955205) // Datapoint: 41, Theoretical value: 76.8409405553369, Error: 2.563%
   movingRegressor.push(3.85596626603776, flywheelPosition(52)) // Datapoint 52
-  testFirstDerivative(movingRegressor, 32.556646337185555) // Datapoint: 42, Theoretical value: 32.7335342472893, Error: -0.5404%
-  testSecondDerivative(movingRegressor, 81.74563687146653) // Datapoint: 42, Theoretical value: 81.8553682135038, Error: -0.1341%
+  testFirstDerivative(movingRegressor, 32.5547042780135) // Datapoint: 42, Theoretical value: 32.7335342472893, Error: -0.5404%
+  testSecondDerivative(movingRegressor, 81.72110714427114) // Datapoint: 42, Theoretical value: 81.8553682135038, Error: -0.1341%
   movingRegressor.push(3.8739837710181, flywheelPosition(53)) // Datapoint 53
   testFirstDerivative(movingRegressor, 35.03463828636535) // Datapoint: 43, Theoretical value: 35.3270234685551, Error: -0.8277%
   testSecondDerivative(movingRegressor, 84.72131405455926) // Datapoint: 43, Theoretical value: 86.6727901598316, Error: -2.2515%
@@ -1013,68 +1025,68 @@ test('Test of correct algorithmic behaviourof FullTSQuadraticEstimator in moving
   testFirstDerivative(movingRegressor, 35.034638286358415) // Datapoint: 85, Theoretical value: 35.3270234685551, Error: -0.8277%
   testSecondDerivative(movingRegressor, -84.7213140545765) // Datapoint: 85, Theoretical value: -86.6727901598317, Error: -2.2515%
   movingRegressor.push(6.04282057476568, flywheelPosition(96)) // Datapoint 96
-  testFirstDerivative(movingRegressor, 32.55664633717993) // Datapoint: 86, Theoretical value: 32.7335342472893, Error: -0.5404%
-  testSecondDerivative(movingRegressor, -81.74563687147501) // Datapoint: 86, Theoretical value: -81.8553682135038, Error: -0.1341%
+  testFirstDerivative(movingRegressor, 32.55470427800782) // Datapoint: 86, Theoretical value: 32.7335342472893, Error: -0.5404%
+  testSecondDerivative(movingRegressor, -81.72110714427964) // Datapoint: 86, Theoretical value: -81.8553682135038, Error: -0.1341%
   movingRegressor.push(7.05208676193867, flywheelPosition(97)) // Datapoint 97
-  testFirstDerivative(movingRegressor, 30.005326217700258) // Datapoint: 87, Theoretical value: 30.0875556300011, Error: -0.2733%
-  testSecondDerivative(movingRegressor, -78.81036386632607) // Datapoint: 87, Theoretical value: -76.8409405553369, Error: 2.563%
+  testFirstDerivative(movingRegressor, 30.0008163530847) // Datapoint: 87, Theoretical value: 30.0875556300011, Error: -0.2733%
+  testSecondDerivative(movingRegressor, -78.74803078953659) // Datapoint: 87, Theoretical value: -76.8409405553369, Error: 2.563%
   movingRegressor.push(7.20216298372543, flywheelPosition(98)) // Datapoint 98
-  testFirstDerivative(movingRegressor, 27.35906500626146) // Datapoint: 88, Theoretical value: 27.3819824840534, Error: -0.0837%
-  testSecondDerivative(movingRegressor, -75.91047202675729) // Datapoint: 88, Theoretical value: -71.5980441226457, Error: 6.0231%
+  testFirstDerivative(movingRegressor, 27.350851766678318) // Datapoint: 88, Theoretical value: 27.3819824840534, Error: -0.0837%
+  testSecondDerivative(movingRegressor, -75.7917723315129) // Datapoint: 88, Theoretical value: -71.5980441226457, Error: 6.0231%
   movingRegressor.push(7.30009469043486, flywheelPosition(99)) // Datapoint 99
-  testFirstDerivative(movingRegressor, 24.264439359917958) // Datapoint: 89, Theoretical value: 24.6077174058151, Error: -1.395%
-  testSecondDerivative(movingRegressor, -70.22915254417521) // Datapoint: 89, Theoretical value: -66.0854711273398, Error: 6.2702%
+  testFirstDerivative(movingRegressor, 24.260710718958364) // Datapoint: 89, Theoretical value: 24.6077174058151, Error: -1.395%
+  testSecondDerivative(movingRegressor, -70.11339732081393) // Datapoint: 89, Theoretical value: -66.0854711273398, Error: 6.2702%
   movingRegressor.push(7.37455529281604, flywheelPosition(100)) // Datapoint 100
-  testFirstDerivative(movingRegressor, 20.83493250613799) // Datapoint: 90, Theoretical value: 21.7527364967177, Error: -4.2193%
-  testSecondDerivative(movingRegressor, -63.20422464018079) // Datapoint: 90, Theoretical value: -60.2473455054648, Error: 4.9079%
+  testFirstDerivative(movingRegressor, 20.837518238273844) // Datapoint: 90, Theoretical value: 21.7527364967177, Error: -4.2193%
+  testSecondDerivative(movingRegressor, -63.09857048896637) // Datapoint: 90, Theoretical value: -60.2473455054648, Error: 4.9079%
   movingRegressor.push(7.43533506951812, flywheelPosition(101)) // Datapoint 101
-  testFirstDerivative(movingRegressor, 16.540358644462685) // Datapoint: 91, Theoretical value: 18.8004784715502, Error: -12.0216%
-  testSecondDerivative(movingRegressor, -53.90265452723021) // Datapoint: 91, Theoretical value: -54.0044029484732, Error: -0.1884%
+  testFirstDerivative(movingRegressor, 16.55328654744659) // Datapoint: 91, Theoretical value: 18.8004784715502, Error: -12.0216%
+  testSecondDerivative(movingRegressor, -53.82083440127297) // Datapoint: 91, Theoretical value: -54.0044029484732, Error: -0.1884%
   movingRegressor.push(7.48704928321522, flywheelPosition(102)) // Datapoint 102
-  testFirstDerivative(movingRegressor, 12.023279845405199) // Datapoint: 92, Theoretical value: 15.7268191179949, Error: -23.5492%
-  testSecondDerivative(movingRegressor, -44.51555975741568) // Datapoint: 92, Theoretical value: -47.2370928078489, Error: -5.7614%
+  testFirstDerivative(movingRegressor, 12.04945082759599) // Datapoint: 92, Theoretical value: 15.7268191179949, Error: -23.5492%
+  testSecondDerivative(movingRegressor, -44.46299143725113) // Datapoint: 92, Theoretical value: -47.2370928078489, Error: -5.7614%
   movingRegressor.push(7.53226852670045, flywheelPosition(103)) // Datapoint 103
-  testFirstDerivative(movingRegressor, 7.955099967693059) // Datapoint: 93, Theoretical value: 12.4936663152318, Error: -36.3269%
-  testSecondDerivative(movingRegressor, -35.69289163563958) // Datapoint: 93, Theoretical value: -39.7484244987643, Error: -10.203%
+  testFirstDerivative(movingRegressor, 7.995979006137162) // Datapoint: 93, Theoretical value: 12.4936663152318, Error: -36.3269%
+  testSecondDerivative(movingRegressor, -35.676881972128726) // Datapoint: 93, Theoretical value: -39.7484244987643, Error: -10.203%
   movingRegressor.push(7.57258205468257, flywheelPosition(104)) // Datapoint 104
-  testFirstDerivative(movingRegressor, 4.490581497457271) // Datapoint: 94, Theoretical value: 9.03268562508831, Error: -50.2852%
-  testSecondDerivative(movingRegressor, -26.598232048225814) // Datapoint: 94, Theoretical value: -31.164858820935, Error: -14.6531%
+  testFirstDerivative(movingRegressor, 4.5454997771441015) // Datapoint: 94, Theoretical value: 9.03268562508831, Error: -50.2852%
+  testSecondDerivative(movingRegressor, -26.64416615525746) // Datapoint: 94, Theoretical value: -31.164858820935, Error: -14.6531%
   movingRegressor.push(7.60904584023252, flywheelPosition(105)) // Datapoint 105
-  testFirstDerivative(movingRegressor, 3.81590462611652) // Datapoint: 95, Theoretical value: 5.18791555937216, Error: -26.4463%
-  testSecondDerivative(movingRegressor, -19.03067846863412) // Datapoint: 95, Theoretical value: -20.5611388761721, Error: -7.4435%
+  testFirstDerivative(movingRegressor, 3.846278301494735) // Datapoint: 95, Theoretical value: 5.18791555937216, Error: -26.4463%
+  testSecondDerivative(movingRegressor, -19.20758657886873) // Datapoint: 95, Theoretical value: -20.5611388761721, Error: -7.4435%
   movingRegressor.push(7.64239968419734, flywheelPosition(106)) // Datapoint 106
-  testFirstDerivative(movingRegressor, 3.145363823598987) // Datapoint: 96, Theoretical value: 0
-  testSecondDerivative(movingRegressor, 1.3823022937382807e-14) // Datapoint: 96, Theoretical value: 0
+  testFirstDerivative(movingRegressor, 3.1383576841322074) // Datapoint: 96, Theoretical value: 0
+  testSecondDerivative(movingRegressor, 1.3705117896314261e-14) // Datapoint: 96, Theoretical value: 0
   movingRegressor.push(7.67318338659667, flywheelPosition(107)) // Datapoint 107
-  testFirstDerivative(movingRegressor, 3.8159046261164633) // Datapoint: 97, Theoretical value: 5.18791555937215, Error: -26.4463%
-  testSecondDerivative(movingRegressor, 19.030678468636108) // Datapoint: 97, Theoretical value: 20.5611388761721, Error: -7.4435%
+  testFirstDerivative(movingRegressor, 3.846278301494692) // Datapoint: 97, Theoretical value: 5.18791555937215, Error: -26.4463%
+  testSecondDerivative(movingRegressor, 19.20758657887071) // Datapoint: 97, Theoretical value: 20.5611388761721, Error: -7.4435%
   movingRegressor.push(7.70180371640116, flywheelPosition(108)) // Datapoint 108
-  testFirstDerivative(movingRegressor, 4.490581497456958) // Datapoint: 98, Theoretical value: 9.03268562508831, Error: -50.2852%
-  testSecondDerivative(movingRegressor, 26.598232048228212) // Datapoint: 98, Theoretical value: 31.164858820935, Error: -14.6531%
+  testFirstDerivative(movingRegressor, 4.545499777143846) // Datapoint: 98, Theoretical value: 9.03268562508831, Error: -50.2852%
+  testSecondDerivative(movingRegressor, 26.644166155259857) // Datapoint: 98, Theoretical value: 31.164858820935, Error: -14.6531%
   movingRegressor.push(7.72857533245789, flywheelPosition(109)) // Datapoint 109
-  testFirstDerivative(movingRegressor, 7.955099967689733) // Datapoint: 99, Theoretical value: 12.4936663152318, Error: -36.3269%
-  testSecondDerivative(movingRegressor, 35.692891635658704) // Datapoint: 99, Theoretical value: 39.7484244987643, Error: -10.203%
+  testFirstDerivative(movingRegressor, 7.995979006133808) // Datapoint: 99, Theoretical value: 12.4936663152318, Error: -36.3269%
+  testSecondDerivative(movingRegressor, 35.67688197214775) // Datapoint: 99, Theoretical value: 39.7484244987643, Error: -10.203%
   movingRegressor.push(7.75374698700685, flywheelPosition(110)) // Datapoint 110
-  testFirstDerivative(movingRegressor, 12.023279845411594) // Datapoint: 100, Theoretical value: 15.7268191179949, Error: -23.5492%
-  testSecondDerivative(movingRegressor, 44.51555975741129) // Datapoint: 100, Theoretical value: 47.2370928078489, Error: -5.7614%
+  testFirstDerivative(movingRegressor, 12.049450827602357) // Datapoint: 100, Theoretical value: 15.7268191179949, Error: -23.5492%
+  testSecondDerivative(movingRegressor, 44.46299143724677) // Datapoint: 100, Theoretical value: 47.2370928078489, Error: -5.7614%
   movingRegressor.push(7.77751896474187, flywheelPosition(111)) // Datapoint 111
-  testFirstDerivative(movingRegressor, 16.540358644468085) // Datapoint: 101, Theoretical value: 18.8004784715502, Error: -12.0216%
-  testSecondDerivative(movingRegressor, 53.9026545272291) // Datapoint: 101, Theoretical value: 54.0044029484732, Error: -0.1884%
+  testFirstDerivative(movingRegressor, 16.55328654745199) // Datapoint: 101, Theoretical value: 18.8004784715502, Error: -12.0216%
+  testSecondDerivative(movingRegressor, 53.82083440127187) // Datapoint: 101, Theoretical value: 54.0044029484732, Error: -0.1884%
   movingRegressor.push(7.80005507028404, flywheelPosition(112)) // Datapoint 112
-  testFirstDerivative(movingRegressor, 20.834932506145492) // Datapoint: 102, Theoretical value: 21.7527364967177, Error: -4.2193%
-  testSecondDerivative(movingRegressor, 63.2042246401701) // Datapoint: 102, Theoretical value: 60.2473455054648, Error: 4.9079%
+  testFirstDerivative(movingRegressor, 20.837518238281234) // Datapoint: 102, Theoretical value: 21.7527364967177, Error: -4.2193%
+  testSecondDerivative(movingRegressor, 63.09857048895572) // Datapoint: 102, Theoretical value: 60.2473455054648, Error: 4.9079%
   movingRegressor.push(7.82149109812353, flywheelPosition(113)) // Datapoint 113
-  testFirstDerivative(movingRegressor, 24.264439359926428) // Datapoint: 103, Theoretical value: 24.6077174058151, Error: -1.395%
-  testSecondDerivative(movingRegressor, 70.22915254415649) // Datapoint: 103, Theoretical value: 66.0854711273397, Error: 6.2702%
+  testFirstDerivative(movingRegressor, 24.260710718966607) // Datapoint: 103, Theoretical value: 24.6077174058151, Error: -1.395%
+  testSecondDerivative(movingRegressor, 70.11339732079524) // Datapoint: 103, Theoretical value: 66.0854711273397, Error: 6.2702%
   movingRegressor.push(7.84194096076223, flywheelPosition(114)) // Datapoint 114
-  testFirstDerivative(movingRegressor, 27.359065006266974) // Datapoint: 104, Theoretical value: 27.3819824840534, Error: -0.0837%
-  testSecondDerivative(movingRegressor, 75.91047202674271) // Datapoint: 104, Theoretical value: 71.5980441226458, Error: 6.0231%
+  testFirstDerivative(movingRegressor, 27.350851766683718) // Datapoint: 104, Theoretical value: 27.3819824840534, Error: -0.0837%
+  testSecondDerivative(movingRegressor, 75.79177233149834) // Datapoint: 104, Theoretical value: 71.5980441226458, Error: 6.0231%
   movingRegressor.push(7.86150121502312, flywheelPosition(115)) // Datapoint 115
-  testFirstDerivative(movingRegressor, 30.005326217706283) // Datapoint: 105, Theoretical value: 30.0875556300011, Error: -0.2733%
-  testSecondDerivative(movingRegressor, 78.81036386630774) // Datapoint: 105, Theoretical value: 76.8409405553369, Error: 2.563%
+  testFirstDerivative(movingRegressor, 30.000816353090613) // Datapoint: 105, Theoretical value: 30.0875556300011, Error: -0.2733%
+  testSecondDerivative(movingRegressor, 78.7480307895183) // Datapoint: 105, Theoretical value: 76.8409405553369, Error: 2.563%
   movingRegressor.push(7.88025446645745, flywheelPosition(116)) // Datapoint 116
-  testFirstDerivative(movingRegressor, 32.5566463371847) // Datapoint: 106, Theoretical value: 32.7335342472893, Error: -0.5404%
-  testSecondDerivative(movingRegressor, 81.74563687144989) // Datapoint: 106, Theoretical value: 81.8553682135038, Error: -0.1341%
+  testFirstDerivative(movingRegressor, 32.55470427801254) // Datapoint: 106, Theoretical value: 32.7335342472893, Error: -0.5404%
+  testSecondDerivative(movingRegressor, 81.72110714425453) // Datapoint: 106, Theoretical value: 81.8553682135038, Error: -0.1341%
   movingRegressor.push(7.89827197143778, flywheelPosition(117)) // Datapoint 117
   testFirstDerivative(movingRegressor, 35.034638286363815) // Datapoint: 107, Theoretical value: 35.3270234685551, Error: -0.8277%
   testSecondDerivative(movingRegressor, 84.72131405454387) // Datapoint: 107, Theoretical value: 86.6727901598316, Error: -2.2515%
