@@ -203,31 +203,39 @@ Currently, both the Theil-Sen regressors (i.e. `TSLinearSeries.js` and `TSQuadra
 For linear regression, it is defined as:
 
 ```math
-sse = \left( \sum_{i=1}^n weight_i y_i^2 \right)
-  - \left( 2b \sum_{i=1}^n weight_i y_i \right)
-  - \left( 2a \sum_{i=1}^n weight_i x_i y_i \right)
-  + \left( b^2 \sum_{i=1}^n weight_i \right)
-  + \left( 2ab \sum_{i=1}^n weight_i x_i \right)
-  + \left( a^2 \sum_{i=1}^n weight_i x_i^2 \right)
+\begin{aligned}
+sse = \left( \sum_{i=1}^n weight_i y_i^2 \right)\\
+  - \left( 2b \sum_{i=1}^n weight_i y_i \right)\\
+  - \left( 2a \sum_{i=1}^n weight_i x_i y_i \right)\\
+  + \left( b^2 \sum_{i=1}^n weight_i \right)\\
+  + \left( 2ab \sum_{i=1}^n weight_i x_i \right)\\
+  + \left( a^2 \sum_{i=1}^n weight_i x_i^2 \right)\\
 
-sst = \left( \sum_{i=1}^n weight_i y_i^2 \right) - \left( 2 * \overline{y} * \sum_{i=1}^n weight_i y_i \right) + \left( \overline{y}^2 * \sum_{i=1}^n weight_i \right)
+sst = \left( \sum_{i=1}^n weight_i y_i^2 \right)\\
+  - \left( 2 * \overline{y} * \sum_{i=1}^n weight_i y_i \right)\\
+  + \left( \overline{y}^2 * \sum_{i=1}^n weight_i \right)\\
+\end{aligned}
 ```
 
 Where $(x_i, y_i)$ is the i-th datapoint in the flank, and $weight_i$ its weight. $\overline{Y}$ is the weighted average of the entire flank in the y axis. a and b are the coefficients in $y = a x + b$
 
 ```math
-sse = \left( \sum_{i=1}^n weight_i y_i^2 \right)
-  - \left( 2c \sum_{i=1}^n weight_i y_i \right)
-  - \left( 2b \sum_{i=1}^n weight_i x_i y_i \right)
-  - \left( 2a \sum_{i=1}^n weight_i x_i^2 y_i \right)
-  + \left( 2bc \sum_{i=1}^n weight_i x_i \right)
-  + \left( 2ac \sum_{i=1}^n weight_i x_i^2 \right)
-  + \left( b^2 \sum_{i=1}^n weight_i x_i^2 \right)
-  + \left( 2ab \sum_{i=1}^n weight_i x_i^3 \right)
-  + \left( a^2 \sum_{i=1}^n weight_i x_i^4 \right)
-  + \left( c^2 \sum_{i=1}^n weight_i \right)
+\begin{aligned}
+sse = \left( \sum_{i=1}^n weight_i y_i^2 \right)\\
+  - \left( 2c \sum_{i=1}^n weight_i y_i \right)\\
+  - \left( 2b \sum_{i=1}^n weight_i x_i y_i \right)\\
+  - \left( 2a \sum_{i=1}^n weight_i x_i^2 y_i \right)\\
+  + \left( 2bc \sum_{i=1}^n weight_i x_i \right)\\
+  + \left( 2ac \sum_{i=1}^n weight_i x_i^2 \right)\\
+  + \left( b^2 \sum_{i=1}^n weight_i x_i^2 \right)\\
+  + \left( 2ab \sum_{i=1}^n weight_i x_i^3 \right)\\
+  + \left( a^2 \sum_{i=1}^n weight_i x_i^4 \right)\\
+  + \left( c^2 \sum_{i=1}^n weight_i \right)\\
   
-sst = \left( \sum_{i=1}^n weight_i y_i^2 \right) - \left( 2 * \overline{y} * \sum_{i=1}^n weight_i y_i \right) + \left( \overline{y}^2 * \sum_{i=1}^n weight_i \right)$$
+sst = \left( \sum_{i=1}^n weight_i y_i^2 \right)\\
+  - \left( 2 * \overline{y} * \sum_{i=1}^n weight_i y_i \right)\\
+  + \left( \overline{y}^2 * \sum_{i=1}^n weight_i \right)\\
+\end{aligned}
 ```
 
 Where $(x_i, y_i)$ is the i-th datapoint in the flank, and $weight_i$ its weight. $\overline{Y}$ is the weighted average of the entire flank in the y axis. a, b and c are the coefficients in $y = a x^2 + b x + c$
