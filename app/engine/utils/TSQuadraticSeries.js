@@ -54,7 +54,7 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
    * Invariant: BinrySearchTree A contains all calculated a's (as in the general formula y = a * x^2 + b * x + c),
    * where the a's are labeled in the BinarySearchTree with their Xi when they BEGIN in the point (Xi, Yi)
    */
-  /* eslint-disable max-statements - A lot of variables have to be set */
+  /* eslint-disable max-statements -- A lot of variables have to be set */
   function push (x, y, w = 1) {
     if (x === undefined || isNaN(x) || y === undefined || isNaN(y)) { return }
 
