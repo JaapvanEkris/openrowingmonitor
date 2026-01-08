@@ -1,10 +1,11 @@
 'use strict'
 /**
  * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
- * 
+ *
  * @file This implements a cyclic error filter. This is used to create a profile
  * The filterArray does the calculation, the slope and intercept arrays contain the results for easy retrieval
  * the slopeCorrection and interceptCorrection ensure preventing time dilation due to excessive corrections
+ * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Mathematical_Foundations.md|for the underlying math description)
  */
 import loglevel from 'loglevel'
 import { createSeries } from './Series.js'
@@ -28,7 +29,7 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
   const _flankLength = rowerSettings.flankLength
   const _agressiveness = Math.min(Math.max(rowerSettings.systematicErrorAgressiveness, 0), 1)
   const _invAgressiveness = Math.min(Math.max(1 - _agressiveness, 0), 1)
-  const _numberOfFilterSamples = Math.max((minimumDragFactorSamples / _numberOfMagnets) * 2.5, 5)
+  const _numberOfFilterSamples = Math.max(Math.round((rowerSettings.systematicErrorNumberOfDatapoints / _numberOfMagnets)), 5)
   const _minimumTimeBetweenImpulses = rowerSettings.minimumTimeBetweenImpulses
   const _maximumTimeBetweenImpulses = rowerSettings.maximumTimeBetweenImpulses
   const raw = createSeries(_flankLength)
@@ -54,7 +55,7 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
    * @param {float} the raw recorded value to be cleaned up
    * @param {integer} the position of the flywheel
    * @returns {object} result
-   * @returns {float} result.value - the resulting clean value 
+   * @returns {float} result.value - the resulting clean value
    * @returns {float} result.goodnessOfFit - The goodness of fit indication for the specific datapoint
    * @description Applies the filter on the raw value for the given position (i.e. magnet). Please note: this function is NOT stateless, it also fills a hystoric buffer of raw and clean values
    */
@@ -83,6 +84,28 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
    */
   function projectX (magnet, rawValue) {
     return (rawValue * slope[magnet] * slopeCorrection) + (intercept[magnet] - interceptCorrection)
+  }
+
+  /**
+   * @returns {object} result - provides the (oldest) object at the head of the FiFo buffer, as once returned as a repsonse to the 'applyFilter()' function
+   * @returns {float} result.clean - the resulting clean value as once returned
+   * @returns {float} result.raw - the initial (raw) datapoint before applying the filter
+   * @returns {float} result.goodnessOfFit - The goodness of fit indication for the specific datapoint
+   */
+  function atSeriesBegin () {
+    if (clean.length() > 0) {
+      return {
+        clean: clean.atSeriesBegin(),
+        raw: raw.atSeriesBegin(),
+        goodnessOfFit: goodnessOfFit.atSeriesBegin()
+      }
+    } else {
+      return {
+        clean: undefined,
+        raw: undefined,
+        goodnessOfFit: 0
+      }
+    }
   }
 
   /**
@@ -146,7 +169,7 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
    * @description This function is used for clearing the buffers in order to prepare to record for a new set of datapoints, or clear it when the buffer is filled with a recovery with too weak GoF
    */
   function warmRestart () {
-    if (!isNaN(lowerCursor)) { log.debug('*** WARNING: cyclic error filter has forcefully been restarted (warm)') }
+    if (!isNaN(lowerCursor)) { log.trace('*** Cyclic error filter had a warm restart for the next recovery') }
     recordedRelativePosition = []
     recordedAbsolutePosition = []
     recordedRawValue = []
@@ -209,8 +232,7 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
     recordRawDatapoint,
     processNextRawDatapoint,
     updateFilter,
-    raw,
-    clean,
+    atSeriesBegin,
     warmRestart,
     coldRestart,
     reset

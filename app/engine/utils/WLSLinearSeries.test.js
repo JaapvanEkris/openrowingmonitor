@@ -1,7 +1,7 @@
 'use strict'
 /**
  * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
- * 
+ *
  * @file This constains all tests for the WLS Linear Series
  */
 import { test } from 'uvu'

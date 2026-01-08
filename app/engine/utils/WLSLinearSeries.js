@@ -1,7 +1,7 @@
 'use strict'
 /**
  * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
- * 
+ *
  * @file The WLSLinearSeries is a datatype that represents a Linear Series. It allows
  * values to be retrieved (like a FiFo buffer, or Queue) but it also includes
  * a Weighted Linear Regressor to determine the slope, intercept and R^2 of this series
@@ -45,7 +45,7 @@ export function createWLSLinearSeries (maxSeriesLength = 0) {
   /**
    * @param {float} x - the x value of the datapoint
    * @param {float} y - the y value of the datapoint
-   * @param {float} w - the observation weight of the datapoint, default = 1
+   * @param {float} w - the weight of the datapoint, default = 1
    */
   function push (x, y, w = 1) {
     if (x === undefined || isNaN(x) || y === undefined || isNaN(y)) { return }
@@ -69,13 +69,13 @@ export function createWLSLinearSeries (maxSeriesLength = 0) {
       _intercept = (WY.sum() - _slope * WX.sum()) / weight.sum()
 
       // Calculate weighted R^2
-      const yMean = WY.sum() / weight.sum()
-      const ssRes = WYY.sum() - (2 * _intercept * WY.sum()) - (2 * _slope * WXY.sum()) +
+      const weighedAverageY = WY.sum() / weight.sum()
+      const sse = WYY.sum() - (2 * _intercept * WY.sum()) - (2 * _slope * WXY.sum()) +
         (_intercept * _intercept * weight.sum()) + (2 * _slope * _intercept * WX.sum()) +
         (_slope * _slope * WXX.sum())
-      const ssTot = WYY.sum() - (yMean * yMean * weight.sum())
+      const sst = WYY.sum() - (weighedAverageY * weighedAverageY * weight.sum())
 
-      _goodnessOfFit = (ssTot !== 0) ? 1 - (ssRes / ssTot) : 0
+      _goodnessOfFit = (sst !== 0) ? 1 - (sse / sst) : 0
     } else {
       _slope = 0
       _intercept = 0
@@ -147,6 +147,9 @@ export function createWLSLinearSeries (maxSeriesLength = 0) {
     return (X.length() >= 2 && _slope !== 0)
   }
 
+  /**
+   * @description This function is used for clearing all data, typically when flywheel.js is completely reset
+   */
   function reset () {
     X.reset()
     Y.reset()

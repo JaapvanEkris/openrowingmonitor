@@ -61,9 +61,12 @@ export function createFlywheel (rowerSettings) {
   const cyclicErrorFilter = createCyclicErrorFilter(rowerSettings, minimumDragFactorSamples, recoveryDeltaTime)
   const strokedetectionMinimalGoodnessOfFit = rowerSettings.minimumStrokeQuality
   const minimumRecoverySlope = createWeighedSeries(rowerSettings.dragFactorSmoothing, rowerSettings.minimumRecoverySlope)
-  let totalTime
-  let currentAngularDistance
-  let _deltaTimeBeforeFlank
+  let rawTime = 0
+  let rawNumberOfImpulses = 0
+  let totalTimeSpinning = 0
+  let totalNumberOfImpulses = 0
+  let _totalWork = 0
+  let _deltaTimeBeforeFlank = {}
   let _angularVelocityAtBeginFlank
   let _angularVelocityBeforeFlank
   let _angularAccelerationAtBeginFlank
@@ -72,11 +75,8 @@ export function createFlywheel (rowerSettings) {
   let _torqueBeforeFlank
   let inRecoveryPhase
   let maintainMetrics
-  let totalNumberOfImpulses
-  let totalTimeSpinning
-  let _totalWork
   reset()
-  
+
   /**
    * @param {float} dataPoint - The lenght of the impuls (currentDt) in seconds
    * @description This function is called from Rower.js each time the sensor detected an impulse. It transforms this (via the buffers) into a robust flywheel position, speed and acceleration.
@@ -112,8 +112,8 @@ export function createFlywheel (rowerSettings) {
       // value before the shift is certain to be part of a specific rowing phase (i.e. Drive or Recovery), once the buffer is filled completely
       totalNumberOfImpulses += 1
 
-      _deltaTimeBeforeFlank = cyclicErrorFilter.clean.atSeriesBegin()
-      totalTimeSpinning += _deltaTimeBeforeFlank
+      _deltaTimeBeforeFlank = cyclicErrorFilter.atSeriesBegin()
+      totalTimeSpinning += _deltaTimeBeforeFlank.clean
       _angularVelocityBeforeFlank = _angularVelocityAtBeginFlank
       _angularAccelerationBeforeFlank = _angularAccelerationAtBeginFlank
       // As drag is recalculated at the begin of the drive, we need to recalculate the torque
@@ -121,9 +121,9 @@ export function createFlywheel (rowerSettings) {
 
       if (inRecoveryPhase) {
         // Feed the drag calculation, as we didn't reset the Semaphore in the previous cycle based on the current flank
-        recoveryDeltaTime.push(totalTimeSpinning, _deltaTimeBeforeFlank)
+        recoveryDeltaTime.push(totalTimeSpinning, _deltaTimeBeforeFlank.clean, _deltaTimeBeforeFlank.goodnessOfFit)
         // Feed the systematic error filter buffer
-        cyclicErrorFilter.recordRawDatapoint(totalNumberOfImpulses, totalTimeSpinning, cyclicErrorFilter.raw.atSeriesBegin())
+        cyclicErrorFilter.recordRawDatapoint(totalNumberOfImpulses, totalTimeSpinning, _deltaTimeBeforeFlank.raw)
       } else {
         // Accumulate the energy total as we are in the drive phase
         _totalWork += Math.max(_torqueBeforeFlank * angularDisplacementPerImpulse, 0)
@@ -131,21 +131,22 @@ export function createFlywheel (rowerSettings) {
         cyclicErrorFilter.processNextRawDatapoint()
       }
     } else {
-      _deltaTimeBeforeFlank = 0
+      _deltaTimeBeforeFlank.clean = 0
       _angularVelocityBeforeFlank = 0
       _angularAccelerationBeforeFlank = 0
       _torqueBeforeFlank = 0
     }
 
     const cleanCurrentDt = cyclicErrorFilter.applyFilter(dataPoint, totalNumberOfImpulses + flankLength)
-    totalTime += cleanCurrentDt.value
-    currentAngularDistance += angularDisplacementPerImpulse
+    rawTime += cleanCurrentDt.value
+    rawNumberOfImpulses++
+    const currentAngularDistance = rawNumberOfImpulses * angularDisplacementPerImpulse
 
     // Let's feed the stroke detection algorithm
-    _deltaTime.push(totalTime, cleanCurrentDt.value)
+    _deltaTime.push(rawTime, cleanCurrentDt.value, cleanCurrentDt.goodnessOfFit)
 
     // Calculate the metrics that are needed for more advanced metrics, like the foce curve
-    _angularDistance.push(totalTime, currentAngularDistance)
+    _angularDistance.push(rawTime, currentAngularDistance, cleanCurrentDt.goodnessOfFit)
     _angularVelocityAtBeginFlank = _angularDistance.firstDerivative(0)
     _angularAccelerationAtBeginFlank = _angularDistance.secondDerivative(0)
     _torqueAtBeginFlank = (rowerSettings.flywheelInertia * _angularAccelerationAtBeginFlank + drag.weighedAverage() * Math.pow(_angularVelocityAtBeginFlank, 2))
@@ -190,10 +191,10 @@ export function createFlywheel (rowerSettings) {
       if (rowerSettings.autoAdjustRecoverySlope) {
         // We are allowed to autoadjust stroke detection slope as well, so let's do that
         minimumRecoverySlope.push((1 - rowerSettings.autoAdjustRecoverySlopeMargin) * recoveryDeltaTime.slope(), recoveryDeltaTime.goodnessOfFit())
-        log.debug(`*** Calculated recovery slope: ${recoveryDeltaTime.slope().toFixed(6)}, Goodness of Fit: ${recoveryDeltaTime.goodnessOfFit().toFixed(4)}`)
+        log.trace(`*** Calculated recovery slope: ${recoveryDeltaTime.slope().toFixed(6)}, Goodness of Fit: ${recoveryDeltaTime.goodnessOfFit().toFixed(4)}`)
       } else {
         // We aren't allowed to adjust the slope, let's report the slope to help help the user configure it
-        log.debug(`*** Calculated recovery slope: ${recoveryDeltaTime.slope().toFixed(6)}, Goodness of Fit: ${recoveryDeltaTime.goodnessOfFit().toFixed(4)}, not used as autoAdjustRecoverySlope isn't set to true`)
+        log.trace(`*** Calculated recovery slope: ${recoveryDeltaTime.slope().toFixed(6)}, Goodness of Fit: ${recoveryDeltaTime.goodnessOfFit().toFixed(4)}, not used as autoAdjustRecoverySlope isn't set to true`)
       }
     } else {
       // As the drag calculation is considered unreliable, we must skip updating the systematic error filter that depends on it
@@ -225,7 +226,7 @@ export function createFlywheel (rowerSettings) {
    * @returns {float} the current DeltaTime BEFORE the flank
    */
   function deltaTime () {
-    return _deltaTimeBeforeFlank
+    return _deltaTimeBeforeFlank.clean
   }
 
   /**
@@ -397,27 +398,35 @@ export function createFlywheel (rowerSettings) {
     }
   }
 
+  /**
+   * @param {float} slope - Recovery slope to be converted
+   * @returns {float} Dragfactor to be used in all calculations
+   * @description Helper function to convert a recovery slope into a dragfactor
+   */
   function slopeToDrag (slope) {
     return ((slope * rowerSettings.flywheelInertia) / angularDisplacementPerImpulse)
   }
 
+  /**
+   * @description This function is used for clearing all data, returning the flywheel.js to its initial state
+   */
   function reset () {
     maintainMetrics = false
     inRecoveryPhase = false
+    rawTime = 0
+    rawNumberOfImpulses = 0
+    totalTimeSpinning = 0
+    totalNumberOfImpulses = -1
+    _totalWork = 0
     drag.reset()
     cyclicErrorFilter.reset()
     cyclicErrorFilter.applyFilter(0, flankLength - 1)
     recoveryDeltaTime.reset()
     _deltaTime.reset()
     _angularDistance.reset()
-    totalTime = 0
-    currentAngularDistance = 0
-    totalNumberOfImpulses = -1
-    totalTimeSpinning = 0
-    _totalWork = 0
     _deltaTime.push(0, 0)
     _angularDistance.push(0, 0)
-    _deltaTimeBeforeFlank = 0
+    _deltaTimeBeforeFlank.clean = 0
     _angularVelocityBeforeFlank = 0
     _angularAccelerationBeforeFlank = 0
     _torqueAtBeginFlank = 0

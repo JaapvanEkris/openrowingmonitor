@@ -1,9 +1,8 @@
 'use strict'
 /**
- * Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
- */
-/**
- * Tests of the Flywheel object
+ * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
+ *
+ * @file Tests of the Flywheel object
  */
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
@@ -25,7 +24,7 @@ const baseConfig = { // Based on Concept 2 settings, as this is the validation s
   maximumTimeBetweenImpulses: 0.020,
   flankLength: 12,
   systematicErrorAgressiveness: 0,
-  systematicErrorMaximumChange: 1,
+  systematicErrorNumberOfDatapoints: 1,
   minimumStrokeQuality: 0.36,
   minimumForceBeforeStroke: 10,
   minimumRecoverySlope: 0.00070,
@@ -37,7 +36,9 @@ const baseConfig = { // Based on Concept 2 settings, as this is the validation s
   magicConstant: 2.8
 }
 
-// Test behaviour for no datapoints
+/**
+ * @description Test behaviour for no datapoints
+ */
 test('Correct Flywheel behaviour at initialisation', () => {
   const flywheel = createFlywheel(baseConfig)
   testDeltaTime(flywheel, 0)
@@ -52,14 +53,20 @@ test('Correct Flywheel behaviour at initialisation', () => {
   testIsPowered(flywheel, false)
 })
 
-// Test behaviour for one datapoint
-
-// Test behaviour for perfect upgoing flank
-
-// Test behaviour for perfect downgoing flank
+/**
+ * @todo Test behaviour for one datapoint
+ */
 
 /**
- * Test of the integration of the underlying FullTSQuadraticEstimator object
+ * @todo Test behaviour for perfect upgoing flank
+ */
+
+/**
+ * @todo Test behaviour for perfect downgoing flank
+ */
+
+/**
+ * @description Test of the integration of the underlying FullTSQuadraticEstimator object
  * This uses the same data as the function y = 2 x^2 + 4 * x
  */
 test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Flywheel object for quadratic function f(x) = 2 * x^2 + 4 * x', () => {
@@ -75,7 +82,7 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Fl
     maximumTimeBetweenImpulses: 1,
     flankLength: 12,
     systematicErrorAgressiveness: 0,
-    systematicErrorMaximumChange: 1,
+    systematicErrorNumberOfDatapoints: 1,
     minimumStrokeQuality: 0.36,
     minimumForceBeforeStroke: 0,
     minimumRecoverySlope: 0.00070,
@@ -162,126 +169,126 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Fl
   testDeltaTime(flywheel, 0) // Values from Datapoint 0 are now passsing through
   testSpinningTime(flywheel, 0)
   testAngularPosition(flywheel, 0)
-  testAngularVelocity(flywheel, 4.000000000000003)
-  testAngularAcceleration(flywheel, 3.999999999999983)
+  testAngularVelocity(flywheel, 4.000000000000004)
+  testAngularAcceleration(flywheel, 3.99999999999998)
   flywheel.pushValue(0.095324565640171) // Datapoint 13
   testDeltaTime(flywheel, 0.234341433963188) // Values from Datapoint 1 are now passsing through
   testSpinningTime(flywheel, 0.234341433963188)
   testAngularPosition(flywheel, 1.0471975511965976)
-  testAngularVelocity(flywheel, 4.937365735852749)
-  testAngularAcceleration(flywheel, 3.999999999999982)
+  testAngularVelocity(flywheel, 4.937365735852752)
+  testAngularAcceleration(flywheel, 3.999999999999979)
   flywheel.pushValue(0.092177973027300) // Datapoint 14
   testDeltaTime(flywheel, 0.196461680094298) // Values from Datapoint 2 are now passsing through
   testSpinningTime(flywheel, 0.430803114057486)
   testAngularPosition(flywheel, 2.0943951023931953)
-  testAngularVelocity(flywheel, 5.7232124562299385)
-  testAngularAcceleration(flywheel, 3.9999999999999822)
+  testAngularVelocity(flywheel, 5.723212456229939)
+  testAngularAcceleration(flywheel, 3.999999999999979)
   flywheel.pushValue(0.089323823233014) // Datapoint 15
   testDeltaTime(flywheel, 0.172567188397595) // Values from Datapoint 3 are now passsing through
   testSpinningTime(flywheel, 0.6033703024550809)
   testAngularPosition(flywheel, 3.141592653589793)
   testAngularVelocity(flywheel, 6.413481209820315)
-  testAngularAcceleration(flywheel, 3.999999999999983)
+  testAngularAcceleration(flywheel, 3.9999999999999787)
   flywheel.pushValue(0.086719441920360) // Datapoint 16
   testDeltaTime(flywheel, 0.155718979643243) // Values from Datapoint 4 are now passsing through
   testSpinningTime(flywheel, 0.7590892820983239)
   testAngularPosition(flywheel, 4.1887902047863905)
   testAngularVelocity(flywheel, 7.036357128393282)
-  testAngularAcceleration(flywheel, 3.999999999999982)
+  testAngularAcceleration(flywheel, 3.999999999999977)
   flywheel.pushValue(0.084330395149166) // Datapoint 17
   testDeltaTime(flywheel, 0.143013206725950) // Values from Datapoint 5 are now passsing through
   testSpinningTime(flywheel, 0.9021024888242739)
   testAngularPosition(flywheel, 5.235987755982988)
   testAngularVelocity(flywheel, 7.608409955297075)
-  testAngularAcceleration(flywheel, 3.9999999999999805)
+  testAngularAcceleration(flywheel, 3.999999999999975)
   flywheel.pushValue(0.082128549835466) // Datapoint 18
   testDeltaTime(flywheel, 0.132987841748253) // Values from Datapoint 6 are now passsing through
   testSpinningTime(flywheel, 1.035090330572527)
   testAngularPosition(flywheel, 6.283185307179586)
   testAngularVelocity(flywheel, 8.140361322290087)
-  testAngularAcceleration(flywheel, 3.9999999999999845)
+  testAngularAcceleration(flywheel, 3.9999999999999782)
   flywheel.pushValue(0.080090664596669) // Datapoint 19
   testDeltaTime(flywheel, 0.124815090780014) // Values from Datapoint 7 are now passsing through
   testSpinningTime(flywheel, 1.159905421352541)
   testAngularPosition(flywheel, 7.330382858376184)
-  testAngularVelocity(flywheel, 8.639621685410141)
-  testAngularAcceleration(flywheel, 3.999999999999988)
+  testAngularVelocity(flywheel, 8.639621685410138)
+  testAngularAcceleration(flywheel, 3.99999999999998)
   flywheel.pushValue(0.078197347646078) // Datapoint 20
   testDeltaTime(flywheel, 0.117986192571703) // Values from Datapoint 8 are now passsing through
   testSpinningTime(flywheel, 1.277891613924244)
   testAngularPosition(flywheel, 8.377580409572781)
-  testAngularVelocity(flywheel, 9.111566455696956)
-  testAngularAcceleration(flywheel, 3.99999999999999)
+  testAngularVelocity(flywheel, 9.111566455696952)
+  testAngularAcceleration(flywheel, 3.999999999999985)
   flywheel.pushValue(0.076432273828253) // Datapoint 21
   testDeltaTime(flywheel, 0.112168841458569) // Values from Datapoint 9 are now passsing through
   testSpinningTime(flywheel, 1.390060455382813)
   testAngularPosition(flywheel, 9.42477796076938)
-  testAngularVelocity(flywheel, 9.560241821531234)
-  testAngularAcceleration(flywheel, 3.999999999999988)
+  testAngularVelocity(flywheel, 9.560241821531228)
+  testAngularAcceleration(flywheel, 3.9999999999999845)
   flywheel.pushValue(0.074781587915460) // Datapoint 22
   testDeltaTime(flywheel, 0.107135523306685) // Values from Datapoint 10 are now passsing through
   testSpinningTime(flywheel, 1.4971959786894982)
   testAngularPosition(flywheel, 10.471975511965976)
-  testAngularVelocity(flywheel, 9.988783914757978)
-  testAngularAcceleration(flywheel, 3.9999999999999813)
+  testAngularVelocity(flywheel, 9.98878391475797)
+  testAngularAcceleration(flywheel, 3.99999999999998)
   flywheel.pushValue(0.073233443959153) // Datapoint 23
   testDeltaTime(flywheel, 0.102724506937187) // Values from Datapoint 11 are now passsing through
   testSpinningTime(flywheel, 1.599920485626685)
   testAngularPosition(flywheel, 11.519173063162574)
-  testAngularVelocity(flywheel, 10.399681942506728)
-  testAngularAcceleration(flywheel, 3.9999999999999707)
+  testAngularVelocity(flywheel, 10.399681942506724)
+  testAngularAcceleration(flywheel, 3.999999999999972)
   flywheel.pushValue(0.071777645486524) // Datapoint 24
   testDeltaTime(flywheel, 0.098817239158663) // Values from Datapoint 12 are now passsing through
   testSpinningTime(flywheel, 1.6987377247853481)
   testAngularPosition(flywheel, 12.566370614359172)
-  testAngularVelocity(flywheel, 10.79495089914138)
-  testAngularAcceleration(flywheel, 3.9999999999999565)
+  testAngularVelocity(flywheel, 10.794950899141375)
+  testAngularAcceleration(flywheel, 3.99999999999996)
   flywheel.pushValue(0.070405361445316) // Datapoint 25
   testDeltaTime(flywheel, 0.095324565640171) // Values from Datapoint 13 are now passsing through
   testSpinningTime(flywheel, 1.794062290425519)
   testAngularPosition(flywheel, 13.613568165555769)
-  testAngularVelocity(flywheel, 11.176249161702064)
-  testAngularAcceleration(flywheel, 3.9999999999999423)
+  testAngularVelocity(flywheel, 11.17624916170206)
+  testAngularAcceleration(flywheel, 3.9999999999999463)
   flywheel.pushValue(0.069108899742145) // Datapoint 26
   testDeltaTime(flywheel, 0.092177973027300) // Values from Datapoint 14 are now passsing through
   testSpinningTime(flywheel, 1.886240263452819)
   testAngularPosition(flywheel, 14.660765716752367)
-  testAngularVelocity(flywheel, 11.54496105381126)
-  testAngularAcceleration(flywheel, 3.999999999999928)
+  testAngularVelocity(flywheel, 11.544961053811264)
+  testAngularAcceleration(flywheel, 3.999999999999933)
   flywheel.pushValue(0.067881525062373) // Datapoint 27
   testDeltaTime(flywheel, 0.089323823233014) // Values from Datapoint 15 are now passsing through
   testSpinningTime(flywheel, 1.975564086685833)
   testAngularPosition(flywheel, 15.707963267948964)
   testAngularVelocity(flywheel, 11.902256346743307)
-  testAngularAcceleration(flywheel, 3.999999999999916)
+  testAngularAcceleration(flywheel, 3.9999999999999245)
   flywheel.pushValue(0.066717311088441) // Datapoint 28
   testDeltaTime(flywheel, 0.086719441920360) // Values from Datapoint 16 are now passsing through
   testSpinningTime(flywheel, 2.062283528606193)
   testAngularPosition(flywheel, 16.755160819145562)
   testAngularVelocity(flywheel, 12.249134114424734)
-  testAngularAcceleration(flywheel, 3.999999999999907)
+  testAngularAcceleration(flywheel, 3.9999999999999245)
   flywheel.pushValue(0.065611019694526) // Datapoint 29
   testDeltaTime(flywheel, 0.084330395149166) // Values from Datapoint 17 are now passsing through
   testSpinningTime(flywheel, 2.1466139237553588)
   testAngularPosition(flywheel, 17.80235837034216)
-  testAngularVelocity(flywheel, 12.586455695021382)
-  testAngularAcceleration(flywheel, 3.999999999999908)
+  testAngularVelocity(flywheel, 12.586455695021384)
+  testAngularAcceleration(flywheel, 3.9999999999999396)
   flywheel.pushValue(0.064558001484125) // Datapoint 30
   testDeltaTime(flywheel, 0.082128549835466) // Values from Datapoint 18 are now passsing through
   testSpinningTime(flywheel, 2.228742473590825)
   testAngularPosition(flywheel, 18.84955592153876)
-  testAngularVelocity(flywheel, 12.914969894363228)
-  testAngularAcceleration(flywheel, 3.9999999999999165)
+  testAngularVelocity(flywheel, 12.914969894363232)
+  testAngularAcceleration(flywheel, 3.9999999999999574)
   flywheel.pushValue(0.063554113352442) // Datapoint 31
   testDeltaTime(flywheel, 0.080090664596669) // Values from Datapoint 19 are now passsing through
   testSpinningTime(flywheel, 2.308833138187494)
   testAngularPosition(flywheel, 19.896753472735355)
-  testAngularVelocity(flywheel, 13.235332552749883)
-  testAngularAcceleration(flywheel, 3.9999999999999303)
+  testAngularVelocity(flywheel, 13.235332552749886)
+  testAngularAcceleration(flywheel, 3.9999999999999867)
 })
 
 /**
- * Test of the integration of the underlying FullTSQuadraticEstimator object
+ * @description Test of the integration of the underlying FullTSQuadraticEstimator object
  * The data follows the function y = X^3 + 2 * x^2 + 4 * x
  * To test if multiple quadratic regressions can decently approximate a cubic function
  */
@@ -298,7 +305,7 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Fl
     maximumTimeBetweenImpulses: 1,
     flankLength: 12,
     systematicErrorAgressiveness: 0,
-    systematicErrorMaximumChange: 1,
+    systematicErrorNumberOfDatapoints: 1,
     minimumStrokeQuality: 0.36,
     minimumForceBeforeStroke: 0,
     minimumRecoverySlope: 0.00070,
@@ -385,126 +392,126 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Fl
   testDeltaTime(flywheel, 0) // Values from Datapoint 0 are now passsing through
   testSpinningTime(flywheel, 0)
   testAngularPosition(flywheel, 0)
-  testAngularVelocity(flywheel, 3.161921856069136) // Theoretical value: 4
-  testAngularAcceleration(flywheel, 7.251023549310242) // Theoretical value: 4
+  testAngularVelocity(flywheel, 3.1619218560691382) // Theoretical value: 4
+  testAngularAcceleration(flywheel, 7.251023549310239) // Theoretical value: 4
   flywheel.pushValue(0.064914611722656) // Datapoint 13
   testDeltaTime(flywheel, 0.231815755285445) // Values from Datapoint 1 are now passsing through
   testSpinningTime(flywheel, 0.231815755285445)
   testAngularPosition(flywheel, 1.0471975511965976)
-  testAngularVelocity(flywheel, 4.795017407170436) // Theoretical value: 5.088478654, error: -6,64%
-  testAngularAcceleration(flywheel, 7.324931550092111) // Theoretical value: 5.390894532, error: 38,46%
+  testAngularVelocity(flywheel, 4.7950174071704375) // Theoretical value: 5.088478654, error: -6,64%
+  testAngularAcceleration(flywheel, 7.324931550092107) // Theoretical value: 5.390894532, error: 38,46%
   flywheel.pushValue(0.061784830519864) // Datapoint 14
   testDeltaTime(flywheel, 0.186170118209325) // Values from Datapoint 2 are now passsing through
   testSpinningTime(flywheel, 0.41798587349477)
   testAngularPosition(flywheel, 2.0943951023931953)
   testAngularVelocity(flywheel, 6.098616558470422) // Theoretical value: 6.196080065, error: -2,14%
-  testAngularAcceleration(flywheel, 7.656104494382673) // Theoretical value: 6.507915241, error: 18,21%
+  testAngularAcceleration(flywheel, 7.6561044943826655) // Theoretical value: 6.507915241, error: 18,21%
   flywheel.pushValue(0.058995265576639) // Datapoint 15
   testDeltaTime(flywheel, 0.155673811324399) // Values from Datapoint 3 are now passsing through
   testSpinningTime(flywheel, 0.5736596848191691)
   testAngularPosition(flywheel, 3.141592653589793)
-  testAngularVelocity(flywheel, 7.26104514687623) // Theoretical value: 7.281895041, error: -0,79%
-  testAngularAcceleration(flywheel, 8.125127482273886) // Theoretical value: 7.441958109, error: 9,49%
+  testAngularVelocity(flywheel, 7.261045146876231) // Theoretical value: 7.281895041, error: -0,79%
+  testAngularAcceleration(flywheel, 8.125127482273879) // Theoretical value: 7.441958109, error: 9,49%
   flywheel.pushValue(0.056491331538715) // Datapoint 16
   testDeltaTime(flywheel, 0.134264409859047) // Values from Datapoint 4 are now passsing through
   testSpinningTime(flywheel, 0.707924094678216)
   testAngularPosition(flywheel, 4.1887902047863905)
-  testAngularVelocity(flywheel, 8.335452316712823) // Theoretical value: 8.33516595, error: -0,42%
-  testAngularAcceleration(flywheel, 8.59108553240516) // Theoretical value: 8.247544568, error: 4,32%
+  testAngularVelocity(flywheel, 8.335452316712825) // Theoretical value: 8.33516595, error: -0,42%
+  testAngularAcceleration(flywheel, 8.591085532405152) // Theoretical value: 8.247544568, error: 4,32%
   flywheel.pushValue(0.054229670373632) // Datapoint 17
   testDeltaTime(flywheel, 0.118490308292909) // Values from Datapoint 5 are now passsing through
   testSpinningTime(flywheel, 0.826414402971125)
   testAngularPosition(flywheel, 5.235987755982988)
-  testAngularVelocity(flywheel, 9.346198019520207) // Theoretical value: 9.354539908, error: -0,44%
-  testAngularAcceleration(flywheel, 9.058162877855928) // Theoretical value: 8.958486418, error: 1,06%
+  testAngularVelocity(flywheel, 9.346198019520214) // Theoretical value: 9.354539908, error: -0,44%
+  testAngularAcceleration(flywheel, 9.058162877855903) // Theoretical value: 8.958486418, error: 1,06%
   flywheel.pushValue(0.052175392433679) // Datapoint 18
   testDeltaTime(flywheel, 0.106396192260267) // Values from Datapoint 6 are now passsing through
   testSpinningTime(flywheel, 0.932810595231392)
   testAngularPosition(flywheel, 6.283185307179586)
-  testAngularVelocity(flywheel, 10.314972131734729) // Theoretical value: 10.3416492, error: -0,56%
-  testAngularAcceleration(flywheel, 9.531782371110216) // Theoretical value: 9.596863571, error: -0,95%
+  testAngularVelocity(flywheel, 10.314972131734738) // Theoretical value: 10.3416492, error: -0,56%
+  testAngularAcceleration(flywheel, 9.531782371110172) // Theoretical value: 9.596863571, error: -0,95%
   flywheel.pushValue(0.05030009417797) // Datapoint 19
   testDeltaTime(flywheel, 0.096822693623239) // Values from Datapoint 7 are now passsing through
   testSpinningTime(flywheel, 1.029633288854631)
   testAngularPosition(flywheel, 7.330382858376184)
-  testAngularVelocity(flywheel, 11.25302645243177) // Theoretical value: 11.29896728, error: -0,68%
-  testAngularAcceleration(flywheel, 10.006689891934789) // Theoretical value: 10.17779973, error: -2,15%
+  testAngularVelocity(flywheel, 11.253026452431792) // Theoretical value: 11.29896728, error: -0,68%
+  testAngularAcceleration(flywheel, 10.006689891934712) // Theoretical value: 10.17779973, error: -2,15%
   flywheel.pushValue(0.04858040892819) // Datapoint 20
   testDeltaTime(flywheel, 0.08904704613513) // Values from Datapoint 8 are now passsing through
   testSpinningTime(flywheel, 1.118680334989761)
   testAngularPosition(flywheel, 8.377580409572781)
-  testAngularVelocity(flywheel, 12.167114512288885) // Theoretical value: 12.22905842, error: -0,76%
-  testAngularAcceleration(flywheel, 10.479926499860365) // Theoretical value: 10.71208201, error: -2,78%
+  testAngularVelocity(flywheel, 12.167114512288897) // Theoretical value: 12.22905842, error: -0,76%
+  testAngularAcceleration(flywheel, 10.479926499860289) // Theoretical value: 10.71208201, error: -2,78%
   flywheel.pushValue(0.046996930546829) // Datapoint 21
   testDeltaTime(flywheel, 0.08259777558252) // Values from Datapoint 9 are now passsing through
   testSpinningTime(flywheel, 1.201278110572281)
   testAngularPosition(flywheel, 9.42477796076938)
-  testAngularVelocity(flywheel, 13.06228935387465) // Theoretical value: 13.13431974, error: -0,79%
-  testAngularAcceleration(flywheel, 10.945741904208703) // Theoretical value: 11.20766866, error: -3,03%
+  testAngularVelocity(flywheel, 13.062289353874645) // Theoretical value: 13.13431974, error: -0,79%
+  testAngularAcceleration(flywheel, 10.945741904208647) // Theoretical value: 11.20766866, error: -3,03%
   flywheel.pushValue(0.045533402601137) // Datapoint 22
   testDeltaTime(flywheel, 0.077155055952201) // Values from Datapoint 10 are now passsing through
   testSpinningTime(flywheel, 1.278433166524482)
   testAngularPosition(flywheel, 10.471975511965976)
-  testAngularVelocity(flywheel, 13.940750925066359) // Theoretical value: 14.01690675, error: -0,78%
-  testAngularAcceleration(flywheel, 11.403650671998252) // Theoretical value: 11.670599, error: -2,98%
+  testAngularVelocity(flywheel, 13.94075092506632) // Theoretical value: 14.01690675, error: -0,78%
+  testAngularAcceleration(flywheel, 11.403650671998298) // Theoretical value: 11.670599, error: -2,98%
   flywheel.pushValue(0.044176099545603) // Datapoint 23
   testDeltaTime(flywheel, 0.072494552013330) // Values from Datapoint 11 are now passsing through
   testSpinningTime(flywheel, 1.350927718537812)
   testAngularPosition(flywheel, 11.519173063162574)
-  testAngularVelocity(flywheel, 14.806694981766503) // Theoretical value: 14.87872798, error: -0,69%
-  testAngularAcceleration(flywheel, 11.85668968195581) // Theoretical value: 12.10556631, error: -2,69%
+  testAngularVelocity(flywheel, 14.80669498176648) // Theoretical value: 14.87872798, error: -0,69%
+  testAngularAcceleration(flywheel, 11.856689681955814) // Theoretical value: 12.10556631, error: -2,69%
   flywheel.pushValue(0.042913348809906) // Datapoint 24
   testDeltaTime(flywheel, 0.068454336759262) // Values from Datapoint 12 are now passsing through
   testSpinningTime(flywheel, 1.419382055297074)
   testAngularPosition(flywheel, 12.566370614359172)
-  testAngularVelocity(flywheel, 15.65933144364903) // Theoretical value: 15.72146448, error: -0,57%
-  testAngularAcceleration(flywheel, 12.303309060001375) // Theoretical value: 12.51629233, error: -2,22%
+  testAngularVelocity(flywheel, 15.659331443649155) // Theoretical value: 15.72146448, error: -0,57%
+  testAngularAcceleration(flywheel, 12.303309060000915) // Theoretical value: 12.51629233, error: -2,22%
   flywheel.pushValue(0.041735157665124) // Datapoint 25
   testDeltaTime(flywheel, 0.064914611722656) // Values from Datapoint 13 are now passsing through, so we cleared all startup noise
   testSpinningTime(flywheel, 1.484296667019730)
   testAngularPosition(flywheel, 13.613568165555769)
-  testAngularVelocity(flywheel, 16.49273676896862) // Theoretical value: 16.54659646, error: -0,47%
-  testAngularAcceleration(flywheel, 12.721354618621646) // Theoretical value: 12.90578, error: -1,86%
+  testAngularVelocity(flywheel, 16.492736768968747) // Theoretical value: 16.54659646, error: -0,47%
+  testAngularAcceleration(flywheel, 12.721354618621062) // Theoretical value: 12.90578, error: -1,86%
   flywheel.pushValue(0.040632918960300) // Datapoint 26
   testDeltaTime(flywheel, 0.061784830519864) // Values from Datapoint 14 are now passsing through
   testSpinningTime(flywheel, 1.546081497539594)
   testAngularPosition(flywheel, 14.660765716752367)
-  testAngularVelocity(flywheel, 17.30769121071966) // Theoretical value: 17.35542998, error: -0,40%
-  testAngularAcceleration(flywheel, 13.113972550977003) // Theoretical value: 13.27648899, error: -1,59%
+  testAngularVelocity(flywheel, 17.307691210719753) // Theoretical value: 17.35542998, error: -0,40%
+  testAngularAcceleration(flywheel, 13.11397255097641) // Theoretical value: 13.27648899, error: -1,59%
   flywheel.pushValue(0.039599176898486) // Datapoint 27
   testDeltaTime(flywheel, 0.058995265576639) // Values from Datapoint 15 are now passsing through
   testSpinningTime(flywheel, 1.605076763116233)
   testAngularPosition(flywheel, 15.707963267948964)
-  testAngularVelocity(flywheel, 18.106493986724598) // Theoretical value: 18.1491213, error: -0,34%
-  testAngularAcceleration(flywheel, 13.486098587072432) // Theoretical value: 13.63046058, error: -1,38%
+  testAngularVelocity(flywheel, 18.10649398672465) // Theoretical value: 18.1491213, error: -0,34%
+  testAngularAcceleration(flywheel, 13.486098587071863) // Theoretical value: 13.63046058, error: -1,38%
   flywheel.pushValue(0.038627438996519) // Datapoint 28
   testDeltaTime(flywheel, 0.056491331538715) // Values from Datapoint 16 are now passsing through
   testSpinningTime(flywheel, 1.661568094654948)
   testAngularPosition(flywheel, 16.755160819145562)
-  testAngularVelocity(flywheel, 18.89042654239583) // Theoretical value: 18.92869798, error: -0,29%
-  testAngularAcceleration(flywheel, 13.840428977172227) // Theoretical value: 13.96940857, error: -1,20%
+  testAngularVelocity(flywheel, 18.890426542395847) // Theoretical value: 18.92869798, error: -0,29%
+  testAngularAcceleration(flywheel, 13.840428977171639) // Theoretical value: 13.96940857, error: -1,20%
   flywheel.pushValue(0.037712023914259) // Datapoint 29
   testDeltaTime(flywheel, 0.054229670373632) // Values from Datapoint 17 are now passsing through
   testSpinningTime(flywheel, 1.715797765028580)
   testAngularPosition(flywheel, 17.80235837034216)
-  testAngularVelocity(flywheel, 19.660398675998643) // Theoretical value: 19.69507697, error: -0,26%
-  testAngularAcceleration(flywheel, 14.178743620220319) // Theoretical value: 14.29478659, error: -1,06%
+  testAngularVelocity(flywheel, 19.660398675998614) // Theoretical value: 19.69507697, error: -0,26%
+  testAngularAcceleration(flywheel, 14.178743620219855) // Theoretical value: 14.29478659, error: -1,06%
   flywheel.pushValue(0.036847937394809) // Datapoint 30
   testDeltaTime(flywheel, 0.052175392433679) // Values from Datapoint 18 are now passsing through
   testSpinningTime(flywheel, 1.767973157462259)
   testAngularPosition(flywheel, 18.84955592153876)
-  testAngularVelocity(flywheel, 20.41744737019348) // Theoretical value: 20.44907989, error: -0,23%
-  testAngularAcceleration(flywheel, 14.502790132816703) // Theoretical value: 14.60783894, error: -0,94%
+  testAngularVelocity(flywheel, 20.41744737019342) // Theoretical value: 20.44907989, error: -0,23%
+  testAngularAcceleration(flywheel, 14.502790132816358) // Theoretical value: 14.60783894, error: -0,94%
   flywheel.pushValue(0.036030770419579) // Datapoint 31
   testDeltaTime(flywheel, 0.05030009417797) // Values from Datapoint 19 are now passsing through
   testSpinningTime(flywheel, 1.8182732516402291)
   testAngularPosition(flywheel, 19.896753472735355)
-  testAngularVelocity(flywheel, 21.162376267362447) // Theoretical value: 21.19144586, error: -0,20%
-  testAngularAcceleration(flywheel, 14.813903373334773) // Theoretical value: 14.90963951, error: -0,83%
+  testAngularVelocity(flywheel, 21.162376267362376) // Theoretical value: 21.19144586, error: -0,20%
+  testAngularAcceleration(flywheel, 14.813903373334538) // Theoretical value: 14.90963951, error: -0,83%
 })
 
 /**
- * Test of the integration of the underlying FullTSQuadraticEstimator object
+ * @description Test of the integration of the underlying FullTSQuadraticEstimator object
  * The data follows the function y = X^3 + 2 * x^2 + 4 * x with a +/-0.0001 sec injected noise in currentDt
  * To test if multiple quadratic regressions can decently approximate a cubic function with noise
  * Please note:  theoretical values are based on the perfect function (i.e. without noise)
@@ -522,7 +529,7 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Fl
     maximumTimeBetweenImpulses: 1,
     flankLength: 12,
     systematicErrorAgressiveness: 0,
-    systematicErrorMaximumChange: 1,
+    systematicErrorNumberOfDatapoints: 1,
     minimumStrokeQuality: 0.36,
     minimumForceBeforeStroke: 0,
     minimumRecoverySlope: 0.00070,
@@ -609,125 +616,131 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Fl
   testDeltaTime(flywheel, 0) // Values from Datapoint 0 are now passsing through
   testSpinningTime(flywheel, 0)
   testAngularPosition(flywheel, 0)
-  testAngularVelocity(flywheel, 3.1651252708296953) // Theoretical value: 4
+  testAngularVelocity(flywheel, 3.1651252708296993) // Theoretical value: 4
   testAngularAcceleration(flywheel, 7.2468812808500696) // Theoretical value: 4
   flywheel.pushValue(0.065014611722656) // Datapoint 13
   testDeltaTime(flywheel, 0.231915755285445) // Values from Datapoint 1 are now passsing through
   testSpinningTime(flywheel, 0.231915755285445)
   testAngularPosition(flywheel, 1.0471975511965976)
-  testAngularVelocity(flywheel, 4.798189682557517) // Theoretical value: 5.088478654, error: -6.58%
-  testAngularAcceleration(flywheel, 7.32078401292801) // Theoretical value: 5.390894532, error: 38.38%
+  testAngularVelocity(flywheel, 4.7981896825575205) // Theoretical value: 5.088478654, error: -6.58%
+  testAngularAcceleration(flywheel, 7.320784012928006) // Theoretical value: 5.390894532, error: 38.38%
   flywheel.pushValue(0.061684830519864) // Datapoint 14
   testDeltaTime(flywheel, 0.186070118209325) // Values from Datapoint 2 are now passsing through
   testSpinningTime(flywheel, 0.41798587349477)
   testAngularPosition(flywheel, 2.0943951023931953)
-  testAngularVelocity(flywheel, 6.100352571838147) // Theoretical value: 6.196080065, error: -2.11%
-  testAngularAcceleration(flywheel, 7.650380140052499) // Theoretical value: 6.507915241, error: 18.14%
+  testAngularVelocity(flywheel, 6.100352571838149) // Theoretical value: 6.196080065, error: -2.11%
+  testAngularAcceleration(flywheel, 7.650380140052492) // Theoretical value: 6.507915241, error: 18.14%
   flywheel.pushValue(0.059095265576639) // Datapoint 15
   testDeltaTime(flywheel, 0.155773811324398) // Values from Datapoint 3 are now passsing through
   testSpinningTime(flywheel, 0.573759684819168)
   testAngularPosition(flywheel, 3.141592653589793)
-  testAngularVelocity(flywheel, 7.262664999379815) // Theoretical value: 7.281895041, error: -0.77%
-  testAngularAcceleration(flywheel, 8.117964017032834) // Theoretical value: 7.441958109, error: 9.40%
+  testAngularVelocity(flywheel, 7.262664999379819) // Theoretical value: 7.281895041, error: -0.77%
+  testAngularAcceleration(flywheel, 8.117964017032822) // Theoretical value: 7.441958109, error: 9.40%
   flywheel.pushValue(0.056391331538715) // Datapoint 16
   testDeltaTime(flywheel, 0.134164409859047) // Values from Datapoint 4 are now passsing through
   testSpinningTime(flywheel, 0.7079240946782149)
   testAngularPosition(flywheel, 4.1887902047863905)
-  testAngularVelocity(flywheel, 8.33567148791435) // Theoretical value: 8.33516595, error: -0.42%
-  testAngularAcceleration(flywheel, 8.584272213871065) // Theoretical value: 8.247544568, error: 4.24%
+  testAngularVelocity(flywheel, 8.335671487914347) // Theoretical value: 8.33516595, error: -0.42%
+  testAngularAcceleration(flywheel, 8.58427221387106) // Theoretical value: 8.247544568, error: 4.24%
   flywheel.pushValue(0.054329670373632) // Datapoint 17
   testDeltaTime(flywheel, 0.118590308292909) // Values from Datapoint 5 are now passsing through
   testSpinningTime(flywheel, 0.8265144029711239)
   testAngularPosition(flywheel, 5.235987755982988)
-  testAngularVelocity(flywheel, 9.3471099262632) // Theoretical value: 9.354539908, error: -0.44%
-  testAngularAcceleration(flywheel, 9.052626876076237) // Theoretical value: 8.958486418, error: 1.00%
+  testAngularVelocity(flywheel, 9.347109926263196) // Theoretical value: 9.354539908, error: -0.44%
+  testAngularAcceleration(flywheel, 9.052626876076234) // Theoretical value: 8.958486418, error: 1.00%
   flywheel.pushValue(0.052075392433679) // Datapoint 18
   testDeltaTime(flywheel, 0.106296192260267) // Values from Datapoint 6 are now passsing through
   testSpinningTime(flywheel, 0.9328105952313909)
   testAngularPosition(flywheel, 6.283185307179586)
-  testAngularVelocity(flywheel, 10.31470693514443) // Theoretical value: 10.3416492, error: -0.56%
-  testAngularAcceleration(flywheel, 9.526534690784072) // Theoretical value: 9.596863571, error: -1.00%
+  testAngularVelocity(flywheel, 10.314706935144432) // Theoretical value: 10.3416492, error: -0.56%
+  testAngularAcceleration(flywheel, 9.52653469078407) // Theoretical value: 9.596863571, error: -1.00%
   flywheel.pushValue(0.05040009417797) // Datapoint 19
   testDeltaTime(flywheel, 0.096922693623239) // Values from Datapoint 7 are now passsing through
   testSpinningTime(flywheel, 1.0297332888546298)
   testAngularPosition(flywheel, 7.330382858376184)
-  testAngularVelocity(flywheel, 11.25365342146104) // Theoretical value: 11.29896728, error: -0.67%
-  testAngularAcceleration(flywheel, 10.001358612662708) // Theoretical value: 10.17779973, error: -2.21%
+  testAngularVelocity(flywheel, 11.253653421461035) // Theoretical value: 11.29896728, error: -0.67%
+  testAngularAcceleration(flywheel, 10.001358612662711) // Theoretical value: 10.17779973, error: -2.21%
   flywheel.pushValue(0.04848040892819) // Datapoint 20
   testDeltaTime(flywheel, 0.08894704613513) // Values from Datapoint 8 are now passsing through
   testSpinningTime(flywheel, 1.1186803349897598)
   testAngularPosition(flywheel, 8.377580409572781)
-  testAngularVelocity(flywheel, 12.1667674474633) // Theoretical value: 12.22905842, error: -0.76%
-  testAngularAcceleration(flywheel, 10.47394441606816) // Theoretical value: 10.71208201, error: -2.84%
+  testAngularVelocity(flywheel, 12.166767447463288) // Theoretical value: 12.22905842, error: -0.76%
+  testAngularAcceleration(flywheel, 10.47394441606818) // Theoretical value: 10.71208201, error: -2.84%
   flywheel.pushValue(0.047096930546829) // Datapoint 21
   testDeltaTime(flywheel, 0.08269777558252) // Values from Datapoint 9 are now passsing through
   testSpinningTime(flywheel, 1.2013781105722798)
   testAngularPosition(flywheel, 9.42477796076938)
-  testAngularVelocity(flywheel, 13.062997567333905) // Theoretical value: 13.13431974, error: -0.79%
-  testAngularAcceleration(flywheel, 10.940063240068048) // Theoretical value: 11.20766866, error: -3.08%
+  testAngularVelocity(flywheel, 13.062997567333893) // Theoretical value: 13.13431974, error: -0.79%
+  testAngularAcceleration(flywheel, 10.940063240068076) // Theoretical value: 11.20766866, error: -3.08%
   flywheel.pushValue(0.045433402601137) // Datapoint 22
   testDeltaTime(flywheel, 0.077055055952201) // Values from Datapoint 10 are now passsing through
   testSpinningTime(flywheel, 1.2784331665244808)
   testAngularPosition(flywheel, 10.471975511965976)
-  testAngularVelocity(flywheel, 13.940480188006532) // Theoretical value: 14.01690675, error: -0.78%
-  testAngularAcceleration(flywheel, 11.397389413208403) // Theoretical value: 11.670599, error: -3.04%
+  testAngularVelocity(flywheel, 13.940480188006552) // Theoretical value: 14.01690675, error: -0.78%
+  testAngularAcceleration(flywheel, 11.397389413208364) // Theoretical value: 11.670599, error: -3.04%
   flywheel.pushValue(0.044276099545603) // Datapoint 23
   testDeltaTime(flywheel, 0.07259455201333) // Values from Datapoint 11 are now passsing through
   testSpinningTime(flywheel, 1.3510277185378108)
   testAngularPosition(flywheel, 11.519173063162574)
-  testAngularVelocity(flywheel, 14.807840698982407) // Theoretical value: 14.87872798, error: -0.68%
-  testAngularAcceleration(flywheel, 11.848780564150392) // Theoretical value: 12.10556631, error: -2.76%
+  testAngularVelocity(flywheel, 14.807840698982423) // Theoretical value: 14.87872798, error: -0.68%
+  testAngularAcceleration(flywheel, 11.848780564150369) // Theoretical value: 12.10556631, error: -2.76%
   flywheel.pushValue(0.042813348809906) // Datapoint 24
   testDeltaTime(flywheel, 0.068354336759262) // Values from Datapoint 12 are now passsing through
   testSpinningTime(flywheel, 1.4193820552970728)
   testAngularPosition(flywheel, 12.566370614359172)
-  testAngularVelocity(flywheel, 15.659177267217961) // Theoretical value: 15.72146448, error: -0.57%
-  testAngularAcceleration(flywheel, 12.293943915780241) // Theoretical value: 12.51629233, error: -2.30%
+  testAngularVelocity(flywheel, 15.65917726721796) // Theoretical value: 15.72146448, error: -0.57%
+  testAngularAcceleration(flywheel, 12.293943915780252) // Theoretical value: 12.51629233, error: -2.30%
   flywheel.pushValue(0.041835157665124) // Datapoint 25
   testDeltaTime(flywheel, 0.065014611722656) // Values from Datapoint 13 are now passsing through, so we cleared all startup noise
   testSpinningTime(flywheel, 1.4843966670197288)
   testAngularPosition(flywheel, 13.613568165555769)
-  testAngularVelocity(flywheel, 16.494472505376102) // Theoretical value: 16.54659646, error: -0.46%
-  testAngularAcceleration(flywheel, 12.710407075508463) // Theoretical value: 12.90578, error: -1.95%
+  testAngularVelocity(flywheel, 16.49447250537608) // Theoretical value: 16.54659646, error: -0.46%
+  testAngularAcceleration(flywheel, 12.710407075508567) // Theoretical value: 12.90578, error: -1.95%
   flywheel.pushValue(0.040532918960300) // Datapoint 26
   testDeltaTime(flywheel, 0.061684830519864) // Values from Datapoint 14 are now passsing through
   testSpinningTime(flywheel, 1.546081497539593)
   testAngularPosition(flywheel, 14.660765716752367)
-  testAngularVelocity(flywheel, 17.308891329044478) // Theoretical value: 17.35542998, error: -0.39%
-  testAngularAcceleration(flywheel, 13.100466914875762) // Theoretical value: 13.27648899, error: -1.70%
+  testAngularVelocity(flywheel, 17.308891329044464) // Theoretical value: 17.35542998, error: -0.39%
+  testAngularAcceleration(flywheel, 13.100466914875906) // Theoretical value: 13.27648899, error: -1.70%
   flywheel.pushValue(0.039699176898486) // Datapoint 27
   testDeltaTime(flywheel, 0.059095265576639) // Values from Datapoint 15 are now passsing through
   testSpinningTime(flywheel, 1.605176763116232)
   testAngularPosition(flywheel, 15.707963267948964)
-  testAngularVelocity(flywheel, 18.10970282977479) // Theoretical value: 18.1491213, error: -0.32%
-  testAngularAcceleration(flywheel, 13.469377816872042) // Theoretical value: 13.63046058, error: -1.51%
+  testAngularVelocity(flywheel, 18.109702829774772) // Theoretical value: 18.1491213, error: -0.32%
+  testAngularAcceleration(flywheel, 13.469377816872242) // Theoretical value: 13.63046058, error: -1.51%
   flywheel.pushValue(0.038527438996519) // Datapoint 28
   testDeltaTime(flywheel, 0.056391331538715) // Values from Datapoint 16 are now passsing through
   testSpinningTime(flywheel, 1.661568094654947)
   testAngularPosition(flywheel, 16.755160819145562)
-  testAngularVelocity(flywheel, 18.892749084779716) // Theoretical value: 18.92869798, error: -0.28%
-  testAngularAcceleration(flywheel, 13.819955339923922) // Theoretical value: 13.96940857, error: -1.35%
+  testAngularVelocity(flywheel, 18.892749084779705) // Theoretical value: 18.92869798, error: -0.28%
+  testAngularAcceleration(flywheel, 13.819955339924142) // Theoretical value: 13.96940857, error: -1.35%
   flywheel.pushValue(0.037812023914259) // Datapoint 29
   testDeltaTime(flywheel, 0.054329670373632) // Values from Datapoint 17 are now passsing through
   testSpinningTime(flywheel, 1.715897765028579)
   testAngularPosition(flywheel, 17.80235837034216)
-  testAngularVelocity(flywheel, 19.664430174199467) // Theoretical value: 19.69507697, error: -0.24%
-  testAngularAcceleration(flywheel, 14.154531841302589) // Theoretical value: 14.29478659, error: -1.23%
+  testAngularVelocity(flywheel, 19.664430174199474) // Theoretical value: 19.69507697, error: -0.24%
+  testAngularAcceleration(flywheel, 14.154531841302834) // Theoretical value: 14.29478659, error: -1.23%
   flywheel.pushValue(0.036747937394809) // Datapoint 30
   testDeltaTime(flywheel, 0.052075392433679) // Values from Datapoint 18 are now passsing through
   testSpinningTime(flywheel, 1.767973157462258)
   testAngularPosition(flywheel, 18.84955592153876)
-  testAngularVelocity(flywheel, 20.419916102229323) // Theoretical value: 20.44907989, error: -0.21%
-  testAngularAcceleration(flywheel, 14.474639639378722) // Theoretical value: 14.60783894, error: -1.13%
+  testAngularVelocity(flywheel, 20.419916102229333) // Theoretical value: 20.44907989, error: -0.21%
+  testAngularAcceleration(flywheel, 14.474639639378996) // Theoretical value: 14.60783894, error: -1.13%
   flywheel.pushValue(0.036130770419579) // Datapoint 31
   testDeltaTime(flywheel, 0.05040009417797) // Values from Datapoint 19 are now passsing through
   testSpinningTime(flywheel, 1.818373251640228)
   testAngularPosition(flywheel, 19.896753472735355)
-  testAngularVelocity(flywheel, 21.166541683421826) // Theoretical value: 21.19144586, error: -0.18%
-  testAngularAcceleration(flywheel, 14.782028789603572) // Theoretical value: 14.90963951, error: -1.05%
+  testAngularVelocity(flywheel, 21.16654168342182) // Theoretical value: 21.19144586, error: -0.18%
+  testAngularAcceleration(flywheel, 14.782028789603949) // Theoretical value: 14.90963951, error: -1.05%
 })
 
-// Test behaviour for perfect stroke
+/**
+ * @todo Test behaviour with noise CEC filter active
+ */
+
+/**
+ * @description Test behaviour for perfect stroke
+ */
 test('Correct Flywheel behaviour for a noisefree stroke', () => {
   const flywheel = createFlywheel(baseConfig)
   flywheel.maintainStateAndMetrics()
@@ -764,8 +777,8 @@ test('Correct Flywheel behaviour for a noisefree stroke', () => {
   testSpinningTime(flywheel, 0.077918634)
   testAngularPosition(flywheel, 7.330382858376184)
   testAngularVelocity(flywheel, 94.88636656676766)
-  testAngularAcceleration(flywheel, 28.483961147947365)
-  testTorque(flywheel, 3.927072875980104)
+  testAngularAcceleration(flywheel, 28.483961147946758)
+  testTorque(flywheel, 3.9270728759800413)
   testDragFactor(flywheel, 0.00011)
   testIsDwelling(flywheel, false)
   testIsUnpowered(flywheel, false)
@@ -788,9 +801,9 @@ test('Correct Flywheel behaviour for a noisefree stroke', () => {
   testDeltaTime(flywheel, 0.010722165)
   testSpinningTime(flywheel, 0.23894732900000007)
   testAngularPosition(flywheel, 23.03834612632515)
-  testAngularVelocity(flywheel, 97.06865123831885)
-  testAngularAcceleration(flywheel, -32.75873752642775)
-  testTorque(flywheel, -2.340970303119799)
+  testAngularVelocity(flywheel, 97.06865123831865)
+  testAngularAcceleration(flywheel, -32.75873752642214)
+  testTorque(flywheel, -2.340970303119225)
   testDragFactor(flywheel, 0.00011)
   testIsDwelling(flywheel, false)
   testIsUnpowered(flywheel, true)
@@ -813,26 +826,38 @@ test('Correct Flywheel behaviour for a noisefree stroke', () => {
   testDeltaTime(flywheel, 0.020722165)
   testSpinningTime(flywheel, 0.43343548300000007)
   testAngularPosition(flywheel, 38.746309394274114)
-  testAngularVelocity(flywheel, 50.97532159524012)
-  testAngularAcceleration(flywheel, -157.76768934416657)
-  testTorque(flywheel, -15.980015596092377)
+  testAngularVelocity(flywheel, 50.975321595240146)
+  testAngularAcceleration(flywheel, -157.76768934416432)
+  testTorque(flywheel, -15.980015596092146)
   testDragFactor(flywheel, 0.00011)
   testIsDwelling(flywheel, true)
   testIsUnpowered(flywheel, true)
   testIsPowered(flywheel, false)
 })
 
-// Test behaviour for noisy upgoing flank
+/**
+ * @todo Test behaviour for noisy upgoing flank
+ */
 
-// Test behaviour for noisy downgoing flank
+/**
+ * @todo Test behaviour for noisy downgoing flank
+ */
 
-// Test behaviour for noisy stroke
+/**
+ * @todo Test behaviour for noisy stroke
+ */
 
-// Test drag factor calculation
+/**
+ * @todo Test drag factor calculation
+ */
 
-// Test Dynamic stroke detection
+/**
+ * @todo Test Dynamic stroke detection
+ */
 
-// Test behaviour for not maintaining metrics
+/**
+ * @description Test behaviour for not maintaining metrics
+ */
 test('Correct Flywheel behaviour at maintainStateOnly', () => {
   const flywheel = createFlywheel(baseConfig)
   flywheel.maintainStateAndMetrics()
@@ -903,6 +928,9 @@ test('Correct Flywheel behaviour at maintainStateOnly', () => {
   testIsPowered(flywheel, false)
 })
 
+/**
+ * @description Test behaviour for the WRX700
+ */
 test('Correct Flywheel behaviour with a SportsTech WRX700', async () => {
   const flywheel = createFlywheel(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Sportstech_WRX700))
   testSpinningTime(flywheel, 0)
@@ -918,6 +946,9 @@ test('Correct Flywheel behaviour with a SportsTech WRX700', async () => {
   testDragFactor(flywheel, (rowerProfiles.Sportstech_WRX700.dragFactor / 1000000))
 })
 
+/**
+ * @description Test behaviour for the DKN R-320
+ */
 test('Correct Flywheel behaviour with a DKN R-320', async () => {
   const flywheel = createFlywheel(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.DKN_R320))
 
@@ -934,6 +965,9 @@ test('Correct Flywheel behaviour with a DKN R-320', async () => {
   testDragFactor(flywheel, (rowerProfiles.DKN_R320.dragFactor / 1000000))
 })
 
+/**
+ * @description Test behaviour for the NordicTrack RX800
+ */
 test('Correct Flywheel behaviour with a NordicTrack RX800', async () => {
   const flywheel = createFlywheel(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.NordicTrack_RX800))
   testSpinningTime(flywheel, 0)
@@ -950,6 +984,9 @@ test('Correct Flywheel behaviour with a NordicTrack RX800', async () => {
   testDragFactor(flywheel, (rowerProfiles.NordicTrack_RX800.dragFactor / 1000000))
 })
 
+/**
+ * @description Test behaviour for the SportsTech WRX700
+ */
 test('Correct Flywheel behaviour with a full session on a SportsTech WRX700', async () => {
   const flywheel = createFlywheel(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Sportstech_WRX700))
   testSpinningTime(flywheel, 0)
@@ -966,6 +1003,9 @@ test('Correct Flywheel behaviour with a full session on a SportsTech WRX700', as
   testDragFactor(flywheel, (rowerProfiles.Sportstech_WRX700.dragFactor / 1000000))
 })
 
+/**
+ * @description Test behaviour for the C2 Model C
+ */
 test('A full session for a Concept2 Model C should produce plausible results', async () => {
   const flywheel = createFlywheel(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Concept2_Model_C))
   testSpinningTime(flywheel, 0)
@@ -981,6 +1021,9 @@ test('A full session for a Concept2 Model C should produce plausible results', a
   testDragFactor(flywheel, (rowerProfiles.Concept2_Model_C.dragFactor / 1000000))
 })
 
+/**
+ * @description Test behaviour for the C2 RowErg
+ */
 test('A full session for a Concept2 RowErg should produce plausible results', async () => {
   const flywheel = createFlywheel(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Concept2_RowErg))
   testSpinningTime(flywheel, 0)
@@ -996,7 +1039,9 @@ test('A full session for a Concept2 RowErg should produce plausible results', as
   testDragFactor(flywheel, (rowerProfiles.Concept2_RowErg.dragFactor / 1000000))
 })
 
-// Test behaviour after reset
+/**
+ * @todo Test behaviour after reset
+ */
 
 function testDeltaTime (flywheel, expectedValue) {
   assert.ok(flywheel.deltaTime() === expectedValue, `deltaTime should be ${expectedValue} sec at ${flywheel.spinningTime()} sec, is ${flywheel.deltaTime()}`)

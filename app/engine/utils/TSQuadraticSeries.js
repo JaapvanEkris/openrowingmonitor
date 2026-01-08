@@ -1,9 +1,8 @@
 'use strict'
-/*
-  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-*/
 /**
- * The FullTSQuadraticSeries is a datatype that represents a Quadratic Series. It allows
+ * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
+ *
+ * @file The FullTSQuadraticSeries is a datatype that represents a Quadratic Series. It allows
  * values to be retrieved (like a FiFo buffer, or Queue) but it also includes
  * a Theil-Sen Quadratic Regressor to determine the coefficients of this dataseries.
  *
@@ -33,11 +32,13 @@ import loglevel from 'loglevel'
 const log = loglevel.getLogger('RowingEngine')
 
 /**
- * @param {integer} the maximum length of the quadratic series, 0 for unlimited
+ * @param {integer} maxSeriesLength - the maximum length of the quadratic series, 0 for unlimited
  */
 export function createTSQuadraticSeries (maxSeriesLength = 0) {
   const X = createSeries(maxSeriesLength)
   const Y = createSeries(maxSeriesLength)
+  const weight = createSeries(maxSeriesLength)
+  const WY = createSeries(maxSeriesLength)
   const A = createLabelledBinarySearchTree()
   const linearResidu = createTSLinearSeries(maxSeriesLength)
   let _A = 0
@@ -47,12 +48,14 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
   let _goodnessOfFit = 0
 
   /**
-   * @param {float} the x value of the datapoint
-   * @param {float} the y value of the datapoint
+   * @param {float} x - the x value of the datapoint
+   * @param {float} y - the y value of the datapoint
+   * @param {float} w - the weight of the datapoint (defaults to 1)
    * Invariant: BinrySearchTree A contains all calculated a's (as in the general formula y = a * x^2 + b * x + c),
    * where the a's are labeled in the BinarySearchTree with their Xi when they BEGIN in the point (Xi, Yi)
    */
-  function push (x, y) {
+  /* eslint-disable max-statements -- A lot of variables have to be set */
+  function push (x, y, w = 1) {
     if (x === undefined || isNaN(x) || y === undefined || isNaN(y)) { return }
 
     if (maxSeriesLength > 0 && X.length() >= maxSeriesLength) {
@@ -63,43 +66,46 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
 
     X.push(x)
     Y.push(y)
+    weight.push(w)
+    WY.push(w * y)
+    _A = 0
+    _B = 0
+    _C = 0
+    _sst = 0
+    _goodnessOfFit = 0
 
-    // Calculate the coefficient a for the new interval by adding the newly added datapoint
-    let i = 0
-    let j = 0
+    if (X.length() >= 3) {
+      // There are now at least three datapoints in the X and Y arrays, so let's calculate the A portion belonging for the new datapoint via Quadratic Theil-Sen regression
+      let i = 0
+      let j = 0
 
-    switch (true) {
-      case (X.length() >= 3):
-        // There are now at least three datapoints in the X and Y arrays, so let's calculate the A portion belonging for the new datapoint via Quadratic Theil-Sen regression
-        // First we calculate the A for the formula
-        while (i < X.length() - 2) {
-          j = i + 1
-          while (j < X.length() - 1) {
-            A.push(X.get(i), calculateA(i, j, X.length() - 1), 1)
-            j++
-          }
-          i++
+      // First we calculate the A for the formula
+      let combinedweight = 0
+      let coeffA = 1
+      while (i < X.length() - 2) {
+        j = i + 1
+        while (j < X.length() - 1) {
+          combinedweight = weight.get(i) * weight.get(j) * w
+          coeffA = calculateA(i, j, X.length() - 1)
+          A.push(X.get(i), coeffA, combinedweight)
+          j++
         }
-        _A = A.median()
+        i++
+      }
+      _A = A.weightedMedian()
 
-        // We invalidate the linearResidu, B, C, and goodnessOfFit, as this will trigger a recalculate when they are needed
-        linearResidu.reset()
-        _B = null
-        _C = null
-        _sst = null
-        _goodnessOfFit = null
-        break
-      default:
-        _A = 0
-        _B = 0
-        _C = 0
-        _sst = 0
-        _goodnessOfFit = 0
+      // We invalidate the linearResidu, B, C, and goodnessOfFit, as this will trigger a recalculate when they are needed
+      linearResidu.reset()
+      _B = null
+      _C = null
+      _sst = null
+      _goodnessOfFit = null
     }
   }
+  /* eslint-enable max-statements */
 
   /**
-   * @param {integer} the position in the flank of the requested value (default = 0)
+   * @param {integer} position - the position in the flank of the requested value (default = 0)
    * @returns {float} the firdt derivative of the quadratic function y = a x^2 + b x + c
    */
   function firstDerivativeAtPosition (position = 0) {
@@ -112,7 +118,7 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
   }
 
   /**
-   * @param {integer} the position in the flank of the requested value (default = 0)
+   * @param {integer} position - the position in the flank of the requested value (default = 0)
    * @returns {float} the second derivative of the quadratic function y = a x^2 + b x + c
    */
   function secondDerivativeAtPosition (position = 0) {
@@ -124,7 +130,7 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
   }
 
   /**
-   * @param {float} the x value of the requested value
+   * @param {float} x - the x value of the requested value
    * @returns {float} the slope of the linear function
    */
   function slope (x) {
@@ -137,14 +143,14 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
   }
 
   /**
-   * @returns {float} the coefficient a of the quadratic function y = a x^2 + b x + c
+   * @returns {float} the (quadratic) coefficient a of the quadratic function y = a x^2 + b x + c
    */
   function coefficientA () {
     return _A
   }
 
   /**
-   * @returns {float} the coefficient b of the quadratic function y = a x^2 + b x + c
+   * @returns {float} the (linear) coefficient b of the quadratic function y = a x^2 + b x + c
    */
   function coefficientB () {
     calculateB()
@@ -152,7 +158,7 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
   }
 
   /**
-   * @returns {float} the coefficient c of the quadratic function y = a x^2 + b x + c
+   * @returns {float} the (intercept) coefficient c of the quadratic function y = a x^2 + b x + c
    */
   function coefficientC () {
     calculateB()
@@ -177,33 +183,38 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
   }
 
   /**
-   * @returns {float} the R^2 as a goodness of fit indicator
+   * @returns {float} the R^2 as a global goodness of fit indicator
    */
   function goodnessOfFit () {
     let i = 0
     let sse = 0
     if (_goodnessOfFit === null) {
+      calculateB()
+      calculateC()
       if (X.length() >= 3) {
         _sst = 0
+        const weightedAverageY = WY.sum() / weight.sum()
+
         while (i < X.length()) {
-          sse += Math.pow((Y.get(i) - projectX(X.get(i))), 2)
-          _sst += Math.pow((Y.get(i) - Y.average()), 2)
+          sse += weight.get(i) * Math.pow(Y.get(i) - projectX(X.get(i)), 2)
+          _sst += weight.get(i) * Math.pow(Y.get(i) - weightedAverageY, 2)
           i++
         }
+
         switch (true) {
           case (sse === 0):
             _goodnessOfFit = 1
             break
           case (sse > _sst):
             // This is a pretty bad fit as the error is bigger than just using the line for the average y as intercept
-            _goodnessOfFit = 0
+            _goodnessOfFit = 0.01
             break
           case (_sst !== 0):
             _goodnessOfFit = 1 - (sse / _sst)
             break
           default:
             // When _SST = 0, R2 isn't defined
-            _goodnessOfFit = 0
+            _goodnessOfFit = 0.01
         }
       } else {
         _goodnessOfFit = 0
@@ -229,14 +240,14 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
           break
         case (squaredError > _sst):
           // This is a pretty bad fit as the error is bigger than just using the line for the average y as intercept
-          return 0
+          return 0.01
           break
         case (_sst !== 0):
           return Math.min(Math.max(1 - ((squaredError * X.length()) / _sst), 0), 1)
           break
         default:
           // When _SST = 0, localGoodnessOfFit isn't defined
-          return 0
+          return 0.01
       }
       /* eslint-enable no-unreachable */
     } else {
@@ -245,7 +256,7 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
   }
 
   /**
-   * @param {float} the x value to be projected
+   * @param {float} x - the x value to be projected
    * @returns {float} the resulting y value when projected via the linear function
    */
   function projectX (x) {
@@ -258,6 +269,12 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     }
   }
 
+  /**
+   * @param {integer} pointOne - The position in the series of the first datapoint used for the quadratic coefficient calculation
+   * @param {integer} pointTwo - The position in the series of the second datapoint used for the quadratic coefficient calculation
+   * @param {integer} pointThree - The position in the series of the third datapoint used for the quadratic coefficient calculation
+   * @returns {float} the coefficient A of the linear function
+   */
   function calculateA (pointOne, pointTwo, pointThree) {
     let result = 0
     if (X.get(pointOne) !== X.get(pointTwo) && X.get(pointOne) !== X.get(pointThree) && X.get(pointTwo) !== X.get(pointThree)) {
@@ -270,6 +287,9 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     }
   }
 
+  /**
+   * @description This helper function calculates the slope of the linear residu and stores it in _B
+   */
   function calculateB () {
     // Calculate all the linear slope for the newly added point and the newly calculated A
     // This function is only called when a linear slope is really needed, as this saves a lot of CPU cycles when only a slope suffices
@@ -283,6 +303,9 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     }
   }
 
+  /**
+   * @description This helper function calculates the intercept of the linear residu and stores it in _C
+   */
   function calculateC () {
     // Calculate all the intercept for the newly added point and the newly calculated A
     // This function is only called when a linear intercept is really needed, as this saves a lot of CPU cycles when only a slope suffices
@@ -296,12 +319,15 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     }
   }
 
+  /**
+   * @description This helper function fills the linear residu
+   */
   function fillLinearResidu () {
     // To calculate the B and C via Linear regression over the residu, we need to fill it if empty
     if (linearResidu.length() === 0) {
       let i = 0
       while (i < X.length()) {
-        linearResidu.push(X.get(i), Y.get(i) - (_A * Math.pow(X.get(i), 2)))
+        linearResidu.push(X.get(i), Y.get(i) - (_A * Math.pow(X.get(i), 2)), weight.get(i))
         i++
       }
     }
@@ -314,11 +340,16 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     return (X.length() >= 3)
   }
 
+  /**
+   * @description This function is used for clearing data and state
+   */
   function reset () {
     if (X.length() > 0) {
       // There is something to reset
       X.reset()
       Y.reset()
+      weight.reset()
+      WY.reset()
       A.reset()
       linearResidu.reset()
       _A = 0

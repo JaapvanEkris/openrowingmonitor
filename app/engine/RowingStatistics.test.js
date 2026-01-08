@@ -1,14 +1,10 @@
 'use strict'
-/*
-  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-*/
 /**
- * This test is a test of the Rower object, that tests wether this object fills all fields correctly, given one validated rower, (the
- * Concept2 RowErg) using a validated cycle of strokes. This thoroughly tests the raw physics of the translation of Angular physics
- * to Linear physics. The combination with all possible known rowers is tested when testing the above function RowingStatistics, as
- * these statistics are dependent on these settings as well.
-*/
-// @ToDo: test the effects of smoothing parameters
+ * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
+ *
+ * @file This test is a test of the Rowingstatistics object, that tests wether this object fills all fields correctly, given one validated rower, (the
+ * Concept2 RowErg) using a validated cycle of strokes. The combination with all possible known rowers is tested.
+ */
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 import rowerProfiles from '../../config/rowerProfiles.js'
@@ -34,7 +30,8 @@ const baseConfig = {
     minimumTimeBetweenImpulses: 0.005,
     maximumTimeBetweenImpulses: 0.017,
     flankLength: 12,
-    smoothing: 1,
+    systematicErrorAgressiveness: 0,
+    systematicErrorMaximumChange: 1,
     minimumStrokeQuality: 0.36,
     minimumForceBeforeStroke: 20, // Modification to standard settings to shorten test cases
     minimumRecoverySlope: 0.00070,
@@ -47,7 +44,9 @@ const baseConfig = {
   }
 }
 
-// Test behaviour for no datapoints
+/**
+ * @description Test behaviour for no datapoints
+ */
 test('Correct rower behaviour at initialisation', () => {
   const rowingStatistics = createRowingStatistics(baseConfig)
   testStrokeState(rowingStatistics, 'WaitingForDrive')
@@ -68,9 +67,13 @@ test('Correct rower behaviour at initialisation', () => {
   testInstantHandlePower(rowingStatistics, undefined)
 })
 
-// Test behaviour for one datapoint
+/**
+ * @todo Test behaviour for one datapoint
+ */
 
-// Test behaviour for three perfect identical strokes, including settingling behaviour of metrics
+/**
+ * @description Test behaviour for three perfect identical strokes, including settingling behaviour of metrics
+ */
 test('Test behaviour for three perfect identical strokes, including settingling behaviour of metrics', () => {
   const rowingStatistics = createRowingStatistics(baseConfig)
   testStrokeState(rowingStatistics, 'WaitingForDrive')
@@ -152,8 +155,8 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDriveDuration(rowingStatistics, undefined)
   testDriveDistance(rowingStatistics, 0.4271903319416174)
   testDriveLength(rowingStatistics, 0.1759291886010284)
-  testDriveAverageHandleForce(rowingStatistics, 276.6342676838766)
-  testDrivePeakHandleForce(rowingStatistics, 332.9918222212992)
+  testDriveAverageHandleForce(rowingStatistics, 276.6342676838739)
+  testDrivePeakHandleForce(rowingStatistics, 332.99182222129025)
   testRecoveryDuration(rowingStatistics, undefined)
   testDragFactor(rowingStatistics, undefined)
   testInstantHandlePower(rowingStatistics, undefined)
@@ -188,8 +191,8 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDriveDuration(rowingStatistics, 0.143485717)
   testDriveDistance(rowingStatistics, 0.4271903319416174)
   testDriveLength(rowingStatistics, 0.1759291886010284)
-  testDriveAverageHandleForce(rowingStatistics, 276.6342676838766)
-  testDrivePeakHandleForce(rowingStatistics, 332.9918222212992)
+  testDriveAverageHandleForce(rowingStatistics, 276.6342676838739)
+  testDrivePeakHandleForce(rowingStatistics, 332.99182222129025)
   testRecoveryDuration(rowingStatistics, 0.21654112800000003)
   testDragFactor(rowingStatistics, 281.5961372923874)
   testInstantHandlePower(rowingStatistics, undefined)
@@ -220,8 +223,8 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDriveDuration(rowingStatistics, 0.22872752900000004)
   testDriveDistance(rowingStatistics, 1.0226745931298076)
   testDriveLength(rowingStatistics, 0.3078760800517996)
-  testDriveAverageHandleForce(rowingStatistics, 288.45140756250663)
-  testDrivePeakHandleForce(rowingStatistics, 447.10851434893794)
+  testDriveAverageHandleForce(rowingStatistics, 288.45140756259053)
+  testDrivePeakHandleForce(rowingStatistics, 447.108514349131)
   testRecoveryDuration(rowingStatistics, 0.21654112800000003)
   testDragFactor(rowingStatistics, 281.5961372923874)
   testInstantHandlePower(rowingStatistics, undefined)
@@ -256,8 +259,8 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDriveDuration(rowingStatistics, 0.22872752900000004)
   testDriveDistance(rowingStatistics, 1.0226745931298076)
   testDriveLength(rowingStatistics, 0.3078760800517996)
-  testDriveAverageHandleForce(rowingStatistics, 288.45140756250663)
-  testDrivePeakHandleForce(rowingStatistics, 447.10851434893794)
+  testDriveAverageHandleForce(rowingStatistics, 288.45140756259053)
+  testDrivePeakHandleForce(rowingStatistics, 447.108514349131)
   testRecoveryDuration(rowingStatistics, 0.09812447700000015)
   testDragFactor(rowingStatistics, 281.5961372923874)
   testInstantHandlePower(rowingStatistics, undefined)
@@ -288,8 +291,8 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDriveDuration(rowingStatistics, 0.27311228700000023)
   testDriveDistance(rowingStatistics, 1.2174697537259611)
   testDriveLength(rowingStatistics, 0.36651914291880905)
-  testDriveAverageHandleForce(rowingStatistics, 256.5447026919334)
-  testDrivePeakHandleForce(rowingStatistics, 447.1085143475723)
+  testDriveAverageHandleForce(rowingStatistics, 256.5447026931294)
+  testDrivePeakHandleForce(rowingStatistics, 447.1085143512751)
   testRecoveryDuration(rowingStatistics, 0.09812447700000015)
   testDragFactor(rowingStatistics, 281.5961372923874)
   testInstantHandlePower(rowingStatistics, undefined)
@@ -327,26 +330,21 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testInstantHandlePower(rowingStatistics, undefined)
 })
 
-// Test behaviour for noisy upgoing flank
+/**
+ * @todo Test the effects of smoothing parameters
+ */
 
-// Test behaviour for noisy downgoing flank
+/**
+ * @todo Test force curve behaviour
+ */
 
-// Test behaviour for noisy stroke
+/**
+ * @todo Test behaviour after reset
+ */
 
-// Test behaviour after reset
-
-// Test behaviour for one datapoint
-
-// Test behaviour for noisy stroke
-
-// Test drag factor calculation
-
-// Test Dynamic stroke detection
-
-// Test behaviour after reset
-
-// Test behaviour with real-life data
-
+/**
+ * @description Test behaviour for the Sportstech WRX700
+ */
 test('sample data for Sportstech WRX700 should produce plausible results', async () => {
   const rowerProfile = deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Sportstech_WRX700)
   const testConfig = {
@@ -372,6 +370,9 @@ test('sample data for Sportstech WRX700 should produce plausible results', async
   testDragFactor(rowingStatistics, rowerProfiles.Sportstech_WRX700.dragFactor)
 })
 
+/**
+ * @description Test behaviour for the DKN R-320
+ */
 test('sample data for DKN R-320 should produce plausible results', async () => {
   const rowerProfile = deepMerge(rowerProfiles.DEFAULT, rowerProfiles.DKN_R320)
   const testConfig = {
@@ -397,6 +398,9 @@ test('sample data for DKN R-320 should produce plausible results', async () => {
   testDragFactor(rowingStatistics, rowerProfiles.DKN_R320.dragFactor)
 })
 
+/**
+ * @description Test behaviour for the NordicTrack RX800
+ */
 test('sample data for NordicTrack RX800 should produce plausible results', async () => {
   const rowerProfile = deepMerge(rowerProfiles.DEFAULT, rowerProfiles.NordicTrack_RX800)
   const testConfig = {
@@ -422,6 +426,9 @@ test('sample data for NordicTrack RX800 should produce plausible results', async
   testDragFactor(rowingStatistics, 493.8082148322739)
 })
 
+/**
+ * @description Test behaviour for the SportsTech WRX700 in a full session
+ */
 test('A full session for SportsTech WRX700 should produce plausible results', async () => {
   const rowerProfile = deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Sportstech_WRX700)
   const testConfig = {
@@ -447,6 +454,9 @@ test('A full session for SportsTech WRX700 should produce plausible results', as
   testDragFactor(rowingStatistics, rowerProfiles.Sportstech_WRX700.dragFactor)
 })
 
+/**
+ * @description Test behaviour for the C2 Model C
+ */
 test('A full session for a Concept2 Model C should produce plausible results', async () => {
   const rowerProfile = deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Concept2_Model_C)
   const testConfig = {
@@ -469,9 +479,12 @@ test('A full session for a Concept2 Model C should produce plausible results', a
   testTotalLinearDistance(rowingStatistics, 552.2056895088467)
   testTotalNumberOfStrokes(rowingStatistics, 82)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(rowingStatistics, 123.64632740545652)
+  testDragFactor(rowingStatistics, 123.64632740545646)
 })
 
+/**
+ * @description Test behaviour for the C2 RowErg
+ */
 test('A full session for a Concept2 RowErg should produce plausible results', async () => {
   const rowerProfile = deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Concept2_RowErg)
   const testConfig = {
@@ -490,11 +503,11 @@ test('A full session for a Concept2 RowErg should produce plausible results', as
 
   await replayRowingSession(rowingStatistics.handleRotationImpulse, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
 
-  testTotalMovingTime(rowingStatistics, 590.0294331572366)
-  testTotalLinearDistance(rowingStatistics, 2027.8951016561075)
+  testTotalMovingTime(rowingStatistics, 590.0232672488145)
+  testTotalLinearDistance(rowingStatistics, 2027.8404221844912)
   testTotalNumberOfStrokes(rowingStatistics, 205)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(rowingStatistics, 80.70650785533269)
+  testDragFactor(rowingStatistics, 80.70871681343775)
 })
 
 function testStrokeState (rowingStatistics, expectedValue) {
