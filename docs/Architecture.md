@@ -125,7 +125,7 @@ sequenceDiagram
 Both the `webServer.js` and `PeripheralManager.js` can trigger a command. Server.js will communicate this command to all managers, where they will handle this as they see fit. The following commands are defined:
 
 | command | description | Relvant manager behaviour |
-|---|---|---|
+| --- | --- | --- |
 | updateIntervalSettings | An update in the interval settings has to be processed. Here the `data` parameter has to be filled with a valid workout object in JSON format | The `SessionManager` will ingest it and use it to structure the workout (see its description). The `fitRecorder` will inject it in the recording |
 | start | start of a session initiated by the user. As the true start of a session is actually triggered by the flywheel, which will always be communicated via the metrics, its only purpose is to make sure that the flywheel is allowed to move. This command is routinely sent at the start of a ANT+ FE-C communication. | The `SessionManager` will activate a stopped workout. All other managers will ignore the command, but will obey the `SessionManager`'s response. |
 | startOrResume | User forced (re)start of a session. As the true start of a session is actually triggered by the flywheel, its only purpose is to clear the flywheel for further movement. This is not used in normal operation, but can functionally change a 'stopped' session into a 'paused' one. Intended use is to allow a user to continue beyond pre-programmed interval parameters as reaching them results in a session being 'stopped'. | The `SessionManager` will reactivate a stopped workout. All other managers will ignore the command, but will obey the `SessionManager`'s resonse. |
@@ -176,13 +176,13 @@ A key thing to realize is that `SessionManager.js` will process *currentDt* valu
 Part of the metrics is the metricsContext object, which provides an insight in the state of both stroke (determined in `RowingStatistics.js`) and session (determined in `SessionManager.js`), allowing the clients to trigger on these flags. The following flags are recognised:
 
 | Flag | Meaning |
-|---|---|
+| --- | --- |
 | isMoving | Rower is moving |
 | isDriveStart | Current metrics are related to the start of a drive |
 | isRecoveryStart | Current metrics are related to the start of a recovery |
 | isSessionStart | Current metrics are related to the start of a session |
 | isIntervalEnd | Current metrics are related to the end of an session interval. An interval implies that there will be no stop of the rowing session between the current and next interval unless there is an intended (temporary) rest period in the session after the interval. If a rest is specified (the flywheel is intended to stop), a "isPauseStart" is indicated as well. |
-| isSplitEnd | Current metrics are related to the end of a session split.  |
+| isSplitEnd | Current metrics are related to the end of a session split. |
 | isPauseStart | Current metrics are related to the start of a session pause. This implies that the flywheel is intended to stop after this message (interval with a forced rest period), or actually has stopped (spontanuous pause). |
 | isUnplannedPause | Indication by the sessionManager that the metrics are inside a spontanuous pause if set to 'true'. Used to distinguish between a planned and unplanned pause by the PM5 emulator. |
 | isPauseEnd | Current metrics are related to the end of a session pause, implying that the flywheel has started to move again. This is **NOT** sent upon completion of a planned rest period, as the pause is only eneded after the flywheel to reaches its minimum speed again. To identify if the SessionManager is still blocking metrics due to the pause still being active, check if the `pauseCountdownTime` is equal to 0. |
@@ -395,8 +395,8 @@ OpenRowingMonitor allows setting the NICE-level of both the `GpioTimerService.js
 
 HOWEVER, when compared to an oracle system (the Concept2 PM5), we see quite a variation in deviation with that result.
 
-| Distance | Minimal deviation |  Average deviation | Maximal deviation | Deviation Spread |
-|---|---|---|---|---|
+| Distance | Minimal deviation | Average deviation | Maximal deviation | Deviation Spread |
+| --- | --- | --- | --- | --- |
 | 5000 meters | 0.70 sec | 1.08 sec | 1.40 sec | 0.70 sec |
 | 10000 meters | 0.70 sec | 1.05 sec | 1.40 sec | 0.80 sec |
 | 21097 meters | 0.70 sec | 1.08 sec | 1.30 sec | 0.60 sec |
