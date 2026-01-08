@@ -117,7 +117,7 @@ export function createRowingDataRecorder (config) {
     strokes[strokeNumber].driveHandleForceCurve = metrics.driveHandleForceCurve
     strokes[strokeNumber].driveHandleVelocityCurve = metrics.driveHandleVelocityCurve
     strokes[strokeNumber].driveHandlePowerCurve = metrics.driveHandlePowerCurve
-    VO2max.push(metrics)
+    VO2max.push(metrics, heartRate)
     if (!isNaN(metrics.dragFactor) && metrics.dragFactor > 0) { drag.push(metrics.dragFactor) }
     allDataHasBeenWritten = false
     rowingDataFileContentIsCurrent = false

@@ -111,7 +111,7 @@ export function createTCXRecorder (config) {
     } else {
       sessionData.lap[lapnumber].strokes[strokenumber].heartrate = undefined
     }
-    VO2max.push(metrics)
+    VO2max.push(metrics, heartRate)
     tcxfileContentIsCurrent = false
     allDataHasBeenWritten = false
   }

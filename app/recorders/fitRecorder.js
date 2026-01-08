@@ -160,7 +160,7 @@ export function createFITRecorder (config) {
       ...(!isNaN(heartRate) && heartRate > 0 ? { heartrate: heartRate } : { heartrate: undefined })
     })
     sessionData.totalMovingTime = metrics.workout.timeSpent.moving
-    VO2max.push(metrics)
+    VO2max.push(metrics, heartRate)
     fitfileContentIsCurrent = false
     allDataHasBeenWritten = false
   }
