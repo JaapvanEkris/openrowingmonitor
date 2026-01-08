@@ -67,7 +67,12 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     Y.push(y)
     weight.push(w)
     WY.push(w * y)
-
+    _A = 0
+    _B = 0
+    _C = 0
+    _sst = 0
+    _goodnessOfFit = 0
+  
     if (X.length() >= 3) {
       // There are now at least three datapoints in the X and Y arrays, so let's calculate the A portion belonging for the new datapoint via Quadratic Theil-Sen regression
       let i = 0
@@ -79,7 +84,7 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
       while (i < X.length() - 2) {
         j = i + 1
         while (j < X.length() - 1) {
-          combinedweight = weight.get(i) *  weight.get(j) * w
+          combinedweight = weight.get(i) * weight.get(j) * w
           coeffA = calculateA(i, j, X.length() - 1)
           A.push(X.get(i), coeffA, combinedweight)
           j++
@@ -94,12 +99,6 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
       _C = null
       _sst = null
       _goodnessOfFit = null
-    } else {
-      _A = 0
-      _B = 0
-      _C = 0
-      _sst = 0
-      _goodnessOfFit = 0
     }
   }
 
