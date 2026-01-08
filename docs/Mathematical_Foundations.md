@@ -165,10 +165,6 @@ Further improvements to the implementation of the Theil-Sen is an active topic o
 
 See [`/app/engine/utils/MovingWindowRegressor.js`](../app/engine/utils/MovingWindowRegressor.js)
 
-## Open design issues
-
-@@@@@
-
 ### Choices for the specific algorithms
 
 #### Implementation choices in the Theil-Sen regression
@@ -197,6 +193,46 @@ To combine all valid values for &alpha; or &omega; for a specific datapoint to d
 Comparison across these tables shows that using the Goodness Of Fit is needed to get more reliable results. The effect of using the Local Goodness of Fit is not that convincing based on this data, but a more detailed analaysis of the data shows small improvements with the respect to the version without the Local Goodness of Fit version. So we choose the weighed averager as basis for the combination of the multiple approximations into a single one.
 
 Finding a better approximation algorithm that ingores outlying values while maintaining the true data responsiveness is a subject for further improvement.
+
+## Open Issues, Known problems and Regrettable design decissions
+
+### Using iteration instead of running sums for Theil-Sen Goodness Of Fit
+
+Currently, both the Theil-Sen regressors (i.e. `TSLinearSeries.js` and `TSQuadraticSeries.js`) iterate over the datapoints in the flank, and determine the sse and sst for the Goodness of Fit calculation. There is an alternative approach, using running sums. THis approach has the huge benefit that running sums are less CPU intensive to maintain, and don't force a sudden large calculation. Key concern here is the dragfactor calculation at the end of a recovery that iterates over a large collection (often over 200 datapoints for a Concept2 RowErg), resulting in a significant workload at one specific moment. When using running  sums that are maintained throughout the recovery, it should maintain a lower profile as much of the work is done in small pieces throughout the recovery phase.
+
+For linear regression, it is defined as:
+
+$$ sse = \left( \sum_{i=1}^n weight_i y_i^2 \right)
+  - \left( 2b \sum_{i=1}^n weight_i y_i \right)
+  - \left( 2a \sum_{i=1}^n weight_i x_i y_i \right)
+  + \left( b^2 \sum_{i=1}^n weight_i \right)
+  + \left( 2ab \sum_{i=1}^n weight_i x_i \right)
+  + \left( a^2 \sum_{i=1}^n weight_i x_i^2 \right)
+
+sst = \left( \sum_{i=1}^n weight_i y_i^2 \right) - \left( 2 * \overline{y} * \sum_{i=1}^n weight_i y_i \right) + \left( \overline{y}^2 * \sum_{i=1}^n weight_i \right)$$
+
+Where $(x_i, y_i)$ is the i-th datapoint in the flank, and $weight_i$ its weight. $\overline{Y}$ is the weighted average of the entire flank in the y axis. a and b are the coefficients in $y = a x + b$
+
+$$ sse = \left( \sum_{i=1}^n weight_i y_i^2 \right)
+  - \left( 2c \sum_{i=1}^n weight_i y_i \right)
+  - \left( 2b \sum_{i=1}^n weight_i x_i y_i \right)
+  - \left( 2a \sum_{i=1}^n weight_i x_i^2 y_i \right)
+  + \left( 2bc \sum_{i=1}^n weight_i x_i \right)
+  + \left( 2ac \sum_{i=1}^n weight_i x_i^2 \right)
+  + \left( b^2 \sum_{i=1}^n weight_i x_i^2 \right)
+  + \left( 2ab \sum_{i=1}^n weight_i x_i^3 \right)
+  + \left( a^2 \sum_{i=1}^n weight_i x_i^4 \right)
+  + \left( c^2 \sum_{i=1}^n weight_i \right)
+  
+sst = \left( \sum_{i=1}^n weight_i y_i^2 \right) - \left( 2 * \overline{y} * \sum_{i=1}^n weight_i y_i \right) + \left( \overline{y}^2 * \sum_{i=1}^n weight_i \right)$$
+
+Where $(x_i, y_i)$ is the i-th datapoint in the flank, and $weight_i$ its weight. $\overline{Y}$ is the weighted average of the entire flank in the y axis. a, b and c are the coefficients in $y = a x^2 + b x + c$
+
+However, these implementations suffered from numerical instability. This exposed itself ar relatively small sessions (a 2500 meter row on a Concept2 RowErg) where Goodness Of Fit started to drift, and error between the iteration and running sum started to grow from $10^-15$ to $10^-2$. This latter disturbs the functioning of OpenRowingMonitor. As in the running sum variation a Goodness Of Fit over 1 was frequently encountered, we considered it very likely that it is faulty. Making the underlying `Series.js` object, that is responsible for maintaing these running sums, much more robust by forcing continuous recalculations of these running sums did not resolve this issue.
+
+The current implementation thus relies on the iterative approach, despite the running sum being computationally much more efficient.
+
+@@@@@
 
 ## References
 
