@@ -54,6 +54,7 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
    * Invariant: BinrySearchTree A contains all calculated a's (as in the general formula y = a * x^2 + b * x + c),
    * where the a's are labeled in the BinarySearchTree with their Xi when they BEGIN in the point (Xi, Yi)
    */
+  /* eslint-disable max-statements - A lot of variables have to be set */
   function push (x, y, w = 1) {
     if (x === undefined || isNaN(x) || y === undefined || isNaN(y)) { return }
 
@@ -72,7 +73,7 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     _C = 0
     _sst = 0
     _goodnessOfFit = 0
-  
+
     if (X.length() >= 3) {
       // There are now at least three datapoints in the X and Y arrays, so let's calculate the A portion belonging for the new datapoint via Quadratic Theil-Sen regression
       let i = 0
@@ -101,6 +102,7 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
       _goodnessOfFit = null
     }
   }
+  /* eslint-enable max-statements */
 
   /**
    * @param {integer} position - the position in the flank of the requested value (default = 0)
