@@ -10,7 +10,7 @@ For services we distinguish between two types of functionality:
 Looking at the individual services, we see the following:
 
 | Service | Download workout plan | Upload results | Remarks |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | File system | No | Yes | Integrated service |
 | Strava | No | Yes | Integrated service |
 | RowsAndAll.com | No | Yes | Integrated service |
@@ -36,7 +36,7 @@ OpenRowingMonitor supports the following exports, which can be obtained via the 
 The creation of each of these files is independently controlled via their own parameters in the `config.js`. You can turn on each filetype independently without issue, as OpenRowingMonitor will make sure the names will not be identical, even when the file extension is the same. OpenRowingMonitor can create regular files and gzipped files (which are accepted by several websites) and will write them in the directory specified in the `dataDirectory` parameter of `config.js`. In `config.js`, you can set a parameter to create a file and another parameter to gzip it. The following parameters are available:
 
 | File type | parameter to create file | parameter to zip file |
-|---|---|---|
+| --- | --- | --- |
 | Garmin FIT files | createFitFiles | gzipFitFiles |
 | Garmin TCX files | createTcxFiles | gzipTcxFiles |
 | Rowingdata csv | createRowingDataFiles | - |
@@ -173,7 +173,7 @@ The `machineName` is an element that is used to identify your monitor uniquely i
 The topic 'OpenRowingMonitor/`machineName`/metrics' will contain your metrics. Each completed stroke results in one message, initiated at the beginning of the drive. At the begin/end of splits, intervals and sessions an additional message will be sent. Flags indicate the rowing machine state and all associated metrics.
 
 | Field | Meaning | Unit |
-|---|---|---|
+| --- | --- | --- |
 | timestamp | The timestamp of the creation of the metrics | JSON timestamp |
 | intervaltype | The type of the current interval | `justrow`, `distance`, `time` or `rest` |
 | sessionStatus | | |
@@ -192,13 +192,13 @@ The topic 'OpenRowingMonitor/`machineName`/metrics' will contain your metrics. E
 | splitNumber | | Counter |
 | heartrate | | Beats per minute |
 | velocity | | m/s |
-| pace  | | sec/500m |
+| pace | | sec/500m |
 | power | | Watts |
 | driveDuration | | milliseconds |
 | driveLength | | Meters |
 | recoveryDuration | | milliseconds |
 | strokeDuration | | milliseconds |
-| strokeRate | | strokes per minute|
+| strokeRate | | strokes per minute |
 | distancePerStroke | | Meters |
 | peakHandleForce | Maximum encountered force during the drive | Newtons |
 | averageHandleForce | Average handle force during the drive | Newtons |
