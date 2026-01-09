@@ -11,7 +11,7 @@ This interface emulation is partially based on the description in Concept 2's AP
 We aim to be interoperable with the following apps:
 
 <!-- markdownlint-disable no-inline-html -->
-| App | Required&nbsp;characteristics&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| Remarks |
+| App | Required&nbsp;characteristics&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Remarks |
 | --- | --------- | ------ |
 | [ErgArcade cloud simulation](https://ergarcade.github.io/mrdoob-clouds/) | <ul><li>[0x0031 "General Status"](#0x0031-general-status)</li><li>[0x0032 "Additional Status"](#0x0032-additional-status)</li></ul> | |
 | [ErgArcade fluid simulation](https://ergarcade.github.io/WebGL-Fluid-Simulation/) | <ul><li>[0x0031 "General Status"](#0x0031-general-status)</li></ul> | Actually only uses `STROKESTATE_DRIVING` |
