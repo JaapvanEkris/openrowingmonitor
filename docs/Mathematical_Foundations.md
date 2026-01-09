@@ -10,7 +10,7 @@ This document consists out of four sections:
 * [A description of the leading design principles of the mathematic algorithms](#leading-design-principles-of-the-mathematic-algorithms)
 * [An overview of the places where specific algorithms are used](#overview-of-algorithms-used)
 * [The selection and/or design of the specific mathematical algorithms used](#the-selection-and-design-of-used-mathematical-algorithms)
-* [Open design issues](#open-design-issues)
+* [Open design issues and regrettable design decissions](#open-issues-known-problems-and-regrettable-design-decissions)
 
 ## Leading design principles of the mathematic algorithms
 
