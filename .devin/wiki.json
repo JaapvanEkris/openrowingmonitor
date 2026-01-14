@@ -1,0 +1,20 @@
+{
+  "repo_notes": [
+    {
+      "author": "Repo maintainers",
+      "content": "OpenRowingMonitor (ORM) is a Raspberry Pi–hosted rowing performance monitor. Please prioritize the repo’s `docs/` as the product documentation source of truth, and use the code primarily to explain runtime behavior and data flow.\n\nKey docs to treat as primary references:\n- `docs/README.md`: user-facing overview, supported outputs, and links to the rest of the docs.\n- `docs/installation.md`: authoritative install flow (curl-based installer, systemd service, supported Pi models; explicitly NOT supported: Raspberry Pi Zero W and Raspberry Pi 5).\n- `docs/rower_settings.md` + `config/rowerProfiles.js`: configuration concepts and tuning knobs.\n- `docs/Architecture.md`: canonical architecture diagrams, timing domains, and command flow.\n- `docs/faq.md`: **LLM-enriched Community FAQ** derived from GitHub discussions. This file exists specifically to capture troubleshooting/tuning knowledge that otherwise lives only in discussions. When answering “how do I…” or “why is X happening” questions, use `docs/faq.md` alongside the official docs."
+    },
+    {
+      "author": "Repo maintainers",
+      "content": "Runtime entrypoints and responsibilities (please reflect this clearly in the wiki):\n\n- `app/server.js` is the main process entrypoint (see `package.json#main` and `npm start`). It orchestrates the system and routes commands/metrics between managers.\n- `app/gpio/GpioTimerService.js` is a separate child process (forked by `app/server.js`) responsible for microsecond-precision flywheel impulse timing via `pigpio`. This process is deliberately kept small and often runs at a higher priority.\n- Core engine pipeline: `app/engine/SessionManager.js` (session/workout state + interval boundaries) -> `app/engine/RowingStatistics.js` (aggregation/smoothing) -> `app/engine/Rower.js` (stroke detection + linear physics) -> `app/engine/Flywheel.js` (angular physics + drag factor).\n- Output fan-out (“calculate once, distribute many”):\n  - Web UI: `app/WebServer.js` and `app/client/` (PWA / Lit components)\n  - Peripherals/protocols: `app/peripherals/` (BLE / ANT+ / MQTT)\n  - Recording: `app/recorders/` (FIT/TCX/RowingData CSV/etc.)\n\nWhen describing ‘how data moves’, prefer the terminology from `docs/Architecture.md`: `currentDt` (time between impulses) -> engine -> metrics with `metricsContext` flags -> clients decide what to emit based on their own schedules."
+    },
+    {
+      "author": "Repo maintainers",
+      "content": "Installation/deployment is production-critical and should be documented prominently:\n\n- The recommended install path is the curl command in `docs/installation.md` which runs `install/install.sh`.\n- `install/install.sh` installs system deps (Bluetooth, pigpio, Node.js), checks Raspberry Pi OS compatibility, installs to `/opt/openrowingmonitor`, runs `npm ci` + `npm run build`, and configures system services.\n- Service/unit files and kiosk options live under `install/` (e.g., `openrowingmonitor.service`, optional kiosk services).\n\nPlease avoid presenting ORM as a generic desktop/server Node app; it’s designed for Raspberry Pi OS + GPIO timing constraints. Document the ‘timing/priority’ model from `docs/Architecture.md` (measurement vs calculation vs non-time-critical outputs) because it explains many “why is this flaky” troubleshooting questions."
+    },
+    {
+      "author": "Repo maintainers",
+      "content": "When generating pages/sections, please ensure at least one section explicitly points users to troubleshooting/tuning resources in `docs/faq.md` and hardware guides in `docs/hardware_setup_*.md`. These are key for real-world setups (sensor choice, magnet count/placement, clean pulse detection, and common failure modes) and are frequently more actionable than code-level descriptions."
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # Hardware set up of Open Rowing Monitor on a Concept 2 RowErg
 
-This guide explains how to set up Open Rowing Monitor for a Concept 2 RowErg. Please note that older Concept 2 models are NOT covered by this as the sensor on the flywheel has changed.
+This guide explains how to set up Open Rowing Monitor for a Concept 2 RowErg. Please note that older Concept 2 models are NOT covered by this as the sensor on the flywheel has changed. For information on older Concept2 models (Model C and earlier), see [FAQ entry #17](faq.md#17-older-concept2-rowers-model-c-and-earlier--sensor-compatibility).
 
 ## Hardware setup
 

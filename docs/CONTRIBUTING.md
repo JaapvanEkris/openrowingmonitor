@@ -30,9 +30,9 @@ If you report a bug, please include information that can help to investigate the
 
 * Rower Model and Setup
 * Model of Raspberry Pi and version of operation system
-* Relevant parts of log messages
+* Relevant parts of log messages (see [FAQ entry #13](faq.md#13-where-are-logs-and-raw-data-stored--how-do-i-get-them-for-debugging) for how to capture logs)
 * If possible, describe a [Minimal, Reproducible Example](https://stackoverflow.com/help/minimal-reproducible-example)
-* If relevant and possible, make raw recordings of the rowing session
+* If relevant and possible, make raw recordings of the rowing session (see [FAQ entry #13](faq.md#13-where-are-logs-and-raw-data-stored--how-do-i-get-them-for-debugging) for how to enable raw data recording)
 
 ### Improving the Documentation
 

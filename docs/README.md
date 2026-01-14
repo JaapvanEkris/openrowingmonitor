@@ -10,7 +10,7 @@ OpenRowingMonitor is a reliable, free and open source monitor for rowing machine
 
 It runs on cheap (Raspberry Pi) hardware to calculate rowing metrics, such as power, split time, speed, stroke rate, distance and calories. As it is your data, you can share these metrics with games and analysis in the way you like.
 
-OpenRowingMonitor runs fine on any rowing machine, as long as you can add something to measure the speed of the flywheel, like magnets. It already has been retrofitted to many rowing machines like the [DIY Openergo](https://openergo.webs.com) and many [existing machines that lack a decent monitor](Supported_Rowers.md), and is used by many on a daily basis. If your machine isn't listed, don't worry, adjusting the settings is easy following the [settings adjustment help guide](rower_settings.md) yourself. And in the [GitHub Discussions](https://github.com/JaapvanEkris/openrowingmonitor/discussions) there always are friendly people to help you set up your machine and the settings.
+OpenRowingMonitor runs fine on any rowing machine, as long as you can add something to measure the speed of the flywheel, like magnets. It already has been retrofitted to many rowing machines like the [DIY Openergo](https://openergo.webs.com) and many [existing machines that lack a decent monitor](Supported_Rowers.md), and is used by many on a daily basis. If your machine isn't listed, don't worry, adjusting the settings is easy following the [settings adjustment help guide](rower_settings.md) yourself. For hardware-specific guidance and troubleshooting, see the [Community FAQ](faq.md). And in the [GitHub Discussions](https://github.com/JaapvanEkris/openrowingmonitor/discussions) there always are friendly people to help you set up your machine and the settings.
 
 ## Features
 
@@ -90,7 +90,7 @@ The OpenRowingMonitor installer can also set up a network share that contains al
 
 ## Installation
 
-You will need a Raspberry Pi Zero 2 W, Raspberry Pi 3, Raspberry Pi 4 with a fresh installation of Raspberry Pi OS Lite for this (the 64Bit kernel is recomended). Connect to the device with SSH and just follow the [Detailed Installation Instructions](installation.md) and you'll get a working monitor. This guide will help you install the software and explain how to connect the rowing machine. If you can follow the guide, it will work. If you run into issues, you can always [drop a question in the GitHub Discussions](https://github.com/JaapvanEkris/openrowingmonitor/discussions), and there always is someone to help you.
+You will need a Raspberry Pi Zero 2 W, Raspberry Pi 3, Raspberry Pi 4 with a fresh installation of Raspberry Pi OS Lite for this (the 64Bit kernel is recomended). Connect to the device with SSH and just follow the [Detailed Installation Instructions](installation.md) and you'll get a working monitor. This guide will help you install the software and explain how to connect the rowing machine. If you can follow the guide, it will work. If you run into issues, check the [Community FAQ](faq.md#quick-reference-common-error-messages) or [drop a question in the GitHub Discussions](https://github.com/JaapvanEkris/openrowingmonitor/discussions), and there always is someone to help you.
 
 > [!IMPORTANT]
 > Due to architecture differences, both the Raspberry Pi Zero W (see [this discussion for more information](https://github.com/JaapvanEkris/openrowingmonitor/discussions/33)) and Raspberry Pi 5 (see [this discussion for more information](https://github.com/JaapvanEkris/openrowingmonitor/issues/52)) will **not** work.

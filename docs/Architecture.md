@@ -1,7 +1,7 @@
 # OpenRowingMonitor architecture
 
 <!-- markdownlint-disable no-inline-html -->
-In this document, we describe the architectual construction of OpenRowingMonitor. For the reasons behind the physics, please look at [the Physics behind OpenRowingMonitor](Physics_Of_OpenRowingMonitor.md). In this document we describe the main functional blocks in OpenRowingMonitor, and the major design decissions.
+In this document, we describe the architectual construction of OpenRowingMonitor. For the reasons behind the physics, please look at [the Physics behind OpenRowingMonitor](Physics_Of_OpenRowingMonitor.md). For practical configuration and tuning guidance, see the [Community FAQ](faq.md), particularly [entries #9, #15, and #16](faq.md#16-understanding-and-tuning-stroke-detection-parameters) for stroke detection details. In this document we describe the main functional blocks in OpenRowingMonitor, and the major design decissions.
 
 ## Platform choice
 

@@ -9,7 +9,7 @@ This guide explains how to set up the rowing software and hardware. In this manu
 - [Configuration of OpenRowingMonitor](#rower-settings)
 - [Updating OpenRowingMonitor](#updating-openrowingmonitor-to-a-new-version)
 
-If you can follow this guide, you will get OpenRowingMonitor to work. If you run into issues, you can always [drop a question in the GitHub Discussions](https://github.com/JaapvanEkris/openrowingmonitor/discussions), and there always is someone to help you.
+If you can follow this guide, you will get OpenRowingMonitor to work. If you run into issues, consult the [Community FAQ](faq.md) for common problems and solutions, or [drop a question in the GitHub Discussions](https://github.com/JaapvanEkris/openrowingmonitor/discussions), and there always is someone to help you.
 
 ## Requirements
 

@@ -4,7 +4,7 @@ Out of the box, Raspbian is configured to provide a decent experience while cons
 
 ## Signs your performance is insufficient
 
-A typical sign is that there is much noise in the data readings from the flywheel, lots of small deviations. This is typically the case when the signals are handled too late.
+A typical sign is that there is much noise in the data readings from the flywheel, lots of small deviations. This is typically the case when the signals are handled too late. See [FAQ entries #4 and #5](faq.md#4-what-causes-switch-bounce-and-how-do-i-fix-it) for sensor noise troubleshooting.
 
 ## Things you can do at the OS
 

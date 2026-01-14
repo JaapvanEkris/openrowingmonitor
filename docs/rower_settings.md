@@ -1,7 +1,7 @@
 # Guide for rower specific settings
 
 <!-- markdownlint-disable no-inline-html -->
-This guide helps you to adjust the rowing monitor specifically for a new type of rower or even for your specific use, when the supported rowers don't suffice (you can [find a list of supported rowers here](Supported_Rowers.md)). In this manual, we will guide you through the settings needed to get your machine working if it isn't listed there. This will always be a work in progress, and please get in touch through the [GitHub Discussions](https://github.com/JaapvanEkris/openrowingmonitor/discussions) when you run into problems.
+This guide helps you to adjust the rowing monitor specifically for a new type of rower or even for your specific use, when the supported rowers don't suffice (you can [find a list of supported rowers here](Supported_Rowers.md)). In this manual, we will guide you through the settings needed to get your machine working if it isn't listed there. For practical stroke detection tuning and calibration workflows, see [Community FAQ entries #9, #15, and #16](faq.md). This will always be a work in progress, and please get in touch through the [GitHub Discussions](https://github.com/JaapvanEkris/openrowingmonitor/discussions) when you run into problems.
 
 In this manual, we cover the following topics:
 

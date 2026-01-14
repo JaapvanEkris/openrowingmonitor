@@ -28,7 +28,7 @@ The following rowers are known to work, or are even actively supported:
 | White label | Air Rower | Air rower | Fywheel | None | Supported | Generic_Air_Rower | Yes | Yes | None | Sold under different brand names |
 | Xebex | Air Rower V2 | Air rower | Flywheel | Modification to the source code | Known to work | Default | Yes | Yes | None | [See this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/28) |
 
-If your machine isn't listed, it just means that you need to [adjust the software settings following the settings adjustment guide](rower_settings.md) yourself. But don't worry, in the [GitHub Discussions](https://github.com/laberning/openrowingmonitor/discussions) there always are friendly people to help you set up your machine and the settings.
+If your machine isn't listed, it just means that you need to [adjust the software settings following the settings adjustment guide](rower_settings.md) yourself. For common hardware selection and sensor configuration questions, see [Community FAQ entries #2-#7](faq.md). But don't worry, in the [GitHub Discussions](https://github.com/laberning/openrowingmonitor/discussions) there always are friendly people to help you set up your machine and the settings.
 
 ## Support status
 

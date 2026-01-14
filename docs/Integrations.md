@@ -7,7 +7,7 @@ For services we distinguish between two types of functionality:
 
 * **Upload results**: here OpenRowingMonitor uploads the result of your rowing session (i.e. total time rowed, pace, stroke rate, etc.) to the service after your session has completed
 
-Looking at the individual services, we see the following:
+Looking at the individual services, we see the following. For troubleshooting file uploads, see [FAQ entry #11](faq.md#11-i-cant-get-strava-upload-tcxfit-to-work--what-am-i-doing-wrong).
 
 | Service | Download workout plan | Upload results | Remarks |
 |---|---|---|---|
