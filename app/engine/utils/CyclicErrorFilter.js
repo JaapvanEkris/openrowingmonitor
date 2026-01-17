@@ -100,11 +100,9 @@ export function createCyclicErrorFilter (rowerSettings, deltaTime) {
       case (value < _minimumTimeBetweenImpulses):
         // We are below the intended range
         return Math.min(Math.max(1 - ((_minimumTimeBetweenImpulses - value) / domainBorder), 0.001), 1)
-        break
       case (value > _maximumTimeBetweenImpulses):
         // We are above the intended range
         return Math.min(Math.max(1 - ((value - _maximumTimeBetweenImpulses) / domainBorder), 0.001), 1)
-        break
       default:
         // We are inside the intended range
         return 1
