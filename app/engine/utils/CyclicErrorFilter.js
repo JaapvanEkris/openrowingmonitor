@@ -19,12 +19,12 @@ const log = loglevel.getLogger('RowingEngine')
  * @param {integer} rowerSettings.flankLength - Length of the flank used
  * @param {boolean} rowerSettings.autoAdjustDragFactor - Indicates if the Flywheel.js is allowed to automatically adjust dragfactor (false turns the filter off)
  * @param {float} rowerSettings.systematicErrorAgressiveness - Agressiveness of the systematic error correction algorithm (0 turns the filter off)
+ * @param {integer} rowerSettings.systematicErrorNumberOfDatapoints - size of the systematic error correction algorithm filter
  * @param {float} rowerSettings.minimumTimeBetweenImpulses - minimum expected time between impulses (in seconds)
  * @param {float} rowerSettings.maximumTimeBetweenImpulses - maximum expected time between impulses (in seconds)
- * @param {integer} minimumDragFactorSamples - the number of expected dragfactor samples
  * @param {function} deltaTime - injection of the linear regression function used for the drag calculation
  */
-export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples, deltaTime) {
+export function createCyclicErrorFilter (rowerSettings, deltaTime) {
   const _numberOfMagnets = rowerSettings.numOfImpulsesPerRevolution
   const _flankLength = rowerSettings.flankLength
   const _agressiveness = Math.min(Math.max(rowerSettings.systematicErrorAgressiveness, 0), 1)
@@ -36,6 +36,7 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
   const clean = createSeries(_flankLength)
   const goodnessOfFit = createSeries(_flankLength)
   const linearRegressor = deltaTime
+  const domainBorder = _minimumTimeBetweenImpulses
   let recordedRelativePosition = []
   let recordedAbsolutePosition = []
   let recordedRawValue = []
@@ -55,7 +56,7 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
    * @param {float} the raw recorded value to be cleaned up
    * @param {integer} the position of the flywheel
    * @returns {object} result
-   * @returns {float} result.value - the resulting clean value
+   * @returns {float} result.clean - the resulting clean value
    * @returns {float} result.goodnessOfFit - The goodness of fit indication for the specific datapoint
    * @description Applies the filter on the raw value for the given position (i.e. magnet). Please note: this function is NOT stateless, it also fills a hystoric buffer of raw and clean values
    */
@@ -63,16 +64,19 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
     if (startPosition === undefined) { startPosition = position + _flankLength }
     const magnet = position % _numberOfMagnets
     raw.push(rawValue)
+
     if (rowerSettings.autoAdjustDragFactor && _agressiveness > 0) {
-      clean.push(projectX(magnet, rawValue))
-      goodnessOfFit.push(filterArray[magnet].goodnessOfFit())
+      const cleanValue = projectX(magnet, rawValue)
+      clean.push(cleanValue)
+      goodnessOfFit.push(filterArray[magnet].goodnessOfFit() * domainFit(rawValue) * domainFit(cleanValue))
     } else {
       // In essence, the filter is turned off
       clean.push(rawValue)
       goodnessOfFit.push(1)
     }
+
     return {
-      value: clean.atSeriesEnd(),
+      clean: clean.atSeriesEnd(),
       goodnessOfFit: goodnessOfFit.atSeriesEnd()
     }
   }
@@ -87,13 +91,34 @@ export function createCyclicErrorFilter (rowerSettings, minimumDragFactorSamples
   }
 
   /**
+   * @param {float} rawValue - the raw value to be mapped onto the domain
+   * @returns {float} an indication of the fit with the domain
+   * @description a very crude approach to downgrade the weight outliers bring to the Weighed TS algorithms. Extremely crude, but it works.
+   */
+  function domainFit (value) {
+    switch (true) {
+      case (value < _minimumTimeBetweenImpulses):
+        // We are below the intended range
+        return Math.min(Math.max(1 - ((_minimumTimeBetweenImpulses - value) / domainBorder), 0.001), 1)
+        break
+      case (value > _maximumTimeBetweenImpulses):
+        // We are above the intended range
+        return Math.min(Math.max(1 - ((value - _maximumTimeBetweenImpulses) / domainBorder), 0.001), 1)
+        break
+      default:
+        // We are inside the intended range
+        return 1
+    }
+  }
+
+  /**
    * @returns {object} result - provides the (oldest) object at the head of the FiFo buffer, as once returned as a repsonse to the 'applyFilter()' function
    * @returns {float} result.clean - the resulting clean value as once returned
    * @returns {float} result.raw - the initial (raw) datapoint before applying the filter
    * @returns {float} result.goodnessOfFit - The goodness of fit indication for the specific datapoint
    */
   function atSeriesBegin () {
-    if (clean.length() > 0) {
+    if (clean.length() >= _flankLength) {
       return {
         clean: clean.atSeriesBegin(),
         raw: raw.atSeriesBegin(),
