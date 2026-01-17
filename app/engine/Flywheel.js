@@ -58,7 +58,7 @@ export function createFlywheel (rowerSettings) {
   const _deltaTime = createTSLinearSeries(flankLength)
   const drag = createWeighedSeries(rowerSettings.dragFactorSmoothing, (rowerSettings.dragFactor / 1000000))
   const recoveryDeltaTime = createTSLinearSeries()
-  const cyclicErrorFilter = createCyclicErrorFilter(rowerSettings, minimumDragFactorSamples, recoveryDeltaTime)
+  const cyclicErrorFilter = createCyclicErrorFilter(rowerSettings, recoveryDeltaTime)
   const strokedetectionMinimalGoodnessOfFit = rowerSettings.minimumStrokeQuality
   const minimumRecoverySlope = createWeighedSeries(rowerSettings.dragFactorSmoothing, rowerSettings.minimumRecoverySlope)
   let rawTime = 0
@@ -138,12 +138,12 @@ export function createFlywheel (rowerSettings) {
     }
 
     const cleanCurrentDt = cyclicErrorFilter.applyFilter(dataPoint, totalNumberOfImpulses + flankLength)
-    rawTime += cleanCurrentDt.value
+    rawTime += cleanCurrentDt.clean
     rawNumberOfImpulses++
     const currentAngularDistance = rawNumberOfImpulses * angularDisplacementPerImpulse
 
     // Let's feed the stroke detection algorithm
-    _deltaTime.push(rawTime, cleanCurrentDt.value, cleanCurrentDt.goodnessOfFit)
+    _deltaTime.push(rawTime, cleanCurrentDt.clean, cleanCurrentDt.goodnessOfFit)
 
     // Calculate the metrics that are needed for more advanced metrics, like the foce curve
     _angularDistance.push(rawTime, currentAngularDistance, cleanCurrentDt.goodnessOfFit)
