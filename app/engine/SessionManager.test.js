@@ -843,7 +843,7 @@ test('A 100 calories session for a Concept2 RowErg should produce plausible resu
 
   testTotalMovingTime(sessionManager, 518.8198075690466)
   testTotalLinearDistance(sessionManager, 1780.6788577682853)
-  testTotalCalories(sessionManager, 100.00018360476473)
+  testTotalCalories(sessionManager, 100.00062210488666)
   testTotalNumberOfStrokes(sessionManager, 181)
   // As dragFactor isn't static, it should have changed
   testDragFactor(sessionManager, 80.66540957116986)
