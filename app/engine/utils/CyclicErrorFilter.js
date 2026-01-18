@@ -50,7 +50,7 @@ export function createCyclicErrorFilter (rowerSettings, deltaTime) {
   let interceptSum = 0
   let slopeCorrection = 1
   let interceptCorrection = 0
-  coldRestart()
+  resetFilterConfiguration()
 
   /**
    * @param {float} the raw recorded value to be cleaned up
