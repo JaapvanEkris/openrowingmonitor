@@ -205,7 +205,7 @@ export function createCyclicErrorFilter (rowerSettings, deltaTime) {
    */
   function resetFilterConfiguration () {
     if (slopeSum !== _numberOfMagnets || interceptSum !== 0) { log.debug('*** WARNING: cyclic error filter has configuration forcefully been reset') }
-    const noIncrements = Math.max(Math.ceil(_numberOfFilterSamples / 4), 5)
+    const noIncrements = _numberOfFilterSamples
     const increment = (_maximumTimeBetweenImpulses - _minimumTimeBetweenImpulses) / noIncrements
 
     lowerCursor = undefined
@@ -222,8 +222,9 @@ export function createCyclicErrorFilter (rowerSettings, deltaTime) {
       }
       j = 0
       while (j <= noIncrements) {
+        // This initializes this filter with an identity function (the clean value will be identical to the raw value), to allow a controlled startup of the filter
         datapoint = _maximumTimeBetweenImpulses - (j * increment)
-        filterArray[i].push(datapoint, datapoint, 0.8)
+        filterArray[i].push(datapoint, datapoint, 0.5)
         j++
       }
       slope[i] = 1
