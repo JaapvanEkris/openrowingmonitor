@@ -191,8 +191,8 @@ export function createCyclicErrorFilter (rowerSettings, deltaTime) {
   /**
    * @description This function is used for clearing the buffers in order to prepare to record for a new set of datapoints, or clear it when the buffer is filled with a recovery with too weak GoF
    */
-  function warmRestart () {
-    if (!isNaN(lowerCursor)) { log.trace('*** Cyclic error filter had a warm restart for the next recovery') }
+  function clearDatapointBuffer () {
+    if (isNaN(lowerCursor)) { log.trace('*** Cyclic error filter: cleared datapoint buffer before processing its datapoints has started') }
     recordedRelativePosition = []
     recordedAbsolutePosition = []
     recordedRawValue = []
@@ -203,13 +203,13 @@ export function createCyclicErrorFilter (rowerSettings, deltaTime) {
   /**
    * @description This function is used for clearing the predictive buffers as the flywheel seems to have stopped
    */
-  function coldRestart () {
-    if (slopeSum !== _numberOfMagnets || interceptSum !== 0) { log.debug('*** WARNING: cyclic error filter has forcefully been restarted (cold)') }
+  function resetFilterConfiguration () {
+    if (slopeSum !== _numberOfMagnets || interceptSum !== 0) { log.debug('*** WARNING: cyclic error filter has configuration forcefully been reset') }
     const noIncrements = Math.max(Math.ceil(_numberOfFilterSamples / 4), 5)
     const increment = (_maximumTimeBetweenImpulses - _minimumTimeBetweenImpulses) / noIncrements
 
     lowerCursor = undefined
-    warmRestart()
+    clearDatapointBuffer()
 
     let i = 0
     let j = 0
@@ -244,7 +244,7 @@ export function createCyclicErrorFilter (rowerSettings, deltaTime) {
     log.debug('*** WARNING: cyclic error filter is reset')
     slopeSum = _numberOfMagnets
     interceptSum = 0
-    coldRestart()
+    resetFilterConfiguration()
     raw.reset()
     clean.reset()
     goodnessOfFit.reset()
@@ -256,8 +256,8 @@ export function createCyclicErrorFilter (rowerSettings, deltaTime) {
     processNextRawDatapoint,
     updateFilter,
     atSeriesBegin,
-    warmRestart,
-    coldRestart,
+    clearDatapointBuffer,
+    resetFilterConfiguration,
     reset
   }
 }
