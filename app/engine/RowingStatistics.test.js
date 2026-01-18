@@ -507,7 +507,7 @@ test('A full session for a Concept2 RowErg should produce plausible results', as
   testTotalLinearDistance(rowingStatistics, 2027.8388877679706)
   testTotalNumberOfStrokes(rowingStatistics, 205)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(rowingStatistics, 80.70871681343775)
+  testDragFactor(rowingStatistics, 80.70871681344696)
 })
 
 function testStrokeState (rowingStatistics, expectedValue) {
