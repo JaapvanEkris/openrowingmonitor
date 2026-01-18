@@ -165,7 +165,7 @@ export function createFlywheel (rowerSettings) {
    */
   function maintainStateAndMetrics () {
     maintainMetrics = true
-    cyclicErrorFilter.coldRestart()
+    cyclicErrorFilter.resetFilterConfiguration()
   }
 
   /**
@@ -174,7 +174,7 @@ export function createFlywheel (rowerSettings) {
   function markRecoveryPhaseStart () {
     inRecoveryPhase = true
     recoveryDeltaTime.reset()
-    cyclicErrorFilter.warmRestart()
+    cyclicErrorFilter.clearDatapointBuffer()
   }
 
   /**
@@ -203,7 +203,7 @@ export function createFlywheel (rowerSettings) {
         log.debug(`*** Calculated drag factor: ${(slopeToDrag(recoveryDeltaTime.slope()) * 1000000).toFixed(4)}, slope: ${recoveryDeltaTime.slope().toFixed(8)}, not used because autoAdjustDragFactor is not true`)
       } else {
         log.debug(`*** Calculated drag factor: ${(slopeToDrag(recoveryDeltaTime.slope()) * 1000000).toFixed(4)}, not used because reliability was too low. no. samples: ${recoveryDeltaTime.length()}, fit: ${recoveryDeltaTime.goodnessOfFit().toFixed(4)}`)
-        cyclicErrorFilter.warmRestart()
+        cyclicErrorFilter.clearDatapointBuffer()
       }
     }
   }
