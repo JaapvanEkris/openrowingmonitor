@@ -36,7 +36,7 @@ export function createCyclicErrorFilter (rowerSettings, deltaTime) {
   const clean = createSeries(_flankLength)
   const goodnessOfFit = createSeries(_flankLength)
   const linearRegressor = deltaTime
-  const domainBorder = _minimumTimeBetweenImpulses
+  const domainBorder = (_minimumTimeBetweenImpulses > 0 ? _minimumTimeBetweenImpulses : 0.0001)
   let recordedRelativePosition = []
   let recordedAbsolutePosition = []
   let recordedRawValue = []
