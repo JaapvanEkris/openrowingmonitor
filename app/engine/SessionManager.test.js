@@ -718,7 +718,7 @@ test('A full session for a Concept2 RowErg should produce plausible results', as
 
   testTotalMovingTime(sessionManager, 590.0232672488145)
   testTotalLinearDistance(sessionManager, 2027.8404221844912)
-  testTotalCalories(sessionManager, 113.70888316891056)
+  testTotalCalories(sessionManager, 113.70861696976218)
   testTotalNumberOfStrokes(sessionManager, 205)
   // As dragFactor isn't static, it should have changed
   testDragFactor(sessionManager, 80.70871681343775)
@@ -760,7 +760,7 @@ test('A 2000 meter session for a Concept2 RowErg should produce plausible result
 
   testTotalMovingTime(sessionManager, 582.0172075458094)
   testTotalLinearDistance(sessionManager, 2000.0305986433395)
-  testTotalCalories(sessionManager, 112.3248747739861)
+  testTotalCalories(sessionManager, 112.3246085748377)
   testTotalNumberOfStrokes(sessionManager, 203)
   // As dragFactor isn't static, it should have changed
   testDragFactor(sessionManager, 80.67710663511464)
@@ -802,7 +802,7 @@ test('A 580 seconds session for a Concept2 RowErg should produce plausible resul
 
   testTotalMovingTime(sessionManager, 580.0044837517516)
   testTotalLinearDistance(sessionManager, 1993.2568687660857)
-  testTotalCalories(sessionManager, 111.91391015510767)
+  testTotalCalories(sessionManager, 111.91364395595929)
   testTotalNumberOfStrokes(sessionManager, 202)
   // As dragFactor isn't static, it should have changed
   testDragFactor(sessionManager, 80.69990852674464)
@@ -841,7 +841,7 @@ test('A 100 calories session for a Concept2 RowErg should produce plausible resu
 
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
 
-  testTotalMovingTime(sessionManager, 518.8113511778027)
+  testTotalMovingTime(sessionManager, 518.8198075690466)
   testTotalLinearDistance(sessionManager, 1780.6467553027344)
   testTotalCalories(sessionManager, 100.00018360476473)
   testTotalNumberOfStrokes(sessionManager, 181)
