@@ -50,9 +50,9 @@ const log = loglevel.getLogger('RowingEngine')
  * @param {float} .maximumTimeBetweenImpulses - maximum expected time between impulses (in seconds)
  */
 export function createFlywheel () {
-  const angularDisplacementPerImpulse = (2.0 * Math.PI) / numOfImpulsesPerRevolution
-  const flankLength = .flankLength
-  const minimumDragFactorSamples = Math.floor(.minimumRecoveryTime / rowerSettings.maximumTimeBetweenImpulses)
+  const angularDisplacementPerImpulse = (2.0 * Math.PI) / rowerSettings.numOfImpulsesPerRevolution
+  const flankLength = rowerSettings.flankLength
+  const minimumDragFactorSamples = Math.floor(rowerSettings.minimumRecoveryTime / rowerSettings.maximumTimeBetweenImpulses)
   const minimumAngularVelocity = angularDisplacementPerImpulse / rowerSettings.maximumTimeBetweenImpulses
   const minimumTorqueBeforeStroke = rowerSettings.minimumForceBeforeStroke * (rowerSettings.sprocketRadius / 100)
   const _angularDistance = createMovingRegressor(flankLength)
@@ -85,7 +85,7 @@ export function createFlywheel () {
    */
   /* eslint-disable max-statements -- we need to maintain a lot of metrics in the main loop, nothing we can do about that */
   function pushValue (dataPoint) {
-    if (isNaN(dataPoint) || dataPoint < 0 || dataPoint > rowerSettings.maximumStrokeTimeBeforePause) {
+    if (isNaN(dataPoint) || dataPoint < 0 || dataPoint > rowerSettings.maximumStrokeTimeBeformause) {
       // This typicaly happends after a pause, we need to fix this as it throws off all time calculations
       log.debug(`*** WARNING: currentDt of ${dataPoint} sec isn't between 0 and maximumStrokeTimeBeforePause (${rowerSettings.maximumStrokeTimeBeforePause} sec), value skipped`)
       return
