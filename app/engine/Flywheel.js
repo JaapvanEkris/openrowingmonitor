@@ -37,21 +37,22 @@ const log = loglevel.getLogger('RowingEngine')
  * @param {float} rowerSettings.flywheelInertia - Inertia of the flywheel
  * @param {float} rowerSettings.dragFactor - (initial) Dragfactor
  * @param {boolean} rowerSettings.autoAdjustDragFactor - Indicates if the Flywheel.js is allowed to automatically adjust dragfactor (false turns the filter off)
+ * @param {float} rowerSettings.minimumDragQuality - Minimum Goodness Of Fit before the calculated dragfactor is accepted
  * @param {integer} rowerSettings.dragFactorSmoothing - Number of recoveries to be weighed in the current dragfactor
- * @param {float} rowerSettings.minimumRecoverySlope - (initial) recpvery slope
  * @param {boolean} rowerSettings.autoAdjustRecoverySlope - Allow OpenRowingMonitor to adjust the recoverySlope based on the previous recoveries (and thus dragfactor)
+ * @param {float} rowerSettings.minimumRecoverySlope - (initial) recpvery slope
  * @param {float} rowerSettings.autoAdjustRecoverySlopeMargin - Margin to be maintained for the automatically adjusted recovery slope
  * @param {float} rowerSettings.minimumStrokeQuality - Minimum Goodness Of Fit for a slope to be considered reliable for stroke detection
  * @param {float} rowerSettings.sprocketRadius - Radius of the driving sprocket (centimeters)
  * @param {float} rowerSettings.minimumForceBeforeStroke - Minimum force for the flywheel to be considered powered (Newton)
  * @param {float} rowerSettings.systematicErrorAgressiveness - Agressiveness of the systematic error correction algorithm (0 turns the filter off)
- * @param {float} rowerSettings.minimumTimeBetweenImpulses - minimum expected time between impulses (in seconds)
- * @param {float} rowerSettings.maximumTimeBetweenImpulses - maximum expected time between impulses (in seconds)
+ * @param {float} .minimumTimeBetweenImpulses - minimum expected time between impulses (in seconds)
+ * @param {float} .maximumTimeBetweenImpulses - maximum expected time between impulses (in seconds)
  */
-export function createFlywheel (rowerSettings) {
-  const angularDisplacementPerImpulse = (2.0 * Math.PI) / rowerSettings.numOfImpulsesPerRevolution
-  const flankLength = rowerSettings.flankLength
-  const minimumDragFactorSamples = Math.floor(rowerSettings.minimumRecoveryTime / rowerSettings.maximumTimeBetweenImpulses)
+export function createFlywheel () {
+  const angularDisplacementPerImpulse = (2.0 * Math.PI) / .numOfImpulsesPerRevolution
+  const flankLength = .flankLength
+  const minimumDragFactorSamples = Math.floor(.minimumRecoveryTime / rowerSettings.maximumTimeBetweenImpulses)
   const minimumAngularVelocity = angularDisplacementPerImpulse / rowerSettings.maximumTimeBetweenImpulses
   const minimumTorqueBeforeStroke = rowerSettings.minimumForceBeforeStroke * (rowerSettings.sprocketRadius / 100)
   const _angularDistance = createMovingRegressor(flankLength)
