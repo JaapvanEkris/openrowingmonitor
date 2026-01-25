@@ -50,7 +50,7 @@ const log = loglevel.getLogger('RowingEngine')
  * @param {float} .maximumTimeBetweenImpulses - maximum expected time between impulses (in seconds)
  */
 export function createFlywheel () {
-  const angularDisplacementPerImpulse = (2.0 * Math.PI) / .numOfImpulsesPerRevolution
+  const angularDisplacementPerImpulse = (2.0 * Math.PI) / numOfImpulsesPerRevolution
   const flankLength = .flankLength
   const minimumDragFactorSamples = Math.floor(.minimumRecoveryTime / rowerSettings.maximumTimeBetweenImpulses)
   const minimumAngularVelocity = angularDisplacementPerImpulse / rowerSettings.maximumTimeBetweenImpulses
