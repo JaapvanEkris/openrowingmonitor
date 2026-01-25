@@ -46,10 +46,10 @@ const log = loglevel.getLogger('RowingEngine')
  * @param {float} rowerSettings.sprocketRadius - Radius of the driving sprocket (centimeters)
  * @param {float} rowerSettings.minimumForceBeforeStroke - Minimum force for the flywheel to be considered powered (Newton)
  * @param {float} rowerSettings.systematicErrorAgressiveness - Agressiveness of the systematic error correction algorithm (0 turns the filter off)
- * @param {float} .minimumTimeBetweenImpulses - minimum expected time between impulses (in seconds)
- * @param {float} .maximumTimeBetweenImpulses - maximum expected time between impulses (in seconds)
+ * @param {float} rowerSettings.minimumTimeBetweenImpulses - minimum expected time between impulses (in seconds)
+ * @param {float} rowerSettings.maximumTimeBetweenImpulses - maximum expected time between impulses (in seconds)
  */
-export function createFlywheel () {
+export function createFlywheel (rowerSettings) {
   const angularDisplacementPerImpulse = (2.0 * Math.PI) / rowerSettings.numOfImpulsesPerRevolution
   const flankLength = rowerSettings.flankLength
   const minimumDragFactorSamples = Math.floor(rowerSettings.minimumRecoveryTime / rowerSettings.maximumTimeBetweenImpulses)
