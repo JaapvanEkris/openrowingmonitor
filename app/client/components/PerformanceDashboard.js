@@ -16,8 +16,8 @@ export class PerformanceDashboard extends AppElement {
     :host {
       display: flex;
       flex-direction: column;
-      height: 100vh;
-      padding: 1vw;
+      height: 99vh;
+      padding: 1vh 1vw;
       gap: 1vw;
     }
 
