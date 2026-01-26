@@ -20,6 +20,7 @@ export class AppDialog extends AppElement {
       border: none;
       color: var(--theme-font-color);
       background-color: var(--theme-widget-color);
+      border: var(--theme-widget-border);
       border-radius: var(--theme-border-radius);
       box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
       padding: 1.6rem;

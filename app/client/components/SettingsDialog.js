@@ -85,6 +85,7 @@ export class DashboardActions extends AppElement {
     th, td {
       padding: 8px;
       text-align: center;
+      border: var(--theme-widget-border);
       background-color: var(--theme-widget-color);
     }
 
