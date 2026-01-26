@@ -6,63 +6,45 @@
 */
 
 import { AppElement, html, css } from './AppElement.js'
-import { customElement, property, state } from 'lit/decorators.js'
-import './SettingsDialog.js'
-import { iconSettings } from '../lib/icons.js'
+import { customElement, property } from 'lit/decorators.js'
+import './DashboardToolbar.js'
 import { DASHBOARD_METRICS } from '../store/dashboardMetrics.js'
 
 @customElement('performance-dashboard')
 export class PerformanceDashboard extends AppElement {
   static styles = css`
     :host {
-      display: grid;
-      height: calc(100vh - 2vw);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
       padding: 1vw;
+      gap: 1vw;
+    }
+
+    .metrics-grid {
+      display: grid;
+      flex: 1;
       grid-gap: 1vw;
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 
     @media (orientation: portrait) {
-      :host {
+      .metrics-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         grid-template-rows: repeat(4, minmax(0, 1fr));
       }
     }
 
-    dashboard-metric, dashboard-actions, dashboard-force-curve {
+    dashboard-metric, dashboard-force-curve {
       background: var(--theme-widget-color);
       text-align: center;
       position: relative;
       padding: 0.5em 0.2em 0 0.2em;
       border-radius: var(--theme-border-radius);
     }
-
-    dashboard-actions {
-      padding: 0.5em 0 0 0;
-    }
-
-    .settings {
-      padding: 0.1em 0;
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      z-index: 20;
-    }
-
-    .settings .icon {
-      cursor: pointer;
-      height: 1em;
-    }
-
-    .settings:hover .icon {
-      filter: brightness(150%);
-    }
   `
   @property()
     appState = {}
-
-  @state()
-    _dialog
 
   dashboardMetricComponentsFactory = (appState) => {
     const metrics = appState.metrics
@@ -84,26 +66,16 @@ export class PerformanceDashboard extends AppElement {
     }, [])
 
     return html`
-      <style type="text/css">
-        :host {
-          ${this.appState.config.guiConfigs.maxNumberOfTiles === 12 ? 'grid-template-rows: repeat(3, minmax(0, 1fr));' : 'grid-template-rows: repeat(2, minmax(0, 1fr));'}
-        }
-      </style>
-      <div class="settings" @click=${this.openSettings}>
-        ${iconSettings}
-        ${this._dialog ? this._dialog : ''}
+      <dashboard-toolbar .config=${this.appState.config}></dashboard-toolbar>
+      
+      <div class="metrics-grid">
+        <style type="text/css">
+          .metrics-grid {
+            ${this.appState.config.guiConfigs.maxNumberOfTiles === 12 ? 'grid-template-rows: repeat(3, minmax(0, 1fr));' : 'grid-template-rows: repeat(2, minmax(0, 1fr));'}
+          }
+        </style>
+        ${metricConfig}
       </div>
-
-      ${metricConfig}
     `
-  }
-
-  openSettings () {
-    this._dialog = html`<settings-dialog .config=${this.appState.config.guiConfigs} @close=${dialogClosed}></settings-dialog>`
-
-    /* eslint-disable-next-line no-unused-vars -- Standard construct?? */
-    function dialogClosed (event) {
-      this._dialog = undefined
-    }
   }
 }
