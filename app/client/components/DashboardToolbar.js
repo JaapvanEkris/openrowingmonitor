@@ -19,7 +19,7 @@ export class DashboardToolbar extends AppElement {
       justify-content: space-between;
       align-items: center;
       gap: 0.5em;
-      padding: 0.3em 0.5em;
+      padding: 0.2em 0.3em;
       background: var(--theme-widget-color);
       border-radius: var(--theme-border-radius);
     }

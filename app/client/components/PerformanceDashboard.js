@@ -15,17 +15,26 @@ export class PerformanceDashboard extends AppElement {
   static styles = css`
     :host {
       display: grid;
-      grid-template-rows: auto 1fr;
+      grid-template:
+        "toolbar" auto
+        "metrics" 1fr
+        / 1fr;
       height: 100vh;
       gap: 1vw;
       box-sizing: border-box;
     }
 
+    dashboard-toolbar {
+      grid-area: toolbar;
+    }
+
     .metrics-grid {
+      grid-area: metrics;
       display: grid;
       gap: 1vw;
       grid-template-columns: repeat(4, 1fr);
       grid-template-rows: repeat(2, 1fr);
+      min-height: 0; /* prevent grid blowout */
     }
 
     .metrics-grid.rows-3 {
@@ -49,6 +58,7 @@ export class PerformanceDashboard extends AppElement {
       text-align: center;
       padding: 0.5em 0.2em 0;
       border-radius: var(--theme-border-radius);
+      min-height: 0; /* prevent grid blowout */
     }
   `
   @property()
