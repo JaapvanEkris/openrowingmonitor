@@ -18,34 +18,32 @@ export class DashboardToolbar extends AppElement {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: var(--theme-widget-color);
-      padding: 0.3em 0.5em;
-      border-radius: var(--theme-border-radius);
       gap: 0.5em;
+      padding: 0.3em 0.5em;
+      background: var(--theme-widget-color);
+      border-radius: var(--theme-border-radius);
     }
 
     .button-group {
       display: flex;
-      gap: 0.3em;
       align-items: center;
+      gap: 0.3em;
       flex-wrap: wrap;
     }
 
     button {
       position: relative;
-      outline: none;
-      background-color: var(--theme-button-color);
-      border: 0;
-      border-radius: var(--theme-border-radius);
-      color: var(--theme-font-color);
-      font-size: 0.4em;
-      text-decoration: none;
-      display: inline-flex;
-      width: 2.5em;
-      min-width: 2.5em;
-      height: 2.5em;
+      display: flex;
       justify-content: center;
       align-items: center;
+      width: 2.5em;
+      height: 2.5em;
+      padding: 0;
+      border: 0;
+      border-radius: var(--theme-border-radius);
+      background: var(--theme-button-color);
+      color: var(--theme-font-color);
+      font-size: 0.4em;
       cursor: pointer;
     }
 
@@ -53,7 +51,7 @@ export class DashboardToolbar extends AppElement {
       filter: brightness(150%);
     }
 
-    button > div.text {
+    button .text {
       position: absolute;
       left: 2px;
       bottom: 2px;
@@ -65,7 +63,7 @@ export class DashboardToolbar extends AppElement {
     }
 
     .peripheral-mode-container {
-      display: inline-flex;
+      display: flex;
       flex-direction: row;
       align-items: center;
       gap: 0.1em;
@@ -73,24 +71,14 @@ export class DashboardToolbar extends AppElement {
 
     .peripheral-mode {
       font-size: 0.3em;
-      text-align: center;
     }
 
-    #fullscreen-icon {
-      display: inline-flex;
-    }
-
-    #windowed-icon {
-      display: none;
-    }
+    .fullscreen-icon { display: flex; }
+    .windowed-icon { display: none; }
 
     @media (display-mode: fullscreen) {
-      #fullscreen-icon {
-        display: none;
-      }
-      #windowed-icon {
-        display: inline-flex;
-      }
+      .fullscreen-icon { display: none; }
+      .windowed-icon { display: flex; }
     }
   `
 
@@ -154,8 +142,8 @@ export class DashboardToolbar extends AppElement {
     if (this._appMode === 'BROWSER' && document.documentElement.requestFullscreen) {
       buttons.push(html`
         <button @click=${this.toggleFullscreen} title="Toggle Fullscreen">
-          <div id="fullscreen-icon">${iconExpand}</div>
-          <div id="windowed-icon">${iconCompress}</div>
+          <span class="fullscreen-icon">${iconExpand}</span>
+          <span class="windowed-icon">${iconCompress}</span>
         </button>
       `)
     }
