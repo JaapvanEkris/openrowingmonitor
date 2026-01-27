@@ -14,32 +14,40 @@ import { DASHBOARD_METRICS } from '../store/dashboardMetrics.js'
 export class PerformanceDashboard extends AppElement {
   static styles = css`
     :host {
-      display: flex;
-      flex-direction: column;
-      height: 99vh;
-      padding: 1vh 1vw;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      height: 100vh;
       gap: 1vw;
+      box-sizing: border-box;
     }
 
     .metrics-grid {
       display: grid;
-      flex: 1;
-      grid-gap: 1vw;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1vw;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+    }
+
+    .metrics-grid.rows-3 {
+      grid-template-rows: repeat(3, 1fr);
     }
 
     @media (orientation: portrait) {
       .metrics-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        grid-template-rows: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(4, 1fr);
+      }
+
+      .metrics-grid.rows-3 {
+        grid-template-rows: repeat(6, 1fr);
       }
     }
 
-    dashboard-metric, dashboard-force-curve {
+    dashboard-metric,
+    dashboard-force-curve {
       background: var(--theme-widget-color);
       text-align: center;
-      position: relative;
-      padding: 0.5em 0.2em 0 0.2em;
+      padding: 0.5em 0.2em 0;
       border-radius: var(--theme-border-radius);
     }
   `
@@ -65,17 +73,11 @@ export class PerformanceDashboard extends AppElement {
       return prev
     }, [])
 
+    const gridClass = this.appState.config.guiConfigs.maxNumberOfTiles === 12 ? 'rows-3' : ''
+
     return html`
       <dashboard-toolbar .config=${this.appState.config}></dashboard-toolbar>
-      
-      <div class="metrics-grid">
-        <style type="text/css">
-          .metrics-grid {
-            ${this.appState.config.guiConfigs.maxNumberOfTiles === 12 ? 'grid-template-rows: repeat(3, minmax(0, 1fr));' : 'grid-template-rows: repeat(2, minmax(0, 1fr));'}
-          }
-        </style>
-        ${metricConfig}
-      </div>
+      <section class="metrics-grid ${gridClass}">${metricConfig}</section>
     `
   }
 }
