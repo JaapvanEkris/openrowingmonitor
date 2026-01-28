@@ -167,7 +167,6 @@ test('Correct behaviour of the filter after exposing it to an updated filter, ag
 
   const baseRegressionFunction = createTSLinearSeries(20)
   let cleanCurrentDt
-  let currentDtAtSeriesBegin
   const CECFilter = createCyclicErrorFilter(baseRowerConfig, baseRegressionFunction)
 
   // Initialize the Linear regressor to create a function where y = x
@@ -301,7 +300,6 @@ test('Correct behaviour of the filter after exposing it to an updated filter, ag
 
   const baseRegressionFunction = createTSLinearSeries(20)
   let cleanCurrentDt
-  let currentDtAtSeriesBegin
   const CECFilter = createCyclicErrorFilter(baseRowerConfig, baseRegressionFunction)
 
   // Initialize the Linear regressor to create a function where y = x
