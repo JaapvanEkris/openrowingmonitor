@@ -30,7 +30,7 @@
   "//fix1Comment": "We install lit@2.8.0 as lit@3.0.0 breaks the webpage displaying metrics",
   "dependencies": {
     "@markw65/fit-file-writer": "^0.1.7",
-    "ble-host": "^1.0.3",
+    "ble-host": "github:Abasz/node-ble-host",
     "chart.js": "^4.5.1",
     "chartjs-plugin-datalabels": "^2.2.0",
     "finalhandler": "^2.1.1",
