@@ -104,7 +104,6 @@ function checkConfig (configToCheck) {
   checkFloatValue(configToCheck.rowerSettings, 'sprocketRadius', 0, 20, false, true, 3)
   checkFloatValue(configToCheck.rowerSettings, 'minimumTimeBetweenImpulses', 0, 3, false, false, null)
   checkFloatValue(configToCheck.rowerSettings, 'maximumTimeBetweenImpulses', configToCheck.rowerSettings.minimumTimeBetweenImpulses, 3, false, false, null)
-  checkFloatValue(configToCheck.rowerSettings, 'smoothing', 1, null, false, true, 1)
   checkFloatValue(configToCheck.rowerSettings, 'dragFactor', 1, null, false, false, null)
   checkBooleanValue(configToCheck.rowerSettings, 'autoAdjustDragFactor', true, false)
   checkIntegerValue(configToCheck.rowerSettings, 'dragFactorSmoothing', 1, null, false, true, 1)
