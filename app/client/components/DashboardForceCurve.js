@@ -13,8 +13,20 @@ import { Chart, Filler, Legend, LinearScale, LineController, LineElement, PointE
 @customElement('dashboard-force-curve')
 export class DashboardForceCurve extends AppElement {
   static styles = css`
+    :host {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .title {
+      font-size: 80%;
+      text-align: center;
+      padding: 0.2em 0;
+    }
+
     canvas {
-      margin-top: 0.5em;
+      flex: 1;
+      min-height: 0;
     }
   `
 
@@ -64,22 +76,7 @@ export class DashboardForceCurve extends AppElement {
               color: 'rgb(255,255,255)'
             },
             legend: {
-              title: {
-                display: true,
-                text: 'Force Curve',
-                color: 'rgb(255,255,255)',
-                font: {
-                  size: baseFontSize * 0.8
-                },
-                padding: {
-                }
-              },
-              labels: {
-                boxWidth: 0,
-                font: {
-                  size: 0
-                }
-              }
+              display: false,
             }
           },
           scales: {
@@ -120,7 +117,8 @@ export class DashboardForceCurve extends AppElement {
     }
 
     return html`
-    <canvas id="chart"></canvas>
+      <div class="title">Force Curve</div>
+      <canvas id="chart"></canvas>
     `
   }
 }
