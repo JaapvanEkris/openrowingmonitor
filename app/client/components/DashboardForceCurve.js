@@ -29,6 +29,13 @@ export class DashboardForceCurve extends AppElement {
   @state()
     _chart
 
+  updated (changedProperties) {
+    if (changedProperties.has('value') && this._chart?.data) {
+      this._chart.data.datasets[0].data = this.value?.map((data, index) => ({ y: data, x: index }))
+      this._chart.update()
+    }
+  }
+
   firstUpdated () {
     const ctx = this.renderRoot.querySelector('#chart').getContext('2d')
     this._chart = new Chart(
@@ -112,12 +119,6 @@ export class DashboardForceCurve extends AppElement {
   }
 
   render () {
-    if (this._chart?.data) {
-      this._chart.data.datasets[0].data = this.value?.map((data, index) => ({ y: data, x: index }))
-      this.forceCurve = this.value
-      this._chart.update()
-    }
-
     return html`
     <canvas id="chart"></canvas>
     `
