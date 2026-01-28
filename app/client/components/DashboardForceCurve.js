@@ -14,7 +14,7 @@ import { Chart, Filler, Legend, LinearScale, LineController, LineElement, PointE
 export class DashboardForceCurve extends AppElement {
   static styles = css`
     canvas {
-      margin-top: 24px;
+      margin-top: 0.5em;
     }
   `
 
@@ -31,6 +31,7 @@ export class DashboardForceCurve extends AppElement {
 
   firstUpdated () {
     const ctx = this.renderRoot.querySelector('#chart').getContext('2d')
+    const baseFontSize = parseFloat(getComputedStyle(this).fontSize)
     this._chart = new Chart(
       ctx,
       {
@@ -58,7 +59,7 @@ export class DashboardForceCurve extends AppElement {
                 ...ctx.dataset.data.map((point) => point.y)
               ) === ctx.dataset.data[ctx.dataIndex].y,
               font: {
-                size: 16
+                size: baseFontSize * 0.4
               },
               color: 'rgb(255,255,255)'
             },
@@ -68,7 +69,7 @@ export class DashboardForceCurve extends AppElement {
                 text: 'Force Curve',
                 color: 'rgb(255,255,255)',
                 font: {
-                  size: 32
+                  size: baseFontSize * 0.8
                 },
                 padding: {
                 }
