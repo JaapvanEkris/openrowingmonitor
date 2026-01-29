@@ -83,13 +83,13 @@ export class DashboardToolbar extends AppElement {
   `
 
   @property({ type: Object })
-    config = {}
+  accessor config = {}
 
   @state()
-    _appMode = 'BROWSER'
+  accessor _appMode = 'BROWSER'
 
   @state()
-    _dialog
+  accessor _dialog
 
   render () {
     return html`
@@ -214,7 +214,7 @@ export class DashboardToolbar extends AppElement {
   uploadTraining () {
     this._dialog = html`
       <app-dialog @close=${(event) => {
-        this._dialog = undefined
+        // this._dialog = undefined
         if (event.detail === 'confirm') {
           this.sendEvent('triggerAction', { command: 'upload' })
         }

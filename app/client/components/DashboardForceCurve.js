@@ -43,16 +43,16 @@ export class DashboardForceCurve extends AppElement {
   @property({
     type: Boolean,
   })
-    updateForceCurve = false
+  accessor updateForceCurve = false
 
   @property({
     type: Array,
   })
-    value = []
+  accessor value = []
 
 
   @state()
-    _chart
+  accessor _chart
 
   shouldUpdate () {
     return this.updateForceCurve

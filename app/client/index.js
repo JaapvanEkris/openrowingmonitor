@@ -11,10 +11,15 @@ import { APP_STATE } from './store/appState.js'
 import { createApp } from './lib/app.js'
 import './components/PerformanceDashboard.js'
 
+// Catch async update errors from Lit 3.x (they are re-fired asynchronously)
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('Unhandled promise rejection (may be Lit update error):', event.reason)
+})
+
 @customElement('web-app')
 export class App extends LitElement {
   @state()
-    _appState = APP_STATE
+  accessor _appState = APP_STATE
 
   constructor () {
     super()
@@ -26,13 +31,13 @@ export class App extends LitElement {
     })
 
     const config = this._appState.config.guiConfigs
-    Object.keys(config).forEach(key => {
+    Object.keys(config).forEach((key) => {
       config[key] = JSON.parse(localStorage.getItem(key)) ?? config[key]
     })
 
     // migrate: remove deprecated 'actions' metric from saved dashboardMetrics
     if (config.dashboardMetrics.includes('actions')) {
-      config.dashboardMetrics = config.dashboardMetrics.filter(m => m !== 'actions')
+      config.dashboardMetrics = config.dashboardMetrics.filter((m) => m !== 'actions')
       localStorage.setItem('dashboardMetrics', JSON.stringify(config.dashboardMetrics))
     }
     // apply theme based on saved preference
@@ -52,7 +57,7 @@ export class App extends LitElement {
 
     // notify the app about the triggered action
     this.addEventListener('changeGuiSetting', (event) => {
-      Object.keys(event.detail).forEach(key => {
+      Object.keys(event.detail).forEach((key) => {
         localStorage.setItem(key, JSON.stringify(event.detail[key]))
       })
       this.updateState({ config: { ...this._appState.config, guiConfigs: { ...event.detail } } })
@@ -76,18 +81,17 @@ export class App extends LitElement {
   }
 
   // return a deep copy of the state to other components to minimize risk of side effects
-  getState = () => {
+  getState = () =>
     // could use structuredClone once the browser support is wider
     // https://developer.mozilla.org/en-US/docs/Web/API/structuredClone
-    return JSON.parse(JSON.stringify(this._appState))
-  }
+     JSON.parse(JSON.stringify(this._appState))
 
   // once we have multiple views, then we would rather reference some kind of router here
   // instead of embedding the performance-dashboard directly
   render () {
     return html`
       <performance-dashboard
-        .appState=${this._appState}
+        .appState=${{ ...this._appState }}
       ></performance-dashboard>
     `
   }

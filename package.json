@@ -27,7 +27,6 @@
   "simple-git-hooks": {
     "pre-commit": "npm run lint && npm test"
   },
-  "//fix1Comment": "We install lit@2.8.0 as lit@3.0.0 breaks the webpage displaying metrics",
   "dependencies": {
     "@markw65/fit-file-writer": "^0.1.7",
     "ble-host": "github:Abasz/node-ble-host",
@@ -35,7 +34,7 @@
     "chartjs-plugin-datalabels": "^2.2.0",
     "finalhandler": "^2.1.1",
     "incyclist-ant-plus": "^0.3.6",
-    "lit": "^2.8.0",
+    "lit": "^3.2.0",
     "loglevel": "^1.9.1",
     "mqtt": "^5.14.1",
     "node-fetch": "^3.3.2",

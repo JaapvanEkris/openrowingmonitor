@@ -99,37 +99,37 @@ export class DashboardActions extends AppElement {
   `
 
   @property({ type: Object })
-    config = {}
+   accessor config = {}
 
   @queryAll('.metric-selector input')
-    _inputs
+  accessor _inputs
 
   @query('input[name="showIcons"]')
-    _showIconInput
+  accessor _showIconInput
 
   @query('input[name="maxNumberOfTiles"]')
-    _maxNumberOfTilesInput
+  accessor _maxNumberOfTilesInput
 
   @query('input[name="trueBlackTheme"]')
-    _trueBlackThemeInput
+  accessor _trueBlackThemeInput
 
   @state()
-    _selectedMetrics = []
+  accessor _selectedMetrics = []
 
   @state()
-    _sumSelectedSlots = 0
+  accessor _sumSelectedSlots = 0
 
   @state()
-    _isValid = false
+  accessor _isValid = false
 
   @state()
-    _showIcons = true
+  accessor _showIcons = true
 
   @state()
-    _maxNumberOfTiles = 8
+  accessor _maxNumberOfTiles = 8
 
   @state()
-    _trueBlackTheme = false
+  accessor _trueBlackTheme = false
 
   render () {
     return html`
