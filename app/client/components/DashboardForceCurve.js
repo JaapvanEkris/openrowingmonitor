@@ -10,6 +10,9 @@ import { customElement, property, state } from 'lit/decorators.js'
 import ChartDataLabels from 'chartjs-plugin-datalabels'
 import { Chart, Filler, Legend, LinearScale, LineController, LineElement, PointElement } from 'chart.js'
 
+// Module-level flag for hasChanged optimization
+let _shouldUpdateForceCurve = false
+
 @customElement('dashboard-force-curve')
 export class DashboardForceCurve extends AppElement {
   static styles = css`
@@ -24,8 +27,23 @@ export class DashboardForceCurve extends AppElement {
   }
 
   @property({
+    type: Boolean,
+    hasChanged: (newVal, oldVal) => {
+      // Update module flag so value.hasChanged can access it
+      _shouldUpdateForceCurve = newVal
+      return newVal !== oldVal
+    }
+  })
+    updateForceCurve = false
+
+  @property({
     type: Array,
     hasChanged: (newVal, oldVal) => {
+      // Short-circuit: if updateForceCurve is false, skip expensive comparison
+      if (!_shouldUpdateForceCurve) {
+        return false
+      }
+
       if (!oldVal || newVal?.length !== oldVal?.length) {
         return true
       }
@@ -33,6 +51,7 @@ export class DashboardForceCurve extends AppElement {
     }
   })
     value = []
+
 
   @state()
     _chart
