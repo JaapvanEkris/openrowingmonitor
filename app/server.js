@@ -55,8 +55,13 @@ peripheralManager.on('heartRateMeasurement', (heartRateMeasurement) => {
   webServer.presentHeartRate(heartRateMeasurement)
 })
 
-const gpioTimerService = child_process.fork('./app/gpio/GpioTimerService.js')
-gpioTimerService.on('message', handleRotationImpulse)
+let gpioTimerService
+if (process.platform === 'linux') {
+  gpioTimerService = child_process.fork('./app/gpio/GpioTimerService.js')
+  gpioTimerService.on('message', handleRotationImpulse)
+} else {
+  log.warn(`GPIO service not available on ${process.platform} (Linux/Raspberry Pi only)`)
+}
 
 // Be aware, both the GPIO as well as the replayer use this as an entrypoint!
 function handleRotationImpulse (dataPoint) {
@@ -141,7 +146,9 @@ process.once('uncaughtException', async (error) => {
 // This shuts down the pi, use with caution!
 async function shutdownApp () {
   // As we are shutting down, we need to make sure things are closed down nicely and save what we can
-  gpioTimerService.kill()
+  if (gpioTimerService) {
+    gpioTimerService.kill()
+  }
   await recordingManager.handleCommand('shutdown')
   // We don't want to wait for the peripherals to close, as then an unresponsive peripheral will block the shutdown process that can remedy it
   peripheralManager.handleCommand('shutdown')
