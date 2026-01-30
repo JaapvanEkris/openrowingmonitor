@@ -1,26 +1,35 @@
 # OpenRowingMonitor Release Notes
 
-## Version 0.9.7 (January 2026)
+## Version 0.9.7 (February 2026)
 
-Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris), with support of [Abasz](https://github.com/Abasz)
+Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris), [Abasz](https://github.com/Abasz) and [DXCanas](https://github.com/DXCanas)
 
 ### New functionality in 0.9.7
 
 - **Addition of the 'Calories' workout type**. You can now program Intervals and splits based on calories to be burned
+- **GUI improvements**: the web interface has a more efficient layout, and supports OLED screens now
 - **Introduction of splits in the fit-file**. The fit-file now also has splits, which makes the fit-file closer to a native Garmin recording of the same session
+
+### Newly supported rowers
+
+- Added full support for the Merarch R50 (see [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/140))
+
+For an overview of all supported machines and their suppirt status, please look at the [supported rower list](https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Supported_Rowers.md)
 
 ### Bugfixes and robustness improvements in 0.9.7
 
+- **Fix of the Garmin bluetooth issues** which affected the 'Cycling Power' and 'Cycling Speed and Cadence' Bluetooth profiles (see [issue 125](https://github.com/JaapvanEkris/openrowingmonitor/issues/125) and the [known issues in 0.9.6](#known-issues-in-096)).
+- **Upgrade of the flywheel systematic error filter**, which now can handle systematic errors of magnet positioning on the flywheel. This is more effective at reducing structural measurement noise and allows a reduction of the code complexity in `Flyhweel.js` as all dependent algorithms can use the same datastream. It reduces noise on the reference system from 1.5% (version 0.9.6) to 0.3% (version 0.9.7).
 - **Improvement of the Moving Least Squares regressor**:
   - Code refactoring to isolate this function from `Flywheel.js`, allowing a more thorough testing of this function's behaviour
   - Introduced the 'Local Goodness of Fit' function to improve the robustness against noise. This reduces the effect of outliers on stroke detection, the Force curve, Power curve and Handle speed curve
   - Introduction of a 'Gaussian Weight' filter to reduce the effects of flanks on the regression in a specific datapoint
   - Added documentation about the mathematical foundations of the algorithms used
-- **Upgrade of the flywheel systematic error filter**, which now can handle systematic errors of magnet positioning on the flywheel. This is more effective at reducing structural measurement noise and allows a reduction of the code complexity in `Flyhweel.js` as all dependent algorithms can use the same datastream again.
 - **Fixed a bug in the initialisation of the `Flywheel.js`**
 - **Improved logging in the Strava uploader** for better troubleshooting (see [issue 145](https://github.com/JaapvanEkris/openrowingmonitor/issues/145))
 - **Fixed a bug where VO2Max calculation missed heartrate data** (see [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/156))
 - **Increased the test coverage of key algorithms**
+- As usual, all **packages are updated to the newest versions**
 
 ## Version 0.9.6 (June 2025)
 
