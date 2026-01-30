@@ -33,7 +33,7 @@ For an overview of all supported machines and their support status, please look 
 
 ### Known issues in 0.9.7
 
-- ErgData will not work well with our PM5 interface: sometimes it can program OpenRowingMonitor, but you will **not** be able to save your workout, as we can't create the cryptographic hash to upload the workout results. This causes a deadlock that hangs communication at both ends (kill the ErgData app to resolve this). As ErgData is propriatary to Concept2, we have decided to **not** put in any effort to resolve this (see [issue 117]
+- ErgData will not work well with our PM5 interface: sometimes it can program OpenRowingMonitor, but you will **not** be able to save your workout, as we can't create the cryptographic hash to upload the workout results. This causes a deadlock that hangs communication at both ends (kill the ErgData app to resolve this). As ErgData is propriatary to Concept2, we have decided to **not** put in any effort to resolve this (see [issue 117](https://github.com/JaapvanEkris/openrowingmonitor/issues/117)).
 
 ## Version 0.9.6 (June 2025)
 
