@@ -207,7 +207,8 @@ export function createPeripheralManager (config) {
         _bleManager = new BleManager()
       }
     } catch (error) {
-      log.error('BleManager creation error: ', error)
+      log.warn('BleManager creation error (BLE not available on this platform): ', error.message)
+      bleMode = 'OFF'
       return
     }
 
@@ -377,7 +378,8 @@ export function createPeripheralManager (config) {
             _bleManager = new BleManager()
           }
         } catch (error) {
-          log.error('BleManager creation error: ', error)
+          log.warn('BleManager creation error (BLE not available on this platform): ', error.message)
+          hrmMode = 'OFF'
           return
         }
         hrmPeripheral = createBleHrmPeripheral(_bleManager)
