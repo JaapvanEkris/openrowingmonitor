@@ -33,7 +33,7 @@ For an overview of all supported machines and their support status, please look 
 
 ### Known issues in 0.9.7
 
-- ErgData will not work well with our PM5 interface: sometimes it can program OpenRowingMonitor, but you will **not** be able to save your workout, as we can't create the cryptographic hash to upload the workout results. This causes a deadlock that hangs communication at both ends (kill the ErgData app to resolve this). As ErgData is propriatary to Concept2, we have decided to **not** put in any effort to resolve this (see [issue 117](https://github.com/JaapvanEkris/openrowingmonitor/issues/117)).
+- **ErgData will not work well with our PM5 interface** (see [issue 117](https://github.com/JaapvanEkris/openrowingmonitor/issues/117)).
 
 ## Version 0.9.6 (June 2025)
 
@@ -62,9 +62,9 @@ Beta testers: [fkh-bims](https://github.com/fkh-bims), [jryd2000](https://github
 ### Known issues in 0.9.6
 
 - Our PM5 interface still has some minor limitations:
-  - ErgZone and similar apps also can set a 'Calories' based workout. This interval type is still on [our backlog](./backlog.md#soon), so it currently isn't supported yet. The PM5 interface will fail silently and will **not** send an error message on this.
-  - ErgData will not work well with our PM5 interface: sometimes it can program OpenRowingMonitor, but you will **not** be able to save your workout, as we can't create the cryptographic hash to upload the workout results. This also causes a deadlock that hangs communication at both ends (kill the ErgData app to resolve this). As ErgData is propriatary to Concept2, we have decided to **not** put in any effort to resolve this (see [issue 117](https://github.com/JaapvanEkris/openrowingmonitor/issues/117)).
-- Some Garmin watches have issues with our 'Cycling Power' and 'Cycling Speed and Cadence' Bluetooth profiles as a result of a change on their side in handling unencrypted Bluetooth commmunication. This affects all current and past versions of OpenRowingMonitor, and might be caused by Garmin (see [issue 125](https://github.com/JaapvanEkris/openrowingmonitor/issues/125)).
+  - ErgZone and similar apps also can set a **'Calories' based workout. This interval type is still on [our backlog](./backlog.md#soon)**, so it currently isn't supported yet. The PM5 interface will fail silently and will **not** send an error message on this.
+  - **ErgData will not work well with our PM5 interface**: sometimes it can program OpenRowingMonitor, but you will **not** be able to save your workout, as we can't create the cryptographic hash to upload the workout results. This also causes a deadlock that hangs communication at both ends (kill the ErgData app to resolve this). As ErgData is propriatary to Concept2, we have decided to **not** put in any effort to resolve this (see [issue 117](https://github.com/JaapvanEkris/openrowingmonitor/issues/117)).
+- **Some Garmin watches have issues with our 'Cycling Power' and 'Cycling Speed and Cadence' Bluetooth profiles** as a result of a change on their side in handling unencrypted Bluetooth commmunication. This affects all current and past versions of OpenRowingMonitor, and might be caused by Garmin (see [issue 125](https://github.com/JaapvanEkris/openrowingmonitor/issues/125)).
 
 ## Version 0.9.5 (February 2025)
 
