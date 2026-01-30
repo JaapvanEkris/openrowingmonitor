@@ -23,7 +23,15 @@ export class DashboardForceCurve extends AppElement {
     Chart.register(ChartDataLabels, Legend, Filler, LinearScale, LineController, PointElement, LineElement)
   }
 
-  @property({ type: Object })
+  @property({
+    type: Array,
+    hasChanged: (newVal, oldVal) => {
+      if (!oldVal || newVal?.length !== oldVal?.length) {
+        return true
+      }
+      return newVal?.some((v, i) => v !== oldVal[i])
+    }
+  })
     value = []
 
   @state()
