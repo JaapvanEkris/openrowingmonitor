@@ -10,9 +10,6 @@ import { customElement, property, state } from 'lit/decorators.js'
 import ChartDataLabels from 'chartjs-plugin-datalabels'
 import { Chart, Filler, Legend, LinearScale, LineController, LineElement, PointElement } from 'chart.js'
 
-// Module-level flag for hasChanged optimization
-let _shouldUpdateForceCurve = false
-
 @customElement('dashboard-force-curve')
 export class DashboardForceCurve extends AppElement {
   static styles = css`
@@ -26,39 +23,38 @@ export class DashboardForceCurve extends AppElement {
     Chart.register(ChartDataLabels, Legend, Filler, LinearScale, LineController, PointElement, LineElement)
   }
 
+  /**
+   * Combined object holding both the force curve data and update flag
+   * @type {Object}
+   * @property {boolean} updateForceCurve - Flag controlling whether to update the force curve
+   * @property {number[]} value - Force curve data points
+   */
   @property({
-    type: Boolean,
-    hasChanged: (newVal, oldVal) => {
-      // Update module flag so value.hasChanged can access it
-      _shouldUpdateForceCurve = newVal
-      return newVal !== oldVal
-    }
-  })
-    updateForceCurve = false
-
-  @property({
-    type: Array,
+    type: Object,
     hasChanged: (newVal, oldVal) => {
       // Short-circuit: if updateForceCurve is false, skip expensive comparison
-      if (!_shouldUpdateForceCurve) {
+      if (!newVal?.updateForceCurve) {
         return false
       }
 
-      if (!oldVal || newVal?.length !== oldVal?.length) {
+      const newData = newVal?.value
+      const oldData = oldVal?.value
+
+      if (!oldData || newData?.length !== oldData?.length) {
         return true
       }
-      return newVal?.some((v, i) => v !== oldVal[i])
+      return newData?.some((v, i) => v !== oldData[i])
     }
   })
-    value = []
+    forceCurveData = { updateForceCurve: false, value: [] }
 
 
   @state()
     _chart
 
   updated (changedProperties) {
-    if (changedProperties.has('value') && this._chart?.data) {
-      this._chart.data.datasets[0].data = this.value?.map((data, index) => ({ y: data, x: index }))
+    if (changedProperties.has('forceCurveData') && this._chart?.data) {
+      this._chart.data.datasets[0].data = this.forceCurveData?.value?.map((data, index) => ({ y: data, x: index }))
       this._chart.update()
     }
   }
@@ -73,7 +69,7 @@ export class DashboardForceCurve extends AppElement {
           datasets: [
             {
               fill: true,
-              data: this.value?.map((data, index) => ({ y: data, x: index })),
+              data: this.forceCurveData?.value?.map((data, index) => ({ y: data, x: index })),
               pointRadius: 1,
               borderColor: 'rgb(255,255,255)',
               backgroundColor: 'rgb(220,220,220)'
