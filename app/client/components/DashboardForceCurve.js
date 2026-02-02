@@ -13,27 +13,6 @@ import { Chart, Filler, Legend, LinearScale, LineController, LineElement, PointE
 @customElement('dashboard-force-curve')
 export class DashboardForceCurve extends AppElement {
   static styles = css`
-    :host {
-      display: block;
-      position: relative;
-    }
-
-    .title {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      font-size: 70%;
-      text-align: center;
-      padding: 0.2em 0;
-      z-index: 1;  /* ensures title stays above canvas */
-    }
-
-    .label-bg {
-      background-color: var(--theme-widget-color);
-      background-color: rgba(from var(--theme-widget-color) r g b / 0.3);
-    }
-
     canvas {
       width: 100%;
       height: 100%;
@@ -50,11 +29,6 @@ export class DashboardForceCurve extends AppElement {
 
   @state()
     _chart
-
-  get peakForce () {
-    const values = this.value ?? []
-    return values.length > 0 ? Math.round(Math.max(...values)) : null
-  }
 
   firstUpdated () {
     const ctx = this.renderRoot.querySelector('#chart').getContext('2d')
@@ -117,20 +91,10 @@ export class DashboardForceCurve extends AppElement {
   render () {
     if (this._chart?.data) {
       this._chart.data.datasets[0].data = this.value?.map((data, index) => ({ y: data, x: index }))
-      this.forceCurve = this.value
       this._chart.update()
     }
 
     return html`
-      <div class="title">
-        <span class="label-bg">
-        ${
-          this.peakForce !== null ?
-            `Peak: ${this.peakForce} N` :
-            'Force Curve'
-        }
-        </span>
-      </div>
       <canvas id="chart"></canvas>
     `
   }
