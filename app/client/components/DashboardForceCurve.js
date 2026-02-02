@@ -23,38 +23,28 @@ export class DashboardForceCurve extends AppElement {
     Chart.register(ChartDataLabels, Legend, Filler, LinearScale, LineController, PointElement, LineElement)
   }
 
-  /**
-   * Combined object holding both the force curve data and update flag
-   * @type {Object}
-   * @property {boolean} updateForceCurve - Flag controlling whether to update the force curve
-   * @property {number[]} value - Force curve data points
-   */
+  // The only way this component knows to update.
   @property({
-    type: Object,
-    hasChanged: (newVal, oldVal) => {
-      // Short-circuit: if updateForceCurve is false, skip expensive comparison
-      if (!newVal?.updateForceCurve) {
-        return false
-      }
-
-      const newData = newVal?.value
-      const oldData = oldVal?.value
-
-      if (!oldData || newData?.length !== oldData?.length) {
-        return true
-      }
-      return newData?.some((v, i) => v !== oldData[i])
-    }
+    type: Boolean,
   })
-    forceCurveData = { updateForceCurve: false, value: [] }
+    updateForceCurve = false
+
+  // Completely ignore changes to forceCurve array. 
+  // It will always be different unless we deepcompare. 
+  // This is more resource-hungry than default change detection for updateForceCurve boolean ^.
+  @property({
+    type: Array,
+    hasChanged: () => false
+  })
+    value = []
 
 
   @state()
     _chart
 
-  willUpdate (changedProperties) {
-    if (changedProperties.has('forceCurveData') && this._chart?.data) {
-      this._chart.data.datasets[0].data = this.forceCurveData?.value?.map((data, index) => ({ y: data, x: index }))
+  willUpdate () {
+    if (this._chart?.data) {
+      this._chart.data.datasets[0].data = this.value?.map((data, index) => ({ y: data, x: index }))
       this._chart.update()
     }
   }
@@ -69,7 +59,7 @@ export class DashboardForceCurve extends AppElement {
           datasets: [
             {
               fill: true,
-              data: this.forceCurveData?.value?.map((data, index) => ({ y: data, x: index })),
+              data: this.value?.map((data, index) => ({ y: data, x: index })),
               pointRadius: 1,
               borderColor: 'rgb(255,255,255)',
               backgroundColor: 'rgb(220,220,220)'
