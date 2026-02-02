@@ -31,6 +31,7 @@ export class DashboardForceCurve extends AppElement {
 
     .label-bg {
       background-color: var(--theme-widget-color);
+      background-color: rgba(from var(--theme-widget-color) r g b / 0.3);
     }
 
     canvas {
