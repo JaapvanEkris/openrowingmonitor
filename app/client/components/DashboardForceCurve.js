@@ -14,19 +14,24 @@ import { Chart, Filler, Legend, LinearScale, LineController, LineElement, PointE
 export class DashboardForceCurve extends AppElement {
   static styles = css`
     :host {
-      display: flex;
-      flex-direction: column;
+      display: block;
+      position: relative;
     }
 
     .title {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
       font-size: 80%;
       text-align: center;
       padding: 0.2em 0;
+      z-index: 1;  /* ensures title stays above canvas */
     }
 
     canvas {
-      flex: 1;
-      min-height: 0;
+      width: 100%;
+      height: 100%;
     }
   `
 
