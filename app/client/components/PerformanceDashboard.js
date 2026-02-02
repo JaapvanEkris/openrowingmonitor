@@ -52,11 +52,12 @@ export class PerformanceDashboard extends AppElement {
       }
     }
 
+    /* This should be defined within the metric */
     dashboard-metric,
     dashboard-force-curve {
       background: var(--theme-widget-color);
       text-align: center;
-      padding: 0.5em 0.2em 0;
+      padding: 0.2em;
       border-radius: var(--theme-border-radius);
       min-height: 0; /* prevent grid blowout */
     }
