@@ -29,6 +29,10 @@ export class DashboardForceCurve extends AppElement {
       z-index: 1;  /* ensures title stays above canvas */
     }
 
+    .label-bg {
+      background-color: var(--theme-widget-color);
+    }
+
     canvas {
       width: 100%;
       height: 100%;
@@ -118,11 +122,13 @@ export class DashboardForceCurve extends AppElement {
 
     return html`
       <div class="title">
+        <span class="label-bg">
         ${
           this.peakForce !== null ?
             `Peak: ${this.peakForce} N` :
             'Force Curve'
         }
+        </span>
       </div>
       <canvas id="chart"></canvas>
     `
