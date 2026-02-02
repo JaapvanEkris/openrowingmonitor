@@ -23,7 +23,7 @@ export class DashboardForceCurve extends AppElement {
       top: 0;
       left: 0;
       right: 0;
-      font-size: 80%;
+      font-size: 70%;
       text-align: center;
       padding: 0.2em 0;
       z-index: 1;  /* ensures title stays above canvas */
@@ -46,9 +46,13 @@ export class DashboardForceCurve extends AppElement {
   @state()
     _chart
 
+  get peakForce () {
+    const values = this.value ?? []
+    return values.length > 0 ? Math.round(Math.max(...values)) : null
+  }
+
   firstUpdated () {
     const ctx = this.renderRoot.querySelector('#chart').getContext('2d')
-    const baseFontSize = parseFloat(getComputedStyle(this).fontSize)
     this._chart = new Chart(
       ctx,
       {
@@ -69,19 +73,10 @@ export class DashboardForceCurve extends AppElement {
           maintainAspectRatio: false,
           plugins: {
             datalabels: {
-              anchor: 'center',
-              align: 'top',
-              formatter: (value) => `Peak: ${Math.round(value.y)}`,
-              display: (ctx) => Math.max(
-                ...ctx.dataset.data.map((point) => point.y)
-              ) === ctx.dataset.data[ctx.dataIndex].y,
-              font: {
-                size: baseFontSize * 0.4
-              },
-              color: 'rgb(255,255,255)'
+              display: false
             },
             legend: {
-              display: false,
+              display: false
             }
           },
           scales: {
@@ -122,7 +117,13 @@ export class DashboardForceCurve extends AppElement {
     }
 
     return html`
-      <div class="title">Force Curve</div>
+      <div class="title">
+        ${
+          this.peakForce !== null ?
+            `Peak: ${this.peakForce} N` :
+            'Force Curve'
+        }
+      </div>
       <canvas id="chart"></canvas>
     `
   }
