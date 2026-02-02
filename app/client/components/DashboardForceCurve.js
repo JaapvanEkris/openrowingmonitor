@@ -45,8 +45,12 @@ export class DashboardForceCurve extends AppElement {
   willUpdate () {
     if (this._chart?.data) {
       this._chart.data.datasets[0].data = this.value?.map((data, index) => ({ y: data, x: index }))
-      this._chart.update()
     }
+  }
+  
+  // Updated runs _after_ DOM elements exist, which is what chart.js expects.
+  updated() {
+    this._chart.update()
   }
 
   firstUpdated () {
