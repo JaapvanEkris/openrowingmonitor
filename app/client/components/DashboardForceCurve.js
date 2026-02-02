@@ -52,7 +52,7 @@ export class DashboardForceCurve extends AppElement {
   @state()
     _chart
 
-  updated (changedProperties) {
+  willUpdate (changedProperties) {
     if (changedProperties.has('forceCurveData') && this._chart?.data) {
       this._chart.data.datasets[0].data = this.forceCurveData?.value?.map((data, index) => ({ y: data, x: index }))
       this._chart.update()
