@@ -13,6 +13,22 @@ import { Chart, Filler, Legend, LinearScale, LineController, LineElement, PointE
 @customElement('dashboard-force-curve')
 export class DashboardForceCurve extends AppElement {
   static styles = css`
+    :host {
+      display: block;
+      position: relative;
+    }
+
+    .title {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      font-size: 80%;
+      text-align: center;
+      padding: 0.2em 0;
+      z-index: 1;  /* ensures title stays above canvas */
+    }
+
     canvas {
       width: 100%;
       height: 100%;
@@ -95,6 +111,11 @@ export class DashboardForceCurve extends AppElement {
     }
 
     return html`
+      <!== Only show label if no chart -->
+      ${this._chart && this._chart?.data.datasets[0].data.length ?
+        '' :
+        html`<div class="title"> Force Curve </div>`
+      }
       <canvas id="chart"></canvas>
     `
   }
