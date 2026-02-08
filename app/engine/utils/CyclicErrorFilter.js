@@ -73,7 +73,7 @@ export function createCyclicErrorFilter (rowerSettings, deltaTime) {
     } else {
       // In essence, the filter is turned off
       clean.push(rawValue)
-      goodnessOfFit.push(1 * domainFit(rawValue) * domainFit(rawValue))
+      goodnessOfFit.push(domainFit(rawValue) * domainFit(rawValue))
     }
 
     return {
