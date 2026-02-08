@@ -25,6 +25,7 @@ const log = loglevel.getLogger('RowingEngine')
  * @param {function} deltaTime - injection of the linear regression function used for the drag calculation
  */
 export function createCyclicErrorFilter (rowerSettings, deltaTime) {
+  const CECFilterEnabled = (rowerSettings.autoAdjustDragFactor && rowerSettings.numOfImpulsesPerRevolution > 1 && rowerSettings.systematicErrorNumberOfDatapoints > 0 && rowerSettings.systematicErrorAgressiveness > 0)
   const _numberOfMagnets = rowerSettings.numOfImpulsesPerRevolution
   const _flankLength = rowerSettings.flankLength
   const _agressiveness = Math.min(Math.max(rowerSettings.systematicErrorAgressiveness, 0), 1.5)
@@ -65,14 +66,14 @@ export function createCyclicErrorFilter (rowerSettings, deltaTime) {
     const magnet = position % _numberOfMagnets
     raw.push(rawValue)
 
-    if (rowerSettings.autoAdjustDragFactor && _agressiveness > 0) {
+    if (CECFilterEnabled) {
       const cleanValue = projectX(magnet, rawValue)
       clean.push(cleanValue)
       goodnessOfFit.push(filterArray[magnet].goodnessOfFit() * domainFit(rawValue) * domainFit(cleanValue))
     } else {
       // In essence, the filter is turned off
       clean.push(rawValue)
-      goodnessOfFit.push(1)
+      goodnessOfFit.push(1 * domainFit(rawValue) * domainFit(cleanValue))
     }
 
     return {
@@ -137,7 +138,7 @@ export function createCyclicErrorFilter (rowerSettings, deltaTime) {
    * @param {float} rawValue - the raw value
    */
   function recordRawDatapoint (relativePosition, absolutePosition, rawValue) {
-    if (rowerSettings.autoAdjustDragFactor && _agressiveness > 0 && rawValue >= _minimumTimeBetweenImpulses && _maximumTimeBetweenImpulses >= rawValue) {
+    if (CECFilterEnabled && rawValue >= _minimumTimeBetweenImpulses && _maximumTimeBetweenImpulses >= rawValue) {
       recordedRelativePosition.push(relativePosition)
       recordedAbsolutePosition.push(absolutePosition)
       recordedRawValue.push(rawValue)
