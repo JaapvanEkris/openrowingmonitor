@@ -13,8 +13,25 @@ import { Chart, Filler, Legend, LinearScale, LineController, LineElement, PointE
 @customElement('dashboard-force-curve')
 export class DashboardForceCurve extends AppElement {
   static styles = css`
+    :host {
+      display: block;
+      position: relative;
+    }
+
+    .title {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      font-size: 80%;
+      text-align: center;
+      padding: 0.2em 0;
+      z-index: 1;  /* ensures title stays above canvas */
+    }
+
     canvas {
-      margin-top: 24px;
+      width: 100%;
+      height: 100%;
     }
   `
 
@@ -51,34 +68,10 @@ export class DashboardForceCurve extends AppElement {
           maintainAspectRatio: false,
           plugins: {
             datalabels: {
-              anchor: 'center',
-              align: 'top',
-              formatter: (value) => `Peak: ${Math.round(value.y)}`,
-              display: (ctx) => Math.max(
-                ...ctx.dataset.data.map((point) => point.y)
-              ) === ctx.dataset.data[ctx.dataIndex].y,
-              font: {
-                size: 16
-              },
-              color: 'rgb(255,255,255)'
+              display: false
             },
             legend: {
-              title: {
-                display: true,
-                text: 'Force Curve',
-                color: 'rgb(255,255,255)',
-                font: {
-                  size: 32
-                },
-                padding: {
-                }
-              },
-              labels: {
-                boxWidth: 0,
-                font: {
-                  size: 0
-                }
-              }
+              display: false
             }
           },
           scales: {
@@ -114,12 +107,16 @@ export class DashboardForceCurve extends AppElement {
   render () {
     if (this._chart?.data) {
       this._chart.data.datasets[0].data = this.value?.map((data, index) => ({ y: data, x: index }))
-      this.forceCurve = this.value
       this._chart.update()
     }
 
     return html`
-    <canvas id="chart"></canvas>
+      <!== Only show label if no chart -->
+      ${this._chart && this._chart?.data.datasets[0].data.length ?
+        '' :
+        html`<div class="title"> Force Curve </div>`
+      }
+      <canvas id="chart"></canvas>
     `
   }
 }

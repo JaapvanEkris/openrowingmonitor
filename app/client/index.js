@@ -30,6 +30,12 @@ export class App extends LitElement {
       config[key] = JSON.parse(localStorage.getItem(key)) ?? config[key]
     })
 
+    // migrate: remove deprecated 'actions' metric from saved dashboardMetrics
+    if (config.dashboardMetrics.includes('actions')) {
+      config.dashboardMetrics = config.dashboardMetrics.filter(m => m !== 'actions')
+      localStorage.setItem('dashboardMetrics', JSON.stringify(config.dashboardMetrics))
+    }
+
     // this is how we implement changes to the global state:
     // once any child component sends this CustomEvent we update the global state according
     // to the changes that were passed to us
