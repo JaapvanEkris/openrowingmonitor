@@ -20,7 +20,7 @@ export class DashboardMetric extends AppElement {
     }
   `
 
-  @property({ type: String })
+  @property({ type: Number })
     batteryLevel = ''
 
   render () {

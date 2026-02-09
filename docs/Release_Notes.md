@@ -1,26 +1,39 @@
 # OpenRowingMonitor Release Notes
 
-## Version 0.9.7 (January 2026)
+## Version 0.9.7 (February 2026)
 
-Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris), with support of [Abasz](https://github.com/Abasz)
+Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris), [Abasz](https://github.com/Abasz) and [DXCanas](https://github.com/DXCanas)
 
 ### New functionality in 0.9.7
 
 - **Addition of the 'Calories' workout type**. You can now program Intervals and splits based on calories to be burned
+- **GUI improvements**: the web interface has a more efficient layout, and supports OLED screens now
 - **Introduction of splits in the fit-file**. The fit-file now also has splits, which makes the fit-file closer to a native Garmin recording of the same session
+
+### Newly supported rowers
+
+- Added full support for the Merarch R50 (see [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/140))
+
+For an overview of all supported machines and their support status, please look at the [supported rower list](https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Supported_Rowers.md)
 
 ### Bugfixes and robustness improvements in 0.9.7
 
+- **Fix of the Garmin bluetooth issues** which affected the 'Cycling Power' and 'Cycling Speed and Cadence' Bluetooth profiles (see [issue 125](https://github.com/JaapvanEkris/openrowingmonitor/issues/125), [issue 169](https://github.com/JaapvanEkris/openrowingmonitor/issues/169) and the [known issues in 0.9.6](#known-issues-in-096)).
+- **Upgrade of the flywheel systematic error filter**, which now can handle systematic errors of magnet positioning on the flywheel. This is more effective at reducing structural measurement noise and allows a reduction of the code complexity in `Flyhweel.js` as all dependent algorithms can use the same datastream. It reduces noise on the reference system from 1.5% (version 0.9.6) to 0.3% (version 0.9.7).
 - **Improvement of the Moving Least Squares regressor**:
   - Code refactoring to isolate this function from `Flywheel.js`, allowing a more thorough testing of this function's behaviour
   - Introduced the 'Local Goodness of Fit' function to improve the robustness against noise. This reduces the effect of outliers on stroke detection, the Force curve, Power curve and Handle speed curve
   - Introduction of a 'Gaussian Weight' filter to reduce the effects of flanks on the regression in a specific datapoint
   - Added documentation about the mathematical foundations of the algorithms used
-- **Upgrade of the flywheel systematic error filter**, which now can handle systematic errors of magnet positioning on the flywheel. This is more effective at reducing structural measurement noise and allows a reduction of the code complexity in `Flyhweel.js` as all dependent algorithms can use the same datastream again.
 - **Fixed a bug in the initialisation of the `Flywheel.js`**
 - **Improved logging in the Strava uploader** for better troubleshooting (see [issue 145](https://github.com/JaapvanEkris/openrowingmonitor/issues/145))
 - **Fixed a bug where VO2Max calculation missed heartrate data** (see [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/156))
 - **Increased the test coverage of key algorithms**
+- As usual, all **packages are updated to the newest versions**
+
+### Known issues in 0.9.7
+
+- **ErgData will not work well with our PM5 interface** (see [issue 117](https://github.com/JaapvanEkris/openrowingmonitor/issues/117)).
 
 ## Version 0.9.6 (June 2025)
 
@@ -49,9 +62,9 @@ Beta testers: [fkh-bims](https://github.com/fkh-bims), [jryd2000](https://github
 ### Known issues in 0.9.6
 
 - Our PM5 interface still has some minor limitations:
-  - ErgZone and similar apps also can set a 'Calories' based workout. This interval type is still on [our backlog](./backlog.md#soon), so it currently isn't supported yet. The PM5 interface will fail silently and will **not** send an error message on this.
-  - ErgData will not work well with our PM5 interface: sometimes it can program OpenRowingMonitor, but you will **not** be able to save your workout, as we can't create the cryptographic hash to upload the workout results. This also causes a deadlock that hangs communication at both ends (kill the ErgData app to resolve this). As ErgData is propriatary to Concept2, we have decided to **not** put in any effort to resolve this (see [issue 117](https://github.com/JaapvanEkris/openrowingmonitor/issues/117)).
-- Some Garmin watches have issues with our 'Cycling Power' and 'Cycling Speed and Cadence' Bluetooth profiles as a result of a change on their side in handling unencrypted Bluetooth commmunication. This affects all current and past versions of OpenRowingMonitor, and might be caused by Garmin (see [issue 125](https://github.com/JaapvanEkris/openrowingmonitor/issues/125)).
+  - ErgZone and similar apps also can set a **'Calories' based workout. This interval type is still on [our backlog](./backlog.md#soon)**, so it currently isn't supported yet. The PM5 interface will fail silently and will **not** send an error message on this.
+  - **ErgData will not work well with our PM5 interface**: sometimes it can program OpenRowingMonitor, but you will **not** be able to save your workout, as we can't create the cryptographic hash to upload the workout results. This also causes a deadlock that hangs communication at both ends (kill the ErgData app to resolve this). As ErgData is propriatary to Concept2, we have decided to **not** put in any effort to resolve this (see [issue 117](https://github.com/JaapvanEkris/openrowingmonitor/issues/117)).
+- **Some Garmin watches have issues with our 'Cycling Power' and 'Cycling Speed and Cadence' Bluetooth profiles** as a result of a change on their side in handling unencrypted Bluetooth commmunication. This affects all current and past versions of OpenRowingMonitor, and might be caused by Garmin (see [issue 125](https://github.com/JaapvanEkris/openrowingmonitor/issues/125)).
 
 ## Version 0.9.5 (February 2025)
 
@@ -73,7 +86,7 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz]
 
 ### Known issues in 0.9.5
 
-- **Bluetooth Heartrate can't be switched dynamically**: due to some underlying OS changes, BLE heartrate monitors can't be activated through the GUI without crashing the BLE metrics broadcast (see [the description of issue 69](https://github.com/JaapvanEkris/openrowingmonitor/issues/69)). As this is an issue in the OS, **all current and previous versions of OpenRowingMonitor are also affected by this issue**. Version 0.9.5 has a workaround implemented: configuring the use of a BLE heartrate monitor in the config file should work. However, dynamic switching via the GUI will crash the BLE connections. This issue has been resolved in version 0.9.6.
+- **Bluetooth Heartrate can't be switched dynamically**: due to some underlying OS changes, BLE heartrate monitors can't be activated through the GUI without crashing the BLE metrics broadcast (see [the description of issue 69](https://github.com/JaapvanEkris/openrowingmonitor/issues/69)). As this is an issue in the OS, all current and previous versions of OpenRowingMonitor are also affected by this issue. Version 0.9.5 has a workaround implemented: configuring the use of a BLE heartrate monitor in the config file should work. However, dynamic switching via the GUI will crash the BLE connections. This issue has been resolved in version 0.9.6.
 
 ## Version 0.9.0 (January 2024)
 
@@ -122,7 +135,7 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz]
 - **Totally redesigned rowing engine**: Linear and Quadratic Regression models are now the core of the rowing engine, leaving the classical numerical approximation model. The new model is much more robust against noise, and completely removes the need for noise filtering from OpenRowingMonitor.
 - **Switch to 64Bit**: OpenRowingMonitor supports the 64 Bit Lite core, which has a PREEEMPT-kernel. The setup-script accepts this as well, as this should be the preferred kernel to use. The PREEMPT-kernel is optimized for low latency measurements, like IoT applications. As PREEMPT kernels can handle a lot higher priority for the GPIO-thread, this setting has been switched from a binary setting to a priority setting.
 - **Improved logging**: the logging has been more focussed on helping the user fix a bad setting, focussing on the underlying state of the engine and its settings (for example the drive time and drive length). Goal is to have users be able to tune their engine based on the log.
-- **Finite State Machine based state management**: OpenRowingEngine will now maintain an explicit state for the rower, and RowingStatistics will maintain an explicit state for the session. Aside reducing the code complexity significantly, it greatly impoved robustness.
+- **Finite State Machine based state management**: `RowingEngine.js` will now maintain an explicit state for the rower, and `RowingStatistics.js` will maintain an explicit state for the session. Aside reducing the code complexity significantly, it greatly impoves robustness.
 - **Added a new GPIO-library**, making measurement of the flywheel data much more accurate and allowing to "debounce" the measurements, as many sensors have this issue (see [issue 85](https://github.com/laberning/openrowingmonitor/issues/85))
 
 ## Version 0.8.2 (Febuary 2022)

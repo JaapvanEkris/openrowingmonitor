@@ -7,7 +7,6 @@ import { html } from 'lit'
 import { formatDistance, formatNumber, secondsToTimeString } from '../lib/helper'
 import { iconBolt, iconClock, iconAlarmclock, iconFire, iconHeartbeat, iconPaddle, iconRoute, iconStopwatch, rowerIcon } from '../lib/icons'
 import '../components/DashboardForceCurve.js'
-import '../components/DashboardActions.js'
 import '../components/DashboardMetric.js'
 import '../components/BatteryIcon.js'
 
@@ -94,9 +93,7 @@ export const DASHBOARD_METRICS = {
 
   recoveryDuration: { displayName: 'Recovery duration', size: 1, template: (metrics, config) => simpleMetricFactory(formatNumber(metrics?.recoveryDuration, 2), 'sec', config?.guiConfigs?.showIcons ? 'Recovery' : '') },
 
-  forceCurve: { displayName: 'Force curve', size: 2, template: (metrics) => html`<dashboard-force-curve .updateForceCurve=${metrics.metricsContext?.isRecoveryStart} .value=${metrics?.driveHandleForceCurve} style="grid-column: span 2"></dashboard-force-curve>` },
-
-  actions: { displayName: 'Actions', size: 1, template: (_, config) => html`<dashboard-actions .config=${config}></dashboard-actions>` }
+  forceCurve: { displayName: 'Force curve', size: 2, template: (metrics) => html`<dashboard-force-curve .updateForceCurve=${metrics.metricsContext?.isRecoveryStart} .value=${metrics?.driveHandleForceCurve} style="grid-column: span 2"></dashboard-force-curve>` }
 }
 
 /**
