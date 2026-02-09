@@ -21,7 +21,6 @@ export class DashboardToolbar extends AppElement {
       gap: 0.5em;
       padding: 0.2em 0.3em;
       background: var(--theme-widget-color);
-      border: var(--theme-widget-border);
       border-radius: var(--theme-border-radius);
     }
 

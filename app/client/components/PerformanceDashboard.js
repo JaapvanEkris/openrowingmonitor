@@ -56,7 +56,6 @@ export class PerformanceDashboard extends AppElement {
     dashboard-metric,
     dashboard-force-curve {
       background: var(--theme-widget-color);
-      border: var(--theme-widget-border);
       text-align: center;
       padding: 0.2em;
       border-radius: var(--theme-border-radius);
