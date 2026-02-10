@@ -35,6 +35,8 @@ export class App extends LitElement {
       config.dashboardMetrics = config.dashboardMetrics.filter(m => m !== 'actions')
       localStorage.setItem('dashboardMetrics', JSON.stringify(config.dashboardMetrics))
     }
+    // apply theme based on saved preference
+    this.applyTheme(config.trueBlackTheme)
 
     // this is how we implement changes to the global state:
     // once any child component sends this CustomEvent we update the global state according
@@ -54,7 +56,16 @@ export class App extends LitElement {
         localStorage.setItem(key, JSON.stringify(event.detail[key]))
       })
       this.updateState({ config: { ...this._appState.config, guiConfigs: { ...event.detail } } })
+      this.applyTheme(event.detail.trueBlackTheme)
     })
+  }
+
+  applyTheme (trueBlackTheme) {
+    if (trueBlackTheme) {
+      document.documentElement.setAttribute('data-theme', 'true-black')
+    } else {
+      document.documentElement.removeAttribute('data-theme')
+    }
   }
 
   // the global state is updated by replacing the appState with a copy of the new state

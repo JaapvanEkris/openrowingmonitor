@@ -21,7 +21,7 @@ export class DashboardMetric extends AppElement {
   `
 
   @property({ type: Number })
-    batteryLevel = ''
+    batteryLevel = 0
 
   render () {
     // 416 is the max width value of the battery bar in the SVG graphic
