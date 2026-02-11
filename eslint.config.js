@@ -84,6 +84,7 @@ export default defineConfig([
   {
     files: ['*/client/**/*.js'],
     rules: {
+      'no-console': ['warning'],
       '@stylistic/indent': ['off']
     }
   },
