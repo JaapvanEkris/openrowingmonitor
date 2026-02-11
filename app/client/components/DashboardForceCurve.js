@@ -40,11 +40,34 @@ export class DashboardForceCurve extends AppElement {
     Chart.register(ChartDataLabels, Legend, Filler, LinearScale, LineController, PointElement, LineElement)
   }
 
-  @property({ type: Object })
+  @property({
+    type: Boolean,
+  })
+    updateForceCurve = false
+
+  @property({
+    type: Array,
+  })
     value = []
+
 
   @state()
     _chart
+
+  shouldUpdate () {
+    return this.updateForceCurve
+  }
+    
+  willUpdate () {
+    if (this._chart?.data) {
+      this._chart.data.datasets[0].data = this.value?.map((data, index) => ({ y: data, x: index }))
+    }
+  }
+  
+  // Updated runs _after_ DOM elements exist, which is what chart.js expects.
+  updated() {
+    this._chart.update()
+  }
 
   firstUpdated () {
     const ctx = this.renderRoot.querySelector('#chart').getContext('2d')
@@ -105,11 +128,6 @@ export class DashboardForceCurve extends AppElement {
   }
 
   render () {
-    if (this._chart?.data) {
-      this._chart.data.datasets[0].data = this.value?.map((data, index) => ({ y: data, x: index }))
-      this._chart.update()
-    }
-
     return html`
       <!== Only show label if no chart -->
       ${this._chart && this._chart?.data.datasets[0].data.length ?
