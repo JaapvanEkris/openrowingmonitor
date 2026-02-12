@@ -55,7 +55,7 @@ export class DashboardForceCurve extends AppElement {
   accessor _chart
 
   shouldUpdate () {
-    return this.updateForceCurve
+    return this._chart === undefined || this.updateForceCurve
   }
     
   willUpdate () {
@@ -130,7 +130,7 @@ export class DashboardForceCurve extends AppElement {
   render () {
     return html`
       <!== Only show label if no chart -->
-      ${this._chart && this._chart?.data.datasets[0].data.length ?
+      ${this._chart?.data.datasets[0].data.length ?
         '' :
         html`<div class="title"> Force Curve </div>`
       }
