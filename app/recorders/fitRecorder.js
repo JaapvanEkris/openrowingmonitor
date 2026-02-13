@@ -152,6 +152,7 @@ export function createFITRecorder (config) {
       timestamp: metrics.timestamp,
       totalNumberOfStrokes: metrics.totalNumberOfStrokes,
       totalLinearDistance: metrics.totalLinearDistance,
+      totalWork: metrics.totalWork,
       cycleStrokeRate: metrics.cycleStrokeRate,
       cyclePower: metrics.cyclePower,
       cycleLinearVelocity: metrics.cycleLinearVelocity,
@@ -854,13 +855,14 @@ export function createFITRecorder (config) {
       {
         timestamp: writer.time(trackpoint.timestamp),
         distance: trackpoint.totalLinearDistance,
+        accumulated_power: trackpoint.totalWork,
         total_cycles: trackpoint.totalNumberOfStrokes,
         activity_type: 'fitnessEquipment',
         ...(trackpoint.cycleLinearVelocity > 0 || trackpoint.isPauseStart ? { speed: trackpoint.cycleLinearVelocity } : {}),
         ...(trackpoint.cyclePower > 0 || trackpoint.isPauseStart ? { power: trackpoint.cyclePower } : {}),
         ...(trackpoint.cycleStrokeRate > 0 ? { cadence: trackpoint.cycleStrokeRate } : {}),
         ...(trackpoint.cycleDistance > 0 ? { cycle_length16: trackpoint.cycleDistance } : {}),
-        ...(trackpoint.dragFactor > 0 || trackpoint.dragFactor < 255 ? { resistance: trackpoint.dragFactor } : {}), // As the data is stored in an int8, we need to guard the ma>
+        ...(trackpoint.dragFactor > 0 || trackpoint.dragFactor < 255 ? { resistance: trackpoint.dragFactor } : {}), // As the data is stored in an int8, we need to guard against exceeding that
         ...(trackpoint.heartrate !== undefined && trackpoint.heartrate > 0 ? { heart_rate: trackpoint.heartrate } : {})
       }
     )
