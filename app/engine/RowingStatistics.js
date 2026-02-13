@@ -32,6 +32,7 @@ export function createRowingStatistics (config) {
   let strokeCalories = 0
   let totalCalories = 0
   let strokeWork = 0
+  let totalWork = 0
   const calories = createWLSLinearSeries()
   const driveDuration = createStreamFilter(halfNumOfDataPointsForAveraging, undefined)
   const driveLength = createStreamFilter(halfNumOfDataPointsForAveraging, undefined)
@@ -179,10 +180,11 @@ export function createRowingStatistics (config) {
 
   // initiated when updating key statistics
   function updateContinousMetrics () {
-    totalMovingTime = rower.totalMovingTimeSinceStart()
-    totalLinearDistance = rower.totalLinearDistanceSinceStart()
+    totalMovingTime = Math.max(totalMovingTime, rower.totalMovingTimeSinceStart())
+    totalLinearDistance = Math.max(totalLinearDistance, rower.totalLinearDistanceSinceStart())
     instantPower = rower.instantHandlePower()
-    totalCalories = ((4 * rower.totalFlywheelWorkSinceStart()) + (350 * rower.totalMovingTimeSinceStart())) / 4200
+    totalWork = Math.max(totalWork, rower.totalFlywheelWorkSinceStart())
+    totalCalories = ((4 * totalWork) + (350 * totalMovingTime)) / 4200
   }
 
   function updateCycleMetrics () {
@@ -243,6 +245,7 @@ export function createRowingStatistics (config) {
       totalMovingTime: totalMovingTime > 0 ? totalMovingTime : 0,
       totalNumberOfStrokes: totalNumberOfStrokes > 0 ? totalNumberOfStrokes : 0,
       totalLinearDistance: totalLinearDistance > 0 ? totalLinearDistance : 0, // meters
+      totalWork: totalWork > 0 ? totalWork : 0, // Joules
       strokeCalories: strokeCalories > 0 ? strokeCalories : 0, // kCal
       strokeWork: strokeWork > 0 ? strokeWork : 0, // Joules
       totalCalories: totalCalories > 0 ? totalCalories : 0, // kcal
