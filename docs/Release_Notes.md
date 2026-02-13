@@ -10,7 +10,7 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris), [Abasz](ht
 - **GUI improvements**: the web interface has a more efficient layout, and supports OLED screens now
 - **Introduction of splits in the fit-file**. The fit-file now also has splits, which makes the fit-file closer to a native Garmin recording of the same session
 
-### Newly supported rowers
+### Newly supported rowers in 0.9.7
 
 - Added full support for the Merarch R50 (see [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/140))
 
@@ -99,11 +99,9 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris), [Abasz](ht
 - **Allow user to turn on or off ANT+ and BLE functionality** and dynamically switch between ANT+ and BLE HR monitors from the GUI
 - **Added the option for more complex workouts**, as an initial hook for the PM5 and webinterface (these are on [our backlog](./backlog.md#soon))
 
-### Newly supported rowers
+### Newly supported rowers in 0.9.0
 
 - Added support for the Force USA R3
-
-For an overview of all supported machines and their support status, please look at the [supported rower list](https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Supported_Rowers.md)
 
 ### Bugfixes and robustness improvements in 0.9.0
 
@@ -156,10 +154,14 @@ Main contributor: [Lars Berning](https://github.com/laberning)
 
 Main contributor: [Jaap van Ekris](https://github.com/JaapvanEkris)
 
+### Newly supported rowers in 0.8.1
+
+- Added support for the NordicTrack RX800
+
 ### Bugfixes and robustness improvements in 0.8.1
 
 - **Refactoring of the Rowing Engine**, as [Dave Vernooy's engine (ErgWare)](https://dvernooy.github.io/projects/ergware/) is good, but its variable naming left a bit to be desired. The underlying physics has been described in [the physics of OpenRowingMonitor](physics_openrowingmonitor.md), and is largely based on the work of [Dave Vernooy](https://dvernooy.github.io/projects/ergware/) and [Anu Dudhia](http://eodg.atm.ox.ac.uk/user/dudhia/rowing/physics/ergometer.html).
 
 ## Version 0.7.0 (March 2021)
 
-Initial release, Main contributor: [Lars Berning](https://github.com/laberning), porting of [Dave Vernooy's ErgWare](https://dvernooy.github.io/projects/ergware/) to JavaScript and addition of Bluetooth.
+Initial release, Main contributor: [Lars Berning](https://github.com/laberning), porting of [Dave Vernooy's ErgWare](https://dvernooy.github.io/projects/ergware/) to JavaScript and addition of Bluetooth. Known to work on the Sportstech WRX700 water-rower
