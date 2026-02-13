@@ -99,6 +99,12 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris), [Abasz](ht
 - **Allow user to turn on or off ANT+ and BLE functionality** and dynamically switch between ANT+ and BLE HR monitors from the GUI
 - **Added the option for more complex workouts**, as an initial hook for the PM5 and webinterface (these are on [our backlog](./backlog.md#soon))
 
+### Newly supported rowers
+
+- Added support for the Force USA R3
+
+For an overview of all supported machines and their support status, please look at the [supported rower list](https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Supported_Rowers.md)
+
 ### Bugfixes and robustness improvements in 0.9.0
 
 - **Added support for the newest version of Raspberry Pi OS (Bookworm)**, moved from Node.js v16 (EOL) to Node.js v20 (current) and upgraded packages where possible.
