@@ -302,6 +302,7 @@ export function createFITRecorder (config) {
     sessionData.totalTime = metrics.workout.timeSpent.total
     sessionData.totalMovingTime = metrics.workout.timeSpent.moving
     sessionData.totalRestTime = metrics.workout.timeSpent.rest
+    sessionData.totalWork = metrics.workout.work.sinceStart
     sessionData.totalMovingCalories = metrics.workout.caloriesSpent.moving
     sessionData.totalRestCalories = metrics.workout.caloriesSpent.rest
     sessionData.totalLinearDistance = metrics.workout.distance.fromStart
@@ -432,6 +433,7 @@ export function createFITRecorder (config) {
         total_timer_time: workout.totalTime,
         total_moving_time: workout.totalMovingTime,
         total_distance: workout.totalLinearDistance,
+        total_work: workout.totalWork,
         total_calories: workout.totalMovingCalories + workout.totalRestCalories,
         total_cycles: workout.totalNumberOfStrokes,
         avg_speed: workout.averageLinearVelocity,
@@ -552,6 +554,7 @@ export function createFITRecorder (config) {
           avg_cadence: lapdata.summary.strokerate.average,
           max_cadence: lapdata.summary.strokerate.maximum,
           avg_stroke_distance: lapdata.summary.strokeDistance.average,
+          total_work: lapdata.summary.work.sinceStart,
           total_calories: lapdata.summary.caloriesSpent.moving,
           avg_speed: lapdata.summary.linearVelocity.average,
           max_speed: lapdata.summary.linearVelocity.maximum,
