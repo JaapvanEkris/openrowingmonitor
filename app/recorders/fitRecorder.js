@@ -1,8 +1,7 @@
 'use strict'
-/*
- * OpenRowingMonitor, https://github.com/JaapvanEkris/openrowingmonitor
- */
 /**
+ * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
+ * 
  * @file This Module captures the metrics of a rowing session and persists them into the fit format
  * It provides a fit-file content, and some metadata for the filewriter and the file-uploaders
  *
@@ -27,7 +26,6 @@ export function createFITRecorder (config) {
   const sessionHRMetrics = createSeries()
   const splitActiveHRMetrics = createSeries()
   const splitRestHRMetrics = createSeries()
-  const splitVelocityMetrics = createSeries()
   const lapHRMetrics = createSeries()
   const VO2max = createVO2max(config)
   let heartRate = 0
@@ -140,7 +138,6 @@ export function createFITRecorder (config) {
         break
       case (metrics.metricsContext.isDriveStart):
         addMetricsToStrokesArray(metrics)
-        splitVelocityMetrics.push(metrics.cycleLinearVelocity)
         break
       // no default
     }
@@ -166,10 +163,11 @@ export function createFITRecorder (config) {
     allDataHasBeenWritten = false
   }
 
+  /**
+   * This sets all metrics at the start of the split (= ORM Interval)
+   */
   function startSplit (metrics) {
     sessionData.noActiveSplits++
-    splitVelocityMetrics.reset()
-    splitVelocityMetrics.push(metrics.cycleLinearVelocity)
     const splitnumber = sessionData.splits.length
     sessionData.splits.push({
       startTime: metrics.timestamp,
@@ -182,13 +180,18 @@ export function createFITRecorder (config) {
     })
   }
 
+  /**
+   * This registers all metrics at end start of the split (= ORM Interval)
+   */
   function calculateSplitMetrics (metrics) {
     const splitnumber = sessionData.splits.length - 1
-    sessionData.splits[splitnumber].totalTime = metrics.totalMovingTime - sessionData.splits[splitnumber].totalMovingTimeAtStart
-    sessionData.splits[splitnumber].totalLinearDistance = metrics.totalLinearDistance - sessionData.splits[splitnumber].startDistance
-    sessionData.splits[splitnumber].calories = metrics.workout.caloriesSpent.total - sessionData.splits[splitnumber].startCalories
+    sessionData.splits[splitnumber].totalTime = metrics.interval.timeSpent.total
+    sessionData.splits[splitnumber].totalMovingTime = metrics.interval.timeSpent.moving
+    sessionData.splits[splitnumber].totalLinearDistance = metrics.interval.distance.fromStart
+    sessionData.splits[splitnumber].calories = metrics.interval.calories.sinceStart
+    sessionData.splits[splitnumber].averageSpeed = metrics.interval.linearVelocity.average
+    sessionData.splits[splitnumber].maxSpeed = metrics.interval.linearVelocity.maximum
     sessionData.splits[splitnumber].endTime = metrics.timestamp
-    sessionData.splits[splitnumber].maxSpeed = splitVelocityMetrics.maximum()
     sessionData.splits[splitnumber].complete = true
     sessionData.totalMovingTime = metrics.workout.timeSpent.moving
   }
@@ -303,6 +306,7 @@ export function createFITRecorder (config) {
     sessionData.totalMovingTime = metrics.workout.timeSpent.moving
     sessionData.totalRestTime = metrics.workout.timeSpent.rest
     sessionData.totalWork = metrics.workout.work.sinceStart
+    sessionData.totalCalories = metrics.workout.caloriesSpent.total
     sessionData.totalMovingCalories = metrics.workout.caloriesSpent.moving
     sessionData.totalRestCalories = metrics.workout.caloriesSpent.rest
     sessionData.totalLinearDistance = metrics.workout.distance.fromStart
@@ -434,7 +438,7 @@ export function createFITRecorder (config) {
         total_moving_time: workout.totalMovingTime,
         total_distance: workout.totalLinearDistance,
         total_work: workout.totalWork,
-        total_calories: workout.totalMovingCalories + workout.totalRestCalories,
+        total_calories: workout.totalCalories,
         total_cycles: workout.totalNumberOfStrokes,
         avg_speed: workout.averageLinearVelocity,
         max_speed: workout.maximumLinearVelocity,
@@ -607,6 +611,9 @@ export function createFITRecorder (config) {
     }
   }
 
+  /**
+   * Creation of all splits (= ORM Intervals)
+   */
   async function writeSplits (writer, workout) {
     // Create the splits
     let i = 0
@@ -666,7 +673,7 @@ export function createFITRecorder (config) {
   }
 
   /**
-   * Creation of the active split
+   * Creation of the active split (= ORM Interval)
    * @see {@link https://developer.garmin.com/fit/cookbook/durations/|how the different times are defined}
    */
   async function createActiveSplit (writer, splitdata) {
@@ -681,9 +688,9 @@ export function createFITRecorder (config) {
           split_type: 'interval_active',
           total_elapsed_time: splitdata.totalTime,
           total_timer_time: splitdata.totalTime,
-          total_moving_time: splitdata.totalTime,
+          total_moving_time: splitdata.totalMovingTime,
           total_distance: splitdata.totalLinearDistance,
-          avg_speed: splitdata.totalLinearDistance > 0 ? splitdata.totalLinearDistance / splitdata.totalTime : 0,
+          avg_speed: splitdata.averageSpeed,
           max_speed: splitdata.maxSpeed,
           total_calories: splitdata.calories,
           start_time: writer.time(splitdata.startTime),
@@ -696,7 +703,7 @@ export function createFITRecorder (config) {
   }
 
   /**
-   * Creation of the rest split
+   * Creation of the rest split (=ORM planned Rest Interval)
    * @see {@link https://developer.garmin.com/fit/cookbook/durations/|how the different times are defined}
    */
   async function createRestSplit (writer, splitdata) {
@@ -989,7 +996,6 @@ export function createFITRecorder (config) {
     lapHRMetrics.reset()
     splitActiveHRMetrics.reset()
     splitRestHRMetrics.reset()
-    splitVelocityMetrics.reset()
     sessionHRMetrics.reset()
     sessionData = null
     sessionData = {}
