@@ -47,7 +47,7 @@ export function createFITRecorder (config) {
   let allDataHasBeenWritten = true
 
   /**
-   * This function handles all incomming commands. Here, the recordingmanager will have filtered
+   * @description This function handles all incomming commands. Here, the recordingmanager will have filtered
    * all unneccessary commands for us, so we only need to react to 'updateIntervalSettings', 'reset' and 'shutdown'
    */
   async function handleCommand (commandName, data) {
@@ -80,7 +80,7 @@ export function createFITRecorder (config) {
   }
 
   /**
-   * This function records the metrics in the structure for he fit-file to be generated
+   * @description This function records the metrics in the structure for he fit-file to be generated
    * @param {Metrics} metrics to be recorded
    */
   function recordRowingMetrics (metrics) {
@@ -942,6 +942,9 @@ export function createFITRecorder (config) {
     }
   }
 
+  /**
+   * @description This function exposes the total recorded distance to the calling context
+   */
   function totalRecordedDistance () {
     if (!!sessionData.totalLinearDistance && sessionData.totalLinearDistance > 0) {
       return sessionData.totalLinearDistance
@@ -950,6 +953,9 @@ export function createFITRecorder (config) {
     }
   }
 
+  /**
+   * @description This function exposes the total recorded moving time to the calling context
+   */
   function totalRecordedMovingTime () {
     if (!!sessionData.totalMovingTime && sessionData.totalMovingTime > 0) {
       return sessionData.totalMovingTime
@@ -958,10 +964,16 @@ export function createFITRecorder (config) {
     }
   }
 
+  /**
+   * @description This function exposes the average dragfactor to the calling context
+   */
   function sessionDrag () {
     return lastMetrics.workout.dragfactor.average
   }
 
+  /**
+   * @description This function exposes the calculated VO2Max to the calling context
+   */
   function sessionVO2Max () {
     if (VO2max.result() > 10 && VO2max.result() < 60) {
       return VO2max.result()
@@ -970,6 +982,9 @@ export function createFITRecorder (config) {
     }
   }
 
+  /**
+   * @description This function exposes the Recovery Heartrate to the calling context
+   */
   function sessionHRR () {
     if (postExerciseHR.length > 1 && (postExerciseHR[0] > (0.7 * config.userSettings.maxHR))) {
       // Recovery Heartrate is only defined when the last excercise HR is above 70% of the maximum Heartrate
@@ -990,8 +1005,9 @@ export function createFITRecorder (config) {
     sessionData = {}
     sessionData.workoutplan = []
     sessionData.workoutplan[0] = { type: 'justrow' }
-    sessionData.lap = []
-    sessionData.split = []
+    sessionData.splits = []
+    sessionData.laps = []
+    sessionData.strokes = []
     sessionData.noActiveSplits = 0
     sessionData.noRestSplits = 0
     sessionData.complete = false
