@@ -152,6 +152,10 @@ export function createCyclicErrorFilter (rowerSettings, deltaTime) {
     let perfectCurrentDt
     let weightCorrectedCorrectedDatapoint
     let GoF
+
+    // If the Filter isn't active, don't even start processing data, as there is nothing there
+    if (!CECFilterEnabled || recordedRawValue.length < 1) { return }
+    
     if (lowerCursor === undefined || upperCursor === undefined) {
       lowerCursor = Math.ceil(recordedRelativePosition.length * 0.1)
       upperCursor = Math.floor(recordedRelativePosition.length * 0.9)
@@ -190,15 +194,25 @@ export function createCyclicErrorFilter (rowerSettings, deltaTime) {
   }
 
   /**
-   * @description This function is used for clearing the buffers in order to prepare to record for a new set of datapoints, or clear it when the buffer is filled with a recovery with too weak GoF
+   * @description This function is used for forcefully clearing the buffers when the buffer is filled with a recovery with too weak GoF
+   */
+  function forceFlushDatapointBuffer () {
+    if (recordedRawValue.length > 1) { log.info('*** Cyclic error filter: cleared datapoint buffer before processing its datapoints has started (recovery GoF was too weak)') }
+    clearDatapointBuffer()
+  }
+
+  /**
+   * @description This function is used for clearing the buffers in order to prepare to record for a new set of datapoints
    */
   function clearDatapointBuffer () {
-    if (isNaN(lowerCursor)) { log.trace('*** Cyclic error filter: cleared datapoint buffer before processing its datapoints has started') }
-    recordedRelativePosition = []
-    recordedAbsolutePosition = []
-    recordedRawValue = []
-    lowerCursor = undefined
-    upperCursor = undefined
+    // Only clear the buffer if there is something to clear
+    if (CECFilterEnabled && recordedRawValue.length > 0) {
+      recordedRelativePosition = []
+      recordedAbsolutePosition = []
+      recordedRawValue = []
+      lowerCursor = undefined
+      upperCursor = undefined
+    }
   }
 
   /**
@@ -258,6 +272,7 @@ export function createCyclicErrorFilter (rowerSettings, deltaTime) {
     processNextRawDatapoint,
     updateFilter,
     atSeriesBegin,
+    forceFlushDatapointBuffer,
     clearDatapointBuffer,
     resetFilterConfiguration,
     reset
