@@ -52,7 +52,8 @@ export function createFITRecorder (config) {
 
   /**
    * @description This function handles all incomming commands. Here, the recordingmanager will have filtered
-   * all unneccessary commands for us, so we only need to react to 'updateIntervalSettings', 'reset' and 'shutdown'
+   * @param {string} commandName - Command given. As all unneccessary commands are filtered for us, so we only need to react to 'updateIntervalSettings', 'reset' and 'shutdown'
+   * @param {object} data - The workout schedule (only with 'updateIntervalSettings')
    */
   async function handleCommand (commandName, data) {
     switch (commandName) {
@@ -105,9 +106,29 @@ export function createFITRecorder (config) {
    * @param {float} metrics.dragFactor - The dragFactor across the last recovery (Newton * meter * second^2)
    * @param {object} metrics.workout - All metrics related to the total workout progress
    * @param {object} metrics.workout.timeSpent - All time-related metrics related to the workout progress
+   * @param {float} metrics.workout.timeSpent.total - Total time spent during the workout (moving + rest, in seconds)
    * @param {float} metrics.workout.timeSpent.moving - Total time spent moving during the workout (seconds)
-   * @param {object} metrics.workout.caloriesSpent - All calorie-related metrics related to the workout progress
-   * @param {float} metrics.workout.caloriesSpent.total - The total calories burned (Calories)
+   * @param {float} metrics.workout.timeSpent.rest - Total time spent resting during the workout (seconds)
+   * @param {object} metrics.workout.work - All work-related metrics related to the enire workout
+   * @param {float} metrics.workout.work.sinceStart - The total work done on the flywheel in the enire workout (Joules)
+   * @param {object} metrics.workout.distance - All distance-related metrics related to the workout progress
+   * @param {float} metrics.workout.distance.fromStart - Distance traveled in the workout (Meters)
+   * @param {integer} metrics.workout.numberOfStrokes - The number of strokes in the entire workout
+   * @param {float} metrics.workout.linearVelocity - All velocity-related metrics related to the enire workout
+   * @param {float} metrics.workout.linearVelocity.average - The average velocity in the enire workout (Meters per second)
+   * @param {float} metrics.workout.linearVelocity.maximum - The maximum velocity in the enire workout (Meters per second)
+   * @param {object} metrics.workout.strokerate - All strokerate-related metrics related to the enire workout
+   * @param {float} metrics.workout.strokerate.average - The average strokerate in the enire workout (strokes per minute)
+   * @param {float} metrics.workout.strokerate.maximum - The maximum strokerate in the enire workout (strokes per minute)
+   * @param {object} metrics.workout.strokeDistance - All strokedistance-related metrics related to the enire workout
+   * @param {float} metrics.workout.strokeDistance.average - The average stroke distance in the enire workout (meters per stroke)
+   * @param {object} metrics.workout.power - All power-related metrics related to the enire workout
+   * @param {float} metrics.workout.power.average - The average power in the enire workout (Watts)
+   * @param {float} metrics.workout.power.maximum - The maximum power in the enire workout (Watts)
+   * @param {object} metrics.workout.caloriesSpent - All calorie-related metrics related to the enire workout
+   * @param {float} metrics.workout.caloriesSpent.total - The total calories burned (Calories) during the enire workout (moving + rest, in Calories)
+   * @param {float} metrics.workout.caloriesSpent.moving - The total calories burned (Calories) during movement in the enire workout (Calories)
+   * @param {float} metrics.workout.caloriesSpent.rest - The total calories burned during resting in the enire workout (Calories)
    * @param {object} metrics.interval - All metrics related to the ORM interval progress
    * @param {integer} metrics.interval.workoutStepNumber - Current workoutstep number the ORM interval belongs to
    * @param {string} metrics.interval.type - Type of the interval (i.e. 'distance', 'time' or 'calories')
@@ -140,7 +161,6 @@ export function createFITRecorder (config) {
    * @param {float} metrics.split.strokerate.maximum - The maximum strokerate in the split (strokes per minute)
    * @param {object} metrics.split.strokeDistance - All strokedistance-related metrics related to the ORM split progress
    * @param {float} metrics.split.strokeDistance.average - The average stroke distance in the split (meters per stroke)
-   * @param {float} metrics.split.strokerate.maximum - The maximum strokerate in the split (strokes per minute)
    * @param {object} metrics.split.power - All power-related metrics related to the ORM split progress
    * @param {float} metrics.split.power.average - The average power in the split (Watts)
    * @param {float} metrics.split.power.maximum - The maximum power in the split (Watts)
@@ -329,6 +349,9 @@ export function createFITRecorder (config) {
 
   /**
    * @description This sets all metrics at the start of an active Garmin lap (= ORM split)
+   * @param {object} metrics - The metrics to be recorded
+   * @param {float} metrics.timestamp - The time of recording of the metrics (seconds since epoch)
+   * @param {float} metrics.totalMovingTime - Absolute total moving time since start (seconds)
    */
   function startLap (metrics) {
     resetLapMetrics()
@@ -346,6 +369,11 @@ export function createFITRecorder (config) {
    * @description This sets all metrics at the end of an active Garmin lap (= ORM split)
    * @param {object} metrics - The metrics to be recorded
    * @param {float} metrics.timestamp - The time of recording of the metrics (seconds since epoch)
+   * @param {object} metrics.metricsContext - Object containing the flags that represent the session and stroke state
+   * @param {boolean} metrics.metricsContext.isIntervalEnd - Are the metrics recorded at the end of the ORM Interval (i.e. Garmin Split)
+   * @param {boolean} metrics.metricsContext.isSplitEnd - Are the metrics recorded at the end of an ORM split (i.e. Garmin Lap)
+   * @param {boolean} metrics.metricsContext.isPauseStart - Are the metrics recorded at the start of a pause
+   * @param {boolean} metrics.metricsContext.isSessionStop - Are the metrics recorded at the end of the session (i.e. the last and final metrics report)
    * @param {integer} metrics.interval.workoutStepNumber - Current workoutstep number the ORM split belongs to
    * @param {string} metrics.interval.type - Type of the interval (i.e. 'distance', 'time' or 'calories')
    * @param {object} metrics.split.timeSpent - All time-related metrics related to the ORM interval progress
@@ -358,13 +386,12 @@ export function createFITRecorder (config) {
    * @param {float} metrics.split.linearVelocity - All velocity-related metrics related to the ORM split progress
    * @param {float} metrics.split.linearVelocity.average - The average velocity in the split (Meters per second)
    * @param {float} metrics.split.linearVelocity.maximum - The maximum velocity in the split (Meters per second)
-   * @param {integer} metrics.split.numberOfStrokes, - The number of strokes in the split
+   * @param {integer} metrics.split.numberOfStrokes - The number of strokes in the split
    * @param {object} metrics.split.strokerate - All strokerate-related metrics related to the ORM split progress
    * @param {float} metrics.split.strokerate.average - The average strokerate in the split (strokes per minute)
    * @param {float} metrics.split.strokerate.maximum - The maximum strokerate in the split (strokes per minute)
    * @param {object} metrics.split.strokeDistance - All strokedistance-related metrics related to the ORM split progress
    * @param {float} metrics.split.strokeDistance.average - The average stroke distance in the split (meters per stroke)
-   * @param {float} metrics.split.strokerate.maximum - The maximum strokerate in the split (strokes per minute)
    * @param {object} metrics.split.power - All power-related metrics related to the ORM split progress
    * @param {float} metrics.split.power.average - The average power in the split (Watts)
    * @param {float} metrics.split.power.maximum - The maximum power in the split (Watts)
@@ -429,6 +456,8 @@ export function createFITRecorder (config) {
 
   /**
    * @description This registers all metrics for a Garmin rest lap (= ORM split)
+   * @param {object} metrics.metricsContext - Object containing the flags that represent the session and stroke state
+   * @param {boolean} metrics.metricsContext.isIntervalEnd - Are the metrics recorded at the end of the ORM Interval (i.e. Garmin Split)
    */
   function addRestLap (metrics, startTime, workoutStepNo) {
     resetLapMetrics()
@@ -459,6 +488,30 @@ export function createFITRecorder (config) {
 
   /**
    * @description This registers all metrics at end of a session
+   * @param {object} metrics.workout.timeSpent - All time-related metrics related to the workout progress
+   * @param {float} metrics.workout.timeSpent.total - Total time spent during the workout (moving + rest, in seconds)
+   * @param {float} metrics.workout.timeSpent.moving - Total time spent moving during the workout (seconds)
+   * @param {float} metrics.workout.timeSpent.rest - Total time spent resting during the workout (seconds)
+   * @param {object} metrics.workout.work - All work-related metrics related to the enire workout
+   * @param {float} metrics.workout.work.sinceStart - The total work done on the flywheel in the enire workout (Joules)
+   * @param {object} metrics.workout.distance - All distance-related metrics related to the workout progress
+   * @param {float} metrics.workout.distance.fromStart - Distance traveled in the workout (Meters)
+   * @param {integer} metrics.workout.numberOfStrokes - The number of strokes in the entire workout
+   * @param {float} metrics.workout.linearVelocity - All velocity-related metrics related to the enire workout
+   * @param {float} metrics.workout.linearVelocity.average - The average velocity in the enire workout (Meters per second)
+   * @param {float} metrics.workout.linearVelocity.maximum - The maximum velocity in the enire workout (Meters per second)
+   * @param {object} metrics.workout.strokerate - All strokerate-related metrics related to the enire workout
+   * @param {float} metrics.workout.strokerate.average - The average strokerate in the enire workout (strokes per minute)
+   * @param {float} metrics.workout.strokerate.maximum - The maximum strokerate in the enire workout (strokes per minute)
+   * @param {object} metrics.workout.strokeDistance - All strokedistance-related metrics related to the enire workout
+   * @param {float} metrics.workout.strokeDistance.average - The average stroke distance in the enire workout (meters per stroke)
+   * @param {object} metrics.workout.power - All power-related metrics related to the enire workout
+   * @param {float} metrics.workout.power.average - The average power in the enire workout (Watts)
+   * @param {float} metrics.workout.power.maximum - The maximum power in the enire workout (Watts)
+   * @param {object} metrics.workout.caloriesSpent - All calorie-related metrics related to the enire workout
+   * @param {float} metrics.workout.caloriesSpent.total - The total calories burned (Calories) during the enire workout (moving + rest, in Calories)
+   * @param {float} metrics.workout.caloriesSpent.moving - The total calories burned (Calories) during movement in the enire workout (Calories)
+   * @param {float} metrics.workout.caloriesSpent.rest - The total calories burned during resting in the enire workout (Calories)
    */
   function calculateSessionMetrics (metrics) {
     sessionData.totalNoLaps = sessionData.laps.length
