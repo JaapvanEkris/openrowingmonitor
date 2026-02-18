@@ -95,18 +95,22 @@ export class FitnessMachineControlPointCharacteristic {
           return this.#buildResponse(opCode, ResultOpCode.success)
         } else {
           log.error('FTMS: Reset attempted before RequestControl')
+          return this.#buildResponse(opCode, ResultOpCode.controlNotPermitted)
         }
-        break
       case ControlPointOpCode.startOrResume:
         if (this.#controlled) {
           this.#controlPointCallback({ req: { name: 'startOrResume', data: {} } })
           return this.#buildResponse(opCode, ResultOpCode.success)
         } else {
           log.error('FTMS: startOrResume attempted before RequestControl')
+          return this.#buildResponse(opCode, ResultOpCode.controlNotPermitted)
         }
-        break
       case ControlPointOpCode.stopOrPause: {
         if (this.#controlled) {
+          if (data.length < 2) {
+            log.error('FTMS: stopOrPause missing parameter byte')
+            return this.#buildResponse(opCode, ResultOpCode.invalidParameter)
+          }
           const controlParameter = data.readUInt8(1)
           if (controlParameter === 1) {
             this.#controlPointCallback({ req: { name: 'stop', data: {} } })
@@ -116,19 +120,18 @@ export class FitnessMachineControlPointCharacteristic {
             return this.#buildResponse(opCode, ResultOpCode.success)
           }
           log.error(`FitnessMachineControlPointCharacteristic: stopOrPause with invalid controlParameter: ${controlParameter}`)
+          return this.#buildResponse(opCode, ResultOpCode.invalidParameter)
         } else {
           log.error('FTMS: stopOrPause attempted before RequestControl')
+          return this.#buildResponse(opCode, ResultOpCode.controlNotPermitted)
         }
-        break
       }
       // TODO: Potentially handle setTargetPower and setDistance, etc. by integrating it into the interval/session manager. Difficulty is that this is a simple justrow like command with one target and no limits.
       // So far, no apps have been found that actually use this interaction to develop and test against.
       default:
         log.info(`FitnessMachineControlPointCharacteristic: opCode ${swapObjectPropertyValues(ControlPointOpCode)[opCode]} is not supported`)
+        return this.#buildResponse(opCode, ResultOpCode.opCodeNotSupported)
     }
-
-    log.info(`FitnessMachineControlPointCharacteristic: opCode ${swapObjectPropertyValues(ControlPointOpCode)[opCode]} is not supported`)
-    return this.#buildResponse(opCode, ResultOpCode.opCodeNotSupported)
   }
 
   /**
