@@ -27,6 +27,7 @@ export function createWorkoutSegment (config) {
   let _startMovingTime = 0
   let _startLinearDistance = 0
   let _startStrokeNumber = 0
+  let _startWork = 0
   let _startCalories = 0
   let _targetTime = 0
   let _targetDistance = 0
@@ -46,6 +47,7 @@ export function createWorkoutSegment (config) {
     _startMovingTime = (baseMetrics.totalMovingTime !== undefined && baseMetrics.totalMovingTime > 0 ? baseMetrics.totalMovingTime : 0)
     _startLinearDistance = (baseMetrics.totalLinearDistance !== undefined && baseMetrics.totalLinearDistance > 0 ? baseMetrics.totalLinearDistance : 0)
     _startTimestamp = baseMetrics.timestamp
+    _startWork = baseMetrics.totalWork
     _startCalories = baseMetrics.totalCalories
     _startStrokeNumber = baseMetrics.totalNumberOfStrokes
   }
@@ -491,6 +493,23 @@ export function createWorkoutSegment (config) {
         minimum: _power.minimum(),
         maximum: _power.maximum()
       },
+      work: {
+        absoluteStart: _startWork,
+        sinceStart: Math.max(baseMetrics.totalWork - _startWork, 0)
+      },
+      calories: {
+        absoluteStart: _startCalories,
+        sinceStart: spentCalories(baseMetrics),
+        target: _targetCalories,
+        toEnd: caloriesToEnd(baseMetrics),
+        totalSpent: spentCalories(baseMetrics),
+        averagePerHour: _caloriesPerHour.average()
+      },
+      caloriesSpent: {
+        total: totalCalories(baseMetrics),
+        moving: spentCalories(baseMetrics),
+        rest: restCalories(baseMetrics)
+      },
       strokeDistance: {
         average: _strokedistance.average(),
         minimum: _strokedistance.minimum(),
@@ -505,19 +524,6 @@ export function createWorkoutSegment (config) {
         average: _dragFactor.average(),
         minimum: _dragFactor.minimum(),
         maximum: _dragFactor.maximum()
-      },
-      calories: {
-        absoluteStart: _startCalories,
-        sinceStart: spentCalories(baseMetrics),
-        target: _targetCalories,
-        toEnd: caloriesToEnd(baseMetrics),
-        totalSpent: spentCalories(baseMetrics),
-        averagePerHour: _caloriesPerHour.average()
-      },
-      caloriesSpent: {
-        total: totalCalories(baseMetrics),
-        moving: spentCalories(baseMetrics),
-        rest: restCalories(baseMetrics)
       }
     }
   }
@@ -738,6 +744,7 @@ export function createWorkoutSegment (config) {
     _startMovingTime = 0
     _startLinearDistance = 0
     _startStrokeNumber = 0
+    _startWork = 0
     _startCalories = 0
     _targetTime = 0
     _targetDistance = 0
