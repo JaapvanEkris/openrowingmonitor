@@ -95,7 +95,7 @@ export function createFITRecorder (config) {
    * @param {boolean} metrics.metricsContext.isPauseEnd - Are the metrics recorded at the end of a pause
    * @param {boolean} metrics.metricsContext.isDriveStart - Are the metrics recorded at the start of the drive (i.e. recovery end, stroke end)
    * @param {boolean} metrics.metricsContext.isSessionStop - Are the metrics recorded at the end of the session (i.e. the last and final metrics report)
-   * @param {number} metrics.totalNumberOfStrokes - The stroke number
+   * @param {integer} metrics.totalNumberOfStrokes - The stroke number
    * @param {float} metrics.totalLinearDistance - The total distance travelled (Meters)
    * @param {float} metrics.totalWork - The total work done on the flywheel (Joules)
    * @param {float} metrics.cycleStrokeRate - The current strokerate (Strokes per minute)
@@ -134,7 +134,7 @@ export function createFITRecorder (config) {
    * @param {float} metrics.split.linearVelocity - All velocity-related metrics related to the ORM split progress
    * @param {float} metrics.split.linearVelocity.average - The average velocity in the split (Meters per second)
    * @param {float} metrics.split.linearVelocity.maximum - The maximum velocity in the split (Meters per second)
-   * @param {integer} metrics.split.numberOfStrokes, - The number of strokes in the split
+   * @param {integer} metrics.split.numberOfStrokes - The number of strokes in the split
    * @param {object} metrics.split.strokerate - All strokerate-related metrics related to the ORM split progress
    * @param {float} metrics.split.strokerate.average - The average strokerate in the split (strokes per minute)
    * @param {float} metrics.split.strokerate.maximum - The maximum strokerate in the split (strokes per minute)
@@ -215,7 +215,7 @@ export function createFITRecorder (config) {
    * @description This function records all data related to a specific stroke
    * @param {object} metrics - The metrics to be recorded
    * @param {float} metrics.timestamp - The time of recording of the metrics (seconds since epoch)
-   * @param {number} metrics.totalNumberOfStrokes - The stroke number
+   * @param {integer} metrics.totalNumberOfStrokes - The stroke number
    * @param {float} metrics.totalLinearDistance - The total distance travelled (Meters)
    * @param {float} metrics.totalWork - The total work done on the flywheel (Joules)
    * @param {float} metrics.cycleStrokeRate - The current strokerate (Strokes per minute)
@@ -251,7 +251,7 @@ export function createFITRecorder (config) {
    * @description This sets all metrics at the start of an active Garmin split (= ORM Interval)
    * @param {object} metrics - The metrics to be recorded
    * @param {float} metrics.timestamp - The time of recording of the metrics (seconds since epoch)
-   * @param {number} metrics.totalMovingTime - Absolute total moving time since start (seconds)
+   * @param {float} metrics.totalMovingTime - Absolute total moving time since start (seconds)
    * @param {float} metrics.totalLinearDistance - The total distance travelled (Meters)
    * @param {object} metrics.workout - All metrics related to the total workout progress
    * @param {object} metrics.workout.caloriesSpent - All calorie-related metrics related to the workout progress
