@@ -64,7 +64,7 @@ export class PerformanceDashboard extends AppElement {
     }
   `
   @property()
-    appState = {}
+  accessor appState = {}
 
   dashboardMetricComponentsFactory = (appState) => {
     const metrics = appState.metrics
