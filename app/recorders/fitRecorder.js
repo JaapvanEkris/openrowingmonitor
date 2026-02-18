@@ -108,6 +108,44 @@ export function createFITRecorder (config) {
    * @param {float} metrics.workout.timeSpent.moving - Total time spent moving during the workout (seconds)
    * @param {object} metrics.workout.caloriesSpent - All calorie-related metrics related to the workout progress
    * @param {float} metrics.workout.caloriesSpent.total - The total calories burned (Calories)
+   * @param {object} metrics.interval - All metrics related to the ORM interval progress
+   * @param {integer} metrics.interval.workoutStepNumber - Current workoutstep number the ORM interval belongs to
+   * @param {string} metrics.interval.type - Type of the interval (i.e. 'distance', 'time' or 'calories')
+   * @param {object} metrics.interval.timeSpent - All time-related metrics related to the ORM interval progress
+   * @param {object} metrics.interval.timeSpent.total - The total time spent in the ORM interval (i.e. both moving and resting, in seconds)
+   * @param {object} metrics.interval.timeSpent.rest - The total time spent resting in the ORM interval (seconds)
+   * @param {object} metrics.interval.timeSpent.moving - The total time spent moving in the ORM interval (seconds)
+   * @param {float} metrics.interval.distance - All distance-related metrics related to the ORM interval progress
+   * @param {float} metrics.interval.distance.fromStart - The total distance travelled (Meters)
+   * @param {object} metrics.interval.calories - All calorie-related metrics related to the interval progress
+   * @param {float} metrics.interval.calories.sinceStart - The total calories burned (Calories) in the interval
+   * @param {object} metrics.interval.caloriesSpent - All calorie-related metrics related to the interval progress
+   * @param {float} metrics.interval.caloriesSpent.rest - The total calories burned (Calories) during rest in the interval
+   * @param {float} metrics.interval.linearVelocity - All velocity-related metrics related to the ORM interval progress
+   * @param {float} metrics.interval.linearVelocity.average - The average velocity in the interval (Meters per second)
+   * @param {float} metrics.interval.linearVelocity.maximum - The maximum velocity in the interval (Meters per second)
+   * @param {object} metrics.split.timeSpent - All time-related metrics related to the ORM interval progress
+   * @param {object} metrics.split.timeSpent.total - The total time spent in the ORM split (seconds)
+   * @param {object} metrics.split.timeSpent.moving - The total time spent moving in the ORM split (seconds)
+   * @param {float} metrics.split.distance - All distance-related metrics related to the ORM split progress
+   * @param {float} metrics.split.distance.fromStart - The total distance travelled in the ORM split (Meters)
+   * @param {object} metrics.split.work - All work-related metrics related to the ORM split progress
+   * @param {float} metrics.split.work.sinceStart - The total work done on the flywheel in the split (Joules)
+   * @param {float} metrics.split.linearVelocity - All velocity-related metrics related to the ORM split progress
+   * @param {float} metrics.split.linearVelocity.average - The average velocity in the split (Meters per second)
+   * @param {float} metrics.split.linearVelocity.maximum - The maximum velocity in the split (Meters per second)
+   * @param {integer} metrics.split.numberOfStrokes, - The number of strokes in the split
+   * @param {object} metrics.split.strokerate - All strokerate-related metrics related to the ORM split progress
+   * @param {float} metrics.split.strokerate.average - The average strokerate in the split (strokes per minute)
+   * @param {float} metrics.split.strokerate.maximum - The maximum strokerate in the split (strokes per minute)
+   * @param {object} metrics.split.strokeDistance - All strokedistance-related metrics related to the ORM split progress
+   * @param {float} metrics.split.strokeDistance.average - The average stroke distance in the split (meters per stroke)
+   * @param {float} metrics.split.strokerate.maximum - The maximum strokerate in the split (strokes per minute)
+   * @param {object} metrics.split.power - All power-related metrics related to the ORM split progress
+   * @param {float} metrics.split.power.average - The average power in the split (Watts)
+   * @param {float} metrics.split.power.maximum - The maximum power in the split (Watts)
+   * @param {object} metrics.split.caloriesSpent - All calorie-related metrics related to the interval progress
+   * @param {float} metrics.split.caloriesSpent.moving - The total calories burned (Calories) during the ORM split
    */
   function recordRowingMetrics (metrics) {
     switch (true) {
@@ -211,13 +249,13 @@ export function createFITRecorder (config) {
 
   /**
    * @description This sets all metrics at the start of an active Garmin split (= ORM Interval)
-   * @param {object} metrics  - The metrics to be recorded
-   * @param {float} metrics.timestamp  - The time of recording of the metrics (seconds since epoch)
-   * @param {number} metrics.totalMovingTime  - Absolute total moving time since start (seconds)
-   * @param {float} metrics.totalLinearDistance  - The total distance travelled (Meters)
+   * @param {object} metrics - The metrics to be recorded
+   * @param {float} metrics.timestamp - The time of recording of the metrics (seconds since epoch)
+   * @param {number} metrics.totalMovingTime - Absolute total moving time since start (seconds)
+   * @param {float} metrics.totalLinearDistance - The total distance travelled (Meters)
    * @param {object} metrics.workout - All metrics related to the total workout progress
    * @param {object} metrics.workout.caloriesSpent - All calorie-related metrics related to the workout progress
-   * @param {float} metrics.workout.caloriesSpent.total  - The total calories burned (Calories)
+   * @param {float} metrics.workout.caloriesSpent.total - The total calories burned (Calories)
    */
   function startSplit (metrics) {
     sessionData.noActiveSplits++
@@ -234,8 +272,22 @@ export function createFITRecorder (config) {
   }
 
   /**
-   * @description This registers all metrics at end start of an active Garmin split (= ORM Interval)
-   
+   * @description This registers all metrics at end of an active Garmin split (= ORM Interval)
+   * @param {object} metrics - The metrics to be recorded
+   * @param {float} metrics.timestamp - The time of recording of the metrics (seconds since epoch)
+   * @param {object} metrics.interval - All metrics related to the ORM interval progress
+   * @param {object} metrics.interval.timeSpent - All time-related metrics related to the ORM interval progress
+   * @param {object} metrics.interval.timeSpent.total - The total time spent in the ORM interval (i.e. both moving and resting, in seconds)
+   * @param {object} metrics.interval.timeSpent.moving - The total time spent moving in the ORM interval (seconds)
+   * @param {float} metrics.interval.distance - All distance-related metrics related to the ORM interval progress
+   * @param {float} metrics.interval.distance.fromStart - The total distance travelled (Meters)
+   * @param {object} metrics.interval.calories - All calorie-related metrics related to the interval progress
+   * @param {float} metrics.interval.calories.sinceStart - The total calories burned (Calories) in the interval
+   * @param {float} metrics.interval.linearVelocity - All velocity-related metrics related to the ORM interval progress
+   * @param {float} metrics.interval.linearVelocity.average - The average velocity in the interval (Meters per second)
+   * @param {float} metrics.interval.linearVelocity.maximum - The maximum velocity in the interval (Meters per second)
+   * @param {object} metrics.workout.timeSpent - All time-related metrics related to the workout progress
+   * @param {float} metrics.workout.timeSpent.moving - Total time spent moving during the workout (seconds)   
    */
   function calculateSplitMetrics (metrics) {
     const splitnumber = sessionData.splits.length - 1
@@ -250,6 +302,17 @@ export function createFITRecorder (config) {
     sessionData.totalMovingTime = metrics.workout.timeSpent.moving
   }
 
+  /**
+   * @description This registers all metrics for a Garmin rest split (= ORM rest Interval)
+   * @param {object} metrics - The metrics to be recorded
+   * @param {float} metrics.timestamp - The time of recording of the metrics (seconds since epoch)
+   * @param {object} metrics.interval - All metrics related to the ORM interval progress
+   * @param {object} metrics.interval.timeSpent - All time-related metrics related to the ORM interval progress
+   * @param {object} metrics.interval.timeSpent.rest - The total time spent resting in the ORM interval (seconds)
+   * @param {object} metrics.interval.caloriesSpent - All calorie-related metrics related to the interval progress
+   * @param {float} metrics.interval.caloriesSpent.rest - The total calories burned (Calories) during rest in the interval
+   * @param {float} startTime - The time of the start of the rest split
+   */
   function addRestSplit (metrics, startTime) {
     sessionData.noRestSplits++
     const splitnumber = sessionData.splits.length
@@ -257,8 +320,8 @@ export function createFITRecorder (config) {
       startTime: startTime,
       splitNumber: splitnumber,
       intensity: 'rest',
-      totalTime: metrics.split.timeSpent.rest,
-      calories: metrics.split.caloriesSpent.rest,
+      totalTime: metrics.interval.timeSpent.rest,
+      calories: metrics.interval.caloriesSpent.rest,
       endTime: metrics.timestamp,
       complete: true
     })
@@ -281,6 +344,34 @@ export function createFITRecorder (config) {
 
   /**
    * @description This sets all metrics at the end of an active Garmin lap (= ORM split)
+   * @param {object} metrics - The metrics to be recorded
+   * @param {float} metrics.timestamp - The time of recording of the metrics (seconds since epoch)
+   * @param {integer} metrics.interval.workoutStepNumber - Current workoutstep number the ORM split belongs to
+   * @param {string} metrics.interval.type - Type of the interval (i.e. 'distance', 'time' or 'calories')
+   * @param {object} metrics.split.timeSpent - All time-related metrics related to the ORM interval progress
+   * @param {object} metrics.split.timeSpent.total - The total time spent in the ORM split (seconds)
+   * @param {object} metrics.split.timeSpent.moving - The total time spent moving in the ORM split (seconds)
+   * @param {float} metrics.split.distance - All distance-related metrics related to the ORM split progress
+   * @param {float} metrics.split.distance.fromStart - The total distance travelled in the ORM split (Meters)
+   * @param {object} metrics.split.work - All work-related metrics related to the ORM split progress
+   * @param {float} metrics.split.work.sinceStart - The total work done on the flywheel in the split (Joules)
+   * @param {float} metrics.split.linearVelocity - All velocity-related metrics related to the ORM split progress
+   * @param {float} metrics.split.linearVelocity.average - The average velocity in the split (Meters per second)
+   * @param {float} metrics.split.linearVelocity.maximum - The maximum velocity in the split (Meters per second)
+   * @param {integer} metrics.split.numberOfStrokes, - The number of strokes in the split
+   * @param {object} metrics.split.strokerate - All strokerate-related metrics related to the ORM split progress
+   * @param {float} metrics.split.strokerate.average - The average strokerate in the split (strokes per minute)
+   * @param {float} metrics.split.strokerate.maximum - The maximum strokerate in the split (strokes per minute)
+   * @param {object} metrics.split.strokeDistance - All strokedistance-related metrics related to the ORM split progress
+   * @param {float} metrics.split.strokeDistance.average - The average stroke distance in the split (meters per stroke)
+   * @param {float} metrics.split.strokerate.maximum - The maximum strokerate in the split (strokes per minute)
+   * @param {object} metrics.split.power - All power-related metrics related to the ORM split progress
+   * @param {float} metrics.split.power.average - The average power in the split (Watts)
+   * @param {float} metrics.split.power.maximum - The maximum power in the split (Watts)
+   * @param {object} metrics.split.caloriesSpent - All calorie-related metrics related to the interval progress
+   * @param {float} metrics.split.caloriesSpent.moving - The total calories burned (Calories) during the ORM split
+   * @param {object} metrics.workout.timeSpent - All time-related metrics related to the workout progress
+   * @param {float} metrics.workout.timeSpent.moving - Total time spent moving during the workout (seconds)
    */
   function calculateLapMetrics (metrics) {
     const lapnumber = sessionData.laps.length - 1
