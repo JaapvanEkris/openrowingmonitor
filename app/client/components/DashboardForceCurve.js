@@ -64,9 +64,15 @@ export class DashboardForceCurve extends AppElement {
   accessor updateForceCurve = false
 
   @property({
-    type: Array
+    type: Array,
   })
   accessor value = []
+
+  /** @type {0 | 2 | 3} */
+  @property({
+    type: Number
+  })
+  accessor divisionMode = 0
 
   @state()
   accessor _chart
@@ -75,24 +81,21 @@ export class DashboardForceCurve extends AppElement {
   @state()
   accessor _divisionMode = 0
 
-  shouldUpdate () {
-    return this._chart === undefined || this.updateForceCurve
+  shouldUpdate (changedProperties) {
+    return this.updateForceCurve || changedProperties.has('divisionMode') || this._chart === undefined
   }
 
   _handleClick () {
     const modes = /** @type {(0 | 2 | 3)[]} */ ([0, 2, 3])
-    this._divisionMode = modes[(modes.indexOf(this._divisionMode) + 1) % modes.length]
-    if (this._chart) {
-      this._updateDivisionLines()
-      this._chart.update()
-    }
+    const nextMode = modes[(modes.indexOf(this.divisionMode) + 1) % modes.length]
+    this.sendEvent('changeGuiSetting', { forceCurveDivisionMode: nextMode })
   }
 
   _updateDivisionLines () {
     if (!this._chart?.options?.plugins) { return }
     const dataLength = this.value?.length || 0
-    const positions = this._divisionMode > 0 && dataLength > 0 ?
-      Array.from({ length: this._divisionMode - 1 }, (_, i) => ((i + 1) * dataLength) / this._divisionMode) :
+    const positions = this.divisionMode > 0 && dataLength > 0 ?
+      Array.from({ length: this.divisionMode - 1 }, (_, i) => ((i + 1) * dataLength) / this.divisionMode) :
       []
     // @ts-ignore - divisionLines is a custom plugin not in Chart.js types
     this._chart.options.plugins.divisionLines.positions = positions
@@ -101,6 +104,7 @@ export class DashboardForceCurve extends AppElement {
   willUpdate () {
     if (this._chart?.data) {
       this._chart.data.datasets[0].data = this.value?.map((data, index) => ({ y: data, x: index }))
+      this._updateDivisionLines()
     }
   }
 
