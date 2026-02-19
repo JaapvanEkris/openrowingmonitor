@@ -95,7 +95,7 @@ export const DASHBOARD_METRICS = {
 
   forceCurve: { displayName: 'Force curve', size: 2, template: (metrics) => html`<dashboard-force-curve .updateForceCurve=${metrics.metricsContext?.isRecoveryStart} .value=${metrics?.driveHandleForceCurve} style="grid-column: span 2"></dashboard-force-curve>` },
 
-  peakForce: { displayName: 'Peak Force', size: 1, template: (metrics) => simpleMetricFactory(formatNumber(metrics?.drivePeakHandleForce), 'N', 'Force') },
+  peakForce: { displayName: 'Peak Force', size: 1, template: (metrics) => simpleMetricFactory(formatNumber(metrics?.drivePeakHandleForce), 'N', 'Peak Force') },
 
   strokeRatio: {
     displayName: 'Stroke Ratio',
