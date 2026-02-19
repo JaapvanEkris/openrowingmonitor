@@ -1121,8 +1121,8 @@ export function createFITRecorder (config) {
         'hr',
         {
           timestamp: writer.time(workout.HR[i].timestamp),
-          event_timestamp: [ timeSinceStart ],
-          filtered_bpm: [ Math.round(workout.HR[i].heartrate) ]
+          event_timestamp: [timeSinceStart],
+          filtered_bpm: [Math.round(workout.HR[i].heartrate)]
         }
       )
       i++
