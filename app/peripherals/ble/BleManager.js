@@ -71,6 +71,7 @@ export class BleManager {
           })
         } catch (error) {
           log.error('Failed to load BLE modules:', error)
+          this.#managerOpeningTask = undefined
           throw error
         }
       })()
