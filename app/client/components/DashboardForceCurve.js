@@ -18,7 +18,7 @@ const divisionLinesPlugin = {
     const { ctx, chartArea: { top, bottom } } = chart
     ctx.save()
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)'
-    ctx.lineWidth = 3
+    ctx.lineWidth = 5
     ctx.setLineDash([5, 5])
     options.positions.forEach((xPos) => {
       const xPixel = chart.scales.x.getPixelForValue(xPos)
@@ -55,6 +55,7 @@ export class DashboardForceCurve extends AppElement {
     canvas {
       width: 100%;
       height: 100%;
+      cursor: pointer;
     }
   `
 
@@ -64,7 +65,7 @@ export class DashboardForceCurve extends AppElement {
   accessor updateForceCurve = false
 
   @property({
-    type: Array,
+    type: Array
   })
   accessor value = []
 
@@ -177,14 +178,12 @@ export class DashboardForceCurve extends AppElement {
 
   render () {
     return html`
-      <div @click=${this._handleClick} style="width: 100%; height: 100%;">
-        <!== Only show label if no chart -->
-        ${this._chart?.data.datasets[0].data.length ?
-          '' :
-          html`<div class="title"> Force Curve </div>`
-        }
-        <canvas id="chart"></canvas>
-      </div>
+      <!== Only show label if no chart -->
+      ${this._chart?.data.datasets[0].data.length ?
+        '' :
+        html`<div class="title"> Force Curve </div>`
+      }
+      <canvas @click="${this._handleClick}" id="chart"></canvas>
     `
   }
 }
