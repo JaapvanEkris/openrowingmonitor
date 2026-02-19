@@ -547,7 +547,7 @@ export function createFITRecorder (config) {
       if (value.heartrate !== heartRate) {
         let currentTimestamp = new Date()
         sessionData.HR.push({
-          heartrate: heartRate,
+          heartrate: value.heartrate,
           timestamp: currentTimestamp
         })
       }
