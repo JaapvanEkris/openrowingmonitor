@@ -93,7 +93,9 @@ export const DASHBOARD_METRICS = {
 
   recoveryDuration: { displayName: 'Recovery duration', size: 1, template: (metrics, config) => simpleMetricFactory(formatNumber(metrics?.recoveryDuration, 2), 'sec', config?.guiConfigs?.showIcons ? 'Recovery' : '') },
 
-  forceCurve: { displayName: 'Force curve', size: 2, template: (metrics) => html`<dashboard-force-curve .updateForceCurve=${metrics.metricsContext?.isRecoveryStart} .value=${metrics?.driveHandleForceCurve} style="grid-column: span 2"></dashboard-force-curve>` }
+  forceCurve: { displayName: 'Force curve', size: 2, template: (metrics) => html`<dashboard-force-curve .updateForceCurve=${metrics.metricsContext?.isRecoveryStart} .value=${metrics?.driveHandleForceCurve} style="grid-column: span 2"></dashboard-force-curve>` },
+
+  peakForce: { displayName: 'Peak Force', size: 1, template: (metrics) => simpleMetricFactory(formatNumber(metrics?.drivePeakHandleForce), 'N', 'Force') }
 }
 
 /**

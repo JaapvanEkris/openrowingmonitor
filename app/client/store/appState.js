@@ -20,6 +20,7 @@ export const APP_STATE = {
     driveLength: 0,
     driveDuration: 0,
     driveHandleForceCurve: [],
+    drivePeakHandleForce: 0,
     driveDistance: 0,
     recoveryDuration: 0,
     dragFactor: undefined,
