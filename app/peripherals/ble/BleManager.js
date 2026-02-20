@@ -3,15 +3,13 @@ import config from '../../tools/ConfigManager.js'
 
 /**
  * @typedef {import('./ble-host.interface.js').BleManager} BleHostManager
- * @import HciSocket from 'hci-socket'
- * @import NodeBleHost from 'ble-host'
  */
 
 const log = loglevel.getLogger('Peripherals')
 
 export class BleManager {
   /**
-   * @type {HciSocket | undefined}
+   * @type {import('hci-socket') | undefined}
    */
   #transport
   /**
@@ -23,11 +21,11 @@ export class BleManager {
    */
   #managerOpeningTask
   /**
-   * @type {typeof HciSocket | undefined}
+   * @type {typeof import('hci-socket') | undefined}
    */
   #HciSocket
   /**
-   * @type {typeof NodeBleHost | undefined}
+   * @type {typeof import('ble-host').default | undefined}
    */
   #NodeBleHost
 
