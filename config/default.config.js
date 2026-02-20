@@ -111,6 +111,10 @@ export default {
   // Please note that a smaller value will use more network and cpu ressources
   webUpdateInterval: 200,
 
+  // If set to true, bypasses all hardware checks for BLE and GPIO. Useful for development/simulation
+  // on devices without the proper hardware (e.g., Windows, macOS, or headless Linux servers).
+  simulateWithoutHardware: false,
+
   // Interval between updates of the bluetooth devices (miliseconds)
   // Advised is to update at least once per second, as consumers expect this interval
   // Some apps, like EXR like a more frequent interval of 200 ms to better sync the stroke
