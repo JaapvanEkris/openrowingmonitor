@@ -88,6 +88,7 @@ function checkConfig (configToCheck) {
   checkBooleanValue(configToCheck, 'gzipTcxFiles', true, false)
   checkBooleanValue(configToCheck, 'createFitFiles', true, true)
   checkBooleanValue(configToCheck, 'gzipFitFiles', true, false)
+  checkBooleanValue(configToCheck, 'simulateWithoutHardware', true, false)
   checkFloatValue(configToCheck.userSettings, 'restingHR', 30, 220, false, true, 40)
   checkFloatValue(configToCheck.userSettings, 'maxHR', configToCheck.userSettings.restingHR, 220, false, true, 220)
   if (configToCheck.createTcxFiles || configToCheck.createFitFiles) {
