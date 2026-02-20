@@ -9,7 +9,7 @@ const log = loglevel.getLogger('Peripherals')
 
 export class BleManager {
   /**
-   * @type {any}
+   * @type {import('hci-socket') | undefined}
    */
   #transport
   /**
@@ -21,11 +21,11 @@ export class BleManager {
    */
   #managerOpeningTask
   /**
-   * @type {any}
+   * @type {typeof import('hci-socket') | undefined}
    */
   #HciSocket
   /**
-   * @type {any}
+   * @type {typeof import('ble-host').default | undefined}
    */
   #NodeBleHost
 
