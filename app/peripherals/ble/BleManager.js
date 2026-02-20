@@ -1,12 +1,11 @@
 import loglevel from 'loglevel'
+import config from '../../tools/ConfigManager.js'
 
 /**
  * @typedef {import('./ble-host.interface.js').BleManager} BleHostManager
  */
 
 const log = loglevel.getLogger('Peripherals')
-
-const isBleSupported = process.platform === 'linux'
 
 export class BleManager {
   /**
@@ -30,52 +29,49 @@ export class BleManager {
    */
   #NodeBleHost
 
-  constructor () {
-    if (!isBleSupported) {
-      log.warn(`BLE support unavailable on ${process.platform} (Linux only)`)
-      throw new Error(`BLE is only supported on Linux, current platform: ${process.platform}`)
-    }
-  }
-
   open () {
+    if (config.simulateWithoutHardware) {
+      log.warn('simulateWithoutHardware is true, BLE manager is disabled.')
+      return Promise.reject(new Error('simulateWithoutHardware is true, BLE disabled.'))
+    }
+
     if (this.#manager !== undefined) {
       return Promise.resolve(this.#manager)
     }
 
-    if (this.#managerOpeningTask === undefined) {
-      this.#managerOpeningTask = (async () => {
-        if (this.#manager) {
-          return this.#manager
-        }
-        log.debug('Opening BLE manager')
-
-        try {
-          if (this.#HciSocket === undefined || this.#NodeBleHost === undefined) {
-            const hciSocketModule = await import('hci-socket')
-            const bleHostModule = await import('ble-host')
-            this.#HciSocket = hciSocketModule.default
-            this.#NodeBleHost = bleHostModule.default
-          }
-
-          if (this.#transport === undefined) {
-            this.#transport = new this.#HciSocket()
-          }
-
-          return new Promise((resolve, reject) => {
-            this.#NodeBleHost.BleManager.create(this.#transport, {}, (/** @type {Error | null} */err, /** @type {BleHostManager} */manager) => {
-              if (err) { reject(err) }
-              this.#manager = manager
-              this.#managerOpeningTask = undefined
-              resolve(manager)
-            })
-          })
-        } catch (error) {
-          log.error('Failed to load BLE modules:', error)
-          this.#managerOpeningTask = undefined
-          throw error
-        }
-      })()
+    if (this.#managerOpeningTask !== undefined) {
+      return this.#managerOpeningTask
     }
+
+    this.#managerOpeningTask = (async () => {
+      log.debug('Opening BLE manager')
+
+      try {
+        if (this.#HciSocket === undefined || this.#NodeBleHost === undefined) {
+          const hciSocketModule = await import('hci-socket')
+          const bleHostModule = await import('ble-host')
+          this.#HciSocket = hciSocketModule.default
+          this.#NodeBleHost = bleHostModule.default
+        }
+
+        if (this.#transport === undefined) {
+          this.#transport = new this.#HciSocket()
+        }
+
+        return new Promise((resolve, reject) => {
+          this.#NodeBleHost.BleManager.create(this.#transport, {}, (/** @type {Error | null} */err, /** @type {BleHostManager} */manager) => {
+            if (err) { reject(err) }
+            this.#manager = manager
+            this.#managerOpeningTask = undefined
+            resolve(manager)
+          })
+        })
+      } catch (error) {
+        log.warn('Failed to load BLE modules or open BLE socket. BLE will be unavailable.', error.message)
+        this.#managerOpeningTask = undefined
+        throw error
+      }
+    })()
 
     return this.#managerOpeningTask
   }
