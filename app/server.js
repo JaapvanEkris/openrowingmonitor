@@ -55,13 +55,8 @@ peripheralManager.on('heartRateMeasurement', (heartRateMeasurement) => {
   webServer.presentHeartRate(heartRateMeasurement)
 })
 
-let gpioTimerService
-if (process.platform === 'linux') {
-  gpioTimerService = child_process.fork('./app/gpio/GpioTimerService.js')
-  gpioTimerService.on('message', handleRotationImpulse)
-} else {
-  log.warn(`GPIO service not available on ${process.platform} (Linux/Raspberry Pi only)`)
-}
+const gpioTimerService = child_process.fork('./app/gpio/GpioTimerService.js')
+gpioTimerService.on('message', handleRotationImpulse)
 
 // Be aware, both the GPIO as well as the replayer use this as an entrypoint!
 function handleRotationImpulse (dataPoint) {

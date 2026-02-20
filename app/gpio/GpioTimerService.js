@@ -7,14 +7,18 @@
   possible to real time.
 */
 import process from 'process'
-import pigpio from 'pigpio'
 import os from 'os'
 import config from '../tools/ConfigManager.js'
 import log from 'loglevel'
 
 log.setLevel(config.loglevel.default)
 
-export function createGpioTimerService () {
+export async function createGpioTimerService () {
+  if (config.simulateWithoutHardware) {
+    log.warn('simulateWithoutHardware is true, GPIO service is disabled.')
+    return
+  }
+
   // Import the settings from the settings file
   const triggeredFlank = config.gpioTriggeredFlank
   const pollingInterval = config.gpioPollingInterval
@@ -29,6 +33,15 @@ export function createGpioTimerService () {
     } catch (err) {
       log.debug(`Gpio-service: FAILED to set priority of Gpio-Thread, error ${err}, are root permissions granted?`)
     }
+  }
+
+  let pigpio
+  try {
+    const pigpioModule = await import('pigpio')
+    pigpio = pigpioModule.default
+  } catch (error) {
+    log.warn('Failed to load pigpio module. GPIO service will be unavailable (Linux/Raspberry Pi only).', error.message)
+    return
   }
 
   const Gpio = pigpio.Gpio
