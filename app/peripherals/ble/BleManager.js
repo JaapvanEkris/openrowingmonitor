@@ -31,9 +31,16 @@ export class BleManager {
 
   open () {
     if (config.simulateWithoutHardware) {
-      log.warn('simulateWithoutHardware is true, BLE manager is disabled.')
+      log.info('Hardware initialization: simulateWithoutHardware is true. BLE manager is bypassed.')
       return Promise.reject(new Error('simulateWithoutHardware is true, BLE disabled.'))
     }
+    
+    if (process.platform !== 'linux') {
+      log.info(`Hardware initialization: BLE requires Linux. Current platform is ${process.platform}. BLE manager is bypassed.`)
+      return Promise.reject(new Error(`BLE requires Linux, current platform: ${process.platform}`))
+    }
+    
+    log.info('Hardware initialization: BLE enabled on Linux. Attempting to start BLE manager.')
 
     if (this.#manager !== undefined) {
       return Promise.resolve(this.#manager)

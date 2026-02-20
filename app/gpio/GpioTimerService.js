@@ -8,6 +8,7 @@
 */
 import process from 'process'
 import os from 'os'
+import fs from 'fs'
 import config from '../tools/ConfigManager.js'
 import log from 'loglevel'
 
@@ -15,7 +16,29 @@ log.setLevel(config.loglevel.default)
 
 export async function createGpioTimerService () {
   if (config.simulateWithoutHardware) {
-    log.warn('simulateWithoutHardware is true, GPIO service is disabled.')
+    log.info('Hardware initialization: simulateWithoutHardware is true. GPIO service is bypassed.')
+    return
+  }
+
+  if (process.platform !== 'linux') {
+    log.info(`Hardware initialization: GPIO requires Linux. Current platform is ${process.platform}. GPIO service is bypassed.`)
+    return
+  }
+
+  let isSupportedPi = false
+  try {
+    const model = fs.readFileSync('/proc/device-tree/model', 'utf8')
+    if (model.includes('Raspberry Pi 3') || model.includes('Raspberry Pi 4') || model.includes('Raspberry Pi Zero 2')) {
+      isSupportedPi = true
+      log.info(`Hardware initialization: Detected supported Raspberry Pi (${model.trim()}). Attempting to start GPIO service.`)
+    } else {
+      log.info(`Hardware initialization: Detected unsupported device (${model.trim()}). GPIO service is bypassed.`)
+    }
+  } catch (err) {
+    log.info(`Hardware initialization: Could not read /proc/device-tree/model (${err.message}). Assuming not a supported Raspberry Pi. GPIO service is bypassed.`)
+  }
+
+  if (!isSupportedPi) {
     return
   }
 
