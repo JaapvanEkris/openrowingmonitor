@@ -5,15 +5,12 @@
   Measures the time between impulses on the GPIO pin. Started in a
   separate thread, since we want the measured time to be as close as
   possible to real time.
-
-  Includes software debouncing to filter hardware bounce from magnetic sensors.
 */
 import process from 'process'
 import pigpio from 'pigpio'
 import os from 'os'
 import config from '../tools/ConfigManager.js'
 import log from 'loglevel'
-import { createDebounceFilter } from './DebounceFilter.js'
 
 log.setLevel(config.loglevel.default)
 
@@ -21,8 +18,6 @@ export function createGpioTimerService () {
   const triggeredFlank = config.gpioTriggeredFlank
   const pollingInterval = config.gpioPollingInterval
   const minimumPulseLength = config.gpioMinimumPulseLength
-
-  const debounceFilter = createDebounceFilter()
 
   if (config.gpioPriority) {
     log.debug(`Gpio-service: Setting priority to ${config.gpioPriority}`)
@@ -60,13 +55,8 @@ export function createGpioTimerService () {
         currentDt = (currentTick + 4294.967295) - previousTick
       }
       previousTick = currentTick
-
-      const result = debounceFilter.processDelta(currentDt)
-      if (result.valid) {
-        process.send(currentDt)
-      }
+      process.send(currentDt)
     }
   })
 }
-
 createGpioTimerService()
