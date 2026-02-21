@@ -101,9 +101,17 @@ export const DASHBOARD_METRICS = {
     displayName: 'Stroke Ratio',
     size: 1,
     template: (metrics) => {
-      const ratio = metrics?.driveDuration && metrics?.recoveryDuration
-        ? `1:${(metrics.recoveryDuration / metrics.driveDuration).toFixed(1)}`
-        : undefined
+      // Check to make sure both values are truthy
+      // no 0, null, or undefined
+      const validRatio = metrics?.driveDuration && metrics?.recoveryDuration;
+      let ratio;
+
+      if (validRatio) {
+        ratio = `1:${(metrics.recoveryDuration / metrics.driveDuration).toFixed(1)}`
+      } else {
+        ratio = undefined;
+      }
+
       return simpleMetricFactory(ratio, '', 'Ratio')
     }
   }
