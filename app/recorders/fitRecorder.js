@@ -201,9 +201,9 @@ export function createFITRecorder (config) {
       case (metrics.metricsContext.isPauseEnd):
         // The session is resumed, so it was a pause instead of a stop. First add the rest split and lap
         // eslint-disable-next-line no-case-declarations -- Code clarity outweighs lint rules
-        const endTime = sessionData.splits[sessionData.splits.length - 1].endTime
-        addRestSplit(metrics, endTime)
-        addRestLap(metrics, endTime, metrics.interval.workoutStepNumber)
+        const lastActiveSplitEndtime = sessionData.splits[sessionData.splits.length - 1].endTime
+        addRestSplit(metrics, lastActiveSplitEndtime)
+        addRestLap(metrics, lastActiveSplitEndtime, metrics.interval.workoutStepNumber)
         // Now start a new active split and lap
         startSplit(metrics)
         startLap(metrics)
