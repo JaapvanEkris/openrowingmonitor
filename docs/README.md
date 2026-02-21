@@ -55,11 +55,11 @@ If you connect a (optional) physical screen directly to the Raspberry Pi, then t
 
 ### Device connections via Bluetooth, ANT+ and MQTT
 
-OpenRowingMonitor can recieve heartrate data via Bluetooth Low Energy (BLE) and ANT+. But you can also share your rowing metrics with different applications and devices. We support most common industry standards to help you connect to your app and game of choice. OpenRowingMonitor currently supports the following protocols:
+OpenRowingMonitor can receive heartrate data via Bluetooth Low Energy (BLE) and ANT+. But you can also share your rowing metrics with different applications and devices. We support most common industry standards to help you connect to your app and game of choice, OpenRowingMonitor currently supports the following protocols:
 
 * **Concept2 PM**: OpenRowingMonitor can simulate a Concept2 PM5, which is compatible with most rowing apps. This implements the most common parts of the specificarion, so it might not work with all applications. It is known to work with [EXR](https://www.exrgame.com) (preferred method), [ErgZone](https://Erg.Zone), [Kinomap](https://www.kinomap.com) and all the samples from [The Erg Arcade](https://ergarcade.com).
 
-* **FTMS Rower**: This is the FTMS profile for rowing machines and supports all key rowing specific metrics (such as pace and stroke rate). We've successfully tested it with [EXR](https://www.exrgame.com), [Peleton](https://www.onepeloton.com/app), [MyHomeFit](https://myhomefit.de) and [Kinomap](https://www.kinomap.com).
+* **FTMS Rower**: This is the FTMS profile for rowing machines and supports all rowing specific metrics (such as stroke rate). We've successfully tested it with [EXR](https://www.exrgame.com), [Peloton](https://www.onepeloton.com/app), [MyHomeFit](https://myhomefit.de) and [Kinomap](https://www.kinomap.com).
 
 * **ANT+ FE-C**: OpenRowingMonitor can broadcast rowing metrics via ANT+ FE-C, which can be received by several series of Garmin smartwatches like the Epix/Fenix series, which then can calculate metrics like training load etc..
 
@@ -69,7 +69,7 @@ OpenRowingMonitor can recieve heartrate data via Bluetooth Low Energy (BLE) and 
 
 * **BLE Cycling Speed and Cadence Profile**: used for older Garmin Forerunner and Garmin Venu watches and similar types, again simulating a bike activity.
 
-* **MQTT**: this IoT protocol allows you to broadcast metrics for logging or real-time display, but also allows for integration with Home Automation systems like [Home Assistant](https://www.home-assistant.io/), [Domiticz](https://www.domoticz.com/) and Alexa Voice control via [HABridge](https://github.com/bwssytems/ha-bridge).
+* **MQTT**: this IoT protocol allows you to broadcast metrics for logging or real-time display, but also allows for integration with Home Automation systems like [Home Assistant](https://www.home-assistant.io/), [Domoticz](https://www.domoticz.com/) and Alexa Voice control via [HABridge](https://github.com/bwssytems/ha-bridge).
 
 > [!NOTE]
 > Use of ANT+ requires adding an ANT+ USB-stick to your Raspberry Pi.
@@ -82,7 +82,7 @@ OpenRowingMonitor is based on the idea your metrics should be easily accessible 
 
 * **Garmin FIT files**: These are binary files that contain the most interesting metrics of a rowing session. Most modern training analysis tools will accept a FIT-file. You can upload these files to training platforms like [Strava](https://www.strava.com), [Garmin Connect](https://connect.garmin.com), [Intervals.icu](https://intervals.icu/), [RowsAndAll](https://rowsandall.com/) or [Trainingpeaks](https://trainingpeaks.com) to track your training sessions;
 
-* **Training Center XML files (TCX)**: These are legacy XML files that contain the most essential metrics of a rowing session. Most training analysis tools will still accept a tcx-file (although FIT usually is recommended). You can upload these files to training platforms like [Strava](https://www.strava.com), [Garmin Connect](https://connect.garmin.com), [Intervals.icu](https://intervals.icu/), [RowsAndAll](https://rowsandall.com/) or [Trainingpeaks](https://trainingpeaks.com) to track your training sessions;
+* **Training Center XML files (TCX)**: These are legacy XML-files that contain the most essential metrics of a rowing session. Most training analysis tools will still accept a tcx-file (although FIT usually is recommended). You can upload these files to training platforms like [Strava](https://www.strava.com), [Garmin Connect](https://connect.garmin.com), [Intervals.icu](https://intervals.icu/), [RowsAndAll](https://rowsandall.com/) or [Trainingpeaks](https://trainingpeaks.com) to track your training sessions;
 
 The OpenRowingMonitor installer can also set up a network share that contains all training data so it is easy to grab the files from there and manually upload them to the training platform of your choice.
 
