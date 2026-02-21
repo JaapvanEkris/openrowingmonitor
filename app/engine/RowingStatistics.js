@@ -3,10 +3,11 @@
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 */
 /**
- *  This Module creates a persistent, consistent and user presentable set of metrics.
+ * @file This Module creates a persistent, consistent and user presentable set of metrics.
+ * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Architecture.md#rowingstatisticsjs|the architecture description}
  */
 import { createRower } from './Rower.js'
-import { createOLSLinearSeries } from './utils/OLSLinearSeries.js'
+import { createWLSLinearSeries } from './utils/WLSLinearSeries.js'
 import { createStreamFilter } from './utils/StreamFilter.js'
 import { createCurveAligner } from './utils/CurveAligner.js'
 
@@ -29,8 +30,10 @@ export function createRowingStatistics (config) {
   let totalNumberOfStrokes = -1
   let driveLastStartTime = 0
   let strokeCalories = 0
+  let totalCalories = 0
   let strokeWork = 0
-  const calories = createOLSLinearSeries()
+  let totalWork = 0
+  const calories = createWLSLinearSeries()
   const driveDuration = createStreamFilter(halfNumOfDataPointsForAveraging, undefined)
   const driveLength = createStreamFilter(halfNumOfDataPointsForAveraging, undefined)
   const driveDistance = createStreamFilter(halfNumOfDataPointsForAveraging, undefined)
@@ -177,9 +180,11 @@ export function createRowingStatistics (config) {
 
   // initiated when updating key statistics
   function updateContinousMetrics () {
-    totalMovingTime = rower.totalMovingTimeSinceStart()
-    totalLinearDistance = rower.totalLinearDistanceSinceStart()
+    totalMovingTime = Math.max(totalMovingTime, rower.totalMovingTimeSinceStart())
+    totalLinearDistance = Math.max(totalLinearDistance, rower.totalLinearDistanceSinceStart())
     instantPower = rower.instantHandlePower()
+    totalWork = Math.max(totalWork, rower.totalFlywheelWorkSinceStart())
+    totalCalories = ((4 * totalWork) + (350 * totalMovingTime)) / 4200
   }
 
   function updateCycleMetrics () {
@@ -204,6 +209,12 @@ export function createRowingStatistics (config) {
       driveHandleForceCurve.push(rower.driveHandleForceCurve())
       driveHandleVelocityCurve.push(rower.driveHandleVelocityCurve())
       driveHandlePowerCurve.push(rower.driveHandlePowerCurve())
+      // based on: http://eodg.atm.ox.ac.uk/user/dudhia/rowing/physics/ergometer.html#section11
+      strokeWork = rower.driveFlywheelWork()
+      strokeCalories = ((4 * rower.driveFlywheelWork()) + (350 * cycleDuration.clean())) / 4200
+      if (cyclePower.reliable() && cycleDuration.reliable()) {
+        calories.push(totalMovingTime, totalCalories, 1)
+      }
     }
   }
 
@@ -221,12 +232,7 @@ export function createRowingStatistics (config) {
     }
 
     if (cyclePower.reliable() && cycleDuration.reliable()) {
-      // ToDo: see if this can be made part of the continuousmatrcs as Garmin and Concept2 also have a 'calories' type of training
-      // based on: http://eodg.atm.ox.ac.uk/user/dudhia/rowing/physics/ergometer.html#section11
-      strokeCalories = (4 * cyclePower.clean() + 350) * (cycleDuration.clean()) / 4200
-      strokeWork = cyclePower.clean() * cycleDuration.clean()
-      const totalCalories = calories.Y.atSeriesEnd() + strokeCalories
-      calories.push(totalMovingTime, totalCalories)
+      calories.push(totalMovingTime, totalCalories, 1)
     }
   }
 
@@ -239,9 +245,10 @@ export function createRowingStatistics (config) {
       totalMovingTime: totalMovingTime > 0 ? totalMovingTime : 0,
       totalNumberOfStrokes: totalNumberOfStrokes > 0 ? totalNumberOfStrokes : 0,
       totalLinearDistance: totalLinearDistance > 0 ? totalLinearDistance : 0, // meters
+      totalWork: totalWork > 0 ? totalWork : 0, // Joules
       strokeCalories: strokeCalories > 0 ? strokeCalories : 0, // kCal
       strokeWork: strokeWork > 0 ? strokeWork : 0, // Joules
-      totalCalories: calories.Y.atSeriesEnd() > 0 ? calories.Y.atSeriesEnd() : 0, // kcal
+      totalCalories: totalCalories > 0 ? totalCalories : 0, // kcal
       totalCaloriesPerMinute: totalMovingTime > 60 ? caloriesPerPeriod(totalMovingTime - 60, totalMovingTime) : caloriesPerPeriod(0, 60),
       totalCaloriesPerHour: totalMovingTime > 3600 ? caloriesPerPeriod(totalMovingTime - 3600, totalMovingTime) : caloriesPerPeriod(0, 3600),
       cycleDuration: cycleDuration.reliable() && cycleDuration.clean() > minimumStrokeTime && cycleDuration.clean() < maximumStrokeTime && cycleLinearVelocity.raw() > 0 && totalNumberOfStrokes > 0 && metricsContext.isMoving === true ? cycleDuration.clean() : undefined, // seconds

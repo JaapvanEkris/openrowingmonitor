@@ -47,9 +47,10 @@ export const APP_STATE = {
     // true if remote device shutdown is enabled
     shutdownEnabled: false,
     guiConfigs: {
-      dashboardMetrics: ['distance', 'timer', 'pace', 'power', 'stkRate', 'totalStk', 'calories', 'actions'],
+      dashboardMetrics: ['distance', 'timer', 'pace', 'power', 'stkRate', 'totalStk', 'calories'],
       showIcons: true,
-      maxNumberOfTiles: 8
+      maxNumberOfTiles: 8,
+      trueBlackTheme: false
     }
   }
 }

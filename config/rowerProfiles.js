@@ -30,8 +30,12 @@ export default {
 
     // NOISE FILTER SETTINGS
     // Filter Settings to reduce noise in the measured data
-    // Smoothing determines the length of the running average for filtering the currentDt, 1 effectively turns it off
-    smoothing: 1,
+    // Systematic error agressiveness determines the strength of the systematic error filter. 0 turns it off (default), 1 turns it to its maximum.
+    // A value of 0.10 is known to bring some benefits, but some machines can handle 0.90 to 1.0. Don't set too high if the machine has a lot of signal bounce.
+    systematicErrorAgressiveness: 0,
+
+    // Size of the total buffer for the systematic error filter. We recomend to use at least use the length of the longest recovery here (logs can tell this).
+    systematicErrorNumberOfDatapoints: 1,
 
     // Flank length determines the number of measuments that are used for determining the angular velocity and angular acceleration
     flankLength: 3,
@@ -150,20 +154,21 @@ export default {
     maximumStrokeTimeBeforePause: 6.0,
     dragFactor: 68,
     autoAdjustDragFactor: true,
-    minimumDragQuality: 0.60,
+    minimumDragQuality: 0.85,
     dragFactorSmoothing: 3,
     minimumTimeBetweenImpulses: 0.005,
-    maximumTimeBetweenImpulses: 0.0145,
+    maximumTimeBetweenImpulses: 0.01375,
     flankLength: 12,
-    smoothing: 1,
-    minimumStrokeQuality: 0.34,
-    minimumForceBeforeStroke: 11,
+    systematicErrorAgressiveness: 0.95,
+    systematicErrorNumberOfDatapoints: 240,
+    minimumStrokeQuality: 0.26,
+    minimumForceBeforeStroke: 22,
     minimumRecoverySlope: 0.00070,
     autoAdjustRecoverySlope: true,
-    autoAdjustRecoverySlopeMargin: 0.01,
-    minimumDriveTime: 0.40,
+    autoAdjustRecoverySlopeMargin: 0.0045,
+    minimumDriveTime: 0.50,
     minimumRecoveryTime: 0.90,
-    flywheelInertia: 0.101255,
+    flywheelInertia: 0.10145,
     magicConstant: 2.8
   },
 
@@ -228,12 +233,12 @@ export default {
     dragFactorSmoothing: 3,
     flywheelInertia: 0.180,
     dragFactor: 225,
-    flankLength: 11,
+    flankLength: 7,
     minimumStrokeQuality: 0.34,
     minimumRecoverySlope: 0,
-    autoAdjustRecoverySlope: false,
-    autoAdjustRecoverySlopeMargin: 0.1,
-    minimumForceBeforeStroke: 80,
+    autoAdjustRecoverySlope: true,
+    autoAdjustRecoverySlopeMargin: 0.14,
+    minimumForceBeforeStroke: 35,
     minimumDriveTime: 0.30,
     minimumRecoveryTime: 0.60
   },

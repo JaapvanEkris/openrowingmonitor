@@ -1,21 +1,17 @@
 'use strict'
+/*
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
+*/
 /**
- * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
- *
- * @file Tests of the Series object. As this object is fundamental for most other utility objects, we must test its behaviour quite thoroughly
- * Please note: this file contains commented out stress tests of the length(), sum(), average() functions, to detect any issues with numerical stability
- * As these tests tend to run in the dozens of minutes, we do not run them systematically, but they should be run when the series object is changed.
+ * As this object is fundamental for most other utility objects, we must test its behaviour quite thoroughly
  */
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 
-import { createSeries } from './Series.js'
+import { createWeighedSeries } from './WeighedSeries.js'
 
-/**
- * @description Test behaviour for no datapoints
- */
 test('Series behaviour with an empty series', () => {
-  const dataSeries = createSeries(3)
+  const dataSeries = createWeighedSeries(3, undefined)
   testLength(dataSeries, 0)
   testatSeriesBegin(dataSeries, 0)
   testAtSeriesEnd(dataSeries, 0)
@@ -24,18 +20,16 @@ test('Series behaviour with an empty series', () => {
   testNumberOfValuesAbove(dataSeries, 10, 0)
   testNumberOfValuesEqualOrBelow(dataSeries, 10, 0)
   testSum(dataSeries, 0)
-  testAverage(dataSeries, 0)
+  testAverage(dataSeries, undefined)
+  testWeighedAverage(dataSeries, undefined)
   testMedian(dataSeries, 0)
   testMinimum(dataSeries, 0)
   testMaximum(dataSeries, 0)
 })
 
-/**
- * @description Test behaviour for a single datapoint
- */
 test('Series behaviour with a single pushed value. Series = [9]', () => {
-  const dataSeries = createSeries(3)
-  dataSeries.push(9)
+  const dataSeries = createWeighedSeries(3, undefined)
+  dataSeries.push(9, 1)
   testLength(dataSeries, 1)
   testatSeriesBegin(dataSeries, 9)
   testAtSeriesEnd(dataSeries, 9)
@@ -45,18 +39,16 @@ test('Series behaviour with a single pushed value. Series = [9]', () => {
   testNumberOfValuesEqualOrBelow(dataSeries, 10, 1)
   testSum(dataSeries, 9)
   testAverage(dataSeries, 9)
+  testWeighedAverage(dataSeries, 9)
   testMedian(dataSeries, 9)
   testMinimum(dataSeries, 9)
   testMaximum(dataSeries, 9)
 })
 
-/**
- * @description Test behaviour for two datapoints
- */
 test('Series behaviour with a second pushed value. Series = [9, 3]', () => {
-  const dataSeries = createSeries(3)
-  dataSeries.push(9)
-  dataSeries.push(3)
+  const dataSeries = createWeighedSeries(3, undefined)
+  dataSeries.push(9, 1)
+  dataSeries.push(3, 0)
   testLength(dataSeries, 2)
   testatSeriesBegin(dataSeries, 9)
   testAtSeriesEnd(dataSeries, 3)
@@ -66,19 +58,17 @@ test('Series behaviour with a second pushed value. Series = [9, 3]', () => {
   testNumberOfValuesEqualOrBelow(dataSeries, 10, 2)
   testSum(dataSeries, 12)
   testAverage(dataSeries, 6)
+  testWeighedAverage(dataSeries, 9)
   testMedian(dataSeries, 6)
   testMinimum(dataSeries, 3)
   testMaximum(dataSeries, 9)
 })
 
-/**
- * @description Test behaviour for three datapoints
- */
 test('Series behaviour with a third pushed value. Series = [9, 3, 6]', () => {
-  const dataSeries = createSeries(3)
-  dataSeries.push(9)
-  dataSeries.push(3)
-  dataSeries.push(6)
+  const dataSeries = createWeighedSeries(3, undefined)
+  dataSeries.push(9, 1)
+  dataSeries.push(3, 0)
+  dataSeries.push(6, 1)
   testLength(dataSeries, 3)
   testatSeriesBegin(dataSeries, 9)
   testAtSeriesEnd(dataSeries, 6)
@@ -88,20 +78,18 @@ test('Series behaviour with a third pushed value. Series = [9, 3, 6]', () => {
   testNumberOfValuesEqualOrBelow(dataSeries, 10, 3)
   testSum(dataSeries, 18)
   testAverage(dataSeries, 6)
+  testWeighedAverage(dataSeries, 7.5)
   testMedian(dataSeries, 6)
   testMinimum(dataSeries, 3)
   testMaximum(dataSeries, 9)
 })
 
-/**
- * @description Test behaviour for four datapoints
- */
 test('Series behaviour with a fourth pushed value. Series = [3, 6, 12]', () => {
-  const dataSeries = createSeries(3)
-  dataSeries.push(9)
-  dataSeries.push(3)
-  dataSeries.push(6)
-  dataSeries.push(12)
+  const dataSeries = createWeighedSeries(3, undefined)
+  dataSeries.push(9, 0)
+  dataSeries.push(3, 0)
+  dataSeries.push(6, 1)
+  dataSeries.push(12, 1)
   testLength(dataSeries, 3)
   testatSeriesBegin(dataSeries, 3)
   testAtSeriesEnd(dataSeries, 12)
@@ -111,21 +99,19 @@ test('Series behaviour with a fourth pushed value. Series = [3, 6, 12]', () => {
   testNumberOfValuesEqualOrBelow(dataSeries, 10, 2)
   testSum(dataSeries, 21)
   testAverage(dataSeries, 7)
+  testWeighedAverage(dataSeries, 9)
   testMedian(dataSeries, 6)
   testMinimum(dataSeries, 3)
   testMaximum(dataSeries, 12)
 })
 
-/**
- * @description Test behaviour for five datapoints
- */
 test('Series behaviour with a fifth pushed value. Series = [6, 12, -3]', () => {
-  const dataSeries = createSeries(3)
-  dataSeries.push(9)
-  dataSeries.push(3)
-  dataSeries.push(6)
-  dataSeries.push(12)
-  dataSeries.push(-3)
+  const dataSeries = createWeighedSeries(3, undefined)
+  dataSeries.push(9, 1)
+  dataSeries.push(3, 1)
+  dataSeries.push(6, 1)
+  dataSeries.push(12, 1)
+  dataSeries.push(-3, 0.5)
   testLength(dataSeries, 3)
   testatSeriesBegin(dataSeries, 6)
   testAtSeriesEnd(dataSeries, -3)
@@ -135,57 +121,52 @@ test('Series behaviour with a fifth pushed value. Series = [6, 12, -3]', () => {
   testNumberOfValuesEqualOrBelow(dataSeries, 10, 2)
   testSum(dataSeries, 15)
   testAverage(dataSeries, 5)
+  testWeighedAverage(dataSeries, 6.6)
   testMedian(dataSeries, 6)
   testMinimum(dataSeries, -3)
   testMaximum(dataSeries, 12)
 })
 
-/**
- * @description Test behaviour for recalculations of the min/max values
- */
 test('Series behaviour pushing out the min and max value and forcing a recalculate of min/max via the array.', () => {
-  const dataSeries = createSeries(3)
-  dataSeries.push(9)
-  dataSeries.push(3)
-  dataSeries.push(6)
+  const dataSeries = createWeighedSeries(3, undefined)
+  dataSeries.push(9, 1)
+  dataSeries.push(3, 1)
+  dataSeries.push(6, 1)
+  testLength(dataSeries, 3)
   testMinimum(dataSeries, 3)
   testMaximum(dataSeries, 9)
-  dataSeries.push(6)
+  dataSeries.push(6, 1)
+  testLength(dataSeries, 3)
   testMinimum(dataSeries, 3)
   testMaximum(dataSeries, 6)
-  dataSeries.push(6)
+  dataSeries.push(6, 1)
+  testLength(dataSeries, 3)
   testMinimum(dataSeries, 6)
   testMaximum(dataSeries, 6)
 })
 
-/**
- * @description Test behaviour for recalculations of the min/max values
- */
 test('Series behaviour pushing out the min and max value, replacing them just in time.', () => {
-  const dataSeries = createSeries(3)
-  dataSeries.push(9)
-  dataSeries.push(3)
-  dataSeries.push(6)
+  const dataSeries = createWeighedSeries(3, undefined)
+  dataSeries.push(9, 1)
+  dataSeries.push(3, 1)
+  dataSeries.push(6, 1)
   testMinimum(dataSeries, 3)
   testMaximum(dataSeries, 9)
-  dataSeries.push(12)
+  dataSeries.push(12, 1)
   testMinimum(dataSeries, 3)
   testMaximum(dataSeries, 12)
-  dataSeries.push(1)
+  dataSeries.push(1, 1)
   testMinimum(dataSeries, 1)
   testMaximum(dataSeries, 12)
 })
 
-/**
- * @description Test behaviour after a reset()
- */
 test('Series behaviour with a five pushed values followed by a reset, Series = []', () => {
-  const dataSeries = createSeries(3)
-  dataSeries.push(9)
-  dataSeries.push(3)
-  dataSeries.push(6)
-  dataSeries.push(12)
-  dataSeries.push(-3)
+  const dataSeries = createWeighedSeries(3, undefined)
+  dataSeries.push(9, 1)
+  dataSeries.push(3, 1)
+  dataSeries.push(6, 1)
+  dataSeries.push(12, 1)
+  dataSeries.push(-3, 1)
   dataSeries.reset()
   testLength(dataSeries, 0)
   testatSeriesBegin(dataSeries, 0)
@@ -195,46 +176,10 @@ test('Series behaviour with a five pushed values followed by a reset, Series = [
   testNumberOfValuesAbove(dataSeries, 10, 0)
   testNumberOfValuesEqualOrBelow(dataSeries, 10, 0)
   testSum(dataSeries, 0)
-  testAverage(dataSeries, 0)
+  testAverage(dataSeries, undefined)
+  testWeighedAverage(dataSeries, undefined)
   testMedian(dataSeries, 0)
 })
-
-/* These stress tests test the reliability of the sum(), average() and length() function after a huge number of updates
-// This specific test takes a long time (over 10 minutes), so only run them manually when changing the series module
-// Javascript maximum array length is 4294967295, as heap memory is limited, we stay with 2^25 datapoints
-test('Stress test of the series object, 33.554.432 (2^25) datapoints', () => {
-  const dataSeries = createSeries()
-  let j = 0
-  let randomvalue
-  while (j < 16777216) {
-    randomvalue = Math.random()
-    dataSeries.push(randomvalue)
-    dataSeries.push(1 - randomvalue)
-    j++
-  }
-  testLength(dataSeries, 33554432)
-  testSum(dataSeries, 16777216)
-  testAverage(dataSeries, 0.5)
-  testMedian(dataSeries, 0.5)
-})
-
-// Javascript maximum array length is 4294967295, as heap memory is limited, we stay with 2^25 datapoints
-// This test takes several hours (!) due to the many large array shifts, so only run them manually when changing the series module
-test('Stress test of the series object, 67.108.864 datapoints, with a maxLength of 33.554.432 (2^25)', () => {
-  const dataSeries = createSeries(33554432)
-  let j = 0
-  let randomvalue
-  while (j < 33554432) {
-    randomvalue = Math.random()
-    dataSeries.push(randomvalue)
-    dataSeries.push(1 - randomvalue)
-    j++
-  }
-  testLength(dataSeries, 33554432)
-  testSum(dataSeries, 16777216)
-  testAverage(dataSeries, 0.5)
-  testMedian(dataSeries, 0.5)
-}) */
 
 function testLength (series, expectedValue) {
   assert.ok(series.length() === expectedValue, `Expected length should be ${expectedValue}, encountered ${series.length()}`)
@@ -262,6 +207,10 @@ function testSum (series, expectedValue) {
 
 function testAverage (series, expectedValue) {
   assert.ok(series.average() === expectedValue, `Expected average to be ${expectedValue}, encountered ${series.average()}`)
+}
+
+function testWeighedAverage (series, expectedValue) {
+  assert.ok(series.weighedAverage() === expectedValue, `Expected weighedAverage to be ${expectedValue}, encountered ${series.weighedAverage()}`)
 }
 
 function testMedian (series, expectedValue) {
