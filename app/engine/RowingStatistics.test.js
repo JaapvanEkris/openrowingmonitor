@@ -31,7 +31,7 @@ const baseConfig = {
     maximumTimeBetweenImpulses: 0.017,
     flankLength: 12,
     systematicErrorAgressiveness: 0,
-    systematicErrorMaximumChange: 1,
+    systematicErrorNumberOfDatapoints: 1,
     minimumStrokeQuality: 0.36,
     minimumForceBeforeStroke: 20, // Modification to standard settings to shorten test cases
     minimumRecoverySlope: 0.00070,
@@ -313,9 +313,9 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   rowingStatistics.handleRotationImpulse(0.021131862)
   rowingStatistics.handleRotationImpulse(0.021209919)
   testStrokeState(rowingStatistics, 'WaitingForDrive')
-  testTotalMovingTime(rowingStatistics, 1.1137102920000004)
+  testTotalMovingTime(rowingStatistics, 1.1344792920000004)
   testTotalNumberOfStrokes(rowingStatistics, 2)
-  testTotalLinearDistance(rowingStatistics, 4.76138265520604)
+  testTotalLinearDistance(rowingStatistics, 4.810081445355078)
   testCycleDuration(rowingStatistics, undefined)
   testCycleDistance(rowingStatistics, undefined)
   testCycleLinearVelocity(rowingStatistics, undefined)
@@ -476,10 +476,10 @@ test('A full session for a Concept2 Model C should produce plausible results', a
   await replayRowingSession(rowingStatistics.handleRotationImpulse, { filename: 'recordings/Concept2_Model_C.csv', realtime: false, loop: false })
 
   testTotalMovingTime(rowingStatistics, 181.47141999999985)
-  testTotalLinearDistance(rowingStatistics, 552.2056895088467)
-  testTotalNumberOfStrokes(rowingStatistics, 82)
+  testTotalLinearDistance(rowingStatistics, 552.4839868710009)
+  testTotalNumberOfStrokes(rowingStatistics, 80)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(rowingStatistics, 123.64632740545646)
+  testDragFactor(rowingStatistics, 123.11017508212515)
 })
 
 /**
