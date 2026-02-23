@@ -6,7 +6,7 @@
  * This creates an ordered series with labels and optional weights
  * It allows for efficient determining the Weighted Median, Number of Above and Below
  */
-
+/* eslint-disable max-lines -- This code has to handle a lot of different situations */
 export function createLabelledBinarySearchTree () {
   let tree = null
 
