@@ -155,7 +155,7 @@ export function createCyclicErrorFilter (rowerSettings, deltaTime) {
 
     // If the Filter isn't active, don't even start processing data, as there is nothing there
     if (!CECFilterEnabled || recordedRawValue.length < 1) { return }
-    
+
     if (lowerCursor === undefined || upperCursor === undefined) {
       lowerCursor = Math.ceil(recordedRelativePosition.length * 0.1)
       upperCursor = Math.floor(recordedRelativePosition.length * 0.9)

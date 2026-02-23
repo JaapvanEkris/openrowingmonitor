@@ -1281,6 +1281,7 @@ test('Correct behaviour of the filter after exposing it to an updated filter wit
   testRegressorGoodnessOfFitEquals(baseRegressionFunction, 0.9833890292686881) // Ideal value 1
 })
 
+/* eslint-disable complexity -- This simulates a complex function, not much we can do about it */
 test('Correct behaviour of the filter after exposing it to an updated filter with noisy linear regressor (2.5%), five rounds, agressiveness 1.0, size two recoveries on a RowErg', () => {
   const baseRowerConfig = {
     numOfImpulsesPerRevolution: 6,
@@ -1480,6 +1481,7 @@ test('Correct behaviour of the filter after exposing it to an updated filter wit
   testRegressorInterceptEquals(baseRegressionFunction, -1501.3667593727203) // Ideal value -1500
   testRegressorGoodnessOfFitEquals(baseRegressionFunction, 0.9975644504176134) // Ideal value 1
 })
+/* eslint-enable complexity */
 
 function testCleanValueObject (object, expectedValue, expectedGoodnessOfFit) {
   assert.ok(object.clean === expectedValue, `Expected cleaned currentDt  value to be ${expectedValue}, encountered ${object.clean}`)

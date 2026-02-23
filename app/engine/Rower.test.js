@@ -27,7 +27,7 @@ const baseConfig = { // Based on Concept 2 settings, as this is the validation s
   maximumTimeBetweenImpulses: 0.017,
   flankLength: 12,
   systematicErrorAgressiveness: 0,
-  systematicErrorMaximumChange: 1,
+  systematicErrorNumberOfDatapoints: 1,
   minimumStrokeQuality: 0.36,
   minimumForceBeforeStroke: 20, // Modification to standard settings to shorten test cases
   minimumRecoverySlope: 0.00070,
@@ -308,19 +308,19 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   rower.handleRotationImpulse(0.021131862)
   rower.handleRotationImpulse(0.021209919)
   testStrokeState(rower, 'WaitingForDrive')
-  testTotalMovingTimeSinceStart(rower, 1.1344792920000004)
+  testTotalMovingTimeSinceStart(rower, 1.1551868460000003)
   testTotalNumberOfStrokes(rower, 3)
-  testTotalLinearDistanceSinceStart(rower, 4.810081445355078)
-  testCycleDuration(rower, 0.4476004410000002)
-  testCycleLinearDistance(rower, 1.947951605961538)
-  testCycleLinearVelocity(rower, 4.35198768260717)
-  testCyclePower(rower, 230.79213454994928)
+  testTotalLinearDistanceSinceStart(rower, 4.858780235504117)
+  testCycleDuration(rower, 0.4683079950000001)
+  testCycleLinearDistance(rower, 1.996650396110577)
+  testCycleLinearVelocity(rower, 4.263541125558996)
+  testCyclePower(rower, 217.00483025394573)
   testDriveDuration(rower, 0.27311228700000023)
   testDriveLinearDistance(rower, 1.2174697537259611)
   testDriveLength(rower, 0.36651914291880905)
   testDriveAverageHandleForce(rower, 256.5447026931294)
   testDrivePeakHandleForce(rower, 447.1085143512751)
-  testRecoveryDuration(rower, 0.17448815399999995)
+  testRecoveryDuration(rower, 0.19519570799999986)
   testRecoveryDragFactor(rower, 281.5961372923874)
   testInstantHandlePower(rower, 0)
 })
@@ -427,10 +427,10 @@ test('A full session for a Concept2 Model C should produce plausible results', a
   await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/Concept2_Model_C.csv', realtime: false, loop: false })
 
   testTotalMovingTimeSinceStart(rower, 181.47141999999985)
-  testTotalLinearDistanceSinceStart(rower, 552.2056895088467)
-  testTotalNumberOfStrokes(rower, 83)
+  testTotalLinearDistanceSinceStart(rower, 552.4839868710009)
+  testTotalNumberOfStrokes(rower, 81)
   // As dragFactor isn't static, it should have changed
-  testRecoveryDragFactor(rower, 123.64632740545646)
+  testRecoveryDragFactor(rower, 123.11017508212515)
 })
 
 /**

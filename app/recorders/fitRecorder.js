@@ -1,7 +1,7 @@
 'use strict'
 /**
  * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
- * 
+ *
  * @file This Module captures the metrics of a rowing session and persists them into the fit format
  * It provides a fit-file content, and some metadata for the filewriter and the file-uploaders
  *
@@ -307,7 +307,7 @@ export function createFITRecorder (config) {
    * @param {float} metrics.interval.linearVelocity.average - The average velocity in the interval (Meters per second)
    * @param {float} metrics.interval.linearVelocity.maximum - The maximum velocity in the interval (Meters per second)
    * @param {object} metrics.workout.timeSpent - All time-related metrics related to the workout progress
-   * @param {float} metrics.workout.timeSpent.moving - Total time spent moving during the workout (seconds)   
+   * @param {float} metrics.workout.timeSpent.moving - Total time spent moving during the workout (seconds)
    */
   function calculateSplitMetrics (metrics) {
     const splitnumber = sessionData.splits.length - 1
@@ -1288,7 +1288,7 @@ export function createFITRecorder (config) {
     sessionData.splits = []
     sessionData.laps = []
     sessionData.strokes = []
-	sessionData.HR = []
+    sessionData.HR = []
     sessionData.noActiveSplits = 0
     sessionData.noRestSplits = 0
     sessionData.complete = false
