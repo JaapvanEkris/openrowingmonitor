@@ -60,16 +60,17 @@ export class App extends LitElement {
       Object.keys(event.detail).forEach((key) => {
         localStorage.setItem(key, JSON.stringify(event.detail[key]))
       })
+      const newGuiConfigs = {
+        ...this._appState.config.guiConfigs,
+        ...event.detail
+      }
       this.updateState({
         config: {
           ...this._appState.config,
-          guiConfigs: {
-            ...this._appState.config.guiConfigs,
-            ...event.detail
-          }
+          guiConfigs: newGuiConfigs
         }
       })
-      this.applyTheme(event.detail.trueBlackTheme)
+      this.applyTheme(newGuiConfigs.trueBlackTheme)
     })
   }
 
