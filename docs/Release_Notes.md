@@ -2,12 +2,12 @@
 
 ## Version 0.9.7 (February 2026)
 
-Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris), [Abasz](https://github.com/Abasz) and [DXCanas](https://github.com/DXCanas)
+Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris), [Abasz](https://github.com/Abasz), [DXCanas](https://github.com/DXCanas) and [cwklurks](https://github.com/cwklurks)
 
 ### New functionality in 0.9.7
 
 - **Addition of the 'Calories' workout type**. You can now program Intervals and splits based on calories to be burned
-- **GUI improvements**: the web interface has a more efficient layout, and supports OLED screens now
+- **GUI Improvements**. The GUI now has dark (OLED) mode, its layout is more efficient and it has new tiles for Peak Force and Ratio
 - **Introduction of splits in the fit-file**. The fit-file now also has splits, which makes the fit-file closer to a native Garmin recording of the same session
 
 ### Newly supported rowers in 0.9.7
@@ -19,6 +19,7 @@ For an overview of all supported machines and their support status, please look 
 ### Bugfixes and robustness improvements in 0.9.7
 
 - **Fix of the Garmin bluetooth issues** which affected the 'Cycling Power' and 'Cycling Speed and Cadence' Bluetooth profiles (see [issue 125](https://github.com/JaapvanEkris/openrowingmonitor/issues/125), [issue 169](https://github.com/JaapvanEkris/openrowingmonitor/issues/169) and the [known issues in 0.9.6](#known-issues-in-096)).
+- **Brought the Bluetooth FTMS interface further into specification**: several bugfixes in the communication to prevent miscommunication between OpenRowingMonitor and the client
 - **Upgrade of the flywheel systematic error filter**, which now can handle systematic errors of magnet positioning on the flywheel. This is more effective at reducing structural measurement noise and allows a reduction of the code complexity in `Flyhweel.js` as all dependent algorithms can use the same datastream. It reduces noise on the reference system from 1.5% (version 0.9.6) to 0.3% (version 0.9.7).
 - **Improvement of the Moving Least Squares regressor**:
   - Code refactoring to isolate this function from `Flywheel.js`, allowing a more thorough testing of this function's behaviour
