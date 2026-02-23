@@ -34,7 +34,7 @@ For an overview of all supported machines and their support status, please look 
 
 ### Known issues in 0.9.7
 
-- **ErgData will not work well with our PM5 interface** (see [issue 117](https://github.com/JaapvanEkris/openrowingmonitor/issues/117)).
+- **ErgData will not work well with our PM5 emulation** (see [issue 117](https://github.com/JaapvanEkris/openrowingmonitor/issues/117)).
 
 ## Version 0.9.6 (June 2025)
 
