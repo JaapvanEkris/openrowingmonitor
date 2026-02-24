@@ -175,8 +175,14 @@ export function createFITRecorder (config) {
         startLap(metrics)
         sessionData.HR = []
         sessionHRMetrics.reset()
-        splitActiveHRMetrics.reset()
         splitRestHRMetrics.reset()
+        if (!isNaN(heartRate) && heartRate > 0) {
+          sessionData.HR.push({
+            heartrate: heartRate,
+            timestamp: metrics.timestamp
+          })
+          sessionHRMetrics.push(heartRate)
+        }
         addMetricsToStrokesArray(metrics)
         break
       case (metrics.metricsContext.isSessionStop && lastMetrics.sessionState !== 'Stopped'):
@@ -194,6 +200,8 @@ export function createFITRecorder (config) {
         calculateSplitMetrics(metrics)
         calculateSessionMetrics(metrics)
         resetLapMetrics()
+        splitRestHRMetrics.reset()
+        if (!isNaN(heartRate) && heartRate > 0) { splitRestHRMetrics.push(heartRate) }
         postExerciseHR = null
         postExerciseHR = []
         measureRecoveryHR()
@@ -289,6 +297,8 @@ export function createFITRecorder (config) {
       intensity: 'active',
       complete: false
     })
+    splitActiveHRMetrics.reset()
+    splitActiveHRMetrics.push(heartRate)
   }
 
   /**
