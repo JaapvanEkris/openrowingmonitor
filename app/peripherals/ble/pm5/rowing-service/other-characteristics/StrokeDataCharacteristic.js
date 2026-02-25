@@ -55,7 +55,7 @@ export class StrokeDataCharacteristic extends GattNotifyCharacteristic {
       bufferBuilder.writeUInt16LE(data.strokeWork > 0 && data.strokeWork < 6553.5 ? Math.round(data.strokeWork * 10) : 0)
     }
     // strokeCount: UInt16LE
-    bufferBuilder.writeUInt16LE(data.interval.numberOfStrokes > 0 data.interval.numberOfStrokes < 65535 ? Math.round(data.interval.numberOfStrokes) : 0)
+    bufferBuilder.writeUInt16LE(data.interval.numberOfStrokes > 0 && data.interval.numberOfStrokes < 65535 ? Math.round(data.interval.numberOfStrokes) : 0)
 
     if (this.isSubscribed) {
       super.notify(bufferBuilder.getBuffer())
