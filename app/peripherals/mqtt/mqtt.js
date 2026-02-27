@@ -75,8 +75,8 @@ export function createMQTTPeripheral (config) {
     clientId,
     clean: true,
     connectTimeout: 4000,
-    username: config.mqtt.username,
-    password: config.mqtt.password,
+    ...(config.mqtt.username !== '' ? { username: config.mqtt.username } : {} ),
+    ...(config.mqtt.password !== '' ? { password: config.mqtt.password } : {} ),
     reconnectPeriod: 1000
   })
 
