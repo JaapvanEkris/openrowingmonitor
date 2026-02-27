@@ -44,7 +44,7 @@ export function createPeripheralManager (config) {
    * @type {EventEmitter<{heartRateMeasurement: Array<Partial<HeartRateMeasurementEvent>>, control: Array<ControlPointEvent>}>}
    */
   const emitter = new EventEmitter()
-  const mqttEnabled = (config.mqtt.mqttBroker !== '') && (config.mqtt.username !== '') && (config.mqtt.password !== '') && (config.mqtt.machineName !== '')
+  const mqttEnabled = (config.mqtt.mqttBroker !== '') && (config.mqtt.machineName !== '')
   /**
    * @type {AntManager}
    */
