@@ -1,9 +1,8 @@
 'use strict'
-/*
-  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-*/
 /**
- * This manager creates the different Bluetooth Low Energy (BLE), ANT+ and MQTT Peripherals and allows
+ * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
+ *
+ * @file This manager creates the different Bluetooth Low Energy (BLE), ANT+ and MQTT Peripherals and allows
  * switching between them
  */
 /* eslint-disable max-lines -- This handles quite a lot of peripherals, can't do that with less code */
