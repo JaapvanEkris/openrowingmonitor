@@ -271,5 +271,31 @@ export default {
     minimumTimeBetweenImpulses: 0.007,
     flywheelInertia: 0.015,
     maximumStrokeTimeBeforePause: 10.0
+  },
+
+  // Merach R50 Magnetic Rowing Machine
+  // 1-magnet setup
+  Merach_R50: {
+    numOfImpulsesPerRevolution: 1,
+    minimumTimeBetweenImpulses: 0.04,
+    maximumTimeBetweenImpulses: 0.075,
+    sprocketRadius: 1.43,
+    flankLength: 4,
+    minimumStrokeQuality: 0.3,
+    minimumRecoverySlope: 0.0,
+    minimumForceBeforeStroke: 25,
+    autoAdjustRecoverySlope: true,
+    flywheelInertia: 0.105,
+    dragFactor: 107,
+    minimumDriveTime: 0.50,
+    minimumRecoveryTime: 0.90,
+    maximumStrokeTimeBeforePause: 6.0,
+    autoAdjustDragFactor: true,
+    minimumDragQuality: 0.85,
+    dragFactorSmoothing: 3,
+    systematicErrorAgressiveness: 0,
+    systematicErrorNumberOfDatapoints: 0,
+    autoAdjustRecoverySlopeMargin: 0.05,
+    magicConstant: 2.8
   }
 }
