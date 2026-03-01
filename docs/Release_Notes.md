@@ -1,6 +1,6 @@
 # OpenRowingMonitor Release Notes
 
-## Version 0.9.7 (February 2026)
+## Version 0.9.7 (March 2026)
 
 Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris), [Abasz](https://github.com/Abasz), [DXCanas](https://github.com/DXCanas) and [cwklurks](https://github.com/cwklurks)
 
@@ -13,6 +13,8 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris), [Abasz](ht
 ### Newly supported rowers in 0.9.7
 
 - Added full support for the Merarch R50 (see [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/140))
+- Added full support for the Schwinn Windrigger (see [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/159))
+- Added full support for the Topiom V2 (see [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/144))
 
 For an overview of all supported machines and their support status, please look at the [supported rower list](https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Supported_Rowers.md)
 
@@ -20,7 +22,7 @@ For an overview of all supported machines and their support status, please look 
 
 - **Fix of the Garmin bluetooth issues** which affected the 'Cycling Power' and 'Cycling Speed and Cadence' Bluetooth profiles (see [issue 125](https://github.com/JaapvanEkris/openrowingmonitor/issues/125), [issue 169](https://github.com/JaapvanEkris/openrowingmonitor/issues/169) and the [known issues in 0.9.6](#known-issues-in-096)).
 - **Brought the Bluetooth FTMS interface further into specification**: several bugfixes in the communication to prevent miscommunication between OpenRowingMonitor and the client
-- **Upgrade of the flywheel systematic error filter**, which now can handle systematic errors of magnet positioning on the flywheel. This is more effective at reducing structural measurement noise and allows a reduction of the code complexity in `Flyhweel.js` as all dependent algorithms can use the same datastream. It reduces noise on the reference system from 1.5% (version 0.9.6) to 0.3% (version 0.9.7).
+- **Upgrade of the flywheel systematic error filter**, which now can handle systematic errors of magnet positioning on the flywheel. This is more effective at reducing structural measurement noise and allows a reduction of the code complexity in `Flyhweel.js` as all dependent algorithms can use the same datastream. It reduces noise on the reference system from 1.5% (version 0.9.6) to 0.3% (version 0.9.7) (see [this explanation](https://github.com/JaapvanEkris/openrowingmonitor/discussions/151)).
 - **Improvement of the Moving Least Squares regressor**:
   - Code refactoring to isolate this function from `Flywheel.js`, allowing a more thorough testing of this function's behaviour
   - Introduced the 'Local Goodness of Fit' function to improve the robustness against noise. This reduces the effect of outliers on stroke detection, the Force curve, Power curve and Handle speed curve
@@ -77,6 +79,10 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz]
 - **Introduction of the session manager**, which provides support for intervals, splits, rest intervals and spontaneous pauses in the session and also adds these to the FIT, tcx and RowingData recordings. Please note, setting predetermined intervals and splits in a user friendly way (via PM5 emulator and webinterface) is still on [our backlog](./backlog.md#soon).
 - **Improvement of Magnetic rower support**: the new session manager makes sure that the session is nicely stopped, even when the flywheel has stopped quite abruptly before pause timeouts have time to kick in. This is the case on some magnetic rowers which have an extreme high drag, resulting in very short spin down times of their flywheel.
 
+### Newly supported rowers in 0.9.5
+
+- Added support for the KayakFirst kayak/canoe erg
+
 ### Bugfixes and robustness improvements in 0.9.5
 
 - **Improvement of the architecture**: we cleaned up the old architecture and moved to a more message bus structure where clients are responsible for listening to the data transmissions they are interested in. See [the architecture description](Architecture.md) for a deep-dive of the implementation. Key benefit is that this is more maintainable as it allows serving data more easily to totally different clients (webGUI, recorders and BLE/ANT+) with totally different needs, making future enhancements easier.
@@ -102,6 +108,8 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris), [Abasz](ht
 
 ### Newly supported rowers in 0.9.0
 
+- Added full support for the Concept2 Model B and C (see [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/49))
+- Added full support for the Concept2 Model D and RowErg (see [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/84))
 - Added support for the Force USA R3
 
 ### Bugfixes and robustness improvements in 0.9.0
