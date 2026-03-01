@@ -5,6 +5,7 @@ This is currently is a very minimalistic Backlog for further development of this
 If you would like to contribute to this project, you are more than welcome, but please read the [Contributing Guidelines](CONTRIBUTING.md) first to get the most out of your valuable time.
 
 ## Planned for 0.9.8 (next anticipated release)
+
 * Migrate RowsAndAll functionality to Intervals.icu (as RowsAndAll has declared EOL)
 * Add weight correction factor to calories calculation (see [C2 formula](https://www.concept2.com/training/calorie-calculator))
 * Improve the development environment to make developpers happier
