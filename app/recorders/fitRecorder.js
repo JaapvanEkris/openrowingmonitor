@@ -612,7 +612,7 @@ export function createFITRecorder (config) {
     fitWriter.writeMessage(
       'file_id',
       {
-        time_created: fitWriter.time(workout.startTime),
+        time_created: fitWriter.time(workout.endTime),
         type: 'activity',
         manufacturer: 'concept2',
         product: 0,
@@ -635,7 +635,7 @@ export function createFITRecorder (config) {
     fitWriter.writeMessage(
       'activity',
       {
-        timestamp: fitWriter.time(workout.startTime),
+        timestamp: fitWriter.time(workout.endTime),
         local_timestamp: fitWriter.time(workout.startTime) - workout.startTime.getTimezoneOffset() * 60,
         total_timer_time: workout.totalTime,
         num_sessions: 1,
@@ -653,7 +653,7 @@ export function createFITRecorder (config) {
     fitWriter.writeMessage(
       'session',
       {
-        timestamp: fitWriter.time(workout.startTime),
+        timestamp: fitWriter.time(workout.endTime),
         message_index: 0,
         sport: 'rowing',
         sub_sport: 'indoorRowing',
@@ -698,7 +698,7 @@ export function createFITRecorder (config) {
     fitWriter.writeMessage(
       'device_info',
       {
-        timestamp: fitWriter.time(workout.startTime),
+        timestamp: fitWriter.time(workout.endTime),
         device_index: 0,
         device_type: 0,
         manufacturer: 'concept2'
@@ -770,7 +770,7 @@ export function createFITRecorder (config) {
       writer.writeMessage(
         'lap',
         {
-          timestamp: writer.time(sessionData.startTime),
+          timestamp: writer.time(sessionData.endTime),
           message_index: lapdata.lapNumber,
           sport: 'rowing',
           sub_sport: 'indoorRowing',
@@ -809,7 +809,7 @@ export function createFITRecorder (config) {
       writer.writeMessage(
         'lap',
         {
-          timestamp: writer.time(sessionData.startTime),
+          timestamp: writer.time(sessionData.endTime),
           message_index: lapdata.lapNumber,
           sport: 'rowing',
           sub_sport: 'indoorRowing',
@@ -863,7 +863,7 @@ export function createFITRecorder (config) {
     writer.writeMessage(
       'split_summary',
       {
-        timestamp: writer.time(workout.startTime),
+        timestamp: writer.time(sessionData.endTime),
         message_index: 0,
         split_type: 'interval_active',
         num_splits: sessionData.noActiveSplits,
@@ -884,7 +884,7 @@ export function createFITRecorder (config) {
       writer.writeMessage(
         'split_summary',
         {
-          timestamp: writer.time(workout.startTime),
+          timestamp: writer.time(sessionData.endTime),
           message_index: 1,
           split_type: 'interval_rest',
           num_splits: sessionData.noRestSplits,
@@ -912,7 +912,7 @@ export function createFITRecorder (config) {
       writer.writeMessage(
         'split',
         {
-          timestamp: writer.time(sessionData.startTime),
+          timestamp: writer.time(sessionData.endTime),
           message_index: splitdata.splitNumber,
           split_type: 'interval_active',
           total_elapsed_time: splitdata.totalTime,
@@ -941,7 +941,7 @@ export function createFITRecorder (config) {
       writer.writeMessage(
         'split',
         {
-          timestamp: writer.time(sessionData.startTime),
+          timestamp: writer.time(sessionData.endTime),
           message_index: splitdata.splitNumber,
           split_type: 'interval_rest',
           total_elapsed_time: splitdata.totalTime,
@@ -1011,7 +1011,7 @@ export function createFITRecorder (config) {
     writer.writeMessage(
       'training_file',
       {
-        timestamp: writer.time(workout.startTime),
+        timestamp: writer.time(sessionData.endTime),
         time_created: writer.time(workout.startTime),
         type: 'workout',
         manufacturer: 'concept2',
@@ -1126,7 +1126,7 @@ export function createFITRecorder (config) {
     let i = 0
     let timeSinceStart
     while (i < workout.HR.length) {
-      timeSinceStart = Math.round((workout.HR[i].timestamp - sessionData.startTime) * 100) / 100
+      timeSinceStart = workout.HR[i].timestamp.getTime() - workout.HR[0].timestamp.getTime()
       writer.writeMessage(
         'hr',
         {
