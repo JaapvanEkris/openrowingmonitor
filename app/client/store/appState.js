@@ -51,7 +51,8 @@ export const APP_STATE = {
       dashboardMetrics: ['distance', 'timer', 'pace', 'power', 'stkRate', 'totalStk', 'calories'],
       showIcons: true,
       maxNumberOfTiles: 8,
-      trueBlackTheme: false
+      trueBlackTheme: false,
+      forceCurveDivisionMode: 0
     }
   }
 }

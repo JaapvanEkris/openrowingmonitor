@@ -10,6 +10,29 @@ import { customElement, property, state } from 'lit/decorators.js'
 import ChartDataLabels from 'chartjs-plugin-datalabels'
 import { Chart, Filler, Legend, LinearScale, LineController, LineElement, PointElement } from 'chart.js'
 
+/** @type {import('chart.js').Plugin<'line', {positions: number[]}>} */
+const divisionLinesPlugin = {
+  id: 'divisionLines',
+  afterDatasetsDraw (chart, args, options) {
+    if (!options.positions?.length) { return }
+    const { ctx, chartArea: { top, bottom } } = chart
+    ctx.save()
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)'
+    ctx.lineWidth = 5
+    ctx.setLineDash([5, 5])
+    options.positions.forEach((xPos) => {
+      const xPixel = chart.scales.x.getPixelForValue(xPos)
+      ctx.beginPath()
+      ctx.moveTo(xPixel, top)
+      ctx.lineTo(xPixel, bottom)
+      ctx.stroke()
+    })
+    ctx.restore()
+  }
+}
+
+Chart.register(ChartDataLabels, Legend, Filler, LinearScale, LineController, PointElement, LineElement, divisionLinesPlugin)
+
 @customElement('dashboard-force-curve')
 export class DashboardForceCurve extends AppElement {
   static styles = css`
@@ -32,40 +55,62 @@ export class DashboardForceCurve extends AppElement {
     canvas {
       width: 100%;
       height: 100%;
+      cursor: pointer;
     }
   `
 
-  constructor () {
-    super()
-    Chart.register(ChartDataLabels, Legend, Filler, LinearScale, LineController, PointElement, LineElement)
-  }
-
   @property({
-    type: Boolean,
+    type: Boolean
   })
   accessor updateForceCurve = false
 
   @property({
-    type: Array,
+    type: Array
   })
   accessor value = []
 
+  /** @type {0 | 2 | 3} */
+  @property({
+    type: Number
+  })
+  accessor divisionMode = 0
 
   @state()
   accessor _chart
 
-  shouldUpdate () {
-    return this.updateForceCurve
+  /** @type {0 | 2 | 3} */
+  @state()
+  accessor _divisionMode = 0
+
+  shouldUpdate (changedProperties) {
+    return this.updateForceCurve || changedProperties.has('divisionMode') || this._chart === undefined
   }
-    
+
+  _handleClick () {
+    const modes = /** @type {(0 | 2 | 3)[]} */ ([0, 2, 3])
+    const nextMode = modes[(modes.indexOf(this.divisionMode) + 1) % modes.length]
+    this.sendEvent('changeGuiSetting', { forceCurveDivisionMode: nextMode })
+  }
+
+  _updateDivisionLines () {
+    if (!this._chart?.options?.plugins) { return }
+    const dataLength = this.value?.length || 0
+    const positions = this.divisionMode > 0 && dataLength > 0 ?
+      Array.from({ length: this.divisionMode - 1 }, (_, i) => ((i + 1) * dataLength) / this.divisionMode) :
+      []
+    // @ts-ignore - divisionLines is a custom plugin not in Chart.js types
+    this._chart.options.plugins.divisionLines.positions = positions
+  }
+
   willUpdate () {
     if (this._chart?.data) {
       this._chart.data.datasets[0].data = this.value?.map((data, index) => ({ y: data, x: index }))
+      this._updateDivisionLines()
     }
   }
-  
+
   // Updated runs _after_ DOM elements exist, which is what chart.js expects.
-  updated() {
+  updated () {
     this._chart.update()
   }
 
@@ -95,6 +140,10 @@ export class DashboardForceCurve extends AppElement {
             },
             legend: {
               display: false
+            },
+            // @ts-ignore - divisionLines is a custom plugin not in Chart.js types
+            divisionLines: {
+              positions: []
             }
           },
           scales: {
@@ -130,11 +179,11 @@ export class DashboardForceCurve extends AppElement {
   render () {
     return html`
       <!== Only show label if no chart -->
-      ${this._chart && this._chart?.data.datasets[0].data.length ?
+      ${this._chart?.data.datasets[0].data.length ?
         '' :
         html`<div class="title"> Force Curve </div>`
       }
-      <canvas id="chart"></canvas>
+      <canvas @click="${this._handleClick}" id="chart"></canvas>
     `
   }
 }

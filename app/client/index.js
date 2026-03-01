@@ -8,6 +8,7 @@
 import { LitElement, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { APP_STATE } from './store/appState.js'
+import { DASHBOARD_METRICS } from './store/dashboardMetrics.js'
 import { createApp } from './lib/app.js'
 import './components/PerformanceDashboard.js'
 
@@ -32,14 +33,16 @@ export class App extends LitElement {
 
     const config = this._appState.config.guiConfigs
     Object.keys(config).forEach((key) => {
-      config[key] = JSON.parse(localStorage.getItem(key)) ?? config[key]
+      let savedValue = JSON.parse(localStorage.getItem(key))
+      
+      // Validate dashboardMetrics against known valid keys
+      if (key === 'dashboardMetrics' && Array.isArray(savedValue)) {
+        savedValue = savedValue.filter((metric) => DASHBOARD_METRICS[metric] !== undefined)
+      }
+      
+      config[key] = savedValue ?? config[key]
     })
 
-    // migrate: remove deprecated 'actions' metric from saved dashboardMetrics
-    if (config.dashboardMetrics.includes('actions')) {
-      config.dashboardMetrics = config.dashboardMetrics.filter((m) => m !== 'actions')
-      localStorage.setItem('dashboardMetrics', JSON.stringify(config.dashboardMetrics))
-    }
     // apply theme based on saved preference
     this.applyTheme(config.trueBlackTheme)
 
@@ -57,11 +60,27 @@ export class App extends LitElement {
 
     // notify the app about the triggered action
     this.addEventListener('changeGuiSetting', (event) => {
-      Object.keys(event.detail).forEach((key) => {
-        localStorage.setItem(key, JSON.stringify(event.detail[key]))
+      const detail = { ...event.detail }
+      
+      // Validate dashboardMetrics against known valid keys before saving
+      if (Array.isArray(detail.dashboardMetrics)) {
+        detail.dashboardMetrics = detail.dashboardMetrics.filter((metric) => DASHBOARD_METRICS[metric] !== undefined)
+      }
+
+      Object.keys(detail).forEach((key) => {
+        localStorage.setItem(key, JSON.stringify(detail[key]))
       })
-      this.updateState({ config: { ...this._appState.config, guiConfigs: { ...event.detail } } })
-      this.applyTheme(event.detail.trueBlackTheme)
+      const newGuiConfigs = {
+        ...this._appState.config.guiConfigs,
+        ...detail
+      }
+      this.updateState({
+        config: {
+          ...this._appState.config,
+          guiConfigs: newGuiConfigs
+        }
+      })
+      this.applyTheme(newGuiConfigs.trueBlackTheme)
     })
   }
 
