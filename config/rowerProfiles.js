@@ -272,13 +272,12 @@ export default {
     flywheelInertia: 0.015,
     maximumStrokeTimeBeforePause: 10.0
   },
-
-  // Merach R50 Magnetic Rowing Machine
-  // 1-magnet setup
+  // Merach R50 Air Resistance Rower
+  // Stock, 1-magnet setup
   Merach_R50: {
     numOfImpulsesPerRevolution: 1,
-    minimumTimeBetweenImpulses: 0.04,
-    maximumTimeBetweenImpulses: 0.075,
+    minimumTimeBetweenImpulses: 0.03,
+    maximumTimeBetweenImpulses: 0.08,
     sprocketRadius: 1.43,
     flankLength: 4,
     minimumStrokeQuality: 0.3,
