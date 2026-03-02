@@ -8,6 +8,7 @@
  * We use 'Smart Recording' per stroke as that makes sure that per-stroke data can also be extracted from the file (like work per stroke)
  * @see {@link https://developer.garmin.com/fit/file-types/activity/|the fields and their meaning}.
  * @see {@link https://developer.garmin.com/fit/cookbook/encoding-activity-files/|the description of the filestructure and how timestamps}
+ * @see {@link https://forums.garmin.com/developer/fit-sdk/b/news-announcements/posts/important-fit-activity-file-message-change|description of the timestamps for summary messages}
  * @see {@link https://developer.garmin.com/fit/cookbook/durations/|how the different times are defined}
  * We use 'summary last message sequencing' as the stream makes most sense that way
  * Analysis of Garmin files show that splits, laps and strokes are completely disconnected, so we use that loose structure here as well
