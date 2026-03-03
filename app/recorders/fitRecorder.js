@@ -12,6 +12,7 @@
  * @see {@link https://developer.garmin.com/fit/cookbook/durations/|how the different times are defined}
  * We use 'summary last message sequencing' as the stream makes most sense that way
  * Analysis of Garmin files show that splits, laps and strokes are completely disconnected, so we use that loose structure here as well
+ * As general timestamp we use the session end time, as that is semantically more sound than Garmin's approach of the session start time
  *
  * BE AWARE: OpenRowingMonitor and Garmin actually use conflicting terminology!
  * - An OpenRowingMonitor Interval is nearly identical as a Garmin Split (aside the handling of unplanned pauses)
