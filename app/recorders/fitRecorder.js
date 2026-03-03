@@ -416,47 +416,65 @@ export function createFITRecorder (config) {
     sessionData.laps[lapnumber].workoutStepNumber = metrics.interval.workoutStepNumber
     sessionData.laps[lapnumber].endTime = metrics.timestamp
     switch (true) {
-      case (metrics.metricsContext.isSessionStop && (metrics.interval.type === 'distance' || metrics.interval.type === 'time' || metrics.interval.type === 'calories')):
+      case (metrics.metricsContext.isSessionStop && (metrics.interval.type === 'distance' || metrics.interval.type === 'time')):
         // As the workout closure has its own events, we need to close the workout step here
         sessionData.laps[lapnumber].trigger = metrics.interval.type
-        sessionData.laps[lapnumber].event = 'workoutStep'
+        sessionData.laps[lapnumber].event = 'session'
+        sessionData.laps[lapnumber].type = 'stop'
+        break
+      case (metrics.metricsContext.isSessionStop && metrics.interval.type === 'calories'):
+        // As calories are not considered a trigger by Garmin, we map it onto a general sessionEnd
+        sessionData.laps[lapnumber].trigger = 'sessionEnd'
+        sessionData.laps[lapnumber].event = 'session'
+        sessionData.laps[lapnumber].type = 'stop'
         break
       case (metrics.metricsContext.isSessionStop):
-        sessionData.laps[lapnumber].trigger = 'manual'
-        sessionData.laps[lapnumber].event = 'workoutStep'
+        sessionData.laps[lapnumber].trigger = 'sessionEnd'
+        sessionData.laps[lapnumber].event = 'session'
+        sessionData.laps[lapnumber].type = 'stop'
         break
       case (metrics.metricsContext.isIntervalEnd && (metrics.interval.type === 'distance' || metrics.interval.type === 'time')):
         sessionData.laps[lapnumber].trigger = metrics.interval.type
         sessionData.laps[lapnumber].event = 'workoutStep'
+        sessionData.laps[lapnumber].type = 'stop'
         break
       case (metrics.metricsContext.isIntervalEnd && metrics.interval.type === 'calories'):
+        // As calories are not considered a trigger by Garmin, we map it onto a manual change of a workoutstep
         sessionData.laps[lapnumber].trigger = 'manual'
         sessionData.laps[lapnumber].event = 'workoutStep'
+        sessionData.laps[lapnumber].type = 'stop'
         break
       case (metrics.metricsContext.isIntervalEnd):
         sessionData.laps[lapnumber].trigger = 'manual'
         sessionData.laps[lapnumber].event = 'workoutStep'
+        sessionData.laps[lapnumber].type = 'stop'
         break
       case (metrics.metricsContext.isPauseStart):
         // As metrics.metricsContext.isIntervalEnd === false, we know this is a spontanuous pause and not a planned rest interval
-        sessionData.laps[lapnumber].trigger = 'manual'
-        sessionData.laps[lapnumber].event = 'speedLowAlert'
+        sessionData.laps[lapnumber].trigger = 'fitnessEquipment'
+        sessionData.laps[lapnumber].event = 'lap'
+        sessionData.laps[lapnumber].type = 'stop'
         break
       case (metrics.metricsContext.isSplitEnd && (metrics.split.type === 'distance' || metrics.split.type === 'time')):
         sessionData.laps[lapnumber].trigger = metrics.split.type
         sessionData.laps[lapnumber].event = 'lap'
+        sessionData.laps[lapnumber].type = 'stop'
         break
       case (metrics.metricsContext.isSplitEnd && metrics.split.type === 'calories'):
+        // As calories are not considered a trigger by Garmin, we map it onto a manual change of a lap
         sessionData.laps[lapnumber].trigger = 'manual'
         sessionData.laps[lapnumber].event = 'lap'
+        sessionData.laps[lapnumber].type = 'stop'
         break
       case (metrics.metricsContext.isSplitEnd):
         sessionData.laps[lapnumber].trigger = 'manual'
         sessionData.laps[lapnumber].event = 'lap'
+        sessionData.laps[lapnumber].type = 'stop'
         break
       default:
         sessionData.laps[lapnumber].trigger = 'manual'
         sessionData.laps[lapnumber].event = 'lap'
+        sessionData.laps[lapnumber].type = 'stop'
     }
     sessionData.laps[lapnumber].summary = { ...metrics.split }
     sessionData.laps[lapnumber].averageHeartrate = lapHRMetrics.average()
@@ -478,8 +496,9 @@ export function createFITRecorder (config) {
       lapNumber: lapnumber,
       intensity: 'rest',
       workoutStepNumber: workoutStepNo,
-      ...(metrics.metricsContext.isIntervalEnd ? { trigger: 'time' } : { trigger: 'manual' }),
+      ...(metrics.metricsContext.isIntervalEnd ? { trigger: 'time' } : { trigger: 'fitnessEquipment' }),
       ...(metrics.metricsContext.isIntervalEnd ? { event: 'workoutStep' } : { event: 'lap' }),
+      ...(metrics.metricsContext.isIntervalEnd ? { type: 'stop' } : { type: 'start' }),
       endTime: metrics.timestamp,
       averageHeartrate: lapHRMetrics.average(),
       maximumHeartrate: lapHRMetrics.maximum(),
@@ -777,7 +796,7 @@ export function createFITRecorder (config) {
           sub_sport: 'indoorRowing',
           event: lapdata.event,
           wkt_step_index: lapdata.workoutStepNumber,
-          event_type: 'stop',
+          event_type: lapdata.type,
           intensity: lapdata.intensity,
           ...(sessionData.totalNoLaps === (lapdata.lapNumber + 1) ? { lap_trigger: 'sessionEnd' } : { lap_trigger: lapdata.trigger }),
           start_time: writer.time(lapdata.startTime),
@@ -816,7 +835,7 @@ export function createFITRecorder (config) {
           sub_sport: 'indoorRowing',
           event: lapdata.event,
           wkt_step_index: lapdata.workoutStepNumber,
-          event_type: 'stop',
+          event_type: lapdata.type,
           intensity: lapdata.intensity,
           lap_trigger: lapdata.trigger,
           start_time: writer.time(lapdata.startTime),
