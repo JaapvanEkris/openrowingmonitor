@@ -300,8 +300,9 @@ export default {
     dragFactor: 32000
   },
 
-  // TESTING PURPOSE ONLY!! DO NOT USE FOR PRODUCTION MACHINES!!
+  // TESTING PURPOSES ONLY!! DO NOT USE FOR PRODUCTION MACHINES!!
   // Theoretical model used for validation testing with the theoretical simulations in the recordings
+  // see https://github.com/JaapvanEkris/openrowingmonitor/discussions/215
   Theoretical_Model: {
     numOfImpulsesPerRevolution: 6,
     minimumTimeBetweenImpulses: 0.005,
@@ -324,7 +325,7 @@ export default {
     maximumStrokeTimeBeforePause: 6.0,
     flywheelInertia: 0.1001,
     magicConstant: 2.8
-  }
+  },
 
   // Topiom V2 Water Rower
   Topiom_V2: {
