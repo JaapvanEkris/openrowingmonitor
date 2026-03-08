@@ -113,8 +113,8 @@ export default {
     flankLength: 6,
     minimumForceBeforeStroke: 2,
     minimumStrokeQuality: 0.6,
-    minimumDriveTime: 0.200, // minimum time of the drive phase
-    minimumRecoveryTime: 0.600, // minimum time of the recovery phase
+    minimumDriveTime: 0.200,
+    minimumRecoveryTime: 0.600,
     dragFactor: 108,
     autoAdjustDragFactor: true,
     dragFactorSmoothing: 1,
@@ -129,15 +129,16 @@ export default {
     sprocketRadius: 1.4,
     minimumTimeBetweenImpulses: 0.014,
     maximumTimeBetweenImpulses: 0.040,
-    smoothing: 1,
     flankLength: 6,
+    systematicErrorAgressiveness: 0.975,
+    systematicErrorNumberOfDatapoints: 260,
     minimumForceBeforeStroke: 50,
     minimumRecoverySlope: 0.00070,
     minimumStrokeQuality: 0.36,
     autoAdjustRecoverySlope: true,
     autoAdjustRecoverySlopeMargin: 0.01,
-    minimumDriveTime: 0.400, // minimum time of the drive phase
-    minimumRecoveryTime: 0.900, // minimum time of the recovery phase
+    minimumDriveTime: 0.400,
+    minimumRecoveryTime: 0.900,
     dragFactor: 110,
     autoAdjustDragFactor: true,
     dragFactorSmoothing: 3,
@@ -151,16 +152,16 @@ export default {
   Concept2_RowErg: {
     numOfImpulsesPerRevolution: 6,
     sprocketRadius: 1.4,
+    minimumTimeBetweenImpulses: 0.005,
+    maximumTimeBetweenImpulses: 0.013125,
+    flankLength: 12,
+    systematicErrorAgressiveness: 0.975,
+    systematicErrorNumberOfDatapoints: 520,
     maximumStrokeTimeBeforePause: 6.0,
     dragFactor: 68,
     autoAdjustDragFactor: true,
     minimumDragQuality: 0.85,
     dragFactorSmoothing: 3,
-    minimumTimeBetweenImpulses: 0.005,
-    maximumTimeBetweenImpulses: 0.01375,
-    flankLength: 12,
-    systematicErrorAgressiveness: 0.95,
-    systematicErrorNumberOfDatapoints: 240,
     minimumStrokeQuality: 0.26,
     minimumForceBeforeStroke: 22,
     minimumRecoverySlope: 0.00070,
@@ -168,7 +169,7 @@ export default {
     autoAdjustRecoverySlopeMargin: 0.0045,
     minimumDriveTime: 0.50,
     minimumRecoveryTime: 0.90,
-    flywheelInertia: 0.10145,
+    flywheelInertia: 0.101545,
     magicConstant: 2.8
   },
 
@@ -222,6 +223,32 @@ export default {
     magicConstant: 3.45
   },
 
+  // Merach R50 Air Resistance Rower
+  // Stock, 1-magnet setup
+  Merach_R50: {
+    numOfImpulsesPerRevolution: 1,
+    sprocketRadius: 1.43,
+    maximumStrokeTimeBeforePause: 6.0,
+    dragFactor: 107,
+    minimumTimeBetweenImpulses: 0.03,
+    maximumTimeBetweenImpulses: 0.08,
+    flankLength: 4,
+    systematicErrorAgressiveness: 0,
+    systematicErrorNumberOfDatapoints: 0,
+    minimumStrokeQuality: 0.3,
+    minimumForceBeforeStroke: 25,
+    minimumRecoverySlope: 0.0,
+    autoAdjustRecoverySlope: true,
+    autoAdjustRecoverySlopeMargin: 0.05,
+    autoAdjustDragFactor: true,
+    minimumDragQuality: 0.85,
+    dragFactorSmoothing: 3,
+    flywheelInertia: 0.105,
+    minimumDriveTime: 0.50,
+    minimumRecoveryTime: 0.90,
+    magicConstant: 2.8
+  },
+
   // NordicTrack RX800 Air Rower
   NordicTrack_RX800: {
     numOfImpulsesPerRevolution: 4,
@@ -253,6 +280,19 @@ export default {
     dragFactor: 32000
   },
 
+  // Topiom V2 Water Rower
+  Topiom_V2: {
+    numOfImpulsesPerRevolution: 1,
+    SprocketRadius: 5,
+    minimumTimeBetweenImpulses: 0.2,
+    maximumTimeBetweenImpulses: 0.6,
+    minimumForceBeforeStroke: 80,
+    minimumRecoverySlope: 0,
+    minimumRecoveryTime: 0.3,
+    dragFactor: 23000,
+    flywheelInertia: 0.8
+  },
+
   // Virtufit Magnetic Rowing Machine
   // https://virtufit.nl/wp-content/uploads/2022/01/VirtuFit-Elite-Magnetic-Rowing-Machine-Manual-EN.pdf
   // aka: Obelix - https://pesaschile.cl/categorias/1162-remo-de-aire-magnetico-lite-series-obelix.html
@@ -271,30 +311,5 @@ export default {
     minimumTimeBetweenImpulses: 0.007,
     flywheelInertia: 0.015,
     maximumStrokeTimeBeforePause: 10.0
-  },
-  // Merach R50 Air Resistance Rower
-  // Stock, 1-magnet setup
-  Merach_R50: {
-    numOfImpulsesPerRevolution: 1,
-    minimumTimeBetweenImpulses: 0.03,
-    maximumTimeBetweenImpulses: 0.08,
-    sprocketRadius: 1.43,
-    flankLength: 4,
-    minimumStrokeQuality: 0.3,
-    minimumRecoverySlope: 0.0,
-    minimumForceBeforeStroke: 25,
-    autoAdjustRecoverySlope: true,
-    flywheelInertia: 0.105,
-    dragFactor: 107,
-    minimumDriveTime: 0.50,
-    minimumRecoveryTime: 0.90,
-    maximumStrokeTimeBeforePause: 6.0,
-    autoAdjustDragFactor: true,
-    minimumDragQuality: 0.85,
-    dragFactorSmoothing: 3,
-    systematicErrorAgressiveness: 0,
-    systematicErrorNumberOfDatapoints: 0,
-    autoAdjustRecoverySlopeMargin: 0.05,
-    magicConstant: 2.8
   }
 }
