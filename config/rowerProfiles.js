@@ -270,6 +270,30 @@ export default {
     minimumRecoveryTime: 0.60
   },
 
+  // Schwinn Windrigger
+  Schwinn_Windrigger: {
+    numOfImpulsesPerRevolution: 1,
+    sprocketRadius: 1.57,
+    minimumTimeBetweenImpulses: 0.03,
+    maximumTimeBetweenImpulses: 0.3,
+    flankLength: 3,
+    minimumForceBeforeStroke: 30,
+    minimumRecoverySlope: 0,
+    minimumStrokeQuality: 0.20,
+    minimumRecoverySlope: 0.0,
+    autoAdjustRecoverySlope: true,
+    autoAdjustRecoverySlopeMargin: 0.1,
+    dragFactor: 100,
+    autoAdjustDragFactor: true,
+    dragFactorSmoothing: 3,
+    minimumDragQuality: 0.85,
+    minimumDriveTime: 0.300,
+    minimumRecoveryTime: 0.900,
+    flywheelInertia: 0.08,
+    maximumStrokeTimeBeforePause: 6.0,
+    magicConstant: 2.8
+  },
+
   // Sportstech WRX700
   Sportstech_WRX700: {
     numOfImpulsesPerRevolution: 2,
