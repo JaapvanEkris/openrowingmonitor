@@ -1,6 +1,6 @@
 # Known rowers and their support status
 
-Open Rowing Monitor works with a very wide range of rowing machines. It is currently developed and tested with a Sportstech WRX700 water-rower and a Concept2 air-rower. In the past, it was also tested extensively on a NordicTrack RX-800 hybrid air/magnetic rower. But it should run fine with any rowing machine that uses some kind of damping mechanism, as long as you can add something to measure the speed of the flywheel. It has shown to work well with DIY rowing machines like the [Openergo](https://openergo.webs.com/), providing the construction is decent. With some tricks, we can even make it work with machines that can't measure the impellor directly, but you will fall back to the "Static distance" approach.
+Open Rowing Monitor works with a very wide range of rowing machines. It is currently developed and tested with a Concept2 air-rower. In the past, it was also tested extensively on a Sportstech WRX700 water-rower and a NordicTrack RX-800 hybrid air/magnetic rower. But it should run fine with any rowing machine that uses some kind of damping mechanism, as long as you can add something to measure the speed of the flywheel. It has shown to work well with DIY rowing machines like the [Openergo](https://openergo.webs.com/), providing the construction is decent. With some tricks, we can even make it work with machines that can't measure the impellor directly, but you will fall back to the "Static distance" approach.
 
 The following rowers are known to work, or are even actively supported:
 
@@ -24,8 +24,10 @@ The following rowers are known to work, or are even actively supported:
 | NOHRD | WaterRower | Water rower | Impellor | Add sensor | Configuration known | Custom profile | Yes | Yes | None | see [this discussion](https://github.com/laberning/openrowingmonitor/discussions/158) |
 | NordicTrack | RX800 | Hybrid Magnetic and Air rower | Flywheel | None | Full support | NordicTrack_RX800 | Yes | Yes | None | Also known under ProForm brand |
 | Open ergo | - | Air rower | Flywheel | Addition of magnets en sensor | Known to work | - | Yes | Yes | None | Machine specific profile is needed, but is done before, see [example 1](https://github.com/laberning/openrowingmonitor/discussions/80), [example 2](https://github.com/laberning/openrowingmonitor/discussions/105) and [example 3](https://github.com/laberning/openrowingmonitor/discussions/115) |
+| Schwinn | Windrigger | Air rower | Fywheel | None | Full Support | Schwinn_Windrigger | Yes | Yes | None | see [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/159) |
 | Skandika | Nytta | Water rower | Impellor | Add aditional magnets and sensor | Known to work | Unknown | Yes | Unknown | Unknown | see [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/24) |
 | Sportstech | WRX700 | Water rower | Impellor | Add one magnet | Active support | Sportstech_WRX700 | Yes | Yes | Static drag | see [Sportstech WRX700 setup](hardware_setup_WRX700.md) |
+| Topiom | V2 | Water Rower | Impellor | No | Supported | Topiom_V2 | Yes | Yes | None | see [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/144) |
 | White label | Air Rower | Air rower | Fywheel | None | Supported | Generic_Air_Rower | Yes | Yes | None | Sold under different brand names |
 | Xebex | Air Rower V2 | Air rower | Flywheel | Modification to the source code | Known to work | Default | Yes | Yes | None | [See this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/28) |
 
