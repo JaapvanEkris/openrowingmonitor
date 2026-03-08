@@ -107,9 +107,8 @@ export default {
   // https://zocobodyfit.ro/produs/aparat-de-vaslit-zoco-body-fit-air-rower-pliabil-ecran-lcd-eficient-si-util-negru/
   Generic_Air_Rower: {
     numOfImpulsesPerRevolution: 1,
-    sprocketRadius: 1.55,
     minimumTimeBetweenImpulses: 0.007,
-    smoothing: 1,
+    sprocketRadius: 1.55,
     flankLength: 6,
     minimumForceBeforeStroke: 2,
     minimumStrokeQuality: 0.6,
@@ -126,9 +125,9 @@ export default {
   // Concept2 RowErg, Model B and C
   Concept2_Model_C: {
     numOfImpulsesPerRevolution: 3,
-    sprocketRadius: 1.4,
     minimumTimeBetweenImpulses: 0.014,
     maximumTimeBetweenImpulses: 0.040,
+    sprocketRadius: 1.4,
     flankLength: 6,
     systematicErrorAgressiveness: 0.975,
     systematicErrorNumberOfDatapoints: 260,
@@ -151,9 +150,9 @@ export default {
   // Concept2 RowErg, Model D, E and RowErg
   Concept2_RowErg: {
     numOfImpulsesPerRevolution: 6,
-    sprocketRadius: 1.4,
     minimumTimeBetweenImpulses: 0.005,
     maximumTimeBetweenImpulses: 0.013125,
+    sprocketRadius: 1.4,
     flankLength: 12,
     systematicErrorAgressiveness: 0.975,
     systematicErrorNumberOfDatapoints: 520,
@@ -206,16 +205,15 @@ export default {
   // KayakFirst kayak/canoe erg (2020 model blue, non-bull)
   KayakFirst_Blue: {
     numOfImpulsesPerRevolution: 6,
+    minimumTimeBetweenImpulses: 0.005,
+    maximumTimeBetweenImpulses: 0.0145,
     sprocketRadius: 2.7,
     maximumStrokeTimeBeforePause: 7.0,
     dragFactor: 40,
     autoAdjustDragFactor: true,
     minimumDragQuality: 0.736,
     dragFactorSmoothing: 4,
-    minimumTimeBetweenImpulses: 0.005,
-    maximumTimeBetweenImpulses: 0.0145,
     flankLength: 12,
-    smoothing: 1,
     minimumForceBeforeStroke: 1,
     minimumDriveTime: 0.145,
     minimumRecoveryTime: 0.17,
@@ -223,29 +221,27 @@ export default {
     magicConstant: 3.45
   },
 
-  // Merach R50 Air Resistance Rower
-  // Stock, 1-magnet setup
   Merach_R50: {
     numOfImpulsesPerRevolution: 1,
-    sprocketRadius: 1.43,
-    maximumStrokeTimeBeforePause: 6.0,
-    dragFactor: 107,
     minimumTimeBetweenImpulses: 0.03,
     maximumTimeBetweenImpulses: 0.08,
+    sprocketRadius: 1.43,
     flankLength: 4,
     systematicErrorAgressiveness: 0,
     systematicErrorNumberOfDatapoints: 0,
     minimumStrokeQuality: 0.3,
-    minimumForceBeforeStroke: 25,
     minimumRecoverySlope: 0.0,
     autoAdjustRecoverySlope: true,
     autoAdjustRecoverySlopeMargin: 0.05,
+    minimumForceBeforeStroke: 25,
+    flywheelInertia: 0.105,
+    dragFactor: 107,
     autoAdjustDragFactor: true,
     minimumDragQuality: 0.85,
     dragFactorSmoothing: 3,
-    flywheelInertia: 0.105,
     minimumDriveTime: 0.50,
     minimumRecoveryTime: 0.90,
+    maximumStrokeTimeBeforePause: 6.0,
     magicConstant: 2.8
   },
 
@@ -273,9 +269,9 @@ export default {
   // Schwinn Windrigger
   Schwinn_Windrigger: {
     numOfImpulsesPerRevolution: 1,
-    sprocketRadius: 1.57,
     minimumTimeBetweenImpulses: 0.03,
     maximumTimeBetweenImpulses: 0.3,
+    sprocketRadius: 1.57,
     flankLength: 3,
     minimumForceBeforeStroke: 30,
     minimumRecoverySlope: 0,
@@ -307,9 +303,9 @@ export default {
   // Topiom V2 Water Rower
   Topiom_V2: {
     numOfImpulsesPerRevolution: 1,
-    SprocketRadius: 5,
     minimumTimeBetweenImpulses: 0.2,
     maximumTimeBetweenImpulses: 0.6,
+    SprocketRadius: 5,
     minimumForceBeforeStroke: 80,
     minimumRecoverySlope: 0,
     minimumRecoveryTime: 0.3,
@@ -323,6 +319,7 @@ export default {
   // https://fedesport.cl/products/remo-de-aire-magnetico-lite-series-obelix
   virtufit: {
     numOfImpulsesPerRevolution: 4,
+    minimumTimeBetweenImpulses: 0.007,
     dragFactor: 380,
     autoAdjustDragFactor: true,
     minimumDragQuality: 0.93,
@@ -332,7 +329,6 @@ export default {
     flankLength: 4,
     minimumDriveTime: 0.30,
     minimumRecoveryTime: 0.020,
-    minimumTimeBetweenImpulses: 0.007,
     flywheelInertia: 0.015,
     maximumStrokeTimeBeforePause: 10.0
   }
