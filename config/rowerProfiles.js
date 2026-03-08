@@ -300,6 +300,32 @@ export default {
     dragFactor: 32000
   },
 
+  // TESTING PURPOSE ONLY!! DO NOT USE FOR PRODUCTION MACHINES!!
+  // Theoretical model used for validation testing with the theoretical simulations in the recordings
+  Theoretical_Model: {
+    numOfImpulsesPerRevolution: 6,
+    minimumTimeBetweenImpulses: 0.005,
+    maximumTimeBetweenImpulses: 0.01375,
+    sprocketRadius: 1.415,
+    dragFactor: 68,
+    autoAdjustDragFactor: true,
+    minimumDragQuality: 0.85,
+    dragFactorSmoothing: 3,
+    flankLength: 12,
+    systematicErrorAgressiveness: 1,
+    systematicErrorNumberOfDatapoints: 520,
+    minimumStrokeQuality: 0.34,
+    minimumForceBeforeStroke: 17.5,
+    minimumRecoverySlope: 0.00070,
+    autoAdjustRecoverySlope: true,
+    autoAdjustRecoverySlopeMargin: 0.0045,
+    minimumDriveTime: 0.50,
+    minimumRecoveryTime: 0.90,
+    maximumStrokeTimeBeforePause: 6.0,
+    flywheelInertia: 0.1001,
+    magicConstant: 2.8
+  }
+
   // Topiom V2 Water Rower
   Topiom_V2: {
     numOfImpulsesPerRevolution: 1,
