@@ -274,7 +274,6 @@ export default {
     sprocketRadius: 1.57,
     flankLength: 3,
     minimumForceBeforeStroke: 30,
-    minimumRecoverySlope: 0,
     minimumStrokeQuality: 0.20,
     minimumRecoverySlope: 0.0,
     autoAdjustRecoverySlope: true,
