@@ -1,9 +1,8 @@
 'use strict'
-/*
-  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-*/
 /**
- * @file This Module creates a persistent, consistent and user presentable set of metrics.
+ * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
+ *
+ * @file  This Module creates a persistent, consistent and user presentable set of metrics.
  * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Architecture.md#rowingstatisticsjs|the architecture description}
  */
 import { createRower } from './Rower.js'
@@ -247,8 +246,8 @@ export function createRowingStatistics (config) {
       totalLinearDistance: totalLinearDistance > 0 ? totalLinearDistance : 0, // meters
       totalWork: totalWork > 0 ? totalWork : 0, // Joules
       strokeCalories: strokeCalories > 0 ? strokeCalories : 0, // kCal
-      strokeWork: strokeWork > 0 ? strokeWork : 0, // Joules
-      totalCalories: totalCalories > 0 ? totalCalories : 0, // kcal
+      strokeWork: strokeWork > 0 && metricsContext.isMoving === true ? strokeWork : undefined, // Joules
+      totalCalories: totalCalories > 0 && metricsContext.isMoving === true ? totalCalories : undefined, // kcal
       totalCaloriesPerMinute: totalMovingTime > 60 ? caloriesPerPeriod(totalMovingTime - 60, totalMovingTime) : caloriesPerPeriod(0, 60),
       totalCaloriesPerHour: totalMovingTime > 3600 ? caloriesPerPeriod(totalMovingTime - 3600, totalMovingTime) : caloriesPerPeriod(0, 3600),
       cycleDuration: cycleDuration.reliable() && cycleDuration.clean() > minimumStrokeTime && cycleDuration.clean() < maximumStrokeTime && cycleLinearVelocity.raw() > 0 && totalNumberOfStrokes > 0 && metricsContext.isMoving === true ? cycleDuration.clean() : undefined, // seconds
