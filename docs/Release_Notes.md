@@ -13,6 +13,7 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris), [Abasz](ht
 ### Newly supported rowers in 0.9.7
 
 - Added full support for the Merarch R50 (see [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/140))
+- Added full support for the Oartec Slider (see [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/218))
 - Added full support for the Schwinn Windrigger (see [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/159))
 - Added full support for the Topiom V2 (see [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/144))
 
