@@ -179,7 +179,7 @@ export default {
     dragFactor: 8522
   },
 
-  // Force USA R3 Air Rower
+  // Force USA R3 Air Rower, see https://github.com/JaapvanEkris/openrowingmonitor/discussions/185
   ForceUSA_R3: {
     numOfImpulsesPerRevolution: 6,
     minimumTimeBetweenImpulses: 0.005,
@@ -266,7 +266,32 @@ export default {
     minimumRecoveryTime: 0.60
   },
 
-  // Schwinn Windrigger
+  //Oartec slider, see https://github.com/JaapvanEkris/openrowingmonitor/discussions/218
+  Oartec_Slider: {
+    numOfImpulsesPerRevolution: 3,
+    sprocketRadius: 1.4148,
+    minimumTimeBetweenImpulses: 0.01,
+    maximumTimeBetweenImpulses: 0.06,
+    flankLength: 13,
+    systematicErrorAgressiveness: 0.975,
+    systematicErrorNumberOfDatapoints: 220,
+    minimumForceBeforeStroke: 10,
+    minimumRecoverySlope: 0,
+    minimumStrokeQuality: 0.33,
+    autoAdjustRecoverySlope: true,
+    autoAdjustRecoverySlopeMargin: 0.05,
+    minimumDriveTime: 0.300,
+    minimumRecoveryTime: 0.900,
+    dragFactor: 150,
+    autoAdjustDragFactor: true,
+    dragFactorSmoothing: 3,
+    minimumDragQuality: 0.9,
+    flywheelInertia: 0.1057,
+    maximumStrokeTimeBeforePause: 6.0,
+    magicConstant: 2.8
+  },
+
+  // Schwinn Windrigger, see https://github.com/JaapvanEkris/openrowingmonitor/discussions/159
   Schwinn_Windrigger: {
     numOfImpulsesPerRevolution: 1,
     minimumTimeBetweenImpulses: 0.03,
@@ -326,7 +351,7 @@ export default {
     magicConstant: 2.8
   },
 
-  // Topiom V2 Water Rower
+  // Topiom V2 Water Rower, https://github.com/JaapvanEkris/openrowingmonitor/discussions/144
   Topiom_V2: {
     numOfImpulsesPerRevolution: 1,
     minimumTimeBetweenImpulses: 0.2,
