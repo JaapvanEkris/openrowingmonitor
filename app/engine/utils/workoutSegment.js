@@ -1,9 +1,8 @@
 'use strict'
-/*
-  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-*/
 /**
- * This Module supports the creation and use of workoutSegment
+ * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
+ *
+ * @file This Module supports the creation and use of workoutSegment
  * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Architecture.md#session-interval-and-split-boundaries-in-sessionmanagerjs|the description of the concepts used}
  */
 /* eslint-disable max-lines -- This contains a lot of defensive programming, so it is long */
@@ -500,7 +499,7 @@ export function createWorkoutSegment (config) {
       calories: {
         absoluteStart: _startCalories,
         sinceStart: spentCalories(baseMetrics),
-        target: _targetCalories,
+        target: targetCalories(),
         toEnd: caloriesToEnd(baseMetrics),
         totalSpent: spentCalories(baseMetrics),
         averagePerHour: _caloriesPerHour.average()
@@ -684,6 +683,17 @@ export function createWorkoutSegment (config) {
       return (500.0 / linearVel)
     } else {
       return Infinity
+    }
+  }
+
+  /**
+   * @returns {float} the target calories for this workoutsegment from the workout plan (only if type === 'calories')
+   */
+  function targetCalories () {
+    if (_type === 'calories' && _endCalories > 0) {
+      return _targetCalories
+    } else {
+      return undefined
     }
   }
 
