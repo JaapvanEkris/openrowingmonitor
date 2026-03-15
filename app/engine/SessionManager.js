@@ -269,7 +269,7 @@ export function createSessionManager (config) {
         metrics.metricsContext.isPauseStart = true
         metrics.metricsContext.isSplitEnd = true
         emitMetrics(metrics)
-        activateNextSplitParameters(metrics)
+        addUnplannedRestSplit(metrics)
         break
       case (sessionState === 'Rowing' && metrics.metricsContext.isMoving && interval.isEndReached(metrics) && isNextIntervalActive()):
         // The next interval is an active one, so we just keep on going
@@ -433,7 +433,7 @@ export function createSessionManager (config) {
 
   function activateNextSplitParameters (baseMetrics) {
     splitNumber++
-    log.error(`Activating split settings for split ${splitNumber + 1}`)
+    log.debug(`Activating split settings for split ${splitNumber + 1}`)
     split.setStart(baseMetrics)
     if (splitRemainder !== null && sessionState === 'Rowing') {
       // We have a part of the split still have to complete
@@ -442,6 +442,13 @@ export function createSessionManager (config) {
     } else {
       split.setEnd(interval.getSplit())
     }
+  }
+
+  function addUnplannedRestSplit (baseMetrics) {
+    splitNumber++
+    log.info(`Adding unplanned rest split, split number ${splitNumber + 1}`)
+    split.setStart(baseMetrics)
+    split.setEnd({ type: 'rest' })
   }
 
   function onPauseTimer () {
