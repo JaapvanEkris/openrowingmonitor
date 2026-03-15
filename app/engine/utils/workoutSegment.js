@@ -667,10 +667,10 @@ export function createWorkoutSegment (config) {
    * @returns {float} average linear velocity since the start of the workoutsgment
    */
   function averageLinearVelocity (baseMetrics) {
-    if (!isNaN(_startMovingTime) && _startMovingTime >= 0 && !isNaN(_startLinearDistance) && _startLinearDistance >= 0 && !isNaN(baseMetrics.totalMovingTime) && baseMetrics.totalMovingTime > _startMovingTime && !isNaN(baseMetrics.totalLinearDistance) && baseMetrics.totalLinearDistance > _startLinearDistance) {
-      return (baseMetrics.totalLinearDistance - _startLinearDistance) / (baseMetrics.totalMovingTime - _startMovingTime)
+    if (movingTimeSinceStart(baseMetrics) > 0) {
+      return Math.max(distanceFromStart(baseMetrics) / movingTimeSinceStart(baseMetrics), 0)
     } else {
-      return _linearVelocity.average()
+      return (_linearVelocity.average() > 0 ? _linearVelocity.average() : undefined)
     }
   }
 
