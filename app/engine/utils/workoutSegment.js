@@ -670,7 +670,7 @@ export function createWorkoutSegment (config) {
     if (movingTimeSinceStart(baseMetrics) > 0) {
       return Math.max(distanceFromStart(baseMetrics) / movingTimeSinceStart(baseMetrics), 0)
     } else {
-      return (_linearVelocity.average() > 0 ? _linearVelocity.average() : undefined)
+      return (_linearVelocity.average() > 0 ? _linearVelocity.average() : 0)
     }
   }
 
