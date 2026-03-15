@@ -645,10 +645,10 @@ export function createWorkoutSegment (config) {
    * @returns {float} the total time since start of the workoutsegment
    */
   function totalTime (baseMetrics) {
-    if (!isNaN(_startTimestamp) && _startTimestamp >= 0 && !isNaN(baseMetrics.timestamp) && baseMetrics.timestamp > _startTimestamp) {
-      return Math.max((baseMetrics.timestamp.getTime() - _startTimestamp.getTime()) / 1000, (baseMetrics.totalMovingTime - _startMovingTime))
+    if (!isNaN(_startTimestamp) && _startTimestamp >= 0 && !isNaN(baseMetrics.timestamp) && baseMetrics.timestamp >= _startTimestamp) {
+      return Math.max(timeSinceStart(baseMetrics), (baseMetrics.timestamp.getTime() - _startTimestamp.getTime()) / 1000)
     } else {
-      return 0
+      return Math.max(timeSinceStart(baseMetrics), 0)
     }
   }
 
