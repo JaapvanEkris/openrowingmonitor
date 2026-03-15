@@ -467,14 +467,14 @@ export function createWorkoutSegment (config) {
       },
       movingTime: {
         absoluteStart: _startMovingTime,
-        sinceStart: timeSinceStart(baseMetrics),
+        sinceStart: movingTimeSinceStart(baseMetrics),
         target: targetTime(),
         toEnd: timeToEnd(baseMetrics),
         projectedEnd: projectedEndTime()
       },
       timeSpent: {
         total: totalTime(baseMetrics),
-        moving: timeSinceStart(baseMetrics),
+        moving: movingTimeSinceStart(baseMetrics),
         rest: restTime(baseMetrics)
       },
       linearVelocity: {
@@ -592,9 +592,9 @@ export function createWorkoutSegment (config) {
   /**
    * @returns {float} the moving time since the start of the workoutsegment
    */
-  function timeSinceStart (baseMetrics) {
+  function movingTimeSinceStart (baseMetrics) {
     if (!isNaN(_startMovingTime) && _startMovingTime >= 0 && !isNaN(baseMetrics.totalMovingTime) && baseMetrics.totalMovingTime > _startMovingTime) {
-      return baseMetrics.totalMovingTime - _startMovingTime
+      return Math.max(baseMetrics.totalMovingTime - _startMovingTime, 0)
     } else {
       return 0
     }
@@ -646,9 +646,9 @@ export function createWorkoutSegment (config) {
    */
   function totalTime (baseMetrics) {
     if (!isNaN(_startTimestamp) && _startTimestamp >= 0 && !isNaN(baseMetrics.timestamp) && baseMetrics.timestamp >= _startTimestamp) {
-      return Math.max(timeSinceStart(baseMetrics), (baseMetrics.timestamp.getTime() - _startTimestamp.getTime()) / 1000)
+      return Math.max(movingTimeSinceStart(baseMetrics), (baseMetrics.timestamp.getTime() - _startTimestamp.getTime()) / 1000)
     } else {
-      return Math.max(timeSinceStart(baseMetrics), 0)
+      return Math.max(movingTimeSinceStart(baseMetrics), 0)
     }
   }
 
@@ -785,7 +785,7 @@ export function createWorkoutSegment (config) {
     isEndReached,
     interpolateEnd,
     metrics,
-    timeSinceStart,
+    movingTimeSinceStart,
     timeToEnd,
     type,
     push,
