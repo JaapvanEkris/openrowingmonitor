@@ -1,8 +1,7 @@
 'use strict'
-/*
-  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-/*
 /**
+ * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
+ *
  * @file This Module calculates the workout, interval and split specific metrics, as well as guards their boundaries
  * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Architecture.md#sessionmanagerjs|the description}
  */
@@ -195,9 +194,9 @@ export function createSessionManager (config) {
     // Provide the rower with new data
     metrics = rowingStatistics.handleRotationImpulse(currentDt)
     resetMetricsSessionContext(metrics)
-    if (sessionState === 'Rowing' && split.getStartTimestamp() !== undefined && split.timeSinceStart(metrics) >= 0) {
+    if (sessionState === 'Rowing' && split.getStartTimestamp() !== undefined && split.movingTimeSinceStart(metrics) >= 0) {
       // If we are moving, timestamps should be based on movingTime as it is more accurate and consistent for the consumers
-      metrics.timestamp = new Date(split.getStartTimestamp().getTime() + (split.timeSinceStart(metrics) * 1000))
+      metrics.timestamp = new Date(split.getStartTimestamp().getTime() + (split.movingTimeSinceStart(metrics) * 1000))
     } else {
       metrics.timestamp = new Date()
     }
