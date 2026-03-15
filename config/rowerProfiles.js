@@ -266,7 +266,7 @@ export default {
     minimumRecoveryTime: 0.60
   },
 
-  //Oartec slider, see https://github.com/JaapvanEkris/openrowingmonitor/discussions/218
+  // Oartec slider, see https://github.com/JaapvanEkris/openrowingmonitor/discussions/218
   Oartec_Slider: {
     numOfImpulsesPerRevolution: 3,
     sprocketRadius: 1.4148,
