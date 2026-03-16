@@ -28,7 +28,13 @@ export const DASHBOARD_METRICS = {
       }
       const linearDistance = formatDistance(distance ?? 0)
 
-      return simpleMetricFactory(linearDistance.distance, linearDistance.unit, config?.guiConfigs?.showIcons ? iconRoute : '')
+      return html`<dashboard-metric
+        style="cursor:pointer"
+        @click=${() => window.dispatchEvent(new CustomEvent('workout-open', { detail: 'distance' }))}
+        .icon=${config?.guiConfigs?.showIcons ? iconRoute : ''}
+        .unit=${linearDistance.unit}
+        .value=${linearDistance.distance}
+      ></dashboard-metric>`
     }
   },
 
@@ -79,7 +85,13 @@ export const DASHBOARD_METRICS = {
           icon = iconClock
       }
 
-      return simpleMetricFactory(secondsToTimeString(time ?? 0), '', config?.guiConfigs?.showIcons ? icon : '')
+      return html`<dashboard-metric
+        style="cursor:pointer"
+        @click=${() => window.dispatchEvent(new CustomEvent('workout-open', { detail: 'time' }))}
+        .icon=${config?.guiConfigs?.showIcons ? icon : ''}
+        .unit=${''}
+        .value=${secondsToTimeString(time ?? 0)}
+      ></dashboard-metric>`
     }
   },
 
