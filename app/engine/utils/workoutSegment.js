@@ -475,7 +475,7 @@ export function createWorkoutSegment (config) {
       timeSpent: {
         total: totalTime(baseMetrics),
         moving: movingTimeSinceStart(baseMetrics),
-        rest: restTime(baseMetrics)
+        rest: Math.max(restTime(baseMetrics), 0)
       },
       linearVelocity: {
         average: averageLinearVelocity(baseMetrics),
