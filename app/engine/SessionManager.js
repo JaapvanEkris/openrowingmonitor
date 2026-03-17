@@ -141,6 +141,7 @@ export function createSessionManager (config) {
 
   function stopTraining (baseMetrics) {
     clearTimeout(watchdogTimer)
+    session.push(baseMetrics)
     interval.push(baseMetrics)
     split.push(baseMetrics)
     rowingStatistics.stopTraining()
@@ -151,6 +152,7 @@ export function createSessionManager (config) {
     clearTimeout(watchdogTimer)
     session.push(baseMetrics)
     interval.push(baseMetrics)
+    split.push(baseMetrics)
     rowingStatistics.pauseTraining()
   }
 
