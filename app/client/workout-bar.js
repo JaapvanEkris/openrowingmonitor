@@ -162,6 +162,17 @@
         const s = v % 60
         return s > 0 ? `${m}m ${s}s` : `${m}m`
       }
+    },
+    calories: {
+      title: 'Set Calories',
+      unit: 'kcal',
+      increments: [
+        { label: '+10 kcal',  value: 10 },
+        { label: '+50 kcal',  value: 50 },
+        { label: '+100 kcal', value: 100 },
+        { label: '+500 kcal', value: 500 }
+      ],
+      format: v => v + ' kcal'
     }
   }
 
@@ -213,7 +224,9 @@
 
     const plan = type === 'distance'
       ? [{ type: 'distance', targetDistance: String(val), targetTime: '0' }]
-      : [{ type: 'time',     targetDistance: '0',         targetTime: String(val) }]
+      : type === 'time'
+        ? [{ type: 'time',     targetDistance: '0', targetTime: String(val) }]
+        : [{ type: 'calories', targetCalories: String(val) }]
 
     try {
       const ws = new WebSocket(`ws://${location.host}/websocket`)
