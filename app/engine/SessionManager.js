@@ -507,6 +507,7 @@ export function createSessionManager (config) {
    * @remark FOR TESTING PURPOSSES ONLY!
    */
   function getMetrics () {
+    clearTimeout(watchdogTimer)
     enrichMetrics(metrics)
     return metrics
   }
