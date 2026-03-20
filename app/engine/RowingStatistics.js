@@ -90,6 +90,7 @@ export function createRowingStatistics (config) {
     cycleDistance.reset()
     cyclePower.reset()
     strokeCalories = 0
+    totalWork = 0
     strokeWork = 0
     cycleLinearVelocity.reset()
     lastStrokeState = 'WaitingForDrive'
