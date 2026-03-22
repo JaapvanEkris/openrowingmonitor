@@ -248,9 +248,9 @@ export function createRowingStatistics (config) {
       totalNumberOfStrokes: totalNumberOfStrokes > 0 ? totalNumberOfStrokes : 0,
       totalLinearDistance: totalLinearDistance > 0 ? totalLinearDistance : 0, // meters
       totalWork: totalWork > 0 ? totalWork : 0, // Joules
-      strokeCalories: strokeCalories > 0 ? strokeCalories : 0, // kCal
+      strokeCalories: strokeCalories > 0 && metricsContext.isMoving === true ? strokeCalories : undefined, // kCal
       strokeWork: strokeWork > 0 && metricsContext.isMoving === true ? strokeWork : undefined, // Joules
-      totalCalories: totalCalories > 0 && metricsContext.isMoving === true ? totalCalories : undefined, // kcal
+      totalCalories: totalCalories > 0 ? totalCalories : 0, // kcal
       totalCaloriesPerMinute: totalMovingTime > 60 ? caloriesPerPeriod(totalMovingTime - 60, totalMovingTime) : caloriesPerPeriod(0, 60),
       totalCaloriesPerHour: totalMovingTime > 3600 ? caloriesPerPeriod(totalMovingTime - 3600, totalMovingTime) : caloriesPerPeriod(0, 3600),
       cycleDuration: cycleDuration.reliable() && cycleDuration.clean() > minimumStrokeTime && cycleDuration.clean() < maximumStrokeTime && cycleLinearVelocity.raw() > 0 && totalNumberOfStrokes > 0 && metricsContext.isMoving === true ? cycleDuration.clean() : undefined, // seconds
