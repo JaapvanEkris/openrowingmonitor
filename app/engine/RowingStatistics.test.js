@@ -820,7 +820,7 @@ test('Schwinn_Wndrggr_01: Test of the Schwinn Windrigger', async () => {
   testTotalNumberOfStrokes(rowingStatistics, 0)
   testDragFactor(rowingStatistics, undefined)
 
-  await replayRowingSession(rowingStatistics.handleRotationImpulse, { filename: 'recordings/Schwin_Windrigger.csv', realtime: false, loop: false })
+  await replayRowingSession(rowingStatistics.handleRotationImpulse, { filename: 'recordings/Schwinn_Windrigger.csv', realtime: false, loop: false })
 
   testIsMoving(rowingStatistics, false)
   testIsDriveStart(rowingStatistics, false)
