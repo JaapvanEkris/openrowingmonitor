@@ -5188,7 +5188,7 @@ test('Schwinn_Wndrggr_01: Data for the Schwinn Windrigger should produce plausib
   testTotalNumberOfStrokes(sessionManager, 0)
   testDragFactor(sessionManager, undefined)
 
-  await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/Schwin_Windrigger.csv', realtime: false, loop: false })
+  await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/Schwinn_Windrigger.csv', realtime: false, loop: false })
 
   // Test Instantanuous metrics
   testIsMoving(sessionManager, false)
