@@ -697,7 +697,7 @@ export function createWorkoutSegment (config) {
     }
   }
 
-  /**
+ /**
    * @returns {float} the calories spent moving since the start of the workoutsegment (i.e. active calories)
    */
   function spentCalories (baseMetrics) {
