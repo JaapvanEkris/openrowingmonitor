@@ -5,7 +5,7 @@
  * @file This Module supports the creation and use of workoutSegment
  * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Architecture.md#session-interval-and-split-boundaries-in-sessionmanagerjs|the description of the concepts used}
  */
-/* eslint-disable max-lines -- This contains a lot of defensive programming, so it is long */
+/* eslint-disable max-lines -- This contains a lot of checks on individual metrics, so it is long */
 import { createWLSLinearSeries } from './WLSLinearSeries.js'
 import { createSeries } from './Series.js'
 import loglevel from 'loglevel'
