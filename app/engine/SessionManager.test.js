@@ -2059,7 +2059,7 @@ test('TheoreticalModel_09: Data with structural magnet errors on the Theoretical
   intervalSettings[1] = {
     type: 'distance',
     targetDistance: 500,
-        split: {
+    split: {
       type: 'distance',
       targetDistance: 100
     }
@@ -7341,7 +7341,7 @@ test('TopiomV2_01: Data for the Topiom V2 should produce plausible results for 9
   testSessionTime(sessionManager, 2432.9155719999935)
   testSessionMovingTimeTarget(sessionManager, undefined)
   testSessionMovingTimeToEnd(sessionManager, undefined)
-  testSessionMovingTimeProjectedEnd(sessionManager, undefined) // ToDo: this shouldn't happen here	
+  testSessionMovingTimeProjectedEnd(sessionManager, undefined) // ToDo: this shouldn't happen here
   testSessionTimeSpentTotal(sessionManager, 2432.9155719999935)
   testSessionTimeSpentMoving(sessionManager, 2432.9155719999935)
   testSessionTimeSpentRest(sessionManager, 0)
