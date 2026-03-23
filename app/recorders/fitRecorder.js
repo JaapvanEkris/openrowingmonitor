@@ -784,7 +784,8 @@ export function createFITRecorder (config) {
         field_definition_number: 0,
         fit_base_type_id: 'uint16',
         field_name: 'DriveLength',
-        units: 'cm'
+        scale: 100,
+        units: 'm'
       },
       null,
       true
@@ -797,6 +798,7 @@ export function createFITRecorder (config) {
         field_definition_number: 1,
         fit_base_type_id: 'uint16',
         field_name: 'StrokeDriveTime',
+        scale: 1,
         units: 'ms'
       },
       null,
@@ -810,6 +812,7 @@ export function createFITRecorder (config) {
         field_definition_number: 2,
         fit_base_type_id: 'uint16',
         field_name: 'StrokeRecoveryTime',
+        scale: 1,
         units: 'ms'
       },
       null,
@@ -823,6 +826,7 @@ export function createFITRecorder (config) {
         field_definition_number: 3,
         fit_base_type_id: 'uint16',
         field_name: 'PeakDriveForceN',
+        scale: 10,
         units: 'N'
       },
       null,
@@ -836,11 +840,27 @@ export function createFITRecorder (config) {
         field_definition_number: 4,
         fit_base_type_id: 'uint16',
         field_name: 'AverageDriveForceN',
+        scale: 10,
         units: 'N'
       },
       null,
       true
     )
+
+    fitWriter.writeMessage(
+      'field_description',
+      {
+        developer_data_index: 0,
+        field_definition_number: 5,
+        fit_base_type_id: 'uint16',
+        field_name: 'DragFactor',
+        scale: 1,
+        units: '10^-6 N*m*s^2'
+      },
+      null,
+      true
+    )
+
     await writeRecords(fitWriter, workout)
 
     await writeHRData(fitWriter, workout)
