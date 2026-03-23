@@ -1242,12 +1242,17 @@ export function createFITRecorder (config) {
     }
 
     if (trackpoint.peakDriveForceN > 0) {
-      developerFieldValues.push({ developer_data_index: 0, field_num: 3, value: Math.round(trackpoint.peakDriveForce) })
+      developerFieldValues.push({ developer_data_index: 0, field_num: 3, value: Math.round(trackpoint.peakDriveForce * 10) })
     }
 
     if (trackpoint.averageDriveForceN > 0) {
-      developerFieldValues.push({ developer_data_index: 0, field_num: 4, value: Math.round(trackpoint.averageDriveForce) })
+      developerFieldValues.push({ developer_data_index: 0, field_num: 4, value: Math.round(trackpoint.averageDriveForce * 10) })
     }
+
+    if (trackpoint.dragFactor > 0) {
+      developerFieldValues.push({ developer_data_index: 0, field_num: 5, value: Math.round(trackpoint.dragFactor) })
+    }
+
     writer.writeMessage(
       'record',
       {
