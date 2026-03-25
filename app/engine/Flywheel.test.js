@@ -1,6 +1,6 @@
 'use strict'
 /**
- * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
+ * @copyright {@link https://github.com/JaapvanEkris/openrowingmonitor|OpenRowingMonitor}
  *
  * @file Tests of the Flywheel object
  */
@@ -39,7 +39,7 @@ const baseConfig = { // Based on Concept 2 settings, as this is the validation s
 /**
  * @description Test behaviour for no datapoints
  */
-test('Correct Flywheel behaviour at initialisation', () => {
+test('Init_01: Correct Flywheel behaviour at initialisation', () => {
   const flywheel = createFlywheel(baseConfig)
   testDeltaTime(flywheel, 0)
   testSpinningTime(flywheel, 0)
@@ -69,7 +69,7 @@ test('Correct Flywheel behaviour at initialisation', () => {
  * @description Test of the integration of the underlying FullTSQuadraticEstimator object
  * This uses the same data as the function y = 2 x^2 + 4 * x
  */
-test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Flywheel object for quadratic function f(x) = 2 * x^2 + 4 * x', () => {
+test('Theoretical_01: Test of correct algorithmic integration of FullTSQuadraticEstimator and Flywheel object for quadratic function f(x) = 2 * x^2 + 4 * x', () => {
   const testConfig = {
     numOfImpulsesPerRevolution: 6,
     sprocketRadius: 1,
@@ -292,7 +292,7 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Fl
  * The data follows the function y = X^3 + 2 * x^2 + 4 * x
  * To test if multiple quadratic regressions can decently approximate a cubic function
  */
-test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Flywheel object for cubic function f(x) = X^3 + 2 * x^2 + 4 * x', () => {
+test('Theoretical_02: Test of correct algorithmic integration of FullTSQuadraticEstimator and Flywheel object for cubic function f(x) = X^3 + 2 * x^2 + 4 * x', () => {
   const testConfig = {
     numOfImpulsesPerRevolution: 6,
     sprocketRadius: 1,
@@ -516,7 +516,7 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Fl
  * To test if multiple quadratic regressions can decently approximate a cubic function with noise
  * Please note:  theoretical values are based on the perfect function (i.e. without noise)
  */
-test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Flywheel object for cubic function f(x) = X^3 + 2 * x^2 + 4 * x with +/- 0.0001 error', () => {
+test('Theoretical_03: Test of correct algorithmic integration of FullTSQuadraticEstimator and Flywheel object for cubic function f(x) = X^3 + 2 * x^2 + 4 * x with +/- 0.0001 error', () => {
   const testConfig = {
     numOfImpulsesPerRevolution: 6,
     sprocketRadius: 1,
@@ -741,7 +741,7 @@ test('Test of correct algorithmic integration of FullTSQuadraticEstimator and Fl
 /**
  * @description Test behaviour for perfect stroke
  */
-test('Correct Flywheel behaviour for a noisefree stroke', () => {
+test('Theoretical_04: Correct Flywheel behaviour for a noisefree stroke', () => {
   const flywheel = createFlywheel(baseConfig)
   flywheel.maintainStateAndMetrics()
   testDeltaTime(flywheel, 0)
@@ -858,7 +858,7 @@ test('Correct Flywheel behaviour for a noisefree stroke', () => {
 /**
  * @description Test behaviour for not maintaining metrics
  */
-test('Correct Flywheel behaviour at maintainStateOnly', () => {
+test('Theoretical_05: Correct Flywheel behaviour at maintainStateOnly', () => {
   const flywheel = createFlywheel(baseConfig)
   flywheel.maintainStateAndMetrics()
   testDeltaTime(flywheel, 0)
@@ -929,27 +929,136 @@ test('Correct Flywheel behaviour at maintainStateOnly', () => {
 })
 
 /**
- * @description Test behaviour for the WRX700
+ * @description Test against a theoretical model, based on perfect clean data, as described in
+ * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/discussions/215|this discussion}
  */
-test('Correct Flywheel behaviour with a SportsTech WRX700', async () => {
-  const flywheel = createFlywheel(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Sportstech_WRX700))
+test('Theoretical_06: Correct Flywheel behaviour with perfect clean data', async () => {
+  const flywheel = createFlywheel(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Theoretical_Model))
   testSpinningTime(flywheel, 0)
   testAngularPosition(flywheel, 0)
-  testDragFactor(flywheel, (rowerProfiles.Sportstech_WRX700.dragFactor / 1000000))
+  testDragFactor(flywheel, (rowerProfiles.Theoretical_Model.dragFactor / 1000000))
   flywheel.maintainStateAndMetrics()
 
-  // Inject 16 strokes
-  await replayRowingSession(flywheel.pushValue, { filename: 'recordings/WRX700_2magnets.csv', realtime: false, loop: false })
+  // Inject the data
+  await replayRowingSession(flywheel.pushValue, { filename: 'recordings/Theoretical_Simulation_Clean.csv', realtime: false, loop: false })
 
-  testSpinningTime(flywheel, 46.302522627)
-  testAngularPosition(flywheel, 738.2742735936014)
-  testDragFactor(flywheel, (rowerProfiles.Sportstech_WRX700.dragFactor / 1000000))
+  testSpinningTime(flywheel, 98.9709819388311)
+  testAngularPosition(flywheel, 7972.314957259698)
+  testDeltaTime(flywheel, 0.05977130668982511)
+  testAngularVelocity(flywheel, 17.531701264128273)
+  testAngularAcceleration(flywheel, -0.3470957714275053)
+  testTorque(flywheel, -0.013843769373297968)
+  testIsDwelling(flywheel, true)
+  testIsUnpowered(flywheel, true)
+  testIsPowered(flywheel, false)
+  testDragFactor(flywheel, (rowerProfiles.Theoretical_Model.dragFactor / 1000000)) // As Flywheel.js doesn't detect strokes (this is a function of Rower.js), the dragcalculation shouldn't be triggered
+})
+
+/**
+ * @description Test against a theoretical model, based on noise-injected data, as described in
+ * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/discussions/215|this discussion}
+ */
+test('Theoretical_07: Correct Flywheel behaviour with noise-injected data', async () => {
+  const flywheel = createFlywheel(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Theoretical_Model))
+  testSpinningTime(flywheel, 0)
+  testAngularPosition(flywheel, 0)
+  testDragFactor(flywheel, (rowerProfiles.Theoretical_Model.dragFactor / 1000000))
+  flywheel.maintainStateAndMetrics()
+
+  // Inject the data
+  await replayRowingSession(flywheel.pushValue, { filename: 'recordings/Theoretical_Simulation_Random_Noise.csv', realtime: false, loop: false })
+
+  testSpinningTime(flywheel, 248.53909245603822)
+  testAngularPosition(flywheel, 21826.738559590685)
+  testDeltaTime(flywheel, 0.09678841914560446)
+  testAngularVelocity(flywheel, 10.812632937564636)
+  testAngularAcceleration(flywheel, -0.1402363382869548)
+  testTorque(flywheel, -0.0060875713516336544)
+  testIsDwelling(flywheel, true)
+  testIsUnpowered(flywheel, true)
+  testIsPowered(flywheel, false)
+  testDragFactor(flywheel, (rowerProfiles.Theoretical_Model.dragFactor / 1000000)) // As Flywheel.js doesn't detect strokes (this is a function of Rower.js), the dragcalculation shouldn't be triggered
+})
+
+/**
+ * @description Test against a theoretical model, based on a simulation of magnet positioning errors, as described in
+ * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/discussions/215|this discussion}
+ * Magnet errors -0.01, +0.1, +0.2, -0.2, -0.1, +0.01 degrees
+ */
+test('Theoretical_08: Correct Flywheel behaviour with structural magnet errors', async () => {
+  const flywheel = createFlywheel(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Theoretical_Model))
+  testSpinningTime(flywheel, 0)
+  testAngularPosition(flywheel, 0)
+  testDragFactor(flywheel, (rowerProfiles.Theoretical_Model.dragFactor / 1000000))
+  flywheel.maintainStateAndMetrics()
+
+  // Inject the data
+  await replayRowingSession(flywheel.pushValue, { filename: 'recordings/Theoretical_Simulation_Systematic_Noise.csv', realtime: false, loop: false })
+
+  testSpinningTime(flywheel, 248.5384526565442)
+  testAngularPosition(flywheel, 21826.738559590685)
+  testDeltaTime(flywheel, 0.09696462739685785)
+  testAngularVelocity(flywheel, 10.811915344241925)
+  testAngularAcceleration(flywheel, -0.1416257800887151)
+  testTorque(flywheel, -0.0062277096749287116)
+  testIsDwelling(flywheel, true)
+  testIsUnpowered(flywheel, true)
+  testIsPowered(flywheel, false)
+  testDragFactor(flywheel, (rowerProfiles.Theoretical_Model.dragFactor / 1000000)) // As Flywheel.js doesn't detect strokes (this is a function of Rower.js), the dragcalculation shouldn't be triggered
+})
+
+/**
+ * @description Test behaviour for the C2 Model C
+ */
+test('C2_ModelC_01: A full session for a Concept2 Model C should produce plausible results', async () => {
+  const flywheel = createFlywheel(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Concept2_Model_C))
+  testSpinningTime(flywheel, 0)
+  testAngularPosition(flywheel, 0)
+  testDragFactor(flywheel, (rowerProfiles.Concept2_Model_C.dragFactor / 1000000))
+  flywheel.maintainStateAndMetrics()
+
+  await replayRowingSession(flywheel.pushValue, { filename: 'recordings/Concept2_Model_C.csv', realtime: false, loop: false })
+
+  testSpinningTime(flywheel, 181.47141999999985)
+  testAngularPosition(flywheel, 15634.659439365203)
+  testDeltaTime(flywheel, 0.1269760000000133)
+  testAngularVelocity(flywheel, 17.15696419975984)
+  testAngularAcceleration(flywheel, 19.214668279855754)
+  testTorque(flywheel, 1.9822842933004643)
+  testIsDwelling(flywheel, false)
+  testIsUnpowered(flywheel, false)
+  testIsPowered(flywheel, false)
+  testDragFactor(flywheel, (rowerProfiles.Concept2_Model_C.dragFactor / 1000000)) // As Flywheel.js doesn't detect strokes (this is a function of Rower.js), the dragcalculation shouldn't be triggered
+})
+
+/**
+ * @description Test behaviour for the C2 RowErg
+ */
+test('C2_RowErg_01: A full session for a Concept2 RowErg should produce plausible results', async () => {
+  const flywheel = createFlywheel(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Concept2_RowErg))
+  testSpinningTime(flywheel, 0)
+  testAngularPosition(flywheel, 0)
+  testDragFactor(flywheel, (rowerProfiles.Concept2_RowErg.dragFactor / 1000000))
+  flywheel.maintainStateAndMetrics()
+
+  await replayRowingSession(flywheel.pushValue, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
+
+  testSpinningTime(flywheel, 591.0432650000008)
+  testAngularPosition(flywheel, 65960.87935477128)
+  testDeltaTime(flywheel, 0.009975)
+  testAngularVelocity(flywheel, 103.61722616806219)
+  testAngularAcceleration(flywheel, -10.88942996208896)
+  testTorque(flywheel, -0.37568315550441544)
+  testIsDwelling(flywheel, false)
+  testIsUnpowered(flywheel, false)
+  testIsPowered(flywheel, false)
+  testDragFactor(flywheel, (rowerProfiles.Concept2_RowErg.dragFactor / 1000000)) // As Flywheel.js doesn't detect strokes (this is a function of Rower.js), the dragcalculation shouldn't be triggered
 })
 
 /**
  * @description Test behaviour for the DKN R-320
  */
-test('Correct Flywheel behaviour with a DKN R-320', async () => {
+test('DKN_R320_01: Correct Flywheel behaviour with a DKN R-320', async () => {
   const flywheel = createFlywheel(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.DKN_R320))
 
   testAngularPosition(flywheel, 0)
@@ -961,33 +1070,145 @@ test('Correct Flywheel behaviour with a DKN R-320', async () => {
 
   testSpinningTime(flywheel, 22.249536391000003)
   testAngularPosition(flywheel, 490.0884539600077)
-  // As dragfactor is static, it should remain the same
-  testDragFactor(flywheel, (rowerProfiles.DKN_R320.dragFactor / 1000000))
+  testDeltaTime(flywheel, 0.301283162)
+  testAngularVelocity(flywheel, 18.449095403544845)
+  testAngularAcceleration(flywheel, -13.540617584449196)
+  testTorque(flywheel, -9.827554878438296)
+  testIsDwelling(flywheel, false)
+  testIsUnpowered(flywheel, true)
+  testIsPowered(flywheel, false)
+  testDragFactor(flywheel, (rowerProfiles.DKN_R320.dragFactor / 1000000)) // As Flywheel.js doesn't detect strokes (this is a function of Rower.js), the dragcalculation shouldn't be triggered
 })
 
 /**
  * @description Test behaviour for the NordicTrack RX800
  */
-test('Correct Flywheel behaviour with a NordicTrack RX800', async () => {
+test('NordicT_RX800_01: Correct Flywheel behaviour with a NordicTrack RX800', async () => {
   const flywheel = createFlywheel(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.NordicTrack_RX800))
   testSpinningTime(flywheel, 0)
   testAngularPosition(flywheel, 0)
   testDragFactor(flywheel, (rowerProfiles.NordicTrack_RX800.dragFactor / 1000000))
   flywheel.maintainStateAndMetrics()
 
-  // Inject 10 strokes
+  // Inject data
   await replayRowingSession(flywheel.pushValue, { filename: 'recordings/RX800.csv', realtime: false, loop: false })
 
   testSpinningTime(flywheel, 22.721492397999985)
   testAngularPosition(flywheel, 1448.2742133048946)
-  // As we don't detect strokes here (this is a function of Rower.js, the dragcalculation shouldn't be triggered
-  testDragFactor(flywheel, (rowerProfiles.NordicTrack_RX800.dragFactor / 1000000))
+  testDeltaTime(flywheel, 0.027508437)
+  testAngularVelocity(flywheel, 56.91429403149175)
+  testAngularAcceleration(flywheel, -9.697829866471647)
+  testTorque(flywheel, -1.0167810813166995)
+  testIsDwelling(flywheel, false)
+  testIsUnpowered(flywheel, true)
+  testIsPowered(flywheel, false)
+  testDragFactor(flywheel, (rowerProfiles.NordicTrack_RX800.dragFactor / 1000000)) // As Flywheel.js doesn't detect strokes (this is a function of Rower.js), the dragcalculation shouldn't be triggered
+})
+
+/**
+ * @description Test behaviour for the Merarch R50
+ */
+test('Merarch_R50_01: Correct Flywheel behaviour with a Merarch R50', async () => {
+  const flywheel = createFlywheel(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Merach_R50))
+  testSpinningTime(flywheel, 0)
+  testAngularPosition(flywheel, 0)
+  testDragFactor(flywheel, (rowerProfiles.Merach_R50.dragFactor / 1000000))
+  flywheel.maintainStateAndMetrics()
+
+  // Inject data
+  await replayRowingSession(flywheel.pushValue, { filename: 'recordings/Merach_R50_510m.csv', realtime: false, loop: false })
+
+  testSpinningTime(flywheel, 167.08544299999994)
+  testAngularPosition(flywheel, 15104.777478459726)
+  testDeltaTime(flywheel, 0.08684500000003936)
+  testAngularVelocity(flywheel, 72.08365670111948)
+  testAngularAcceleration(flywheel, -6.128049101129095)
+  testTorque(flywheel, -0.08746742433423627)
+  testIsDwelling(flywheel, true)
+  testIsUnpowered(flywheel, true)
+  testIsPowered(flywheel, false)
+  testDragFactor(flywheel, (rowerProfiles.Merach_R50.dragFactor / 1000000)) // As Flywheel.js doesn't detect strokes (this is a function of Rower.js), the dragcalculation shouldn't be triggered
+})
+
+/**
+ * @description Test behaviour for the Oartec Slider
+ */
+test('Oartec_Slider_01: Correct Flywheel behaviour with a Oartec Slider', async () => {
+  const flywheel = createFlywheel(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Oartec_Slider))
+  testSpinningTime(flywheel, 0)
+  testAngularPosition(flywheel, 0)
+  testDragFactor(flywheel, (rowerProfiles.Oartec_Slider.dragFactor / 1000000))
+  flywheel.maintainStateAndMetrics()
+
+  // Inject data
+  await replayRowingSession(flywheel.pushValue, { filename: 'recordings/Oartec_Slider.csv', realtime: false, loop: false })
+
+  testSpinningTime(flywheel, 67.32300999999995)
+  testAngularPosition(flywheel, 5168.967112706406)
+  testDeltaTime(flywheel, 0.08461499999998523)
+  testAngularVelocity(flywheel, 24.795470297327896)
+  testAngularAcceleration(flywheel, -0.9584556279706938)
+  testTorque(flywheel, -0.009086457786651847)
+  testIsDwelling(flywheel, true)
+  testIsUnpowered(flywheel, true)
+  testIsPowered(flywheel, false)
+  testDragFactor(flywheel, (rowerProfiles.Oartec_Slider.dragFactor / 1000000)) // As Flywheel.js doesn't detect strokes (this is a function of Rower.js), the dragcalculation shouldn't be triggered
+})
+
+/**
+ * @description Test behaviour for the Schwinn Windrigger
+ */
+test('Schwinn_Wndrggr_01: Correct Flywheel behaviour with a Schwinn Windrigger', async () => {
+  const flywheel = createFlywheel(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Schwinn_Windrigger))
+  testSpinningTime(flywheel, 0)
+  testAngularPosition(flywheel, 0)
+  testDragFactor(flywheel, (rowerProfiles.Schwinn_Windrigger.dragFactor / 1000000))
+  flywheel.maintainStateAndMetrics()
+
+  // Inject data
+  await replayRowingSession(flywheel.pushValue, { filename: 'recordings/Schwin_Windrigger.csv', realtime: false, loop: false })
+
+  testSpinningTime(flywheel, 124.52743099999996)
+  testAngularPosition(flywheel, 10197.609753552468)
+  testDeltaTime(flywheel, 0.53818)
+  testAngularVelocity(flywheel, 11.09436351003069)
+  testAngularAcceleration(flywheel, -2.1935917561168776)
+  testTorque(flywheel, -0.16317885032008017)
+  testIsDwelling(flywheel, true)
+  testIsUnpowered(flywheel, true)
+  testIsPowered(flywheel, false)
+  testDragFactor(flywheel, (rowerProfiles.Schwinn_Windrigger.dragFactor / 1000000)) // As Flywheel.js doesn't detect strokes (this is a function of Rower.js), the dragcalculation shouldn't be triggered
+})
+
+/**
+ * @description Test behaviour for the WRX700
+ */
+test('Sportstech_WRX700_01: Correct Flywheel behaviour with a SportsTech WRX700', async () => {
+  const flywheel = createFlywheel(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Sportstech_WRX700))
+  testSpinningTime(flywheel, 0)
+  testAngularPosition(flywheel, 0)
+  testDragFactor(flywheel, (rowerProfiles.Sportstech_WRX700.dragFactor / 1000000))
+  flywheel.maintainStateAndMetrics()
+
+  // Inject 16 strokes
+  await replayRowingSession(flywheel.pushValue, { filename: 'recordings/WRX700_2magnets.csv', realtime: false, loop: false })
+
+  testSpinningTime(flywheel, 46.302522627)
+  testAngularPosition(flywheel, 738.2742735936014)
+  testDeltaTime(flywheel, 0.374942146)
+  testAngularVelocity(flywheel, 7.73724815197113)
+  testAngularAcceleration(flywheel, -3.4832490689573206)
+  testTorque(flywheel, -0.5922590427634897)
+  testIsDwelling(flywheel, true)
+  testIsUnpowered(flywheel, true)
+  testIsPowered(flywheel, false)
+  testDragFactor(flywheel, (rowerProfiles.Sportstech_WRX700.dragFactor / 1000000)) // As Flywheel.js doesn't detect strokes (this is a function of Rower.js), the dragcalculation shouldn't be triggered
 })
 
 /**
  * @description Test behaviour for the SportsTech WRX700
  */
-test('Correct Flywheel behaviour with a full session on a SportsTech WRX700', async () => {
+test('Sportstech_WRX700_02: Correct Flywheel behaviour with a full session on a SportsTech WRX700', async () => {
   const flywheel = createFlywheel(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Sportstech_WRX700))
   testSpinningTime(flywheel, 0)
   testAngularPosition(flywheel, 0)
@@ -999,44 +1220,39 @@ test('Correct Flywheel behaviour with a full session on a SportsTech WRX700', as
 
   testSpinningTime(flywheel, 2340.0100514160117)
   testAngularPosition(flywheel, 37322.120724646746)
-  // The dragfactor should remain static
-  testDragFactor(flywheel, (rowerProfiles.Sportstech_WRX700.dragFactor / 1000000))
+  testDeltaTime(flywheel, 0.381367661)
+  testAngularVelocity(flywheel, 7.510250158842609)
+  testAngularAcceleration(flywheel, -3.3685328592655774)
+  testTorque(flywheel, -0.6204202203225615)
+  testIsDwelling(flywheel, true)
+  testIsUnpowered(flywheel, true)
+  testIsPowered(flywheel, false)
+  testDragFactor(flywheel, (rowerProfiles.Sportstech_WRX700.dragFactor / 1000000)) // As Flywheel.js doesn't detect strokes (this is a function of Rower.js), the dragcalculation shouldn't be triggered
 })
 
 /**
- * @description Test behaviour for the C2 Model C
+ * @description Test behaviour for the Topiom V2
  */
-test('A full session for a Concept2 Model C should produce plausible results', async () => {
-  const flywheel = createFlywheel(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Concept2_Model_C))
+test('TopiomV2_01: Correct Flywheel behaviour with a Topiom V2', async () => {
+  const flywheel = createFlywheel(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Topiom_V2))
   testSpinningTime(flywheel, 0)
   testAngularPosition(flywheel, 0)
-  testDragFactor(flywheel, (rowerProfiles.Concept2_Model_C.dragFactor / 1000000))
+  testDragFactor(flywheel, (rowerProfiles.Topiom_V2.dragFactor / 1000000))
   flywheel.maintainStateAndMetrics()
 
-  await replayRowingSession(flywheel.pushValue, { filename: 'recordings/Concept2_Model_C.csv', realtime: false, loop: false })
+  // Inject data
+  await replayRowingSession(flywheel.pushValue, { filename: 'recordings/Topiom_V2_1magnet.csv', realtime: false, loop: false })
 
-  testSpinningTime(flywheel, 181.47141999999985)
-  testAngularPosition(flywheel, 15634.659439365203)
-  // As we don't detect strokes here (this is a function of Rower.js, the dragcalculation shouldn't be triggered
-  testDragFactor(flywheel, (rowerProfiles.Concept2_Model_C.dragFactor / 1000000))
-})
-
-/**
- * @description Test behaviour for the C2 RowErg
- */
-test('A full session for a Concept2 RowErg should produce plausible results', async () => {
-  const flywheel = createFlywheel(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Concept2_RowErg))
-  testSpinningTime(flywheel, 0)
-  testAngularPosition(flywheel, 0)
-  testDragFactor(flywheel, (rowerProfiles.Concept2_RowErg.dragFactor / 1000000))
-  flywheel.maintainStateAndMetrics()
-
-  await replayRowingSession(flywheel.pushValue, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
-
-  testSpinningTime(flywheel, 591.0432650000008)
-  testAngularPosition(flywheel, 65960.87935477128)
-  // As we don't detect strokes here (this is a function of Rower.js, the dragcalculation shouldn't be triggered
-  testDragFactor(flywheel, (rowerProfiles.Concept2_RowErg.dragFactor / 1000000))
+  testSpinningTime(flywheel, 2452.8183219999933)
+  testAngularPosition(flywheel, 48562.739239191025)
+  testDeltaTime(flywheel, 1.6244899999999802)
+  testAngularVelocity(flywheel, 3.570665383502728)
+  testAngularAcceleration(flywheel, -0.3302458188366401)
+  testTorque(flywheel, 0.02904532439241564)
+  testIsDwelling(flywheel, true)
+  testIsUnpowered(flywheel, true)
+  testIsPowered(flywheel, false)
+  testDragFactor(flywheel, (rowerProfiles.Topiom_V2.dragFactor / 1000000)) // As Flywheel.js doesn't detect strokes (this is a function of Rower.js), the dragcalculation shouldn't be triggered
 })
 
 /**
