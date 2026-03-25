@@ -2,17 +2,20 @@
 
 ## Version 0.9.7 (March 2026)
 
-Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris), [Abasz](https://github.com/Abasz), [DXCanas](https://github.com/DXCanas) and [cwklurks](https://github.com/cwklurks)
+Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris), [Abasz](https://github.com/Abasz), [DXCanas](https://github.com/DXCanas), [NickOldfield](https://github.com/NickOldfield), [cwklurks](https://github.com/cwklurks) and [klamp169](https://github.com/klamp169)
 
 ### New functionality in 0.9.7
 
 - **Addition of the 'Calories' workout type**. You can now program Intervals and splits based on calories to be burned
-- **GUI Improvements**. The GUI now has dark (OLED) mode, its layout is more efficient and it has new tiles for Peak Force and Ratio
+- **GUI Improvements**:
+  - The GUI now has dark (OLED) mode, its layout is more efficient and it has new tiles for Peak Force and Stroke Ratio
+  - You can now set simple (i.e. single distance/time/calories) workouts via the GUI. Just tap on the tile and you can set a limit
 - **Introduction of splits in the fit-file**. The fit-file now also has splits, which makes the fit-file closer to a native Garmin recording of the same session
 
 ### Newly supported rowers in 0.9.7
 
 - Added full support for the Merarch R50 (see [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/140))
+- Added full support for the Oartec Slider (see [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/218))
 - Added full support for the Schwinn Windrigger (see [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/159))
 - Added full support for the Topiom V2 (see [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/144))
 

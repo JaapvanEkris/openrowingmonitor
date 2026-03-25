@@ -1,6 +1,6 @@
 'use strict'
 /**
- * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
+ * @copyright {@link https://github.com/JaapvanEkris/openrowingmonitor|OpenRowingMonitor}
  *
  * @file This Module captures the metrics of a rowing session and persists them into the fit format
  * It provides a fit-file content, and some metadata for the filewriter and the file-uploaders
@@ -269,6 +269,11 @@ export function createFITRecorder (config) {
       cycleLinearVelocity: metrics.cycleLinearVelocity,
       cycleDistance: metrics.cycleDistance,
       dragFactor: metrics.dragFactor,
+      driveLength: metrics.driveLength,
+      strokeDriveTime: metrics.driveDuration,
+      strokeRecoveryTime: metrics.recoveryDuration,
+      peakDriveForce: metrics.drivePeakHandleForce,
+      averageDriveForce: metrics.driveAverageHandleForce,
       ...(!isNaN(heartRate) && heartRate > 0 ? { heartrate: heartRate } : { heartrate: undefined })
     })
     sessionData.totalMovingTime = metrics.workout.timeSpent.moving
@@ -756,6 +761,106 @@ export function createFITRecorder (config) {
     // The workout definition before the start
     await createWorkoutSteps(fitWriter, workout)
 
+    // Register the developer data source
+    fitWriter.writeMessage(
+      'developer_data_id',
+      {
+        application_id: "42c9182e-23a6-425f-b8fc-316d3d164a6f"
+          .replace(/-/g, "")
+          .match(/../g)
+          .map((s) => parseInt(s, 16)),
+        developer_data_index: 0,
+        application_version: versionNumber
+      },
+      null,
+      true
+    )
+
+    // Register each developer field individually
+    fitWriter.writeMessage(
+      'field_description',
+      {
+        developer_data_index: 0,
+        field_definition_number: 0,
+        fit_base_type_id: 'uint16',
+        field_name: 'DriveLength',
+        scale: 100,
+        units: 'm'
+      },
+      null,
+      true
+    )
+
+    fitWriter.writeMessage(
+      'field_description',
+      {
+        developer_data_index: 0,
+        field_definition_number: 1,
+        fit_base_type_id: 'uint16',
+        field_name: 'StrokeDriveTime',
+        scale: 1,
+        units: 'ms'
+      },
+      null,
+      true
+    )
+
+    fitWriter.writeMessage(
+      'field_description',
+      {
+        developer_data_index: 0,
+        field_definition_number: 2,
+        fit_base_type_id: 'uint16',
+        field_name: 'StrokeRecoveryTime',
+        scale: 1,
+        units: 'ms'
+      },
+      null,
+      true
+    )
+
+    fitWriter.writeMessage(
+      'field_description',
+      {
+        developer_data_index: 0,
+        field_definition_number: 3,
+        fit_base_type_id: 'uint16',
+        field_name: 'PeakDriveForceN',
+        scale: 10,
+        units: 'N'
+      },
+      null,
+      true
+    )
+
+    fitWriter.writeMessage(
+      'field_description',
+      {
+        developer_data_index: 0,
+        field_definition_number: 4,
+        fit_base_type_id: 'uint16',
+        field_name: 'AverageDriveForceN',
+        scale: 10,
+        units: 'N'
+      },
+      null,
+      true
+    )
+
+    fitWriter.writeMessage(
+      'field_description',
+      {
+        developer_data_index: 0,
+        field_definition_number: 5,
+        fit_base_type_id: 'uint16',
+        field_name: 'DragFactor',
+        scale: 1,
+        units: '10^-6 N*m*s^2'
+      },
+      null,
+      true
+    )
+
     await writeRecords(fitWriter, workout)
 
     await writeHRData(fitWriter, workout)
@@ -1122,6 +1227,32 @@ export function createFITRecorder (config) {
    * @description This creates the individual stroke
    */
   async function createTrackPoint (writer, trackpoint) {
+    const developerFieldValues = []
+
+    if (trackpoint.driveLength > 0) {
+      developerFieldValues.push({ developer_data_index: 0, field_num: 0, value: Math.round(trackpoint.driveLength * 100) })
+    }
+
+    if (trackpoint.strokeDriveTime > 0) {
+      developerFieldValues.push({ developer_data_index: 0, field_num: 1, value: Math.round(trackpoint.strokeDriveTime * 1000) })
+    }
+
+    if (trackpoint.strokeRecoveryTime > 0) {
+      developerFieldValues.push({ developer_data_index: 0, field_num: 2, value: Math.round(trackpoint.strokeRecoveryTime * 1000) })
+    }
+
+    if (trackpoint.peakDriveForceN > 0) {
+      developerFieldValues.push({ developer_data_index: 0, field_num: 3, value: Math.round(trackpoint.peakDriveForce * 10) })
+    }
+
+    if (trackpoint.averageDriveForceN > 0) {
+      developerFieldValues.push({ developer_data_index: 0, field_num: 4, value: Math.round(trackpoint.averageDriveForce * 10) })
+    }
+
+    if (trackpoint.dragFactor > 0) {
+      developerFieldValues.push({ developer_data_index: 0, field_num: 5, value: Math.round(trackpoint.dragFactor) })
+    }
+
     writer.writeMessage(
       'record',
       {

@@ -5,7 +5,7 @@
  * @file This Module supports the creation and use of workoutSegment
  * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Architecture.md#session-interval-and-split-boundaries-in-sessionmanagerjs|the description of the concepts used}
  */
-/* eslint-disable max-lines -- This contains a lot of defensive programming, so it is long */
+/* eslint-disable max-lines -- This contains a lot of checks on individual metrics, so it is long */
 import { createWLSLinearSeries } from './WLSLinearSeries.js'
 import { createSeries } from './Series.js'
 import loglevel from 'loglevel'
@@ -467,14 +467,14 @@ export function createWorkoutSegment (config) {
       },
       movingTime: {
         absoluteStart: _startMovingTime,
-        sinceStart: timeSinceStart(baseMetrics),
+        sinceStart: movingTimeSinceStart(baseMetrics),
         target: targetTime(),
         toEnd: timeToEnd(baseMetrics),
         projectedEnd: projectedEndTime()
       },
       timeSpent: {
         total: totalTime(baseMetrics),
-        moving: timeSinceStart(baseMetrics),
+        moving: movingTimeSinceStart(baseMetrics),
         rest: Math.max(restTime(baseMetrics), 0)
       },
       linearVelocity: {
@@ -499,7 +499,7 @@ export function createWorkoutSegment (config) {
       calories: {
         absoluteStart: _startCalories,
         sinceStart: spentCalories(baseMetrics),
-        target: _targetCalories,
+        target: targetCalories(),
         toEnd: caloriesToEnd(baseMetrics),
         totalSpent: spentCalories(baseMetrics),
         averagePerHour: _caloriesPerHour.average()
@@ -592,9 +592,9 @@ export function createWorkoutSegment (config) {
   /**
    * @returns {float} the moving time since the start of the workoutsegment
    */
-  function timeSinceStart (baseMetrics) {
+  function movingTimeSinceStart (baseMetrics) {
     if (!isNaN(_startMovingTime) && _startMovingTime >= 0 && !isNaN(baseMetrics.totalMovingTime) && baseMetrics.totalMovingTime > _startMovingTime) {
-      return baseMetrics.totalMovingTime - _startMovingTime
+      return Math.max(baseMetrics.totalMovingTime - _startMovingTime, 0)
     } else {
       return 0
     }
@@ -645,10 +645,10 @@ export function createWorkoutSegment (config) {
    * @returns {float} the total time since start of the workoutsegment
    */
   function totalTime (baseMetrics) {
-    if (!isNaN(_startTimestamp) && _startTimestamp >= 0 && !isNaN(baseMetrics.timestamp) && baseMetrics.timestamp > _startTimestamp) {
-      return Math.max((baseMetrics.timestamp.getTime() - _startTimestamp.getTime()) / 1000, (baseMetrics.totalMovingTime - _startMovingTime))
+    if (!isNaN(_startTimestamp) && _startTimestamp >= 0 && !isNaN(baseMetrics.timestamp) && baseMetrics.timestamp >= _startTimestamp) {
+      return Math.max(movingTimeSinceStart(baseMetrics), (baseMetrics.timestamp.getTime() - _startTimestamp.getTime()) / 1000)
     } else {
-      return 0
+      return Math.max(movingTimeSinceStart(baseMetrics), 0)
     }
   }
 
@@ -667,10 +667,10 @@ export function createWorkoutSegment (config) {
    * @returns {float} average linear velocity since the start of the workoutsgment
    */
   function averageLinearVelocity (baseMetrics) {
-    if (!isNaN(_startMovingTime) && _startMovingTime >= 0 && !isNaN(_startLinearDistance) && _startLinearDistance >= 0 && !isNaN(baseMetrics.totalMovingTime) && baseMetrics.totalMovingTime > _startMovingTime && !isNaN(baseMetrics.totalLinearDistance) && baseMetrics.totalLinearDistance > _startLinearDistance) {
-      return (baseMetrics.totalLinearDistance - _startLinearDistance) / (baseMetrics.totalMovingTime - _startMovingTime)
+    if (movingTimeSinceStart(baseMetrics) > 0) {
+      return Math.max(distanceFromStart(baseMetrics) / movingTimeSinceStart(baseMetrics), 0)
     } else {
-      return _linearVelocity.average()
+      return (_linearVelocity.average() > 0 ? _linearVelocity.average() : 0)
     }
   }
 
@@ -683,6 +683,17 @@ export function createWorkoutSegment (config) {
       return (500.0 / linearVel)
     } else {
       return Infinity
+    }
+  }
+
+  /**
+   * @returns {float} the target calories for this workoutsegment from the workout plan (only if type === 'calories')
+   */
+  function targetCalories () {
+    if (_type === 'calories' && _endCalories > 0) {
+      return _targetCalories
+    } else {
+      return undefined
     }
   }
 
@@ -774,7 +785,7 @@ export function createWorkoutSegment (config) {
     isEndReached,
     interpolateEnd,
     metrics,
-    timeSinceStart,
+    movingTimeSinceStart,
     timeToEnd,
     type,
     push,

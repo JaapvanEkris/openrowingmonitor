@@ -1,6 +1,6 @@
 'use strict'
 /**
- * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
+ * @copyright {@link https://github.com/JaapvanEkris/openrowingmonitor|OpenRowingMonitor}
  *
  * @file This test is a test of the Rower object, that tests wether this object fills all fields correctly, given one validated rower, (the
  * Concept2 RowErg) using a validated cycle of strokes. This thoroughly tests the raw physics of the translation of Angular physics
@@ -42,7 +42,7 @@ const baseConfig = { // Based on Concept 2 settings, as this is the validation s
 /**
  * @description Test behaviour for no datapoints
  */
-test('Correct rower behaviour at initialisation', () => {
+test('Init_01: Correct rower behaviour at initialisation', () => {
   const rower = createRower(baseConfig)
   testStrokeState(rower, 'WaitingForDrive')
   testTotalMovingTimeSinceStart(rower, 0)
@@ -69,7 +69,7 @@ test('Correct rower behaviour at initialisation', () => {
 /**
  * @description Test behaviour for three perfect identical strokes, including settingling behaviour of metrics
  */
-test('Test behaviour for three perfect identical strokes, including settingling behaviour of metrics', () => {
+test('Theoretical_01: Test behaviour for three perfect identical strokes, including settingling behaviour of metrics', () => {
   const rower = createRower(baseConfig)
   testStrokeState(rower, 'WaitingForDrive')
   testTotalMovingTimeSinceStart(rower, 0)
@@ -338,48 +338,193 @@ test('Test behaviour for three perfect identical strokes, including settingling 
  */
 
 /**
- * @description Test behaviour for the Sportstech WRX700
+ * @description Test against a theoretical model, based on perfect clean data, as described in
+ * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/discussions/215|this discussion}
  */
-test('sample data for Sportstech WRX700 should produce plausible results', async () => {
-  const rower = createRower(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Sportstech_WRX700))
+test('Theoretical_02: Correct Rower behaviour with perfect clean data', async () => {
+  const rower = createRower(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Theoretical_Model))
   testTotalMovingTimeSinceStart(rower, 0)
   testTotalLinearDistanceSinceStart(rower, 0)
   testTotalNumberOfStrokes(rower, 0)
-  testRecoveryDragFactor(rower, rowerProfiles.Sportstech_WRX700.dragFactor)
+  // As dragFactor isn't static, it isn't available yet
+  testRecoveryDragFactor(rower, undefined)
 
-  await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/WRX700_2magnets.csv', realtime: false, loop: false })
+  await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/Theoretical_Simulation_Clean.csv', realtime: false, loop: false })
 
-  testTotalMovingTimeSinceStart(rower, 46.302522627)
-  testTotalLinearDistanceSinceStart(rower, 165.58832475070278)
-  testTotalNumberOfStrokes(rower, 16)
-  // As dragFactor is static, it should remain in place
-  testRecoveryDragFactor(rower, rowerProfiles.Sportstech_WRX700.dragFactor)
+  testTotalMovingTimeSinceStart(rower, 61.3575905099299)
+  testTotalLinearDistanceSinceStart(rower, 235.71100184559577)
+  testTotalNumberOfStrokes(rower, 20)
+  // As the session has stopped, all data is supposed to be undefined again
+  testCycleDuration(rower, 6.002600148120585)
+  testCycleLinearDistance(rower, 20.51792911861166)
+  testCycleLinearVelocity(rower, 3.418173560175646)
+  testCyclePower(rower, 111.82537494177338)
+  testDriveDuration(rower, 0.8536150547956822)
+  testDriveLinearDistance(rower, 3.3708026409143326)
+  testDriveLength(rower, 1.363241772147737)
+  testDriveAverageHandleForce(rower, 376.227848755665)
+  testDrivePeakHandleForce(rower, 595.5968022268906) // Theoretical value 600N
+  testRecoveryDuration(rower, 5.148985093324903)
+  testInstantHandlePower(rower, 0)
+  testRecoveryDragFactor(rower, 119.92470860879553) // Theoretical value 120 * 10^âˆ’6 [ k g m 2 ]
+})
+
+/**
+ * @description Test against a theoretical model, based on noise-injected data, as described in
+ * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/discussions/215|this discussion}
+ */
+test('Theoretical_03: Correct Rower behaviour with noise-injected data', async () => {
+  const rower = createRower(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Theoretical_Model))
+  testTotalMovingTimeSinceStart(rower, 0)
+  testTotalLinearDistanceSinceStart(rower, 0)
+  testTotalNumberOfStrokes(rower, 0)
+  // As dragFactor isn't static, it isn't available yet
+  testRecoveryDragFactor(rower, undefined)
+
+  await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/Theoretical_Simulation_Random_Noise.csv', realtime: false, loop: false })
+
+  testTotalMovingTimeSinceStart(rower, 181.37410307752515)
+  testTotalLinearDistanceSinceStart(rower, 706.3941674377243)
+  testTotalNumberOfStrokes(rower, 60)
+  testCycleDuration(rower, 6.017174805743167)
+  testCycleLinearDistance(rower, 20.556148767785583)
+  testCycleLinearVelocity(rower, 3.4162343421008674)
+  testCyclePower(rower, 111.63515863384868)
+  testDriveDuration(rower, 0.9022807545438525)
+  testDriveLinearDistance(rower, 3.5909710922219444)
+  testDriveLength(rower, 1.4521488442443375)
+  testDriveAverageHandleForce(rower, 357.06261389429113)
+  testDrivePeakHandleForce(rower, 597.4110902759764) // Theoretical value 600N
+  testRecoveryDuration(rower, 5.114894051199315)
+  testInstantHandlePower(rower, 0)
+  testRecoveryDragFactor(rower, 119.95115701917243) // Theoretical value 120 * 10^âˆ’6 [ k g m 2 ]
+})
+
+/**
+ * @description Test against a theoretical model, based on a simulation of magnet positioning errors, as described in
+ * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/discussions/215|this discussion}
+ * Magnet errors -0.01, +0.1, +0.2, -0.2, -0.1, +0.01 degrees
+ */
+test('Theoretical_04: Correct Rower behaviour with structural magnet errors', async () => {
+  const rower = createRower(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Theoretical_Model))
+  testTotalMovingTimeSinceStart(rower, 0)
+  testTotalLinearDistanceSinceStart(rower, 0)
+  testTotalNumberOfStrokes(rower, 0)
+  // As dragFactor isn't static, it isn't available yet
+  testRecoveryDragFactor(rower, undefined)
+
+  await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/Theoretical_Simulation_Systematic_Noise.csv', realtime: false, loop: false })
+
+  testTotalMovingTimeSinceStart(rower, 181.35701304844142)
+  testTotalLinearDistanceSinceStart(rower, 706.3286131515105)
+  testTotalNumberOfStrokes(rower, 60)
+  testCycleDuration(rower, 6.002627869048808)
+  testCycleLinearDistance(rower, 20.51792911861257)
+  testCycleLinearVelocity(rower, 3.4181577745989578)
+  testCyclePower(rower, 111.823825675902)
+  testDriveDuration(rower, 0.8536290880211368)
+  testDriveLinearDistance(rower, 3.370802640914105)
+  testDriveLength(rower, 1.363241772147737)
+  testDriveAverageHandleForce(rower, 376.5982501172787)
+  testDrivePeakHandleForce(rower, 595.8795141321255) // Theoretical value 600N
+  testRecoveryDuration(rower, 5.148998781027672)
+  testInstantHandlePower(rower, 0)
+  testRecoveryDragFactor(rower, 119.92470860881883) // Theoretical value 120 * 10^âˆ’6 [ k g m 2 ]
+})
+
+
+/**
+ * @description Test behaviour for the C2 Model C
+ */
+test('C2_ModelC_01: A full session for a Concept2 Model C should produce plausible results', async () => {
+  const rower = createRower(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Concept2_Model_C))
+  testTotalMovingTimeSinceStart(rower, 0)
+  testTotalLinearDistanceSinceStart(rower, 0)
+  testTotalNumberOfStrokes(rower, 0)
+  // As dragFactor isn't static, it isn't available yet
+  testRecoveryDragFactor(rower, undefined)
+
+  await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/Concept2_Model_C.csv', realtime: false, loop: false })
+
+  testTotalMovingTimeSinceStart(rower, 181.4588596531004)
+  testTotalLinearDistanceSinceStart(rower, 552.4833037536148)
+  testTotalNumberOfStrokes(rower, 81)
+  testCycleDuration(rower, 2.7431250688428577)
+  testCycleLinearDistance(rower, 3.4692073560232397)
+  testCycleLinearVelocity(rower, 1.1301499807254836)
+  testCyclePower(rower, 4.041720500786868)
+  testDriveDuration(rower, 0.7592322967347798)
+  testDriveLinearDistance(rower, 1.3286326044344432)
+  testDriveLength(rower, 0.38117990863556767)
+  testDriveAverageHandleForce(rower, 89.5649019624021)
+  testDrivePeakHandleForce(rower, 176.95825697187902)
+  testRecoveryDuration(rower, 1.983892772108078)
+  testInstantHandlePower(rower, 31.747253027739596)
+  testRecoveryDragFactor(rower, 122.56864708679767)
+})
+
+/**
+ * @description Test behaviour for the C2 RowErg
+ */
+test('C2_RowErg_01: A full session for a Concept2 RowErg should produce plausible results', async () => {
+  const rower = createRower(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Concept2_RowErg))
+  testTotalMovingTimeSinceStart(rower, 0)
+  testTotalLinearDistanceSinceStart(rower, 0)
+  testTotalNumberOfStrokes(rower, 0)
+  testRecoveryDragFactor(rower, undefined)
+
+  await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
+
+  testTotalMovingTimeSinceStart(rower, 589.9664157362346)
+  testTotalLinearDistanceSinceStart(rower, 2028.3093228150667)
+  testTotalNumberOfStrokes(rower, 206)
+  testCycleDuration(rower, 2.991845945763316)
+  testCycleLinearDistance(rower, 9.249577681017865)
+  testCycleLinearVelocity(rower, 3.467310312773511)
+  testCyclePower(rower, 116.7175506729407)
+  testDriveDuration(rower, 0.7332495742683705)
+  testDriveLinearDistance(rower, 2.5693271336160244)
+  testDriveLength(rower, 1.1728612573401769)
+  testDriveAverageHandleForce(rower, 284.3396357312365)
+  testDrivePeakHandleForce(rower, 444.35598591963236)
+  testRecoveryDuration(rower, 2.2585963714949457)
+  testInstantHandlePower(rower, 0)
+  testRecoveryDragFactor(rower, 80.77192371126783)
 })
 
 /**
  * @description Test behaviour for the DKN R-320
  */
-test('sample data for DKN R-320 should produce plausible results', async () => {
+test('DKN_R320_01: sample data for DKN R-320 should produce plausible results', async () => {
   const rower = createRower(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.DKN_R320))
   testTotalMovingTimeSinceStart(rower, 0)
   testTotalLinearDistanceSinceStart(rower, 0)
   testTotalNumberOfStrokes(rower, 0)
-  // As dragFactor is static, it should be known at initialisation
-  testRecoveryDragFactor(rower, rowerProfiles.DKN_R320.dragFactor)
+  testRecoveryDragFactor(rower, rowerProfiles.DKN_R320.dragFactor) // As dragFactor is static, it should be known at initialisation
 
   await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/DKNR320.csv', realtime: false, loop: false })
 
   testTotalMovingTimeSinceStart(rower, 21.701535821)
   testTotalLinearDistanceSinceStart(rower, 69.20242183779045)
   testTotalNumberOfStrokes(rower, 10)
-  // As dragFactor is static, it should remain in place
-  testRecoveryDragFactor(rower, rowerProfiles.DKN_R320.dragFactor)
+  testCycleDuration(rower, 2.2897938159999995)
+  testCycleLinearDistance(rower, 7.284465456609514)
+  testCycleLinearVelocity(rower, 3.181275713869568)
+  testCyclePower(rower, 90.14921752119831)
+  testDriveDuration(rower, 1.2778628719999965)
+  testDriveLinearDistance(rower, 3.642232728304757)
+  testDriveLength(rower, 1.7592918860102824)
+  testDriveAverageHandleForce(rower, 385.62555350976965)
+  testDrivePeakHandleForce(rower, 604.6392224523523)
+  testRecoveryDuration(rower, 1.011930944000003)
+  testInstantHandlePower(rower, 0)
+  testRecoveryDragFactor(rower, rowerProfiles.DKN_R320.dragFactor) // As dragFactor is static, it should remain in place
 })
 
 /**
  * @description Test behaviour for the NordicTrack RX800
  */
-test('sample data for NordicTrack RX800 should produce plausible results', async () => {
+test('NordicT_RX800_01: sample data for NordicTrack RX800 should produce plausible results', async () => {
   const rower = createRower(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.NordicTrack_RX800))
   testTotalMovingTimeSinceStart(rower, 0)
   testTotalLinearDistanceSinceStart(rower, 0)
@@ -391,65 +536,192 @@ test('sample data for NordicTrack RX800 should produce plausible results', async
   testTotalMovingTimeSinceStart(rower, 22.368358745999995)
   testTotalLinearDistanceSinceStart(rower, 80.8365747440095)
   testTotalNumberOfStrokes(rower, 10)
-  // As dragFactor is dynamic, it should have changed
+  testCycleDuration(rower, 2.237534478999997)
+  testCycleLinearDistance(rower, 7.751801481871587)
+  testCycleLinearVelocity(rower, 3.621913392059043)
+  testCyclePower(rower, 133.0369301265531)
+  testDriveDuration(rower, 0.6251555590000031)
+  testDriveLinearDistance(rower, 2.290304983280253)
+  testDriveLength(rower, 1.2252211349000253)
+  testDriveAverageHandleForce(rower, 242.21443734968256)
+  testDrivePeakHandleForce(rower, 389.6437952657745)
+  testRecoveryDuration(rower, 1.612378919999994)
+  testInstantHandlePower(rower, 0)
   testRecoveryDragFactor(rower, 493.8082148322739)
+})
+
+/**
+ * @description Test behaviour for the Merarch R50
+ */
+test('Merarch_R50_01: sample data for Merarch R50 should produce plausible results', async () => {
+  const rower = createRower(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Merach_R50))
+  testTotalMovingTimeSinceStart(rower, 0)
+  testTotalLinearDistanceSinceStart(rower, 0)
+  testTotalNumberOfStrokes(rower, 0)
+  testRecoveryDragFactor(rower, undefined)
+
+  await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/Merach_R50_510m.csv', realtime: false, loop: false })
+
+  testTotalMovingTimeSinceStart(rower, 129.30676700000004)
+  testTotalLinearDistanceSinceStart(rower, 511.02296249261553)
+  testTotalNumberOfStrokes(rower, 50)
+  testCycleDuration(rower, 6.080085000000054)
+  testCycleLinearDistance(rower, 21.069134297647764)
+  testCycleLinearVelocity(rower, 3.465046801046821)
+  testCyclePower(rower, 116.48911500649851)
+  testDriveDuration(rower, 0.8127870000000712)
+  testDriveLinearDistance(rower, 3.327846651885306)
+  testDriveLength(rower, 1.347743248390033)
+  testDriveAverageHandleForce(rower, 367.91178083645434)
+  testDrivePeakHandleForce(rower, 672.9842122409556)
+  testRecoveryDuration(rower, 5.2672979999999825)
+  testInstantHandlePower(rower, 0)
+  testRecoveryDragFactor(rower, 123.11298950726905)
+})
+
+/**
+ * @description Test behaviour for the Oartec Slider
+ */
+test('Oartec_Slider_01: sample data for Oartec Slider should produce plausible results', async () => {
+  const rower = createRower(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Oartec_Slider))
+  testTotalMovingTimeSinceStart(rower, 0)
+  testTotalLinearDistanceSinceStart(rower, 0)
+  testTotalNumberOfStrokes(rower, 0)
+  testRecoveryDragFactor(rower, undefined)
+
+  await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/Oartec_Slider.csv', realtime: false, loop: false })
+
+  testTotalMovingTimeSinceStart(rower, 58.32198919882932)
+  testTotalLinearDistanceSinceStart(rower, 195.17761419351442)
+  testTotalNumberOfStrokes(rower, 14)
+  testCycleDuration(rower, 13.371270849084922)
+  testCycleLinearDistance(rower, 33.36960390678204)
+  testCycleLinearVelocity(rower, 2.4956847109450653)
+  testCyclePower(rower, 43.52383815572541)
+  testDriveDuration(rower, 1.1030650912501372)
+  testDriveLinearDistance(rower, 4.294337493820962)
+  testDriveLength(rower, 1.5408380992502635)
+  testDriveAverageHandleForce(rower, 381.3323961655147)
+  testDrivePeakHandleForce(rower, 541.5104462470034)
+  testRecoveryDuration(rower, 12.268205757834785)
+  testInstantHandlePower(rower, 0)
+  testRecoveryDragFactor(rower, 171.76129602250094)
+})
+
+/**
+ * @description Test behaviour for the Schwinn Windrigger
+ */
+test('Schwinn_Wndrggr_01: sample data for Schwinn Windrigger should produce plausible results', async () => {
+  const rower = createRower(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Schwinn_Windrigger))
+  testTotalMovingTimeSinceStart(rower, 0)
+  testTotalLinearDistanceSinceStart(rower, 0)
+  testTotalNumberOfStrokes(rower, 0)
+  testRecoveryDragFactor(rower, undefined)
+
+  await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/Schwinn_Windrigger.csv', realtime: false, loop: false })
+
+  testTotalMovingTimeSinceStart(rower, 120.58333099999997)
+  testTotalLinearDistanceSinceStart(rower, 432.11617011823284)
+  testTotalNumberOfStrokes(rower, 47)
+  testCycleDuration(rower, 9.136834999999948)
+  testCycleLinearDistance(rower, 18.08516640554577)
+  testCycleLinearVelocity(rower, 1.9838607607875394)
+  testCyclePower(rower, 21.862085772339665)
+  testDriveDuration(rower, 0.6514299999999906)
+  testDriveLinearDistance(rower, 1.9110111872560942)
+  testDriveLength(rower, 0.6905220652590236)
+  testDriveAverageHandleForce(rower, 245.6040207461455)
+  testDrivePeakHandleForce(rower, 356.88032010420187)
+  testRecoveryDuration(rower, 8.485404999999957)
+  testInstantHandlePower(rower, 0)
+  testRecoveryDragFactor(rower, 244.79315251519714)
+})
+
+/**
+ * @description Test behaviour for the Sportstech WRX700
+ */
+test('Sportstech_WRX700_01: sample data for Sportstech WRX700 should produce plausible results', async () => {
+  const rower = createRower(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Sportstech_WRX700))
+  testTotalMovingTimeSinceStart(rower, 0)
+  testTotalLinearDistanceSinceStart(rower, 0)
+  testTotalNumberOfStrokes(rower, 0)
+  testRecoveryDragFactor(rower, rowerProfiles.Sportstech_WRX700.dragFactor) // As dragFactor is static, it should be known at initialisation
+
+  await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/WRX700_2magnets.csv', realtime: false, loop: false })
+
+  testTotalMovingTimeSinceStart(rower, 46.302522627)
+  testTotalLinearDistanceSinceStart(rower, 165.58832475070278)
+  testTotalNumberOfStrokes(rower, 16)
+  testCycleDuration(rower, 2.629863708000002)
+  testCycleLinearDistance(rower, 12.02992102889722)
+  testCycleLinearVelocity(rower, 4.03619251053907)
+  testCyclePower(rower, 184.10841872694715)
+  testDriveDuration(rower, 1.297822779999997)
+  testDriveLinearDistance(rower, 5.661139307716341)
+  testDriveLength(rower, 1.7592918860102864)
+  testDriveAverageHandleForce(rower, 347.2288656270118)
+  testDrivePeakHandleForce(rower, 634.0186435697934)
+  testRecoveryDuration(rower, 1.332040928000005)
+  testInstantHandlePower(rower, 0)
+  testRecoveryDragFactor(rower, rowerProfiles.Sportstech_WRX700.dragFactor) // As dragFactor is static, it should remain in place
 })
 
 /**
  * @description Test behaviour for the SportsTech WRX700 in a full session
  */
-test('A full session for SportsTech WRX700 should produce plausible results', async () => {
+test('Sportstech_WRX700_02: A full session for SportsTech WRX700 should produce plausible results', async () => {
   const rower = createRower(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Sportstech_WRX700))
   testTotalMovingTimeSinceStart(rower, 0)
   testTotalLinearDistanceSinceStart(rower, 0)
   testTotalNumberOfStrokes(rower, 0)
-  testRecoveryDragFactor(rower, rowerProfiles.Sportstech_WRX700.dragFactor)
+  testRecoveryDragFactor(rower, rowerProfiles.Sportstech_WRX700.dragFactor) // As dragFactor is static, it should be known at initialisation
 
   await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/WRX700_2magnets_session.csv', realtime: false, loop: false })
 
   testTotalMovingTimeSinceStart(rower, 2340.0100514160117)
   testTotalLinearDistanceSinceStart(rower, 8406.084229545408)
   testTotalNumberOfStrokes(rower, 846)
-  // As dragFactor is static, it should remain in place
-  testRecoveryDragFactor(rower, rowerProfiles.Sportstech_WRX700.dragFactor)
+  testCycleDuration(rower, 2.64479661400037)
+  testCycleLinearDistance(rower, 9.906993788503808)
+  testCycleLinearVelocity(rower, 3.47828310363887)
+  testCyclePower(rower, 117.82916841975236)
+  testDriveDuration(rower, 1.3936550620001071)
+  testDriveLinearDistance(rower, 4.953496894251904)
+  testDriveLength(rower, 1.5393804002590334)
+  testDriveAverageHandleForce(rower, 210.6300325410566)
+  testDrivePeakHandleForce(rower, 352.68327935116827)
+  testRecoveryDuration(rower, 1.251141552000263)
+  testInstantHandlePower(rower, 0)
+  testRecoveryDragFactor(rower, rowerProfiles.Sportstech_WRX700.dragFactor) // As dragFactor is static, it should remain in place
 })
 
 /**
- * @description Test behaviour for the C2 Model C
+ * @description Test behaviour for the Topiom V2
  */
-test('A full session for a Concept2 Model C should produce plausible results', async () => {
-  const rower = createRower(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Concept2_Model_C))
+test('TopiomV2_01: sample data for Topiom V2 should produce plausible results', async () => {
+  const rower = createRower(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Topiom_V2))
   testTotalMovingTimeSinceStart(rower, 0)
   testTotalLinearDistanceSinceStart(rower, 0)
   testTotalNumberOfStrokes(rower, 0)
-  testRecoveryDragFactor(rower, undefined)
+  testRecoveryDragFactor(rower, rowerProfiles.Topiom_V2.dragFactor)
 
-  await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/Concept2_Model_C.csv', realtime: false, loop: false })
+  await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/Topiom_V2_1magnet.csv', realtime: false, loop: false })
 
-  testTotalMovingTimeSinceStart(rower, 181.47141999999985)
-  testTotalLinearDistanceSinceStart(rower, 552.4839868710009)
-  testTotalNumberOfStrokes(rower, 81)
-  // As dragFactor isn't static, it should have changed
-  testRecoveryDragFactor(rower, 123.11017508212515)
-})
-
-/**
- * @description Test behaviour for the C2 RowErg
- */
-test('A full session for a Concept2 RowErg should produce plausible results', async () => {
-  const rower = createRower(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Concept2_RowErg))
-  testTotalMovingTimeSinceStart(rower, 0)
-  testTotalLinearDistanceSinceStart(rower, 0)
-  testTotalNumberOfStrokes(rower, 0)
-  testRecoveryDragFactor(rower, undefined)
-
-  await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
-
-  testTotalMovingTimeSinceStart(rower, 590.0231672202852)
-  testTotalLinearDistanceSinceStart(rower, 2027.8388877679706)
-  testTotalNumberOfStrokes(rower, 206)
-  // As dragFactor isn't static, it should have changed
-  testRecoveryDragFactor(rower, 80.70871681344696)
+  testTotalMovingTimeSinceStart(rower, 2443.938449999993)
+  testTotalLinearDistanceSinceStart(rower, 9785.826483676927)
+  testTotalNumberOfStrokes(rower, 1201)
+  testCycleDuration(rower, 6.065000999999484)
+  testCycleLinearDistance(rower, 16.480858179530163)
+  testCycleLinearVelocity(rower, 2.717371057239985)
+  testCyclePower(rower, 56.182992510450624)
+  testDriveDuration(rower, 1.0403479999999945)
+  testDriveLinearDistance(rower, 3.8032749645067345)
+  testDriveLength(rower, 1.3194689145075973)
+  testDriveAverageHandleForce(rower, 140.7915517540433)
+  testDrivePeakHandleForce(rower, 207.94182032146372)
+  testRecoveryDuration(rower, 5.024652999999489)
+  testInstantHandlePower(rower, 0)
+  testRecoveryDragFactor(rower, rowerProfiles.Topiom_V2.dragFactor)
 })
 
 function testStrokeState (rower, expectedValue) {
