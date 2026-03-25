@@ -1166,7 +1166,7 @@ test('Schwinn_Wndrggr_01: Correct Flywheel behaviour with a Schwinn Windrigger',
   flywheel.maintainStateAndMetrics()
 
   // Inject data
-  await replayRowingSession(flywheel.pushValue, { filename: 'recordings/Schwin_Windrigger.csv', realtime: false, loop: false })
+  await replayRowingSession(flywheel.pushValue, { filename: 'recordings/Schwinn_Windrigger.csv', realtime: false, loop: false })
 
   testSpinningTime(flywheel, 124.52743099999996)
   testAngularPosition(flywheel, 10197.609753552468)
