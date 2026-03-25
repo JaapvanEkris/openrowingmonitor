@@ -11,6 +11,7 @@ import { APP_STATE } from './store/appState.js'
 import { DASHBOARD_METRICS } from './store/dashboardMetrics.js'
 import { createApp } from './lib/app.js'
 import './components/PerformanceDashboard.js'
+import './workout-bar.js'
 
 // Catch async update errors from Lit 3.x (they are re-fired asynchronously)
 window.addEventListener('unhandledrejection', (event) => {
