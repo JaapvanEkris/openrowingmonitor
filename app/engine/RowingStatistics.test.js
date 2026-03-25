@@ -1,6 +1,6 @@
 'use strict'
 /**
- * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
+ * @copyright {@link https://github.com/JaapvanEkris/openrowingmonitor|OpenRowingMonitor}
  *
  * @file This test is a test of the Rowingstatistics object, that tests wether this object fills all fields correctly, given one validated rower, (the
  * Concept2 RowErg) using a validated cycle of strokes. The combination with all possible known rowers is tested.
@@ -854,7 +854,7 @@ test('Schwinn_Wndrggr_01: Test of the Schwinn Windrigger', async () => {
 /**
  * @description Test behaviour for the Sportstech WRX700
  */
-test('sample data for Sportstech WRX700 should produce plausible results', async () => {
+test('Sportstech_WRX700_01: sample data for Sportstech WRX700 should produce plausible results', async () => {
   const rowerProfile = deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Sportstech_WRX700)
   const testConfig = {
     loglevel: {
@@ -904,7 +904,7 @@ test('sample data for Sportstech WRX700 should produce plausible results', async
 /**
  * @description Test behaviour for the SportsTech WRX700 in a full session
  */
-test('A full session for SportsTech WRX700 should produce plausible results', async () => {
+test('Sportstech_WRX700_02: A full session for SportsTech WRX700 should produce plausible results', async () => {
   const rowerProfile = deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Sportstech_WRX700)
   const testConfig = {
     loglevel: {
