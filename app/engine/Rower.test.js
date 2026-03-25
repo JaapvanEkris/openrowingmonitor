@@ -640,7 +640,7 @@ test('Schwinn_Wndrggr_01: sample data for Schwinn Windrigger should produce plau
 /**
  * @description Test behaviour for the Sportstech WRX700
  */
-test('sample data for Sportstech WRX700 should produce plausible results', async () => {
+test('Sportstech_WRX700_01: sample data for Sportstech WRX700 should produce plausible results', async () => {
   const rower = createRower(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Sportstech_WRX700))
   testTotalMovingTimeSinceStart(rower, 0)
   testTotalLinearDistanceSinceStart(rower, 0)
@@ -669,7 +669,7 @@ test('sample data for Sportstech WRX700 should produce plausible results', async
 /**
  * @description Test behaviour for the SportsTech WRX700 in a full session
  */
-test('A full session for SportsTech WRX700 should produce plausible results', async () => {
+test('Sportstech_WRX700_02: A full session for SportsTech WRX700 should produce plausible results', async () => {
   const rower = createRower(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Sportstech_WRX700))
   testTotalMovingTimeSinceStart(rower, 0)
   testTotalLinearDistanceSinceStart(rower, 0)
