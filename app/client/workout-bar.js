@@ -146,7 +146,7 @@
         { label: '+1K',   value: 1000 },
         { label: '+2K',   value: 2000 },
       ],
-      format: v => v >= 1000 ? (v / 1000).toFixed(v % 1000 === 0 ? 0 : 1) + 'K' : v + 'm'
+      format: v => { v >= 99999.5 ? (v / 1000).toFixed(v % 1000 === 0 ? 0 : 1) + 'K' : v + 'm' }
     },
     time: {
       title: 'Set Time',
@@ -217,7 +217,7 @@
   }
 
   function confirmWorkout () {
-    if (total <= 0) return
+    if (total <= 0) { return }
     const type = currentType
     const val = total
     closePopup()
@@ -234,7 +234,7 @@
         ws.send(JSON.stringify({ command: 'updateIntervalSettings', data: plan }))
         ws.close()
       }
-    } catch (e) {
+    } catch (e) { // eslint-disable-line no-unused-vars -- error handler that fails silently by design
       // silently ignore connection failures
     }
   }
