@@ -23,7 +23,8 @@
     "dev": "vite",
     "build": "vite build",
     "build:watch": "vite build --watch",
-    "test": "uvu",
+    "test": "uvu -i client && npm run test:client",
+    "test:client": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "simple-git-hooks": {
@@ -73,6 +74,7 @@
     "tar": "^7.5.13",
     "typescript": "^5.9.3",
     "uvu": "^0.5.6",
-    "vite": "^8.0.3"
+    "vite": "^8.0.3",
+    "vitest": "^4.1.2"
   }
 }

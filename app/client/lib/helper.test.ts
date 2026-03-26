@@ -1,11 +1,9 @@
-'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 */
-import { test } from 'uvu'
-import * as assert from 'uvu/assert'
+import { test, expect } from 'vitest'
 
-import { filterObjectByKeys } from './helper.ts'
+import { filterObjectByKeys } from './helper'
 
 test('filterd list should only contain the elements specified', () => {
   const object1 = {
@@ -18,7 +16,5 @@ test('filterd list should only contain the elements specified', () => {
   }
 
   const filteredObject = filterObjectByKeys(object1, ['a'])
-  assert.equal(filterObjectByKeys(filteredObject, ['a']), object2)
+  expect(filterObjectByKeys(filteredObject, ['a'])).toEqual(object2)
 })
-
-test.run()
