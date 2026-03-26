@@ -10,6 +10,7 @@ import { APP_STATE } from './store/appState'
 import { DASHBOARD_METRICS } from './store/dashboardMetrics'
 import { createApp } from './lib/app'
 import './components/PerformanceDashboard'
+import type { AppState, GuiConfig } from './store/types'
 
 // Catch async update errors from Lit 3.x (they are re-fired asynchronously)
 window.addEventListener('unhandledrejection', (event) => {
@@ -20,7 +21,7 @@ window.addEventListener('unhandledrejection', (event) => {
 @customElement('web-app')
 export class App extends LitElement {
   @state()
-  _appState = APP_STATE
+  _appState: AppState = APP_STATE
 
   app: ReturnType<typeof createApp>
 
@@ -33,16 +34,17 @@ export class App extends LitElement {
       // todo: we also want a mechanism here to get notified of state changes
     })
 
-    const config = this._appState.config.guiConfigs as Record<string, any>
-    Object.keys(config).forEach((key) => {
-      let savedValue = JSON.parse(localStorage.getItem(key) ?? 'null')
+    const config = this._appState.config.guiConfigs
+    const configKey = Object.keys(config) as (keyof GuiConfig)[]
+    configKey.forEach((key) => {
+      let savedValue = JSON.parse(localStorage.getItem(key) ?? 'null') as GuiConfig[typeof key] | undefined
 
       // Validate dashboardMetrics against known valid keys
       if (key === 'dashboardMetrics' && Array.isArray(savedValue)) {
         savedValue = savedValue.filter((metric: string) => DASHBOARD_METRICS[metric] !== undefined)
       }
 
-      config[key] = savedValue ?? config[key]
+      (config[key] as GuiConfig[typeof key]) = savedValue ?? config[key]
     })
 
     // apply theme based on saved preference
@@ -97,12 +99,12 @@ export class App extends LitElement {
   // the global state is updated by replacing the appState with a copy of the new state
   // todo: maybe it is more convenient to just pass the state elements that should be changed?
   // i.e. do something like this.appState = { ..this.appState, ...newState }
-  updateState = (newState: Record<string, unknown>) => {
+  updateState = (newState: Partial<AppState>) => {
     this._appState = { ...this._appState, ...newState }
   }
 
   // return a deep copy of the state to other components to minimize risk of side effects
-  getState = () =>
+  getState = (): AppState =>
     // could use structuredClone once the browser support is wider
     // https://developer.mozilla.org/en-US/docs/Web/API/structuredClone
      JSON.parse(JSON.stringify(this._appState))

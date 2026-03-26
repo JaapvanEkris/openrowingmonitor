@@ -9,6 +9,7 @@ import { customElement, property, state } from 'lit/decorators.js'
 import { iconSettings, iconUndo, iconExpand, iconCompress, iconPoweroff, iconBluetooth, iconUpload, iconHeartbeat, iconAntplus } from '../lib/icons'
 import './SettingsDialog'
 import './AppDialog'
+import type { AppConfig } from '../store/types'
 
 @customElement('dashboard-toolbar')
 export class DashboardToolbar extends AppElement {
@@ -82,13 +83,13 @@ export class DashboardToolbar extends AppElement {
   `
 
   @property({ type: Object })
-  config: Record<string, any> = {}
+  config!: AppConfig
 
   @state()
   _appMode = 'BROWSER'
 
   @state()
-  _dialog: TemplateResult | undefined
+  _dialog?: TemplateResult
 
   render () {
     return html`

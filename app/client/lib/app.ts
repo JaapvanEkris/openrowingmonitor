@@ -5,11 +5,12 @@
 */
 /* eslint-disable no-console -- This runs client side, so I guess we have no logging capabilities? */
 import NoSleep from '@zakj/no-sleep'
-import { filterObjectByKeys } from './helper'
+import { APP_STATE } from '../store/appState'
+import type { AppState } from '../store/types'
 
 interface AppInterface {
-  updateState: (newState: Record<string, unknown>) => void
-  getState: () => Record<string, any>
+  updateState: (newState: Partial<AppState>) => void
+  getState: () => AppState
 }
 
 export function createApp (app: AppInterface) {
@@ -89,7 +90,8 @@ export function createApp (app: AppInterface) {
   function resetFields () {
     const appState = app.getState()
     // drop all metrics except heartrate
-    app.updateState({ ...appState, metrics: { ...filterObjectByKeys(appState.metrics, ['heartrate', 'heartRateBatteryLevel']) } })
+    const { heartrate, heartRateBatteryLevel } = appState.metrics
+    app.updateState({ metrics: { ...APP_STATE.metrics, heartrate, heartRateBatteryLevel } })
   }
 
   function handleAction (action: { command: string }) {

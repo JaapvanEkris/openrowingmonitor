@@ -9,6 +9,7 @@ import { customElement, property, state } from 'lit/decorators.js'
 import './DashboardToolbar'
 import './WorkoutDialog'
 import { DASHBOARD_METRICS } from '../store/dashboardMetrics'
+import type { AppState } from '../store/types'
 
 @customElement('performance-dashboard')
 export class PerformanceDashboard extends AppElement {
@@ -63,8 +64,8 @@ export class PerformanceDashboard extends AppElement {
       min-height: 0; /* prevent grid blowout */
     }
   `
-  @property()
-  appState: Record<string, any> = {}
+  @property({ type: Object })
+  declare appState: AppState
 
   @state()
   _dialog?: TemplateResult
@@ -79,11 +80,11 @@ export class PerformanceDashboard extends AppElement {
     `
   }
 
-  dashboardMetricComponentsFactory = (appState: Record<string, any>) => {
+  dashboardMetricComponentsFactory = (appState: AppState) => {
     const metrics = appState.metrics
     const configs = appState.config
 
-    const dashboardMetricComponents: Record<string, unknown> = Object.keys(DASHBOARD_METRICS).reduce((dashboardMetrics: Record<string, unknown>, key) => {
+    const dashboardMetricComponents: Record<string, TemplateResult> = Object.keys(DASHBOARD_METRICS).reduce((dashboardMetrics: Record<string, TemplateResult>, key) => {
       dashboardMetrics[key] = DASHBOARD_METRICS[key].template(metrics, configs, this._handleWorkoutOpen)
 
       return dashboardMetrics
@@ -93,7 +94,7 @@ export class PerformanceDashboard extends AppElement {
   }
 
   render () {
-    const metricConfig = [...new Set(this.appState.config.guiConfigs.dashboardMetrics as string[])].reduce((prev: unknown[], metricName) => {
+    const metricConfig = [...new Set(this.appState.config.guiConfigs.dashboardMetrics)].reduce((prev: TemplateResult[], metricName) => {
       prev.push(this.dashboardMetricComponentsFactory(this.appState)[metricName])
       return prev
     }, [])

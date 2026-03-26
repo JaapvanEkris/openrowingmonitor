@@ -9,6 +9,7 @@ import { customElement, property, query, queryAll, state } from 'lit/decorators.
 import { iconSettings } from '../lib/icons'
 import './AppDialog'
 import { DASHBOARD_METRICS } from '../store/dashboardMetrics'
+import type { GuiConfig } from '../store/types'
 
 @customElement('settings-dialog')
 export class DashboardActions extends AppElement {
@@ -98,7 +99,7 @@ export class DashboardActions extends AppElement {
   `
 
   @property({ type: Object })
-   config: Record<string, any> = {}
+   config!: GuiConfig
 
   @queryAll('.metric-selector input')
   _inputs!: NodeListOf<HTMLInputElement>
@@ -187,8 +188,8 @@ export class DashboardActions extends AppElement {
   renderAvailableMetricList () {
     return Object.keys(DASHBOARD_METRICS).map((key) => html`
       <label>
-        <input @change=${this.toggleCheck} name=${key} size=${(DASHBOARD_METRICS as Record<string, any>)[key].size} type="checkbox" />
-      <span>${(DASHBOARD_METRICS as Record<string, any>)[key].displayName}</span></label>
+        <input @change=${this.toggleCheck} name=${key} size=${DASHBOARD_METRICS[key].size} type="checkbox" />
+      <span>${DASHBOARD_METRICS[key].displayName}</span></label>
     `)
   }
 
