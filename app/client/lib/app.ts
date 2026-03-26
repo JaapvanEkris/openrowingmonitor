@@ -1,4 +1,3 @@
-'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
@@ -6,10 +5,15 @@
 */
 /* eslint-disable no-console -- This runs client side, so I guess we have no logging capabilities? */
 import NoSleep from 'nosleep.js'
-import { filterObjectByKeys } from './helper.js'
+import { filterObjectByKeys } from './helper'
 
-export function createApp (app) {
-  let socket
+interface AppInterface {
+  updateState: (newState: Record<string, unknown>) => void
+  getState: () => Record<string, any>
+}
+
+export function createApp (app: AppInterface) {
+  let socket: WebSocket | undefined
 
   initWebsocket()
   resetFields()
@@ -20,8 +24,7 @@ export function createApp (app) {
     // use the native websocket implementation of browser to communicate with backend
     socket = new WebSocket(`ws://${import.meta.env.DEV ? `${location.hostname}:${80}` : location.host}/websocket`)
 
-    /* eslint-disable-next-line no-unused-vars -- Standard construct?? */
-    socket.addEventListener('open', (event) => {
+    socket.addEventListener('open', () => {
       console.log('websocket opened')
       if (initialWebsocketOpenend) {
         initialWebsocketOpenend = false
@@ -30,11 +33,10 @@ export function createApp (app) {
 
     socket.addEventListener('error', (error) => {
       console.log('websocket error', error)
-      socket.close()
+      socket?.close()
     })
 
-    /* eslint-disable-next-line no-unused-vars -- Standard construct?? */
-    socket.addEventListener('close', (event) => {
+    socket.addEventListener('close', () => {
       console.log('websocket closed, attempting reconnect')
       setTimeout(() => {
         initWebsocket()
@@ -90,7 +92,7 @@ export function createApp (app) {
     app.updateState({ ...appState, metrics: { ...filterObjectByKeys(appState.metrics, ['heartrate', 'heartRateBatteryLevel']) } })
   }
 
-  function handleAction (action) {
+  function handleAction (action: { command: string }) {
     if (!socket) {
       console.error('no socket available for communication!')
       return

@@ -1,26 +1,20 @@
 import globals from 'globals'
-import pluginJs from '@eslint/js'
 import js from '@eslint/js'
 import stylistic from '@stylistic/eslint-plugin'
-import { defineConfig } from 'eslint/config'
 import tsParser from '@typescript-eslint/parser'
 import tsPlugin from '@typescript-eslint/eslint-plugin'
-import litPlugin from 'eslint-plugin-lit'
-import wcPlugin from 'eslint-plugin-wc'
-
-const litRecommended = litPlugin.configs['flat/recommended']
-const wcRecommended = wcPlugin.configs['flat/recommended']
+import { configs as litConfigs } from 'eslint-plugin-lit'
+import { configs as wcConfigs } from 'eslint-plugin-wc'
 
 /** @type {import('eslint').Linter.Config[]} */
-export default defineConfig([
+export default [
+  js.configs.recommended,
   stylistic.configs.recommended,
   {
     plugins: {
       '@stylistic': stylistic,
-      js,
       '@typescript-eslint': tsPlugin
     },
-    extends: ['js/recommended'],
     languageOptions: {
       parser: tsParser,
       globals: {
@@ -31,7 +25,6 @@ export default defineConfig([
       sourceType: 'module'
     },
     rules: {
-      ...js.configs.recommended.rules,
       // Coding issues that have a high chance of leading to errors
       'no-new': ['error'],
       'no-var': ['error'],
@@ -89,18 +82,29 @@ export default defineConfig([
     }
   },
   {
+    ...litConfigs['flat/recommended'],
+    files: ['*/client/**/*.js', '*/client/**/*.ts']
+  },
+  {
+    ...wcConfigs['flat/recommended'],
+    files: ['*/client/**/*.js', '*/client/**/*.ts']
+  },
+  {
     files: ['*/client/**/*.js', '*/client/**/*.ts'],
-    plugins: {
-      ...litRecommended.plugins,
-      ...wcRecommended.plugins
-    },
     rules: {
-      ...litRecommended.rules,
-      ...wcRecommended.rules,
       'no-console': ['warn'],
       '@stylistic/indent': ['off'],
       camelcase: ['off']
     }
   },
-  pluginJs.configs.recommended
-])
+  {
+    // TypeScript-specific overrides: tsc handles undef checking, and the base
+    // no-unused-vars doesn't understand TS interface/type parameter names
+    files: ['**/*.ts'],
+    rules: {
+      'no-undef': 'off',
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }]
+    }
+  }
+]

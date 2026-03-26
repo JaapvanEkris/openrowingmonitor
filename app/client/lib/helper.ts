@@ -1,4 +1,3 @@
-'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
@@ -6,10 +5,10 @@
 */
 
 // Filters an object so that it only contains the attributes that are defined in a list
-export function filterObjectByKeys (object, keys) {
+export function filterObjectByKeys (object: Record<string, unknown>, keys: string[]): Record<string, unknown> {
   return Object.keys(object)
-    .filter(key => keys.includes(key))
-    .reduce((obj, key) => {
+    .filter((key) => keys.includes(key))
+    .reduce((obj: Record<string, unknown>, key) => {
       obj[key] = object[key]
       return obj
     }, {})
@@ -19,9 +18,9 @@ export function filterObjectByKeys (object, keys) {
   * Pipe for converting seconds to a human readable time format 00:00
   * @param {number} timeInSeconds The actual time in seconds.
 */
-export function secondsToTimeString (timeInSeconds) {
+export function secondsToTimeString (timeInSeconds: number | undefined | null): string {
   if (timeInSeconds === undefined || timeInSeconds === null || isNaN(timeInSeconds)) { return '--' }
-  if (timeInSeconds === Infinity) { return 'âˆž' }
+  if (timeInSeconds === Infinity) { return '\u221e' }
   const timeInRoundedSeconds = Math.round(timeInSeconds)
   const hours = Math.floor(timeInRoundedSeconds / 3600)
   const minutes = Math.floor(timeInRoundedSeconds / 60) - (hours * 60)
@@ -37,7 +36,7 @@ export function secondsToTimeString (timeInSeconds) {
   * Pipe for formatting distance in meters with units
   * @param {number} value The distance in meters.
 */
-export function formatDistance (value) {
+export function formatDistance (value: number): { distance: string | number, unit: string } {
   return value >= 99999.5 ?
     { distance: formatNumber((value / 1000), 2), unit: 'km' } :
     { distance: formatNumber(value), unit: 'm' }
@@ -48,7 +47,7 @@ export function formatDistance (value) {
   * @param {number} value The number.
   * @param {number} decimalPlaces The number of decimal places to round to (default: 0).
 */
-export function formatNumber (value, decimalPlaces = 0) {
+export function formatNumber (value: number | undefined | null, decimalPlaces = 0): string | number {
   const decimal = Math.pow(10, decimalPlaces)
   if (value === undefined || value === null || value === Infinity || isNaN(value) || value === 0) { return '--' }
 

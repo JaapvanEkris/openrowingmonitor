@@ -1,16 +1,15 @@
-'use strict'
 /**
  * @copyright {@link https://github.com/JaapvanEkris/openrowingmonitor|OpenRowingMonitor}
  */
 
-import { html } from 'lit'
+import { html, TemplateResult } from 'lit'
 import { formatDistance, formatNumber, secondsToTimeString } from '../lib/helper'
 import { iconBolt, iconClock, iconAlarmclock, iconFire, iconHeartbeat, iconPaddle, iconRoute, iconStopwatch, rowerIcon } from '../lib/icons'
-import '../components/DashboardForceCurve.js'
-import '../components/DashboardMetric.js'
-import '../components/BatteryIcon.js'
+import '../components/DashboardForceCurve'
+import '../components/DashboardMetric'
+import '../components/BatteryIcon'
 
-export const DASHBOARD_METRICS = {
+export const DASHBOARD_METRICS: Record<string, { displayName: string, size: number, template: (metrics: Record<string, any>, config?: Record<string, any>, onWorkoutOpen?: (type: string) => void) => TemplateResult }> = {
   distance: {
     displayName: 'Distance',
     size: 1,
@@ -112,10 +111,10 @@ export const DASHBOARD_METRICS = {
   recoveryDuration: { displayName: 'Recovery duration', size: 1, template: (metrics, config) => simpleMetricFactory(formatNumber(metrics?.recoveryDuration, 2), 'sec', config?.guiConfigs?.showIcons ? 'Recovery' : '') },
 
   forceCurve: { displayName: 'Force curve', size: 2, template: (metrics, config) => html`
-    <dashboard-force-curve 
-      .updateForceCurve=${metrics.metricsContext?.isRecoveryStart} 
-      .value=${metrics?.driveHandleForceCurve} 
-      .divisionMode=${config?.guiConfigs?.forceCurveDivisionMode ?? 0} 
+    <dashboard-force-curve
+      .updateForceCurve=${metrics.metricsContext?.isRecoveryStart}
+      .value=${metrics?.driveHandleForceCurve}
+      .divisionMode=${config?.guiConfigs?.forceCurveDivisionMode ?? 0}
       style="grid-column: span 2"
     ></dashboard-force-curve>
   ` },
@@ -148,6 +147,6 @@ export const DASHBOARD_METRICS = {
   * @param {string} unit The unit of the metric.
   * @param {string | import('lit').TemplateResult<2>} icon The number of decimal places to round to (default: 0).
 */
-function simpleMetricFactory (value = '--', unit = '', icon = '') {
+function simpleMetricFactory (value: string | number = '--', unit = '', icon: string | TemplateResult = '') {
   return html`<dashboard-metric .icon=${icon} .unit=${unit} .value=${value}></dashboard-metric>`
 }

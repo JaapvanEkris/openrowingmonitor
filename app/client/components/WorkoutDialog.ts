@@ -1,14 +1,26 @@
-'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Component that renders a workout goal picker dialog
 */
-import { AppElement, html, css } from './AppElement.js'
+import { AppElement, html, css } from './AppElement'
 import { customElement, property, state } from 'lit/decorators.js'
-import './AppDialog.js'
+import './AppDialog'
 
-const WORKOUT_CONFIG = {
+interface WorkoutIncrement {
+  label: string
+  value: number
+}
+
+interface WorkoutTypeConfig {
+  title: string
+  unit: string
+  increments: WorkoutIncrement[]
+  format: (v: number) => string | number
+  buildPlan: (val: number) => Record<string, string>[]
+}
+
+const WORKOUT_CONFIG: Record<string, WorkoutTypeConfig> = {
   distance: {
     title: 'Set Distance',
     unit: 'meters',
@@ -18,10 +30,10 @@ const WORKOUT_CONFIG = {
       { label: '+1K', value: 1000 },
       { label: '+2K', value: 2000 }
     ],
-    format (v) {
+    format (v: number) {
       return v >= 99999.5 ? (v / 1000).toFixed(v % 1000 === 0 ? 0 : 1) + 'K' : v
     },
-    buildPlan: (val) => [{ type: 'distance', targetDistance: String(val), targetTime: '0' }]
+    buildPlan: (val: number) => [{ type: 'distance', targetDistance: String(val), targetTime: '0' }]
   },
   time: {
     title: 'Set Time',
@@ -32,11 +44,11 @@ const WORKOUT_CONFIG = {
       { label: '+10 min', value: 600 },
       { label: '+20 min', value: 1200 }
     ],
-    format: (v) => {
+    format: (v: number) => {
       const minutes = v / 60
       return minutes % 1 === 0 ? `${minutes}` : `${minutes.toFixed(2)}`
     },
-    buildPlan: (val) => [{ type: 'time', targetDistance: '0', targetTime: String(val) }]
+    buildPlan: (val: number) => [{ type: 'time', targetDistance: '0', targetTime: String(val) }]
   },
   calories: {
     title: 'Set Calories',
@@ -47,8 +59,8 @@ const WORKOUT_CONFIG = {
       { label: '+100 kcal', value: 100 },
       { label: '+500 kcal', value: 500 }
     ],
-    format: (v) => v,
-    buildPlan: (val) => [{ type: 'calories', targetCalories: String(val) }]
+    format: (v: number) => v,
+    buildPlan: (val: number) => [{ type: 'calories', targetCalories: String(val) }]
   }
 }
 
@@ -121,10 +133,10 @@ export class WorkoutDialog extends AppElement {
   `
 
   @property({ type: String })
-  accessor type = 'distance'
+  type = 'distance'
 
   @state()
-  accessor _total = 0
+  _total = 0
 
   get _config () {
     return WORKOUT_CONFIG[this.type] ?? WORKOUT_CONFIG.distance
@@ -147,7 +159,7 @@ export class WorkoutDialog extends AppElement {
     `
   }
 
-  _increment (value) {
+  _increment (value: number) {
     this._total += value
   }
 
@@ -155,7 +167,7 @@ export class WorkoutDialog extends AppElement {
     this._total = 0
   }
 
-  _onClose (event) {
+  _onClose (event: CustomEvent) {
     if (event.detail === 'confirm' && this._total > 0) {
       const plan = this._config.buildPlan(this._total)
       this.sendEvent('triggerAction', { command: 'updateIntervalSettings', data: plan })

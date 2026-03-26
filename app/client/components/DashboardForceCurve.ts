@@ -1,19 +1,19 @@
-'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Component that renders a metric of the dashboard
 */
 
-import { AppElement, html, css } from './AppElement.js'
+import { AppElement, html, css } from './AppElement'
 import { customElement, property, state } from 'lit/decorators.js'
 import ChartDataLabels from 'chartjs-plugin-datalabels'
 import { Chart, Filler, Legend, LinearScale, LineController, LineElement, PointElement } from 'chart.js'
+import type { Plugin } from 'chart.js'
 
 /** @type {import('chart.js').Plugin<'line', {positions: number[]}>} */
-const divisionLinesPlugin = {
+const divisionLinesPlugin: Plugin<'line'> = {
   id: 'divisionLines',
-  afterDatasetsDraw (chart, args, options) {
+  afterDatasetsDraw (chart, args, options: { positions?: number[] }) {
     if (!options.positions?.length) { return }
     const { ctx, chartArea: { top, bottom } } = chart
     ctx.save()
@@ -62,32 +62,33 @@ export class DashboardForceCurve extends AppElement {
   @property({
     type: Boolean
   })
-  accessor updateForceCurve = false
+  updateForceCurve = false
 
   @property({
     type: Array
   })
-  accessor value = []
+  value: number[] = []
 
   /** @type {0 | 2 | 3} */
   @property({
     type: Number
   })
-  accessor divisionMode = 0
+  divisionMode: 0 | 2 | 3 = 0
 
   @state()
-  accessor _chart
+  _chart: Chart | undefined
 
   /** @type {0 | 2 | 3} */
   @state()
-  accessor _divisionMode = 0
+  _divisionMode: 0 | 2 | 3 = 0
 
-  shouldUpdate (changedProperties) {
+  shouldUpdate (changedProperties: Map<string, unknown>) {
     return this.updateForceCurve || changedProperties.has('divisionMode') || this._chart === undefined
   }
 
   _handleClick () {
-    const modes = /** @type {(0 | 2 | 3)[]} */ ([0, 2, 3])
+    /** @type {(0 | 2 | 3)[]} */
+    const modes: (0 | 2 | 3)[] = [0, 2, 3]
     const nextMode = modes[(modes.indexOf(this.divisionMode) + 1) % modes.length]
     this.sendEvent('changeGuiSetting', { forceCurveDivisionMode: nextMode })
   }
@@ -111,11 +112,11 @@ export class DashboardForceCurve extends AppElement {
 
   // Updated runs _after_ DOM elements exist, which is what chart.js expects.
   updated () {
-    this._chart.update()
+    this._chart?.update()
   }
 
   firstUpdated () {
-    const ctx = this.renderRoot.querySelector('#chart').getContext('2d')
+    const ctx = (this.renderRoot.querySelector('#chart') as HTMLCanvasElement).getContext('2d')!
     this._chart = new Chart(
       ctx,
       {
@@ -178,7 +179,6 @@ export class DashboardForceCurve extends AppElement {
 
   render () {
     return html`
-      <!== Only show label if no chart -->
       ${this._chart?.data.datasets[0].data.length ?
         '' :
         html`<div class="title"> Force Curve </div>`

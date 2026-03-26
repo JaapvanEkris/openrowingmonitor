@@ -1,4 +1,3 @@
-'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 */

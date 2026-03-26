@@ -1,4 +1,3 @@
-'use strict'
 /**
  * @copyright {@link https://github.com/JaapvanEkris/openrowingmonitor|OpenRowingMonitor}
  *
@@ -7,10 +6,10 @@
 
 import { LitElement, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
-import { APP_STATE } from './store/appState.js'
-import { DASHBOARD_METRICS } from './store/dashboardMetrics.js'
-import { createApp } from './lib/app.js'
-import './components/PerformanceDashboard.js'
+import { APP_STATE } from './store/appState'
+import { DASHBOARD_METRICS } from './store/dashboardMetrics'
+import { createApp } from './lib/app'
+import './components/PerformanceDashboard'
 
 // Catch async update errors from Lit 3.x (they are re-fired asynchronously)
 window.addEventListener('unhandledrejection', (event) => {
@@ -21,7 +20,9 @@ window.addEventListener('unhandledrejection', (event) => {
 @customElement('web-app')
 export class App extends LitElement {
   @state()
-  accessor _appState = APP_STATE
+  _appState = APP_STATE
+
+  app: ReturnType<typeof createApp>
 
   constructor () {
     super()
@@ -32,13 +33,13 @@ export class App extends LitElement {
       // todo: we also want a mechanism here to get notified of state changes
     })
 
-    const config = this._appState.config.guiConfigs
+    const config = this._appState.config.guiConfigs as Record<string, any>
     Object.keys(config).forEach((key) => {
-      let savedValue = JSON.parse(localStorage.getItem(key))
+      let savedValue = JSON.parse(localStorage.getItem(key) ?? 'null')
 
       // Validate dashboardMetrics against known valid keys
       if (key === 'dashboardMetrics' && Array.isArray(savedValue)) {
-        savedValue = savedValue.filter((metric) => DASHBOARD_METRICS[metric] !== undefined)
+        savedValue = savedValue.filter((metric: string) => DASHBOARD_METRICS[metric] !== undefined)
       }
 
       config[key] = savedValue ?? config[key]
@@ -51,21 +52,21 @@ export class App extends LitElement {
     // once any child component sends this CustomEvent we update the global state according
     // to the changes that were passed to us
     this.addEventListener('appStateChanged', (event) => {
-      this.updateState(event.detail)
+      this.updateState((event as CustomEvent).detail)
     })
 
     // notify the app about the triggered action
     this.addEventListener('triggerAction', (event) => {
-      this.app.handleAction(event.detail)
+      this.app.handleAction((event as CustomEvent).detail)
     })
 
     // notify the app about the triggered action
     this.addEventListener('changeGuiSetting', (event) => {
-      const detail = { ...event.detail }
+      const detail = { ...(event as CustomEvent).detail }
 
       // Validate dashboardMetrics against known valid keys before saving
       if (Array.isArray(detail.dashboardMetrics)) {
-        detail.dashboardMetrics = detail.dashboardMetrics.filter((metric) => DASHBOARD_METRICS[metric] !== undefined)
+        detail.dashboardMetrics = detail.dashboardMetrics.filter((metric: string) => DASHBOARD_METRICS[metric] !== undefined)
       }
 
       Object.keys(detail).forEach((key) => {
@@ -85,7 +86,7 @@ export class App extends LitElement {
     })
   }
 
-  applyTheme (trueBlackTheme) {
+  applyTheme (trueBlackTheme: boolean) {
     if (trueBlackTheme) {
       document.documentElement.setAttribute('data-theme', 'true-black')
     } else {
@@ -96,7 +97,7 @@ export class App extends LitElement {
   // the global state is updated by replacing the appState with a copy of the new state
   // todo: maybe it is more convenient to just pass the state elements that should be changed?
   // i.e. do something like this.appState = { ..this.appState, ...newState }
-  updateState = (newState) => {
+  updateState = (newState: Record<string, unknown>) => {
     this._appState = { ...this._appState, ...newState }
   }
 

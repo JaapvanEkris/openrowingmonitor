@@ -17,15 +17,12 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "esModuleInterop": true,
-    "allowJs": true,
     "types": [
       "vite/client"
     ],
   },
   "include": [
-    "app/client/**/*.ts",
-    "vite.config.js",
-    "eslint.config.js"
+    "app/client/**/*.ts"
   ],
   "exclude": [
     "node_modules",
