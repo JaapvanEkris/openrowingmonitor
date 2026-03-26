@@ -4,7 +4,7 @@
   Initialization file of the Open Rowing Monitor App
 */
 /* eslint-disable no-console -- This runs client side, so I guess we have no logging capabilities? */
-import NoSleep from 'nosleep.js'
+import NoSleep from '@zakj/no-sleep'
 import { filterObjectByKeys } from './helper'
 
 interface AppInterface {
