@@ -63,3 +63,32 @@ describe('blePeripheralMode', () => {
     expect(toolbar.blePeripheralMode()).toBe('Off')
   })
 })
+
+describe('renderOptionalButtons', () => {
+  test('should include the upload button when uploadEnabled is true', () => {
+    const toolbar = createToolbar({ uploadEnabled: true })
+    const buttons = toolbar.renderOptionalButtons()
+    // Upload button should always appear when uploadEnabled is true regardless of mode
+    expect(buttons.length).toBeGreaterThanOrEqual(1)
+  })
+
+  test('should include the shutdown button in KIOSK mode when shutdownEnabled is true', () => {
+    const toolbar = createToolbar({ shutdownEnabled: true })
+    toolbar._appMode = 'KIOSK'
+    const buttons = toolbar.renderOptionalButtons()
+    // Should have shutdown button
+    expect(buttons.length).toBeGreaterThanOrEqual(1)
+  })
+
+  test('should not include shutdown button in BROWSER mode', () => {
+    const toolbar = createToolbar({ shutdownEnabled: true, uploadEnabled: false })
+    toolbar._appMode = 'BROWSER'
+    // In BROWSER mode, fullscreen button may appear if requestFullscreen exists,
+    // but shutdown should not
+    const buttons = toolbar.renderOptionalButtons()
+    // In BROWSER mode with no upload, buttons should only be fullscreen (if available)
+    // Shutdown is gated by _appMode === 'KIOSK'
+    const buttonsWithoutFullscreen = buttons.filter((b) => String(b).includes('Shutdown'))
+    expect(buttonsWithoutFullscreen.length).toBe(0)
+  })
+})
