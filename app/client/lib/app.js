@@ -18,7 +18,7 @@ export function createApp (app) {
   let initialWebsocketOpenend = true
   function initWebsocket () {
     // use the native websocket implementation of browser to communicate with backend
-    socket = new WebSocket(`ws://${location.host}/websocket`)
+    socket = new WebSocket(`ws://${import.meta.env.DEV ? `${location.hostname}:${80}` : location.host}/websocket`)
 
     /* eslint-disable-next-line no-unused-vars -- Standard construct?? */
     socket.addEventListener('open', (event) => {
