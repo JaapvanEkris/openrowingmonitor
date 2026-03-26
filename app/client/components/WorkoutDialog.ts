@@ -6,63 +6,7 @@
 import { AppElement, html, css } from './AppElement'
 import { customElement, property, state } from 'lit/decorators.js'
 import './AppDialog'
-
-interface WorkoutIncrement {
-  label: string
-  value: number
-}
-
-interface WorkoutTypeConfig {
-  title: string
-  unit: string
-  increments: WorkoutIncrement[]
-  format: (v: number) => string | number
-  buildPlan: (val: number) => Record<string, string>[]
-}
-
-const WORKOUT_CONFIG: Record<string, WorkoutTypeConfig> = {
-  distance: {
-    title: 'Set Distance',
-    unit: 'meters',
-    increments: [
-      { label: '+100m', value: 100 },
-      { label: '+500m', value: 500 },
-      { label: '+1K', value: 1000 },
-      { label: '+2K', value: 2000 }
-    ],
-    format (v: number) {
-      return v >= 99999.5 ? (v / 1000).toFixed(v % 1000 === 0 ? 0 : 1) + 'K' : v
-    },
-    buildPlan: (val: number) => [{ type: 'distance', targetDistance: String(val), targetTime: '0' }]
-  },
-  time: {
-    title: 'Set Time',
-    unit: 'minutes',
-    increments: [
-      { label: '+1 min', value: 60 },
-      { label: '+5 min', value: 300 },
-      { label: '+10 min', value: 600 },
-      { label: '+20 min', value: 1200 }
-    ],
-    format: (v: number) => {
-      const minutes = v / 60
-      return minutes % 1 === 0 ? `${minutes}` : `${minutes.toFixed(2)}`
-    },
-    buildPlan: (val: number) => [{ type: 'time', targetDistance: '0', targetTime: String(val) }]
-  },
-  calories: {
-    title: 'Set Calories',
-    unit: 'kcal',
-    increments: [
-      { label: '+10 kcal', value: 10 },
-      { label: '+50 kcal', value: 50 },
-      { label: '+100 kcal', value: 100 },
-      { label: '+500 kcal', value: 500 }
-    ],
-    format: (v: number) => v,
-    buildPlan: (val: number) => [{ type: 'calories', targetCalories: String(val) }]
-  }
-}
+import { workoutConfig, buildWorkoutPlan } from '../lib/workout-utils'
 
 @customElement('workout-dialog')
 export class WorkoutDialog extends AppElement {
@@ -139,7 +83,7 @@ export class WorkoutDialog extends AppElement {
   _total = 0
 
   get _config () {
-    return WORKOUT_CONFIG[this.type] ?? WORKOUT_CONFIG.distance
+    return workoutConfig[this.type] ?? workoutConfig.distance
   }
 
   render () {
@@ -169,7 +113,7 @@ export class WorkoutDialog extends AppElement {
 
   _onClose (event: CustomEvent) {
     if (event.detail === 'confirm' && this._total > 0) {
-      const plan = this._config.buildPlan(this._total)
+      const plan = buildWorkoutPlan(this.type, this._total)
       this.sendEvent('triggerAction', { command: 'updateIntervalSettings', data: plan })
     }
     this.dispatchEvent(new CustomEvent('close'))
