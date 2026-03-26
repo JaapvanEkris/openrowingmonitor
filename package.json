@@ -23,7 +23,8 @@
     "dev": "vite",
     "build": "vite build",
     "build:watch": "vite build --watch",
-    "test": "uvu"
+    "test": "uvu",
+    "typecheck": "tsc --noEmit"
   },
   "simple-git-hooks": {
     "pre-commit": "npm run lint && npm test"
@@ -46,7 +47,6 @@
     "ws": "^8.20.0"
   },
   "devDependencies": {
-    "@babel/eslint-parser": "^7.28.5",
     "@babel/plugin-proposal-decorators": "^7.28.0",
     "@babel/preset-env": "^7.29.2",
     "@eslint/js": "^9.39.4",
@@ -55,9 +55,13 @@
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^1.0.0",
     "@stylistic/eslint-plugin": "^5.10.0",
+    "@typescript-eslint/eslint-plugin": "^8.57.2",
+    "@typescript-eslint/parser": "^8.57.2",
     "@web/rollup-plugin-html": "^3.0.0",
     "esbuild": "^0.27.4",
     "eslint": "^9.39.4",
+    "eslint-plugin-lit": "^2.2.1",
+    "eslint-plugin-wc": "^3.1.0",
     "globals": "^17.0.0",
     "http2-proxy": "5.0.53",
     "markdownlint-cli2": "^0.22.0",
@@ -67,6 +71,7 @@
     "rollup-plugin-summary": "^3.0.0",
     "simple-git-hooks": "^2.13.1",
     "tar": "^7.5.13",
+    "typescript": "^5.9.3",
     "uvu": "^0.5.6",
     "vite": "^8.0.3"
   }
