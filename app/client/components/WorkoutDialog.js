@@ -56,19 +56,8 @@ const WORKOUT_CONFIG = {
 @customElement('workout-dialog')
 export class WorkoutDialog extends AppElement {
   static styles = css`
-    .workout-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.4em;
-    }
-
-    .popup-title {
-      font-size: 50%;
-      color: var(--theme-font-color);
-      opacity: 0.7;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
+    :host {
+      position: absolute;
     }
 
     .total-display {
@@ -89,15 +78,19 @@ export class WorkoutDialog extends AppElement {
       letter-spacing: 0.1em;
     }
 
-    .inc-row {
-      display: flex;
+    .increment-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
       gap: 0.3em;
       width: 100%;
+
+      @media (max-width: 425px) {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
-    .inc {
-      flex: 1;
-      padding: 0.6em 0.2em;
+    button {
+      padding: 0.6em 0.4em;
       background: var(--theme-widget-color);
       color: var(--theme-font-color);
       border: 1px solid rgba(255, 255, 255, 0.2);
@@ -107,22 +100,24 @@ export class WorkoutDialog extends AppElement {
       font-weight: bold;
       cursor: pointer;
       text-align: center;
-    }
-    .inc:active {
-      filter: brightness(150%);
+      white-space: nowrap;
+      user-select: none;
+
+      &:hover {
+        filter: brightness(130%);
+      }
+
+      &:active {
+        filter: brightness(150%);
+      }
     }
 
     .reset-btn {
-      background: transparent;
-      color: var(--theme-font-color);
-      opacity: 0.7;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: var(--theme-border-radius);
-      font-family: var(--theme-font-family);
-      font-size: 45%;
-      padding: 0.4em 1em;
-      cursor: pointer;
-      margin-top: 0.2em;
+      grid-column: 1 / -1;
+    }
+
+    legend {
+      text-align: center;
     }
   `
 
@@ -140,15 +135,13 @@ export class WorkoutDialog extends AppElement {
     const cfg = this._config
     return html`
       <app-dialog .isValid=${this._total > 0} @close=${this._onClose}>
-        <div class="workout-content">
-          <div class="popup-title">${cfg.title}</div>
-          <div class="total-display">${this._total > 0 ? cfg.format(this._total) : '0'}</div>
-          <div class="total-unit">${cfg.unit}</div>
-          <div class="inc-row">
-            ${cfg.increments.map((inc) => html`
-              <button class="inc" @click=${() => this._increment(inc.value)}>${inc.label}</button>
-            `)}
-          </div>
+        <legend>${cfg.title}</legend>
+        <div class="total-display">${this._total > 0 ? cfg.format(this._total) : '0'}</div>
+        <div class="total-unit">${cfg.unit}</div>
+        <div class="increment-row">
+          ${cfg.increments.map((inc) => html`
+            <button @click=${() => this._increment(inc.value)}>${inc.label}</button>
+          `)}
           <button class="reset-btn" @click=${this._reset}>Reset</button>
         </div>
       </app-dialog>
