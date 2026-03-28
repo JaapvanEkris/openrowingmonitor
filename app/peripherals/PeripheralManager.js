@@ -202,6 +202,11 @@ export function createPeripheralManager (config) {
    * @param {BluetoothModes} newMode
    */
   async function createBlePeripheral (newMode) {
+    if (config.simulateWithoutHardware) {
+      log.info('Hardware initialization: simulateWithoutHardware is true. BLE peripherals are bypassed.')
+      newMode = 'OFF'
+    }
+
     try {
       if (_bleManager === undefined && newMode !== 'OFF') {
         _bleManager = new BleManager()
@@ -282,6 +287,11 @@ export function createPeripheralManager (config) {
    * @param {AntPlusModes} newMode
    */
   async function createAntPeripheral (newMode) {
+    if (config.simulateWithoutHardware) {
+      log.info('Hardware initialization: simulateWithoutHardware is true. ANT+ peripherals are bypassed.')
+      newMode = 'OFF'
+    }
+
     if (antPeripheral) {
       await antPeripheral?.destroy()
       antPeripheral = undefined
