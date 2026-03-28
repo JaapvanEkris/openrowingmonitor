@@ -30,7 +30,7 @@ export const DASHBOARD_METRICS = {
 
       return html`<dashboard-metric
         style="cursor:pointer"
-        @click=${() => window.dispatchEvent(new CustomEvent('workout-open', { detail: 'distance' }))}
+        @click=${(e) => e.currentTarget.dispatchEvent(new CustomEvent('workout-open', { detail: 'distance', bubbles: true, composed: true }))}
         .icon=${config?.guiConfigs?.showIcons ? iconRoute : ''}
         .unit=${linearDistance.unit}
         .value=${linearDistance.distance}
@@ -63,7 +63,7 @@ export const DASHBOARD_METRICS = {
 
       return html`<dashboard-metric
         style="cursor:pointer"
-        @click=${() => window.dispatchEvent(new CustomEvent('workout-open', { detail: 'calories' }))}
+        @click=${(e) => e.currentTarget.dispatchEvent(new CustomEvent('workout-open', { detail: 'calories', bubbles: true, composed: true }))}
         .icon=${config?.guiConfigs?.showIcons ? iconFire : ''}
         .unit=${'kcal'}
         .value=${formatNumber(calories ?? 0)}
@@ -93,7 +93,7 @@ export const DASHBOARD_METRICS = {
 
       return html`<dashboard-metric
         style="cursor:pointer"
-        @click=${() => window.dispatchEvent(new CustomEvent('workout-open', { detail: 'time' }))}
+        @click=${(e) => e.currentTarget.dispatchEvent(new CustomEvent('workout-open', { detail: 'time', bubbles: true, composed: true }))}
         .icon=${config?.guiConfigs?.showIcons ? icon : ''}
         .unit=${''}
         .value=${secondsToTimeString(time ?? 0)}
