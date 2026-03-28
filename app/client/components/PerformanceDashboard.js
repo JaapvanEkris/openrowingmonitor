@@ -6,8 +6,9 @@
 */
 
 import { AppElement, html, css } from './AppElement.js'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 import './DashboardToolbar.js'
+import './WorkoutDialog.js'
 import { DASHBOARD_METRICS } from '../store/dashboardMetrics.js'
 
 @customElement('performance-dashboard')
@@ -66,6 +67,28 @@ export class PerformanceDashboard extends AppElement {
   @property()
   accessor appState = {}
 
+  @state()
+  accessor _dialog = null
+
+  connectedCallback () {
+    super.connectedCallback()
+    this.addEventListener('workout-open', this._handleWorkoutOpen)
+  }
+
+  disconnectedCallback () {
+    super.disconnectedCallback()
+    this.removeEventListener('workout-open', this._handleWorkoutOpen)
+  }
+
+  _handleWorkoutOpen = (event) => {
+    this._dialog = html`
+      <workout-dialog
+        .type=${event.detail}
+        @close=${() => { this._dialog = null }}
+      ></workout-dialog>
+    `
+  }
+
   dashboardMetricComponentsFactory = (appState) => {
     const metrics = appState.metrics
     const configs = appState.config
@@ -90,6 +113,7 @@ export class PerformanceDashboard extends AppElement {
     return html`
       <dashboard-toolbar .config=${this.appState.config}></dashboard-toolbar>
       <section class="metrics-grid ${gridClass}">${metricConfig}</section>
+      ${this._dialog ? this._dialog : ''}
     `
   }
 }
