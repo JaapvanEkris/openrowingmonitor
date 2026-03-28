@@ -28,17 +28,15 @@ export const DASHBOARD_METRICS = {
       }
       const linearDistance = formatDistance(distance ?? 0)
 
-<<<<<<< HEAD
       return html`<dashboard-metric
         style="cursor:pointer"
         @click=${() => window.dispatchEvent(new CustomEvent('workout-open', { detail: 'distance' }))}
         .icon=${config?.guiConfigs?.showIcons ? iconRoute : ''}
         .unit=${linearDistance.unit}
         .value=${linearDistance.distance}
-      ></dashboard-metric>`
-=======
-      return simpleMetricFactory(linearDistance.distance, linearDistance.unit, config?.guiConfigs?.showIcons ? iconRoute : '', slotContent)
->>>>>>> cad494f (Add slot support to dashboard metrics)
+      >
+        ${slotContent}
+      </dashboard-metric>`
     }
   },
 
@@ -66,17 +64,15 @@ export const DASHBOARD_METRICS = {
     template: (metrics, config, slotContent = '') => {
       const calories = metrics?.interval?.type === 'calories' ? Math.max(metrics?.interval?.calories?.toEnd, 0) : Math.max(metrics?.interval?.calories?.sinceStart, 0)
 
-<<<<<<< HEAD
       return html`<dashboard-metric
         style="cursor:pointer"
         @click=${() => window.dispatchEvent(new CustomEvent('workout-open', { detail: 'calories' }))}
         .icon=${config?.guiConfigs?.showIcons ? iconFire : ''}
         .unit=${'kcal'}
         .value=${formatNumber(calories ?? 0)}
-      ></dashboard-metric>`
-=======
-      return simpleMetricFactory(formatNumber(calories ?? 0), 'kcal', config?.guiConfigs?.showIcons ? iconFire : '', slotContent)
->>>>>>> cad494f (Add slot support to dashboard metrics)
+      >
+        ${slotContent}
+      </dashboard-metric>`
     }
   },
 
@@ -122,18 +118,6 @@ export const DASHBOARD_METRICS = {
 
   recoveryDuration: { displayName: 'Recovery duration', size: 1, template: (metrics, config, slotContent = '') => simpleMetricFactory(formatNumber(metrics?.recoveryDuration, 2), 'sec', config?.guiConfigs?.showIcons ? 'Recovery' : '', slotContent) },
 
-<<<<<<< HEAD
-  forceCurve: { displayName: 'Force curve', size: 2, template: (metrics, config) => html`
-    <dashboard-force-curve 
-      .updateForceCurve=${metrics.metricsContext?.isRecoveryStart} 
-      .value=${metrics?.driveHandleForceCurve} 
-      .divisionMode=${config?.guiConfigs?.forceCurveDivisionMode ?? 0} 
-      style="grid-column: span 2"
-    ></dashboard-force-curve>
-  ` },
-
-  peakForce: { displayName: 'Peak Force', size: 1, template: (metrics) => simpleMetricFactory(formatNumber(metrics?.drivePeakHandleForce), 'N', 'Peak Force') },
-=======
   forceCurve: { displayName: 'Force curve', size: 2, template: (metrics, config, slotContent = '') => html`
     <dashboard-force-curve 
       .updateForceCurve=${metrics.metricsContext?.isRecoveryStart} 
@@ -145,16 +129,11 @@ export const DASHBOARD_METRICS = {
   ` },
 
   peakForce: { displayName: 'Peak Force', size: 1, template: (metrics, config, slotContent = '') => simpleMetricFactory(formatNumber(metrics?.drivePeakHandleForce), 'N', 'Peak Force', slotContent) },
->>>>>>> cad494f (Add slot support to dashboard metrics)
 
   strokeRatio: {
     displayName: 'Stroke Ratio',
     size: 1,
-<<<<<<< HEAD
-    template: (metrics) => {
-=======
     template: (metrics, config, slotContent = '') => {
->>>>>>> cad494f (Add slot support to dashboard metrics)
       // Check to make sure both values are truthy
       // no 0, null, or undefined
       const validRatio = metrics?.driveDuration && metrics?.recoveryDuration;
@@ -166,11 +145,7 @@ export const DASHBOARD_METRICS = {
         ratio = undefined;
       }
 
-<<<<<<< HEAD
-      return simpleMetricFactory(ratio, '', 'Ratio')
-=======
       return simpleMetricFactory(ratio, '', 'Ratio', slotContent)
->>>>>>> cad494f (Add slot support to dashboard metrics)
     }
   }
 }
