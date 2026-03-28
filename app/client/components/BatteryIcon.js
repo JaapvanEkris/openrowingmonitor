@@ -11,6 +11,12 @@ import { customElement, property } from 'lit/decorators.js'
 @customElement('battery-icon')
 export class DashboardMetric extends AppElement {
   static styles = css`
+    :host {
+      right: 0.2em;
+      bottom: 0;
+      position: absolute;
+    }
+
     .icon {
       height: 1.2em;
     }
