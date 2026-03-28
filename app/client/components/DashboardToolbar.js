@@ -8,7 +8,6 @@
 import { AppElement, html, css } from './AppElement.js'
 import { customElement, property, state } from 'lit/decorators.js'
 import { iconSettings, iconUndo, iconExpand, iconCompress, iconPoweroff, iconBluetooth, iconUpload, iconHeartbeat, iconAntplus } from '../lib/icons.js'
-import './SettingsDialog.js'
 import './AppDialog.js'
 
 @customElement('dashboard-toolbar')
@@ -51,6 +50,11 @@ export class DashboardToolbar extends AppElement {
       filter: brightness(150%);
     }
 
+    button.active {
+      background: var(--theme-accent-color, #4a9eff);
+      filter: brightness(120%);
+    }
+
     button .text {
       position: absolute;
       left: 2px;
@@ -91,12 +95,25 @@ export class DashboardToolbar extends AppElement {
   @state()
   accessor _dialog
 
+  @state()
+  accessor _retileMode = false
+
   render () {
     return html`
       <div class="button-group">
         <button @click=${this.openSettings} title="Settings">
           ${iconSettings}
         </button>
+        <button @click=${this.toggleRetileMode} title="Retile Dashboard" class="${this._retileMode ? 'active' : ''}">
+          ${this._retileMode ? 'Submit' : 'Retile'}
+        </button>
+        ${this._retileMode
+          ? html`
+          <button @click=${this.resetToDefault} title="Reset to Default">
+            Reset
+          </button>
+        `
+          : ''}
         <button @click=${this.reset} title="Reset">
           ${iconUndo}
         </button>
@@ -179,9 +196,10 @@ export class DashboardToolbar extends AppElement {
   }
 
   openSettings () {
-    this._dialog = html`<settings-dialog .config=${this.config.guiConfigs} @close=${() => {
-      this._dialog = undefined
-    }}></settings-dialog>`
+    this.dispatchEvent(new CustomEvent('open-settings', {
+      bubbles: true,
+      composed: true
+    }))
   }
 
   toggleFullscreen () {
@@ -193,6 +211,22 @@ export class DashboardToolbar extends AppElement {
         document.exitFullscreen()
       }
     }
+  }
+
+  toggleRetileMode () {
+    this._retileMode = !this._retileMode
+    this.dispatchEvent(new CustomEvent('retile-mode-changed', {
+      bubbles: true,
+      composed: true,
+      detail: { active: this._retileMode }
+    }))
+  }
+
+  resetToDefault () {
+    this.dispatchEvent(new CustomEvent('reset-layout-to-default', {
+      bubbles: true,
+      composed: true
+    }))
   }
 
   reset () {
