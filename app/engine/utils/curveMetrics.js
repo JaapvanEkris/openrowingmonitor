@@ -17,7 +17,7 @@ export function createCurveMetrics () {
     // add the new dataPoint to the array, we have to move datapoints starting at the oldst ones
     if (inputValue > 0) {
       _curve.push(inputValue)
-      if(inputValue >= _max) {
+      if (inputValue >= _max) {
         _peakPosition = _curve.length()
         _max = Math.max(_max, inputValue)
       }
