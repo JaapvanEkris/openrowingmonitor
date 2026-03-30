@@ -39,7 +39,7 @@ export function createRowingStatistics (config) {
   const recoveryDuration = createStreamFilter(halfNumOfDataPointsForAveraging, undefined)
   const driveAverageHandleForce = createStreamFilter(halfNumOfDataPointsForAveraging, undefined)
   const drivePeakHandleForce = createStreamFilter(halfNumOfDataPointsForAveraging, undefined)
-  const drivePeakHandleForcePosition = createStreamFilter(halfNumOfDataPointsForAveraging, undefined)
+  const drivePeakHandleForceNormalizedPosition = createStreamFilter(halfNumOfDataPointsForAveraging, undefined)
   const driveHandleForceCurve = createCurveAligner(config.rowerSettings.minimumForceBeforeStroke)
   const driveHandleVelocityCurve = createCurveAligner(1.0)
   const driveHandlePowerCurve = createCurveAligner(50)
@@ -84,7 +84,7 @@ export function createRowingStatistics (config) {
     driveDistance.reset()
     driveAverageHandleForce.reset()
     drivePeakHandleForce.reset()
-    drivePeakHandleForcePosition.reset()
+    drivePeakHandleForceNormalizedPosition.reset()
     driveHandleForceCurve.reset()
     driveHandleVelocityCurve.reset()
     driveHandlePowerCurve.reset()
@@ -210,7 +210,7 @@ export function createRowingStatistics (config) {
       driveDistance.push(rower.driveLinearDistance())
       driveAverageHandleForce.push(rower.driveAverageHandleForce())
       drivePeakHandleForce.push(rower.drivePeakHandleForce())
-      drivePeakHandleForcePosition.push(rower.drivePeakHandleForcePosition())
+      drivePeakHandleForceNormalizedPosition.push(rower.drivePeakHandleForceNormalizedPosition())
       driveHandleForceCurve.push(rower.driveHandleForceCurve())
       driveHandleVelocityCurve.push(rower.driveHandleVelocityCurve())
       driveHandlePowerCurve.push(rower.driveHandlePowerCurve())
@@ -268,7 +268,7 @@ export function createRowingStatistics (config) {
       driveDistance: driveDistance.reliable() && driveDistance.clean() >= 0 && metricsContext.isMoving === true ? driveDistance.clean() : undefined, // meters
       driveAverageHandleForce: driveAverageHandleForce.clean() > 0 && metricsContext.isMoving === true ? driveAverageHandleForce.clean() : undefined,
       drivePeakHandleForce: drivePeakHandleForce.clean() > 0 && metricsContext.isMoving === true ? drivePeakHandleForce.clean() : undefined,
-      drivePeakHandleForcePosition: drivePeakHandleForcePosition.clean() > 0 && metricsContext.isMoving === true ? drivePeakHandleForcePosition.clean() : undefined,
+      drivePeakHandleForceNormalizedPosition: drivePeakHandleForceNormalizedPosition.clean() > 0 && metricsContext.isMoving === true ? drivePeakHandleForceNormalizedPosition.clean() : undefined,
       driveHandleForceCurve: drivePeakHandleForce.clean() > 0 && metricsContext.isMoving === true ? driveHandleForceCurve.lastCompleteCurve() : [],
       driveHandleVelocityCurve: drivePeakHandleForce.clean() > 0 && metricsContext.isMoving === true ? driveHandleVelocityCurve.lastCompleteCurve() : [],
       driveHandlePowerCurve: drivePeakHandleForce.clean() > 0 && metricsContext.isMoving === true ? driveHandlePowerCurve.lastCompleteCurve() : [],
