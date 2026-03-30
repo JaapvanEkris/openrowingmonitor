@@ -348,9 +348,9 @@ export function createRower (rowerSettings) {
     }
   }
 
-  function drivePeakHandleForcePosition () {
+  function drivePeakHandleForceNormalizedPosition () {
     if (_driveDuration >= rowerSettings.minimumDriveTime) {
-      return driveHandleForce.peakPosition()
+      return driveHandleForce.peakNormalizedPosition()
     } else {
       return undefined
     }
@@ -472,7 +472,7 @@ export function createRower (rowerSettings) {
     driveFlywheelWork,
     driveAverageHandleForce,
     drivePeakHandleForce,
-    drivePeakHandleForcePosition,
+    drivePeakHandleForceNormalizedPosition,
     driveHandleForceCurve,
     driveHandleVelocityCurve,
     driveHandlePowerCurve,
