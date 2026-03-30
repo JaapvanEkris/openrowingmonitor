@@ -1,26 +1,30 @@
 'use strict'
 /**
- * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
+ * @copyright {@link https://github.com/JaapvanEkris/openrowingmonitor|OpenRowingMonitor}
  *
  * @file This Module supports the creation and use of workoutSegment
  * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Architecture.md#session-interval-and-split-boundaries-in-sessionmanagerjs|the description of the concepts used}
  */
 /* eslint-disable max-lines -- This contains a lot of checks on individual metrics, so it is long */
 import { createWLSLinearSeries } from './WLSLinearSeries.js'
-import { createSeries } from './Series.js'
+import { createInfiniteSeriesMetrics } from './InfiniteSeriesMetrics.js'
 import loglevel from 'loglevel'
 const log = loglevel.getLogger('RowingEngine')
 
+/**
+ * @description This function creates a workoutsegment
+ */
 export function createWorkoutSegment (config) {
   const numOfDataPointsForAveraging = config.numOfPhasesForAveragingScreenData
   const distanceOverTime = createWLSLinearSeries(Math.min(4, numOfDataPointsForAveraging))
   const caloriesOverTime = createWLSLinearSeries(Math.min(4, numOfDataPointsForAveraging))
-  const _power = createSeries()
-  const _linearVelocity = createSeries()
-  const _strokerate = createSeries()
-  const _strokedistance = createSeries()
-  const _caloriesPerHour = createSeries()
-  const _dragFactor = createSeries()
+  const _averageForce = createInfiniteSeriesMetrics()
+  const _power = createInfiniteSeriesMetrics()
+  const _linearVelocity = createInfiniteSeriesMetrics()
+  const _strokerate = createInfiniteSeriesMetrics()
+  const _strokedistance = createInfiniteSeriesMetrics()
+  const _caloriesPerHour = createInfiniteSeriesMetrics()
+  const _dragFactor = createInfiniteSeriesMetrics()
   let _type = 'justrow'
   let _startTimestamp
   let _startMovingTime = 0
@@ -41,6 +45,9 @@ export function createWorkoutSegment (config) {
     targetTime: 0
   }
 
+  /**
+   * @description This function sets the starting point of a workout segment
+   */
   function setStart (baseMetrics) {
     resetSegmentMetrics()
     _startMovingTime = (baseMetrics.totalMovingTime !== undefined && baseMetrics.totalMovingTime > 0 ? baseMetrics.totalMovingTime : 0)
@@ -60,7 +67,7 @@ export function createWorkoutSegment (config) {
   }
 
   /**
-   * This function summarizes a group of intervals into a single workout
+   * @description This function summarizes a group of intervals into a single workout
    */
   function summarize (intervals) {
     let intervalNumber = 0
@@ -122,7 +129,7 @@ export function createWorkoutSegment (config) {
   }
 
   /**
-   * This function sets the segment parameters used
+   * @description This function sets the segment parameters used
    */
   function setEnd (intervalSettings) {
     // Set the primairy parameters
@@ -277,7 +284,7 @@ export function createWorkoutSegment (config) {
   }
 
   /*
-   * This function is return the underlying split of a workoutsegment (typically an interval)
+   * @description This function is return the underlying split of a workoutsegment (typically an interval)
    */
   function getSplit () {
     return _split
@@ -312,7 +319,7 @@ export function createWorkoutSegment (config) {
   }
 
   /**
-   * This function returns the remaining split (used for managing unplanned pauses)
+   * @description This function returns the remaining split (used for managing unplanned pauses)
    */
   function remainder (baseMetrics) {
     switch (_type) {
@@ -340,12 +347,13 @@ export function createWorkoutSegment (config) {
   }
 
   /**
-   * Updates projectiondata and segment metrics
+   * @description Updates projectiondata and segment metrics
    */
   function push (baseMetrics) {
     distanceOverTime.push(baseMetrics.totalMovingTime, baseMetrics.totalLinearDistance, 1)
     caloriesOverTime.push(baseMetrics.totalMovingTime, baseMetrics.totalCalories, 1)
     if (!!baseMetrics.cyclePower && !isNaN(baseMetrics.cyclePower) && baseMetrics.cyclePower > 0) { _power.push(baseMetrics.cyclePower) }
+    if (!!baseMetrics.driveAverageHandleForce && !isNaN(baseMetrics.driveAverageHandleForce) && baseMetrics.driveAverageHandleForce > 0) { _averageForce.push(baseMetrics.driveAverageHandleForce) }
     if (!!baseMetrics.cycleLinearVelocity && !isNaN(baseMetrics.cycleLinearVelocity) && baseMetrics.cycleLinearVelocity > 0) { _linearVelocity.push(baseMetrics.cycleLinearVelocity) }
     if (!!baseMetrics.cycleStrokeRate && !isNaN(baseMetrics.cycleStrokeRate) && baseMetrics.cycleStrokeRate > 0) { _strokerate.push(baseMetrics.cycleStrokeRate) }
     if (!!baseMetrics.cycleDistance && !isNaN(baseMetrics.cycleDistance) && baseMetrics.cycleDistance > 0) { _strokedistance.push(baseMetrics.cycleDistance) }
@@ -354,7 +362,7 @@ export function createWorkoutSegment (config) {
   }
 
   /*
-   * This function is used to precisely calculate the end of a workout segment after the sessionManager conlcudes it has passed the workoutSegment's boundary
+   * @description This function is used to precisely calculate the end of a workout segment after the sessionManager conlcudes it has passed the workoutSegment's boundary
    */
   function interpolateEnd (prevMetrics, currMetrics) {
     const projectedMetrics = { ...prevMetrics }
@@ -398,7 +406,7 @@ export function createWorkoutSegment (config) {
   }
 
   /*
-   * This function is used to precisely calculate the end time of a workout segment based on a target distance
+   * @description This function is used to precisely calculate the end time of a workout segment based on a target distance
    * @see {@link https://en.wikipedia.org/wiki/Linear_interpolation|the math behind interpolation}
    * @returns {float} the exact time where the distance barrier was crossed
    */
@@ -411,7 +419,7 @@ export function createWorkoutSegment (config) {
   }
 
   /*
-   * This function is used to precisely calculate the end distance of a workout segment based on a target time
+   * @description This function is used to precisely calculate the end distance of a workout segment based on a target time
    * @see {@link https://en.wikipedia.org/wiki/Linear_interpolation|the math behind interpolation}
    * @returns {float} the exact distance where the time barrier was crossed
    */
@@ -424,7 +432,7 @@ export function createWorkoutSegment (config) {
   }
 
   /*
-   * This function is used to precisely calculate the end time of a workout segment based on a target calories
+   * @description This function is used to precisely calculate the end time of a workout segment based on a target calories
    * @see {@link https://en.wikipedia.org/wiki/Linear_interpolation|the math behind interpolation}
    * @returns {float} the exact time where the calories barrier was crossed
    */
@@ -437,7 +445,7 @@ export function createWorkoutSegment (config) {
   }
 
   /*
-   * This function is used to precisely calculate the end calories of a workout segment based on a target time
+   * @description This function is used to precisely calculate the end calories of a workout segment based on a target time
    * @see {@link https://en.wikipedia.org/wiki/Linear_interpolation|the math behind interpolation}
    * @returns {float} the exact calories where the time barrier was crossed
    */
@@ -451,7 +459,7 @@ export function createWorkoutSegment (config) {
   }
 
   /**
-   * This function returns all the workoutSegment metrics for the current workoutSegment
+   * @description This function returns all the workoutSegment metrics for the current workoutSegment
    */
   function metrics (baseMetrics) {
     return {
@@ -491,6 +499,11 @@ export function createWorkoutSegment (config) {
         average: _power.average(),
         minimum: _power.minimum(),
         maximum: _power.maximum()
+      },
+      averageForce: {
+        average: _averageForce.average(),
+        minimum: _averageForce.minimum(),
+        maximum: _averageForce.maximum()
       },
       work: {
         absoluteStart: _startWork,
@@ -740,7 +753,7 @@ export function createWorkoutSegment (config) {
   }
 
   /**
-   * This internal function resets the metrics of the segment, this is called after setting a new target
+   * @description This internal function resets the metrics of the segment, this is called after setting a new target
    */
   function resetSegmentMetrics () {
     _linearVelocity.reset()
@@ -768,7 +781,7 @@ export function createWorkoutSegment (config) {
   }
 
   /**
-   * This externally exposed function resets all data from a workoutsegment, including the regressor used for projections
+   * @description This externally exposed function resets all data from a workoutsegment, including the regressor used for projections
    */
   function reset () {
     resetSegmentMetrics()
