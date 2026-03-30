@@ -37,7 +37,7 @@ export function createCurveMetrics () {
     }
   }
 
-  function peakPosition () {
+  function peakNormalizedPosition () {
     if (_max > 0 && _peakPosition > 0 && _curve.length() > 0) {
       return (_peakPosition / _curve.length())
     } else {
@@ -76,7 +76,7 @@ export function createCurveMetrics () {
   return {
     push,
     peak,
-    peakPosition,
+    peakNormalizedPosition,
     average,
     curve,
     length,
