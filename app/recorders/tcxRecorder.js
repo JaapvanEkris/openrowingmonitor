@@ -15,7 +15,7 @@ export function createTCXRecorder (config) {
   const type = 'tcx'
   const postfix = '_rowing'
   const presentationName = 'Garmin tcx'
-  const lapHRMetrics = createSeries()
+  const lapHRMetrics = createInfiniteSeriesMetrics()
   const VO2max = createVO2max(config)
   let heartRate = 0
   let sessionData
