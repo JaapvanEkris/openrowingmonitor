@@ -2,8 +2,7 @@
 /**
  * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
  *
- * @file This creates a series with a maximum number of values. It allows for determining the Average, Median, Minimum and Maximum
- * BE AWARE: Accumulators (Sum especially) are vulnerable to floating point rounding errors causing drift.
+ * @file This creates an unlimited series (resetting it is a responsibility of the caller). It allows for determining the Average, Median, Minimum and Maximum
  */
 /**
  * @param {number} maxSeriesLength - The maximum length of the series (0 for unlimited)
