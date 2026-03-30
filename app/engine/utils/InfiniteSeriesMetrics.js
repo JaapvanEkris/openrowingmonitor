@@ -1,11 +1,11 @@
 'use strict'
 /**
- * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
+ * @copyright {@link https://github.com/JaapvanEkris/openrowingmonitor|OpenRowingMonitor}
  *
  * @file This creates an unlimited series (resetting it is a responsibility of the caller). It allows for determining the Average, Median, Minimum and Maximum
  */
 /**
- * @param {number} maxSeriesLength - The maximum length of the series (0 for unlimited)
+ * @description the creator function, no parameters
  */
 export function createInfiniteSeriesMetrics () {
   let min = undefined
@@ -65,7 +65,7 @@ export function createInfiniteSeriesMetrics () {
    * @returns {float} smallest element in the series
    */
   function minimum () {
-    if (min > 0) {
+    if (min !== undefined) {
       return min
     } else {
       return 0
@@ -76,7 +76,7 @@ export function createInfiniteSeriesMetrics () {
    * @returns {float} largest value in the series
    */
   function maximum () {
-    if (max > 0) {
+    if (max !== undefined) {
       return max
     } else {
       return 0
