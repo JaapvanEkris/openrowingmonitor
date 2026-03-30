@@ -1,10 +1,10 @@
 'use strict'
 /**
- * @copyright [OpenRowingMonitor]{@link https://github.com/JaapvanEkris/openrowingmonitor}
+ * @copyright {@link https://github.com/JaapvanEkris/openrowingmonitor|OpenRowingMonitor}
  *
  * @file This creates a series with a maximum number of values. It allows for determining the Average, Median, Number of Positive, number of Negative
  * BE AWARE: The median function is extremely CPU intensive for larger series. Use the BinarySearchTree for that situation instead!
- * BE AWARE: Accumulators (seriesSum especially) are vulnerable to floating point rounding errors causing drift. Special tests are present in the unit-tests, which should be run manually when this module is changed
+ * BE AWARE: Accumulators (seriesSum especially) are vulnerable to floating point rounding errors causing drift.
  */
 /**
  * @param {number} maxSeriesLength - The maximum length of the series (0 for unlimited)
@@ -12,13 +12,17 @@
 export function createSeries (maxSeriesLength = 0) {
   /**
    * @type {Array<number>}
+   * 'updateCountCeiling' is added as a future provision. It currently set to 1, forcing a sum recalc every push. Setting it higher reduces CPU load, but also reduces accuracy
+   * due to accumulator rounding issues. Special tests are present in the corresponding unit-tests, but testing of dependent modules show small deviations
    */
+  const updateCountCeiling = maxSeriesLength > 0 ? Math.min(1, maxSeriesLength) : 1
   let seriesArray = []
   let numPos = 0
   let numNeg = 0
   let min = undefined
   let max = undefined
   let seriesSum = null
+  let updatecount = 0
 
   /**
    * @param {float} value - value to be added to the series
@@ -42,10 +46,19 @@ export function createSeries (maxSeriesLength = 0) {
       if (max === seriesArray[0]) {
         max = undefined
       }
+      if (seriesSum !== null) { seriesSum -= seriesArray[0] }
       seriesArray.shift()
     }
     seriesArray.push(value)
-    seriesSum = null
+
+    updatecount++
+
+    if (updatecount < updateCountCeiling && seriesSum !== null) {
+      seriesSum += value
+    } else {
+      updatecount = 0
+      seriesSum = null
+    }
 
     if (value > 0) {
       numPos++
@@ -216,6 +229,7 @@ export function createSeries (maxSeriesLength = 0) {
     numNeg = 0
     min = undefined
     max = undefined
+    seriesSum = null
   }
 
   return {
