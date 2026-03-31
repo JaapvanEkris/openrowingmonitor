@@ -1,8 +1,7 @@
 'use strict'
-/*
-  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-*/
 /**
+ * @copyright {@link https://github.com/JaapvanEkris/openrowingmonitor|OpenRowingMonitor}
+ *
  * @file The Rowing Engine models the physics of a real rowing boat. It takes impulses from the flywheel of a rowing machine
  * and calculates parameters such as work, stroke rates and linear movement.
  *
@@ -349,6 +348,14 @@ export function createRower (rowerSettings) {
     }
   }
 
+  function drivePeakHandleForceNormalizedPosition () {
+    if (_driveDuration >= rowerSettings.minimumDriveTime) {
+      return driveHandleForce.peakNormalizedPosition()
+    } else {
+      return undefined
+    }
+  }
+
   function driveHandleForceCurve () {
     if (_driveDuration >= rowerSettings.minimumDriveTime) {
       return driveHandleForce.curve()
@@ -465,6 +472,7 @@ export function createRower (rowerSettings) {
     driveFlywheelWork,
     driveAverageHandleForce,
     drivePeakHandleForce,
+    drivePeakHandleForceNormalizedPosition,
     driveHandleForceCurve,
     driveHandleVelocityCurve,
     driveHandlePowerCurve,

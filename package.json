@@ -28,7 +28,7 @@
     "pre-commit": "npm run lint && npm test"
   },
   "dependencies": {
-    "@markw65/fit-file-writer": "^0.1.8",
+    "@markw65/fit-file-writer": "^0.1.9",
     "ble-host": "github:Abasz/node-ble-host",
     "chart.js": "^4.5.1",
     "chartjs-plugin-datalabels": "^2.2.0",
@@ -61,7 +61,7 @@
     "markdownlint-cli2": "^0.22.0",
     "nodemon": "^3.1.11",
     "npm-run-all": "4.1.5",
-    "rollup": "^4.60.0",
+    "rollup": "^4.60.1",
     "rollup-plugin-summary": "^3.0.0",
     "simple-git-hooks": "^2.13.1",
     "tar": "^7.5.13",
