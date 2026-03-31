@@ -19,7 +19,7 @@ const WORKOUT_CONFIG = {
       { label: '+2K', value: 2000 }
     ],
     format (v) {
-      return v >= 99999.5 ? (v / 1000).toFixed(v % 1000 === 0 ? 0 : 1) + 'K' : v + 'm'
+      return v >= 999.5 ? (v / 1000).toFixed(v % 1000 === 0 ? 0 : 1) + 'K' : v
     },
     buildPlan: (val) => [{ type: 'distance', targetDistance: String(val), targetTime: '0' }]
   },
