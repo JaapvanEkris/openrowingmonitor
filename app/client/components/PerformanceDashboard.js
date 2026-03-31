@@ -70,20 +70,11 @@ export class PerformanceDashboard extends AppElement {
   @state()
   accessor _dialog = null
 
-  connectedCallback () {
-    super.connectedCallback()
-    this.addEventListener('workout-open', this._handleWorkoutOpen)
-  }
-
-  disconnectedCallback () {
-    super.disconnectedCallback()
-    this.removeEventListener('workout-open', this._handleWorkoutOpen)
-  }
-
-  _handleWorkoutOpen = (event) => {
+  _handleWorkoutOpen = (type) => {
+    this.sendEvent('workout-open', type)
     this._dialog = html`
       <workout-dialog
-        .type=${event.detail}
+        .type=${type}
         @close=${() => { this._dialog = null }}
       ></workout-dialog>
     `
@@ -94,7 +85,7 @@ export class PerformanceDashboard extends AppElement {
     const configs = appState.config
 
     const dashboardMetricComponents = Object.keys(DASHBOARD_METRICS).reduce((dashboardMetrics, key) => {
-      dashboardMetrics[key] = DASHBOARD_METRICS[key].template(metrics, configs)
+      dashboardMetrics[key] = DASHBOARD_METRICS[key].template(metrics, configs, this._handleWorkoutOpen)
 
       return dashboardMetrics
     }, {})
