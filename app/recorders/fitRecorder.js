@@ -60,10 +60,10 @@ export function createFITRecorder (config) {
       fields: {
         lap_index: {
           ...fit_messages.session.fields.first_lap_index,
-          name: "lap_index",
-          num: 67,
-        },
-      },
+          name: 'lap_index',
+          num: 67
+        }
+      }
     }
   }
 
@@ -768,8 +768,8 @@ export function createFITRecorder (config) {
     fitWriter.writeMessage(
       'developer_data_id',
       {
-        application_id: "42c9182e-23a6-425f-b8fc-316d3d164a6f"
-          .replace(/-/g, "")
+        application_id: '42c9182e-23a6-425f-b8fc-316d3d164a6f'
+          .replace(/-/g, '')
           .match(/../g)
           .map((s) => parseInt(s, 16)),
         developer_data_index: 0,
@@ -885,7 +885,7 @@ export function createFITRecorder (config) {
         field_definition_number: 90,
         fit_base_type_id: 'uint8',
         field_name: 'InstrokeAbscissaType',
-        scale: 1,
+        scale: 1
       },
       null,
       true
@@ -912,7 +912,7 @@ export function createFITRecorder (config) {
         field_definition_number: 92,
         fit_base_type_id: 'uint8',
         field_name: 'InstrokePointCount',
-        scale: 1,
+        scale: 1
       },
       null,
       true
@@ -927,7 +927,7 @@ export function createFITRecorder (config) {
         array: Math.min(127, sessionData.maxForceCurvePointCount),
         scale: 10,
         field_name: 'HandleForceCurve',
-        units: 'N',
+        units: 'N'
       },
       null,
       true
@@ -1134,7 +1134,7 @@ export function createFITRecorder (config) {
 
       writer.writeCustomMessage(
         user_messages,
-        "split",
+        'split',
         {
           timestamp: writer.time(sessionData.endTime),
           message_index: splitdata.splitNumber,
@@ -1172,7 +1172,7 @@ export function createFITRecorder (config) {
       // Add a rest lap summary
       writer.writeCustomMessage(
         user_messages,
-        "split",
+        'split',
         {
           timestamp: writer.time(sessionData.endTime),
           message_index: splitdata.splitNumber,
@@ -1446,8 +1446,6 @@ export function createFITRecorder (config) {
    */
   async function createTrackPoint (writer, trackpoint) {
     const developerFieldValues = []
-
-
     if (trackpoint.dragFactor > 0) {
       developerFieldValues.push({ developer_data_index: 0, field_num: 2, value: trackpoint.dragFactor })
     }
