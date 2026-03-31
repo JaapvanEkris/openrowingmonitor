@@ -22,18 +22,19 @@
 /* eslint-disable max-lines -- The length is governed by the fit-parameterisation, which we can't control */
 import log from 'loglevel'
 import { createName } from './utils/decorators.js'
-import { createSeries } from '../engine/utils/Series.js'
+import { createInfiniteSeriesMetrics } from '../engine/utils/InfiniteSeriesMetrics.js'
 import { createVO2max } from './utils/VO2max.js'
-import { FitWriter } from '@markw65/fit-file-writer'
+import { FitWriter, fit_messages } from '@markw65/fit-file-writer'
 
 export function createFITRecorder (config) {
   const type = 'fit'
   const postfix = '_rowing'
   const presentationName = 'Garmin fit'
-  const sessionHRMetrics = createSeries()
-  const splitActiveHRMetrics = createSeries()
-  const splitRestHRMetrics = createSeries()
-  const lapHRMetrics = createSeries()
+  const sessionHRMetrics = createInfiniteSeriesMetrics()
+  const splitActiveHRMetrics = createInfiniteSeriesMetrics()
+  const splitRestHRMetrics = createInfiniteSeriesMetrics()
+  const splitHRMetrics = createInfiniteSeriesMetrics()
+  const lapHRMetrics = createInfiniteSeriesMetrics()
   const VO2max = createVO2max(config)
   let heartRate = 0
   let sessionData = {}
@@ -45,12 +46,26 @@ export function createFITRecorder (config) {
   sessionData.HR = []
   sessionData.noActiveSplits = 0
   sessionData.noRestSplits = 0
+  sessionData.maxForceCurvePointCount = 0
   sessionData.complete = false
   let postExerciseHR = []
   let lastMetrics = {}
   let fitfileContent
   let fitfileContentIsCurrent = true
   let allDataHasBeenWritten = true
+
+  // Definition of undocumented Garmin 'lap_index' field for splits
+  const user_messages = {
+    split: {
+      fields: {
+        lap_index: {
+          ...fit_messages.session.fields.first_lap_index,
+          name: "lap_index",
+          num: 67,
+        },
+      },
+    }
+  }
 
   /**
    * @description This function handles all incomming commands. Here, the recordingmanager will have filtered
@@ -105,6 +120,13 @@ export function createFITRecorder (config) {
    * @param {float} metrics.cyclePower - The power of the last stroke (Watts)
    * @param {float} metrics.cycleLinearVelocity - The average linear velocity across the last stroke (meters/second)
    * @param {float} metrics.cycleDistance - The distance travelled across the last stroke (Meters)
+   * @param {float} metrics.driveLength - Length of handle travel during the drive (Meters)
+   * @param {float} metrics.driveDuration - Length of the drive (Seconds)
+   * @param {float} metrics.recoveryDuration - Length of the recovery (Seconds)
+   * @param {float} metrics.driveAverageHandleForce - Average force on the handle during the drive (Newton)
+   * @param {float} metrics.drivePeakHandleForce - Peak force on the handle during the drive (Newton)
+   * @param {float} metrics.drivePeakHandleForceNormalizedPosition - Postion of the peak force on the handle in the drive (% of drive length)
+   * @param {array} metrics.driveHandleForceCurve - Series of forces during the drive (in Newton, x-axis is drivelength)
    * @param {float} metrics.dragFactor - The dragFactor across the last recovery (Newton * meter * second^2)
    * @param {object} metrics.workout - All metrics related to the total workout progress
    * @param {object} metrics.workout.timeSpent - All time-related metrics related to the workout progress
@@ -127,6 +149,14 @@ export function createFITRecorder (config) {
    * @param {object} metrics.workout.power - All power-related metrics related to the enire workout
    * @param {float} metrics.workout.power.average - The average power in the enire workout (Watts)
    * @param {float} metrics.workout.power.maximum - The maximum power in the enire workout (Watts)
+   * @param {object} metrics.workout.power - The power metrics for the workout
+   * @param {float} metrics.workout.power.average - The average power in the workout (Watts)
+   * @param {float} metrics.workout.power.maximum - The maximum power in the workout (Watts)
+   * @param {object} metrics.workout.averageForce - The average handle force in the drive metrics
+   * @param {float} metrics.workout.averageForce.average - The average handle force in the drive, averaged across all drives in the workout (Newton)
+   * @param {float} metrics.workout.averageForce.maximum - The maximum of the average handle force in the drive encountered in this workout (Newton)
+   * @param {float} metrics.workout.dragfactor - The dragFactor metrics for this workout
+   * @param {float} metrics.workout.dragfactor.average - The average dragFactor in the workout (Newton * meter * second^2)
    * @param {object} metrics.workout.caloriesSpent - All calorie-related metrics related to the enire workout
    * @param {float} metrics.workout.caloriesSpent.total - The total calories burned (Calories) during the enire workout (moving + rest, in Calories)
    * @param {float} metrics.workout.caloriesSpent.moving - The total calories burned (Calories) during movement in the enire workout (Calories)
@@ -147,6 +177,11 @@ export function createFITRecorder (config) {
    * @param {float} metrics.interval.linearVelocity - All velocity-related metrics related to the ORM interval progress
    * @param {float} metrics.interval.linearVelocity.average - The average velocity in the interval (Meters per second)
    * @param {float} metrics.interval.linearVelocity.maximum - The maximum velocity in the interval (Meters per second)
+   * @param {float} metrics.interval.power.average - The average power in the interval (Watts)
+   * @param {float} metrics.interval.power.maximum - The maximum power in the interval (Watts)
+   * @param {float} metrics.interval.averageForce.average - The average handle force in the drive, averaged across all drives (Newton)
+   * @param {float} metrics.interval.averageForce.maximum - The maximum of the average handle force in the drive (Newton)
+   * @param {float} metrics.interval.dragfactor.average - The average dragFactor in the interval (Newton * meter * second^2)
    * @param {object} metrics.split.timeSpent - All time-related metrics related to the ORM interval progress
    * @param {object} metrics.split.timeSpent.total - The total time spent in the ORM split (seconds)
    * @param {object} metrics.split.timeSpent.moving - The total time spent moving in the ORM split (seconds)
@@ -157,6 +192,14 @@ export function createFITRecorder (config) {
    * @param {float} metrics.split.linearVelocity - All velocity-related metrics related to the ORM split progress
    * @param {float} metrics.split.linearVelocity.average - The average velocity in the split (Meters per second)
    * @param {float} metrics.split.linearVelocity.maximum - The maximum velocity in the split (Meters per second)
+   * @param {object} metrics.split.power - The power metrics for the split
+   * @param {float} metrics.split.power.average - The average power in the split (Watts)
+   * @param {float} metrics.split.power.maximum - The maximum power in the split (Watts)
+   * @param {object} metrics.split.averageForce - The average handle force in the drive metrics
+   * @param {float} metrics.split.averageForce.average - The average handle force in the drive, averaged across all drives in the split (Newton)
+   * @param {float} metrics.split.averageForce.maximum - The maximum of the average handle force in the drive encountered in this split (Newton)
+   * @param {float} metrics.split.dragfactor - The dragFactor metrics for this split
+   * @param {float} metrics.split.dragfactor.average - The average dragFactor in the split (Newton * meter * second^2)
    * @param {integer} metrics.split.numberOfStrokes - The number of strokes in the split
    * @param {object} metrics.split.strokerate - All strokerate-related metrics related to the ORM split progress
    * @param {float} metrics.split.strokerate.average - The average strokerate in the split (strokes per minute)
@@ -177,13 +220,18 @@ export function createFITRecorder (config) {
         startLap(metrics)
         sessionData.HR = []
         sessionHRMetrics.reset()
+        splitActiveHRMetrics.reset()
         splitRestHRMetrics.reset()
+        splitHRMetrics.reset()
+        lapHRMetrics.reset()
         if (!isNaN(heartRate) && heartRate > 0) {
           sessionData.HR.push({
             heartrate: heartRate,
             timestamp: metrics.timestamp
           })
           sessionHRMetrics.push(heartRate)
+          splitHRMetrics.push(heartRate)
+          lapHRMetrics.push(heartRate)
         }
         addMetricsToStrokesArray(metrics)
         break
@@ -201,8 +249,7 @@ export function createFITRecorder (config) {
         calculateLapMetrics(metrics)
         calculateSplitMetrics(metrics)
         calculateSessionMetrics(metrics)
-        resetLapMetrics()
-        splitRestHRMetrics.reset()
+        splitHRMetrics.reset()
         if (!isNaN(heartRate) && heartRate > 0) { splitRestHRMetrics.push(heartRate) }
         postExerciseHR = null
         postExerciseHR = []
@@ -215,6 +262,7 @@ export function createFITRecorder (config) {
         addRestSplit(metrics, lastActiveSplitEndtime)
         addRestLap(metrics, lastActiveSplitEndtime, metrics.interval.workoutStepNumber)
         // Now start a new active split and lap
+        splitHRMetrics.reset()
         startSplit(metrics)
         startLap(metrics)
         addMetricsToStrokesArray(metrics)
@@ -224,6 +272,7 @@ export function createFITRecorder (config) {
         calculateSplitMetrics(metrics)
         calculateLapMetrics(metrics)
         resetLapMetrics()
+        splitHRMetrics.reset()
         startSplit(metrics)
         startLap(metrics)
         break
@@ -252,6 +301,13 @@ export function createFITRecorder (config) {
    * @param {float} metrics.cyclePower - The power of the last stroke (Watts)
    * @param {float} metrics.cycleLinearVelocity - The average linear velocity across the last stroke (meters/second)
    * @param {float} metrics.cycleDistance - The distance travelled across the last stroke (Meters)
+   * @param {float} metrics.driveLength - Length of handle travel during the drive (Meters)
+   * @param {float} metrics.driveDuration - Length of the drive (Seconds)
+   * @param {float} metrics.recoveryDuration - Length of the recovery (Seconds)
+   * @param {float} metrics.driveAverageHandleForce - Average force on the handle during the drive (Newton)
+   * @param {float} metrics.drivePeakHandleForce - Peak force on the handle during the drive (Newton)
+   * @param {float} metrics.drivePeakHandleForceNormalizedPosition - Postion of the peak force on the handle in the drive (% of drive length)
+   * @param {Array} metrics.driveHandleForceCurve - Series of forces during the drive (in Newton, x-axis is drivelength)
    * @param {float} metrics.dragFactor - The dragFactor across the last recovery (Newton * meter * second^2)
    * @param {object} metrics.workout - All metrics related to the total workout progress
    * @param {object} metrics.workout.timeSpent - All time-related metrics related to the workout progress
@@ -273,10 +329,13 @@ export function createFITRecorder (config) {
       strokeDriveTime: metrics.driveDuration,
       strokeRecoveryTime: metrics.recoveryDuration,
       peakDriveForce: metrics.drivePeakHandleForce,
+      drivePeakHandleForceNormalizedPosition: metrics.drivePeakHandleForceNormalizedPosition,
       averageDriveForce: metrics.driveAverageHandleForce,
+      forceCurve: metrics.driveHandleForceCurve,
       ...(!isNaN(heartRate) && heartRate > 0 ? { heartrate: heartRate } : { heartrate: undefined })
     })
     sessionData.totalMovingTime = metrics.workout.timeSpent.moving
+    sessionData.maxForceCurvePointCount = Math.max(sessionData.maxForceCurvePointCount, metrics.driveHandleForceCurve.length)
     VO2max.push(metrics, heartRate)
     fitfileContentIsCurrent = false
     allDataHasBeenWritten = false
@@ -304,6 +363,12 @@ export function createFITRecorder (config) {
       intensity: 'active',
       complete: false
     })
+    if (metrics.metricsContext.isSessionStart) {
+      sessionData.splits[splitnumber].startLapNumber = 0
+    } else {
+      // This references the NEXT lap already
+      sessionData.splits[splitnumber].startLapNumber = sessionData.laps.length
+    }
     splitActiveHRMetrics.reset()
     splitActiveHRMetrics.push(heartRate)
   }
@@ -323,6 +388,11 @@ export function createFITRecorder (config) {
    * @param {float} metrics.interval.linearVelocity - All velocity-related metrics related to the ORM interval progress
    * @param {float} metrics.interval.linearVelocity.average - The average velocity in the interval (Meters per second)
    * @param {float} metrics.interval.linearVelocity.maximum - The maximum velocity in the interval (Meters per second)
+   * @param {float} metrics.interval.power.average - The average power in the interval (Watts)
+   * @param {float} metrics.interval.power.maximum - The maximum power in the interval (Watts)
+   * @param {float} metrics.interval.averageForce.average - The average handle force in the drive, averaged across all drives (Newton)
+   * @param {float} metrics.interval.averageForce.maximum - The maximum of the average handle force in the drive (Newton)
+   * @param {float} metrics.interval.dragfactor.average - The average dragFactor in the interval (Newton * meter * second^2)
    * @param {object} metrics.workout.timeSpent - All time-related metrics related to the workout progress
    * @param {float} metrics.workout.timeSpent.moving - Total time spent moving during the workout (seconds)
    */
@@ -334,7 +404,14 @@ export function createFITRecorder (config) {
     sessionData.splits[splitnumber].calories = metrics.interval.calories.sinceStart
     sessionData.splits[splitnumber].averageSpeed = metrics.interval.linearVelocity.average
     sessionData.splits[splitnumber].maxSpeed = metrics.interval.linearVelocity.maximum
+    sessionData.splits[splitnumber].averagePower = metrics.interval.power.average
+    sessionData.splits[splitnumber].maximumPower = metrics.interval.power.maximum
+    sessionData.splits[splitnumber].averageHandleAvgForce = metrics.interval.averageForce.average
+    sessionData.splits[splitnumber].maximumHandleAvgForce = metrics.interval.averageForce.maximum
+    sessionData.splits[splitnumber].dragFactor = metrics.interval.dragfactor.average
     sessionData.splits[splitnumber].endTime = metrics.timestamp
+    sessionData.splits[splitnumber].averageHR = splitHRMetrics.average()
+    sessionData.splits[splitnumber].maximumHR = splitHRMetrics.maximum()
     sessionData.splits[splitnumber].complete = true
     sessionData.totalMovingTime = metrics.workout.timeSpent.moving
   }
@@ -355,13 +432,22 @@ export function createFITRecorder (config) {
     const splitnumber = sessionData.splits.length
     sessionData.splits.push({
       startTime: startTime,
+      startDistance: metrics.totalLinearDistance,
       splitNumber: splitnumber,
       intensity: 'rest',
       totalTime: metrics.interval.timeSpent.rest,
       calories: metrics.interval.caloriesSpent.rest,
       endTime: metrics.timestamp,
+      averageHR: splitHRMetrics.average(),
+      maximumHR: splitHRMetrics.maximum(),
       complete: true
     })
+    if (metrics.metricsContext.isSessionStart) {
+      sessionData.splits[splitnumber].startLapNumber = 0
+    } else {
+      // This references the NEXT lap already
+      sessionData.splits[splitnumber].startLapNumber = sessionData.laps.length
+    }
   }
 
   /**
@@ -403,6 +489,14 @@ export function createFITRecorder (config) {
    * @param {float} metrics.split.linearVelocity - All velocity-related metrics related to the ORM split progress
    * @param {float} metrics.split.linearVelocity.average - The average velocity in the split (Meters per second)
    * @param {float} metrics.split.linearVelocity.maximum - The maximum velocity in the split (Meters per second)
+   * @param {object} metrics.split.power - The power metrics for the split
+   * @param {float} metrics.split.power.average - The average power in the split (Watts)
+   * @param {float} metrics.split.power.maximum - The maximum power in the split (Watts)
+   * @param {object} metrics.split.averageForce - The average handle force in the drive metrics
+   * @param {float} metrics.split.averageForce.average - The average handle force in the drive, averaged across all drives in the split (Newton)
+   * @param {float} metrics.split.averageForce.maximum - The maximum of the average handle force in the drive encountered in this split (Newton)
+   * @param {float} metrics.split.dragfactor - The dragFactor metrics for this split
+   * @param {float} metrics.split.dragfactor.average - The average dragFactor in the split (Newton * meter * second^2)
    * @param {integer} metrics.split.numberOfStrokes - The number of strokes in the split
    * @param {object} metrics.split.strokerate - All strokerate-related metrics related to the ORM split progress
    * @param {float} metrics.split.strokerate.average - The average strokerate in the split (strokes per minute)
@@ -483,6 +577,7 @@ export function createFITRecorder (config) {
         sessionData.laps[lapnumber].type = 'stop'
     }
     sessionData.laps[lapnumber].summary = { ...metrics.split }
+    sessionData.laps[lapnumber].minimumHeartrate = lapHRMetrics.minimum()
     sessionData.laps[lapnumber].averageHeartrate = lapHRMetrics.average()
     sessionData.laps[lapnumber].maximumHeartrate = lapHRMetrics.maximum()
     sessionData.laps[lapnumber].complete = true
@@ -536,6 +631,14 @@ export function createFITRecorder (config) {
    * @param {float} metrics.workout.linearVelocity - All velocity-related metrics related to the enire workout
    * @param {float} metrics.workout.linearVelocity.average - The average velocity in the enire workout (Meters per second)
    * @param {float} metrics.workout.linearVelocity.maximum - The maximum velocity in the enire workout (Meters per second)
+   * @param {object} metrics.workout.power - The power metrics for the workout
+   * @param {float} metrics.workout.power.average - The average power in the workout (Watts)
+   * @param {float} metrics.workout.power.maximum - The maximum power in the workout (Watts)
+   * @param {object} metrics.workout.averageForce - The average handle force in the drive metrics
+   * @param {float} metrics.workout.averageForce.average - The average handle force in the drive, averaged across all drives in the workout (Newton)
+   * @param {float} metrics.workout.averageForce.maximum - The maximum of the average handle force in the drive encountered in this workout (Newton)
+   * @param {float} metrics.workout.dragfactor - The dragFactor metrics for this workout
+   * @param {float} metrics.workout.dragfactor.average - The average dragFactor in the workout (Newton * meter * second^2)
    * @param {object} metrics.workout.strokerate - All strokerate-related metrics related to the enire workout
    * @param {float} metrics.workout.strokerate.average - The average strokerate in the enire workout (strokes per minute)
    * @param {float} metrics.workout.strokerate.maximum - The maximum strokerate in the enire workout (strokes per minute)
@@ -564,9 +667,12 @@ export function createFITRecorder (config) {
     sessionData.maximumLinearVelocity = metrics.workout.linearVelocity.maximum
     sessionData.averagePower = metrics.workout.power.average
     sessionData.maximumPower = metrics.workout.power.maximum
+    sessionData.averageHandleAvgForce = metrics.workout.averageForce.average
+    sessionData.maximumHandleAvgForce = metrics.workout.averageForce.maximum
     sessionData.averageStrokerate = metrics.workout.strokerate.average
     sessionData.maximumStrokerate = metrics.workout.strokerate.maximum
     sessionData.averageStrokeDistance = metrics.workout.strokeDistance.average
+    sessionData.dragFactor = metrics.workout.dragfactor.average
     sessionData.minimumHeartrate = sessionHRMetrics.minimum()
     sessionData.averageHeartrate = sessionHRMetrics.average()
     sessionData.maximumHeartrate = sessionHRMetrics.maximum()
@@ -589,6 +695,7 @@ export function createFITRecorder (config) {
       }
       heartRate = value.heartrate
       lapHRMetrics.push(heartRate)
+      splitHRMetrics.push(heartRate)
       if (lastMetrics.sessionState === 'Paused') { splitRestHRMetrics.push(heartRate) }
       if (lastMetrics.sessionState === 'Rowing') { splitActiveHRMetrics.push(heartRate) }
       sessionHRMetrics.push(heartRate)
@@ -657,6 +764,175 @@ export function createFITRecorder (config) {
       true
     )
 
+    // Register the developer data source
+    fitWriter.writeMessage(
+      'developer_data_id',
+      {
+        application_id: "42c9182e-23a6-425f-b8fc-316d3d164a6f"
+          .replace(/-/g, "")
+          .match(/../g)
+          .map((s) => parseInt(s, 16)),
+        developer_data_index: 0,
+        application_version: versionNumber
+      },
+      null,
+      true
+    )
+
+    fitWriter.writeMessage(
+      'field_description',
+      {
+        developer_data_index: 0,
+        field_definition_number: 0,
+        fit_base_type_id: 'uint16',
+        field_name: 'DriveLength',
+        scale: 100,
+        units: 'm'
+      },
+      null,
+      true
+    )
+
+    fitWriter.writeMessage(
+      'field_description',
+      {
+        developer_data_index: 0,
+        field_definition_number: 1,
+        fit_base_type_id: 'uint16',
+        field_name: 'StrokeDriveTime',
+        scale: 1,
+        units: 'ms'
+      },
+      null,
+      true
+    )
+
+    // Register each developer field individually
+    fitWriter.writeMessage(
+      'field_description',
+      {
+        developer_data_index: 0,
+        field_definition_number: 2,
+        fit_base_type_id: 'uint16',
+        field_name: 'DragFactor',
+        scale: 1,
+        units: '10^-6 N*m*s^2'
+      },
+      null,
+      true
+    )
+
+    fitWriter.writeMessage(
+      'field_description',
+      {
+        developer_data_index: 0,
+        field_definition_number: 3,
+        fit_base_type_id: 'uint16',
+        field_name: 'StrokeRecoveryTime',
+        scale: 1,
+        units: 'ms'
+      },
+      null,
+      true
+    )
+
+    fitWriter.writeMessage(
+      'field_description',
+      {
+        developer_data_index: 0,
+        field_definition_number: 6,
+        fit_base_type_id: 'uint16',
+        field_name: 'AverageDriveForce',
+        scale: 10,
+        units: 'N'
+      },
+      null,
+      true
+    )
+
+    fitWriter.writeMessage(
+      'field_description',
+      {
+        developer_data_index: 0,
+        field_definition_number: 7,
+        fit_base_type_id: 'uint16',
+        field_name: 'PeakDriveForce',
+        scale: 10,
+        units: 'N'
+      },
+      null,
+      true
+    )
+
+    fitWriter.writeMessage(
+      'field_description',
+      {
+        developer_data_index: 0,
+        field_definition_number: 17,
+        fit_base_type_id: 'uint16',
+        field_name: 'PeakForcePositionNorm',
+        scale: 100,
+        units: '%'
+      },
+      null,
+      true
+    )
+
+    fitWriter.writeMessage(
+      'field_description',
+      {
+        developer_data_index: 0,
+        field_definition_number: 90,
+        fit_base_type_id: 'uint8',
+        field_name: 'InstrokeAbscissaType',
+        scale: 1,
+      },
+      null,
+      true
+    )
+
+    fitWriter.writeMessage(
+      'field_description',
+      {
+        developer_data_index: 0,
+        field_definition_number: 91,
+        fit_base_type_id: 'uint16',
+        field_name: 'InstrokeSampleInterval',
+        scale: 100,
+        units: 'cm'
+      },
+      null,
+      true
+    )
+
+    fitWriter.writeMessage(
+      'field_description',
+      {
+        developer_data_index: 0,
+        field_definition_number: 92,
+        fit_base_type_id: 'uint8',
+        field_name: 'InstrokePointCount',
+        scale: 1,
+      },
+      null,
+      true
+    )
+
+    fitWriter.writeMessage(
+      'field_description',
+      {
+        developer_data_index: 0,
+        field_definition_number: 60,
+        fit_base_type_id: 'uint16',
+        array: Math.min(127, sessionData.maxForceCurvePointCount),
+        scale: 10,
+        field_name: 'HandleForceCurve',
+        units: 'N',
+      },
+      null,
+      true
+    )
+
     // Activity summary
     fitWriter.writeMessage(
       'activity',
@@ -672,54 +948,6 @@ export function createFITRecorder (config) {
       null,
       true
     )
-
-    /*
-     * The session summary
-     */
-    fitWriter.writeMessage(
-      'session',
-      {
-        timestamp: fitWriter.time(workout.endTime),
-        message_index: 0,
-        sport: 'rowing',
-        sub_sport: 'indoorRowing',
-        event: 'session',
-        event_type: 'stop',
-        trigger: 'activityEnd',
-        sport_profile_name: 'Row Indoor',
-        start_time: fitWriter.time(workout.startTime),
-        total_elapsed_time: workout.totalTime,
-        total_timer_time: workout.totalTime,
-        total_moving_time: workout.totalMovingTime,
-        total_distance: workout.totalLinearDistance,
-        total_work: workout.totalWork,
-        total_calories: workout.totalCalories,
-        total_cycles: workout.totalNumberOfStrokes,
-        avg_speed: workout.averageLinearVelocity,
-        max_speed: workout.maximumLinearVelocity,
-        avg_power: workout.averagePower,
-        max_power: workout.maximumPower,
-        avg_cadence: workout.averageStrokerate,
-        max_cadence: workout.maximumStrokerate,
-        ...(workout.minimumHeartrate > 0 ? { min_heart_rate: workout.minimumHeartrate } : {}),
-        ...(workout.averageHeartrate > 0 ? { avg_heart_rate: workout.averageHeartrate } : {}),
-        ...(workout.maximumHeartrate > 0 ? { max_heart_rate: workout.maximumHeartrate } : {}),
-        avg_stroke_distance: workout.averageStrokeDistance,
-        first_lap_index: 0,
-        num_laps: sessionData.totalNoLaps
-      },
-      null,
-      true
-    )
-
-    // Write the laps
-    await writeLaps(fitWriter, workout)
-
-    // Write the splits
-    await writeSplits(fitWriter, workout)
-
-    // Write the events
-    await writeEvents(fitWriter, workout)
 
     fitWriter.writeMessage(
       'device_info',
@@ -758,108 +986,65 @@ export function createFITRecorder (config) {
       true
     )
 
+    /*
+     * The session summary
+     */
+    const developerFieldValues = []
+
+    if (workout.dragFactor > 0) {
+      developerFieldValues.push({ developer_data_index: 0, field_num: 2, value: workout.dragFactor })
+    }
+
+    fitWriter.writeMessage(
+      'session',
+      {
+        timestamp: fitWriter.time(workout.endTime),
+        message_index: 0,
+        sport: 'rowing',
+        sub_sport: 'indoorRowing',
+        event: 'session',
+        event_type: 'stop',
+        trigger: 'activityEnd',
+        sport_profile_name: 'Row Indoor',
+        start_time: fitWriter.time(workout.startTime),
+        total_elapsed_time: workout.totalTime,
+        total_timer_time: workout.totalTime,
+        total_moving_time: workout.totalMovingTime,
+        total_distance: workout.totalLinearDistance,
+        total_work: workout.totalWork,
+        total_calories: workout.totalCalories,
+        total_cycles: workout.totalNumberOfStrokes,
+        avg_speed: workout.averageLinearVelocity,
+        max_speed: workout.maximumLinearVelocity,
+        avg_power: workout.averagePower,
+        max_power: workout.maximumPower,
+        avg_force: workout.averageHandleAvgForce,
+        max_force: workout.maximumHandleAvgForce,
+        avg_cadence: workout.averageStrokerate,
+        max_cadence: workout.maximumStrokerate,
+        ...(workout.minimumHeartrate > 0 ? { min_heart_rate: workout.minimumHeartrate } : {}),
+        ...(workout.averageHeartrate > 0 ? { avg_heart_rate: workout.averageHeartrate } : {}),
+        ...(workout.maximumHeartrate > 0 ? { max_heart_rate: workout.maximumHeartrate } : {}),
+        ...(postExerciseHR[2] > 0 ? { recovery_heart_rate: postExerciseHR[2] } : {}),
+        avg_stroke_distance: workout.averageStrokeDistance,
+        first_lap_index: 0,
+        num_laps: sessionData.totalNoLaps
+      },
+      developerFieldValues,
+      true
+    )
+
     // The workout definition before the start
     await createWorkoutSteps(fitWriter, workout)
 
-    // Register the developer data source
-    fitWriter.writeMessage(
-      'developer_data_id',
-      {
-        application_id: "42c9182e-23a6-425f-b8fc-316d3d164a6f"
-          .replace(/-/g, "")
-          .match(/../g)
-          .map((s) => parseInt(s, 16)),
-        developer_data_index: 0,
-        application_version: versionNumber
-      },
-      null,
-      true
-    )
+    // Write the splits
+    await writeSplits(fitWriter, workout)
 
-    // Register each developer field individually
-    fitWriter.writeMessage(
-      'field_description',
-      {
-        developer_data_index: 0,
-        field_definition_number: 0,
-        fit_base_type_id: 'uint16',
-        field_name: 'DriveLength',
-        scale: 100,
-        units: 'm'
-      },
-      null,
-      true
-    )
+    // Write the laps
+    await writeLaps(fitWriter, workout)
 
-    fitWriter.writeMessage(
-      'field_description',
-      {
-        developer_data_index: 0,
-        field_definition_number: 1,
-        fit_base_type_id: 'uint16',
-        field_name: 'StrokeDriveTime',
-        scale: 1,
-        units: 'ms'
-      },
-      null,
-      true
-    )
-
-    fitWriter.writeMessage(
-      'field_description',
-      {
-        developer_data_index: 0,
-        field_definition_number: 2,
-        fit_base_type_id: 'uint16',
-        field_name: 'StrokeRecoveryTime',
-        scale: 1,
-        units: 'ms'
-      },
-      null,
-      true
-    )
-
-    fitWriter.writeMessage(
-      'field_description',
-      {
-        developer_data_index: 0,
-        field_definition_number: 3,
-        fit_base_type_id: 'uint16',
-        field_name: 'PeakDriveForceN',
-        scale: 10,
-        units: 'N'
-      },
-      null,
-      true
-    )
-
-    fitWriter.writeMessage(
-      'field_description',
-      {
-        developer_data_index: 0,
-        field_definition_number: 4,
-        fit_base_type_id: 'uint16',
-        field_name: 'AverageDriveForceN',
-        scale: 10,
-        units: 'N'
-      },
-      null,
-      true
-    )
-
-    fitWriter.writeMessage(
-      'field_description',
-      {
-        developer_data_index: 0,
-        field_definition_number: 5,
-        fit_base_type_id: 'uint16',
-        field_name: 'DragFactor',
-        scale: 1,
-        units: '10^-6 N*m*s^2'
-      },
-      null,
-      true
-    )
+    // Write the events
+    await writeEvents(fitWriter, workout)
 
     await writeRecords(fitWriter, workout)
 
@@ -874,117 +1059,10 @@ export function createFITRecorder (config) {
     return fitfileContent
   }
 
-  async function writeLaps (writer, workout) {
-    // Write all laps
-    let i = 0
-    while (i < workout.laps.length) {
-      if (workout.laps[i].intensity === 'active') {
-        // eslint-disable-next-line no-await-in-loop -- This is inevitable if you want to have some decent order in the file
-        await createActiveLap(writer, workout.laps[i])
-      } else {
-        // This is a rest interval
-        // eslint-disable-next-line no-await-in-loop -- This is inevitable if you want to have some decent order in the file
-        await createRestLap(writer, workout.laps[i])
-      }
-      i++
-    }
-  }
-
-  async function createActiveLap (writer, lapdata) {
-    // It is an active lap, after we make sure it is a completed lap, we can write all underlying records
-    if (!!lapdata.complete && lapdata.complete) {
-      writer.writeMessage(
-        'lap',
-        {
-          timestamp: writer.time(sessionData.endTime),
-          message_index: lapdata.lapNumber,
-          sport: 'rowing',
-          sub_sport: 'indoorRowing',
-          event: lapdata.event,
-          wkt_step_index: lapdata.workoutStepNumber,
-          event_type: lapdata.type,
-          intensity: lapdata.intensity,
-          ...(sessionData.totalNoLaps === (lapdata.lapNumber + 1) ? { lap_trigger: 'sessionEnd' } : { lap_trigger: lapdata.trigger }),
-          start_time: writer.time(lapdata.startTime),
-          total_elapsed_time: lapdata.summary.timeSpent.total,
-          total_timer_time: lapdata.summary.timeSpent.total,
-          total_moving_time: lapdata.summary.timeSpent.moving,
-          total_distance: lapdata.summary.distance.fromStart,
-          total_cycles: lapdata.summary.numberOfStrokes,
-          avg_cadence: lapdata.summary.strokerate.average,
-          max_cadence: lapdata.summary.strokerate.maximum,
-          avg_stroke_distance: lapdata.summary.strokeDistance.average,
-          total_work: lapdata.summary.work.sinceStart,
-          total_calories: lapdata.summary.caloriesSpent.moving,
-          avg_speed: lapdata.summary.linearVelocity.average,
-          max_speed: lapdata.summary.linearVelocity.maximum,
-          avg_power: lapdata.summary.power.average,
-          max_power: lapdata.summary.power.maximum,
-          ...(lapdata.averageHeartrate > 0 ? { avg_heart_rate: lapdata.averageHeartrate } : {}),
-          ...(lapdata.maximumHeartrate > 0 ? { max_heart_rate: lapdata.maximumHeartrate } : {})
-        },
-        null,
-        sessionData.totalNoLaps === (lapdata.lapNumber + 1)
-      )
-    }
-  }
-
-  async function createRestLap (writer, lapdata) {
-    // First, make sure the rest lap is complete
-    if (!!lapdata.complete && lapdata.complete) {
-      writer.writeMessage(
-        'lap',
-        {
-          timestamp: writer.time(sessionData.endTime),
-          message_index: lapdata.lapNumber,
-          sport: 'rowing',
-          sub_sport: 'indoorRowing',
-          event: lapdata.event,
-          wkt_step_index: lapdata.workoutStepNumber,
-          event_type: lapdata.type,
-          intensity: lapdata.intensity,
-          lap_trigger: lapdata.trigger,
-          start_time: writer.time(lapdata.startTime),
-          total_elapsed_time: lapdata.summary.timeSpent.total,
-          total_timer_time: lapdata.summary.timeSpent.total,
-          total_moving_time: 0,
-          total_distance: 0,
-          total_cycles: 0,
-          avg_cadence: 0,
-          max_cadence: 0,
-          avg_stroke_distance: 0,
-          total_calories: lapdata.summary.caloriesSpent.rest,
-          avg_speed: 0,
-          max_speed: 0,
-          avg_power: 0,
-          max_power: 0,
-          ...(lapdata.averageHeartrate > 0 ? { avg_heart_rate: lapdata.averageHeartrate } : {}),
-          ...(lapdata.maximumHeartrate > 0 ? { max_heart_rate: lapdata.maximumHeartrate } : {})
-        },
-        null,
-        sessionData.totalNoLaps === (lapdata.lapNumber + 1)
-      )
-    }
-  }
-
   /**
    * Creation of all splits (= ORM Intervals)
    */
   async function writeSplits (writer, workout) {
-    // Create the splits
-    let i = 0
-    while (i < workout.splits.length) {
-      if (workout.splits[i].intensity === 'active') {
-        // eslint-disable-next-line no-await-in-loop -- This is inevitable if you want to have some decent order in the file
-        await createActiveSplit(writer, workout.splits[i])
-      } else {
-        // This is a rest interval
-        // eslint-disable-next-line no-await-in-loop -- This is inevitable if you want to have some decent order in the file
-        await createRestSplit(writer, workout.splits[i])
-      }
-      i++
-    }
-
     // Write the split summary
     writer.writeMessage(
       'split_summary',
@@ -1026,6 +1104,20 @@ export function createFITRecorder (config) {
         true
       )
     }
+
+    // Create the individual splits
+    let i = 0
+    while (i < workout.splits.length) {
+      if (workout.splits[i].intensity === 'active') {
+        // eslint-disable-next-line no-await-in-loop -- This is inevitable if you want to have some decent order in the file
+        await createActiveSplit(writer, workout.splits[i])
+      } else {
+        // This is a rest interval
+        // eslint-disable-next-line no-await-in-loop -- This is inevitable if you want to have some decent order in the file
+        await createRestSplit(writer, workout.splits[i])
+      }
+      i++
+    }
   }
 
   /**
@@ -1034,12 +1126,21 @@ export function createFITRecorder (config) {
   async function createActiveSplit (writer, splitdata) {
     if (!!splitdata.complete && splitdata.complete) {
       // The split is complete
+      const developerFieldValues = []
 
-      writer.writeMessage(
-        'split',
+      if (splitdata.dragFactor > 0) {
+        developerFieldValues.push({ developer_data_index: 0, field_num: 2, value: splitdata.dragFactor })
+      }
+
+      writer.writeCustomMessage(
+        user_messages,
+        "split",
         {
           timestamp: writer.time(sessionData.endTime),
           message_index: splitdata.splitNumber,
+          lap_index: splitdata.startLapNumber,
+          sport: 'rowing',
+          sub_sport: 'indoorRowing',
           split_type: 'interval_active',
           total_elapsed_time: splitdata.totalTime,
           total_timer_time: splitdata.totalTime,
@@ -1047,11 +1148,16 @@ export function createFITRecorder (config) {
           total_distance: splitdata.totalLinearDistance,
           avg_speed: splitdata.averageSpeed,
           max_speed: splitdata.maxSpeed,
+          avg_power: splitdata.averagePower,
+          max_power: splitdata.maximumPower,
           total_calories: splitdata.calories,
           start_time: writer.time(splitdata.startTime),
-          end_time: writer.time(splitdata.endTime)
+          start_distance: splitdata.startDistance,
+          end_time: writer.time(splitdata.endTime),
+          ...(splitdata.averageHR > 0 ? { avg_heart_rate: splitdata.averageHR } : {}),
+          ...(splitdata.maximumHR > 0 ? { max_heart_rate: splitdata.maximumHR } : {})
         },
-        null,
+        developerFieldValues,
         (splitdata.splitNumber + 1) === (sessionData.noRestSplits + sessionData.noActiveSplits)
       )
     }
@@ -1064,11 +1170,15 @@ export function createFITRecorder (config) {
     // First, make sure the rest lap is complete
     if (!!splitdata.complete && splitdata.complete) {
       // Add a rest lap summary
-      writer.writeMessage(
-        'split',
+      writer.writeCustomMessage(
+        user_messages,
+        "split",
         {
           timestamp: writer.time(sessionData.endTime),
           message_index: splitdata.splitNumber,
+          lap_index: splitdata.startLapNumber,
+          sport: 'rowing',
+          sub_sport: 'indoorRowing',
           split_type: 'interval_rest',
           total_elapsed_time: splitdata.totalTime,
           total_timer_time: splitdata.totalTime,
@@ -1076,12 +1186,120 @@ export function createFITRecorder (config) {
           total_distance: 0,
           avg_speed: 0,
           max_speed: 0,
+          avg_power: 0,
+          max_power: 0,
           total_calories: splitdata.calories,
           start_time: writer.time(splitdata.startTime),
-          end_time: writer.time(splitdata.endTime)
+          start_distance: splitdata.startDistance,
+          end_time: writer.time(splitdata.endTime),
+          ...(splitdata.averageHR > 0 ? { avg_heart_rate: splitdata.averageHR } : {}),
+          ...(splitdata.maximumHR > 0 ? { max_heart_rate: splitdata.maximumHR } : {})
         },
         null,
         (splitdata.splitNumber + 1) === (sessionData.noRestSplits + sessionData.noActiveSplits)
+      )
+    }
+  }
+
+  async function writeLaps (writer, workout) {
+    // Write all laps
+    let i = 0
+    while (i < workout.laps.length) {
+      if (workout.laps[i].intensity === 'active') {
+        // eslint-disable-next-line no-await-in-loop -- This is inevitable if you want to have some decent order in the file
+        await createActiveLap(writer, workout.laps[i])
+      } else {
+        // This is a rest interval
+        // eslint-disable-next-line no-await-in-loop -- This is inevitable if you want to have some decent order in the file
+        await createRestLap(writer, workout.laps[i])
+      }
+      i++
+    }
+  }
+
+  async function createActiveLap (writer, lapdata) {
+    // It is an active lap, after we make sure it is a completed lap, we can write all underlying records
+    if (!!lapdata.complete && lapdata.complete) {
+      // The split is complete
+      const developerFieldValues = []
+
+      if (lapdata.summary.dragfactor.average > 0) {
+        developerFieldValues.push({ developer_data_index: 0, field_num: 2, value: lapdata.summary.dragfactor.average })
+      }
+
+      writer.writeMessage(
+        'lap',
+        {
+          timestamp: writer.time(sessionData.endTime),
+          message_index: lapdata.lapNumber,
+          sport: 'rowing',
+          sub_sport: 'indoorRowing',
+          event: lapdata.event,
+          wkt_step_index: lapdata.workoutStepNumber,
+          event_type: lapdata.type,
+          intensity: lapdata.intensity,
+          ...(sessionData.totalNoLaps === (lapdata.lapNumber + 1) ? { lap_trigger: 'sessionEnd' } : { lap_trigger: lapdata.trigger }),
+          start_time: writer.time(lapdata.startTime),
+          total_elapsed_time: lapdata.summary.timeSpent.total,
+          total_timer_time: lapdata.summary.timeSpent.total,
+          total_moving_time: lapdata.summary.timeSpent.moving,
+          total_distance: lapdata.summary.distance.fromStart,
+          total_cycles: lapdata.summary.numberOfStrokes,
+          avg_cadence: lapdata.summary.strokerate.average,
+          max_cadence: lapdata.summary.strokerate.maximum,
+          avg_stroke_distance: lapdata.summary.strokeDistance.average,
+          total_work: lapdata.summary.work.sinceStart,
+          total_calories: lapdata.summary.caloriesSpent.moving,
+          avg_speed: lapdata.summary.linearVelocity.average,
+          max_speed: lapdata.summary.linearVelocity.maximum,
+          avg_power: lapdata.summary.power.average,
+          max_power: lapdata.summary.power.maximum,
+          avg_force: lapdata.summary.averageForce.average,
+          max_force: lapdata.summary.averageForce.maximum,
+          ...(lapdata.minimumHeartrate > 0 ? { min_heart_rate: lapdata.minimumHeartrate } : {}),
+          ...(lapdata.averageHeartrate > 0 ? { avg_heart_rate: lapdata.averageHeartrate } : {}),
+          ...(lapdata.maximumHeartrate > 0 ? { max_heart_rate: lapdata.maximumHeartrate } : {})
+        },
+        developerFieldValues,
+        sessionData.totalNoLaps === (lapdata.lapNumber + 1)
+      )
+    }
+  }
+
+  async function createRestLap (writer, lapdata) {
+    // First, make sure the rest lap is complete
+    if (!!lapdata.complete && lapdata.complete) {
+      writer.writeMessage(
+        'lap',
+        {
+          timestamp: writer.time(sessionData.endTime),
+          message_index: lapdata.lapNumber,
+          sport: 'rowing',
+          sub_sport: 'indoorRowing',
+          event: lapdata.event,
+          wkt_step_index: lapdata.workoutStepNumber,
+          event_type: lapdata.type,
+          intensity: lapdata.intensity,
+          lap_trigger: lapdata.trigger,
+          start_time: writer.time(lapdata.startTime),
+          total_elapsed_time: lapdata.summary.timeSpent.total,
+          total_timer_time: lapdata.summary.timeSpent.total,
+          total_moving_time: 0,
+          total_distance: 0,
+          total_cycles: 0,
+          avg_cadence: 0,
+          max_cadence: 0,
+          avg_stroke_distance: 0,
+          total_calories: lapdata.summary.caloriesSpent.rest,
+          avg_speed: 0,
+          max_speed: 0,
+          avg_power: 0,
+          max_power: 0,
+          ...(lapdata.averageHeartrate > 0 ? { avg_heart_rate: lapdata.averageHeartrate } : {}),
+          ...(lapdata.maximumHeartrate > 0 ? { max_heart_rate: lapdata.maximumHeartrate } : {})
+        },
+        null,
+        sessionData.totalNoLaps === (lapdata.lapNumber + 1)
       )
     }
   }
@@ -1229,28 +1447,39 @@ export function createFITRecorder (config) {
   async function createTrackPoint (writer, trackpoint) {
     const developerFieldValues = []
 
-    if (trackpoint.driveLength > 0) {
-      developerFieldValues.push({ developer_data_index: 0, field_num: 0, value: Math.round(trackpoint.driveLength * 100) })
+
+    if (trackpoint.dragFactor > 0) {
+      developerFieldValues.push({ developer_data_index: 0, field_num: 2, value: trackpoint.dragFactor })
     }
 
     if (trackpoint.strokeDriveTime > 0) {
-      developerFieldValues.push({ developer_data_index: 0, field_num: 1, value: Math.round(trackpoint.strokeDriveTime * 1000) })
+      developerFieldValues.push({ developer_data_index: 0, field_num: 1, value: trackpoint.strokeDriveTime * 1000 })
     }
 
     if (trackpoint.strokeRecoveryTime > 0) {
-      developerFieldValues.push({ developer_data_index: 0, field_num: 2, value: Math.round(trackpoint.strokeRecoveryTime * 1000) })
+      developerFieldValues.push({ developer_data_index: 0, field_num: 3, value: trackpoint.strokeRecoveryTime * 1000 })
     }
 
-    if (trackpoint.peakDriveForceN > 0) {
-      developerFieldValues.push({ developer_data_index: 0, field_num: 3, value: Math.round(trackpoint.peakDriveForce * 10) })
+    if (trackpoint.driveLength > 0) {
+      developerFieldValues.push({ developer_data_index: 0, field_num: 0, value: trackpoint.driveLength * 100 })
     }
 
-    if (trackpoint.averageDriveForceN > 0) {
-      developerFieldValues.push({ developer_data_index: 0, field_num: 4, value: Math.round(trackpoint.averageDriveForce * 10) })
+    if (trackpoint.averageDriveForce > 0) {
+      developerFieldValues.push({ developer_data_index: 0, field_num: 6, value: trackpoint.averageDriveForce })
     }
 
-    if (trackpoint.dragFactor > 0) {
-      developerFieldValues.push({ developer_data_index: 0, field_num: 5, value: Math.round(trackpoint.dragFactor) })
+    if (trackpoint.peakDriveForce > 0) {
+      developerFieldValues.push({ developer_data_index: 0, field_num: 7, value: trackpoint.peakDriveForce })
+      developerFieldValues.push({ developer_data_index: 0, field_num: 17, value: trackpoint.drivePeakHandleForceNormalizedPosition * 100 })
+    }
+
+    if (trackpoint.forceCurve.length > 0 && trackpoint.forceCurve.length < 128) {
+      const sampleInterval = trackpoint.driveLength / trackpoint.forceCurve.length
+      const paddedForceCurve = Array.from({length: sessionData.maxForceCurvePointCount}, (_, i) => trackpoint.forceCurve[i] ?? "0")
+      developerFieldValues.push({ developer_data_index: 0, field_num: 90, value: 2 })
+      developerFieldValues.push({ developer_data_index: 0, field_num: 91, value: sampleInterval * 10000 })
+      developerFieldValues.push({ developer_data_index: 0, field_num: 92, value: trackpoint.forceCurve.length })
+      developerFieldValues.push({ developer_data_index: 0, field_num: 60, value: paddedForceCurve })
     }
 
     writer.writeMessage(
@@ -1266,8 +1495,10 @@ export function createFITRecorder (config) {
         ...(trackpoint.cycleStrokeRate > 0 ? { cadence: trackpoint.cycleStrokeRate } : {}),
         ...(trackpoint.cycleDistance > 0 ? { cycle_length16: trackpoint.cycleDistance } : {}),
         ...(trackpoint.dragFactor > 0 && trackpoint.dragFactor < 255 ? { resistance: trackpoint.dragFactor } : {}), // As the data is stored in an int8, we need to guard against exceeding that
-        ...(trackpoint.heartrate !== undefined && trackpoint.heartrate > 0 ? { heart_rate: trackpoint.heartrate } : {})
-      }
+        ...(trackpoint.heartrate !== undefined && trackpoint.heartrate > 0 ? { heart_rate: trackpoint.heartrate } : {}),
+        force: trackpoint.averageDriveForce
+      },
+      developerFieldValues
     )
   }
 
@@ -1440,6 +1671,7 @@ export function createFITRecorder (config) {
   function reset () {
     heartRate = 0
     lapHRMetrics.reset()
+    splitHRMetrics.reset()
     splitActiveHRMetrics.reset()
     splitRestHRMetrics.reset()
     sessionHRMetrics.reset()
@@ -1453,6 +1685,7 @@ export function createFITRecorder (config) {
     sessionData.HR = []
     sessionData.noActiveSplits = 0
     sessionData.noRestSplits = 0
+    sessionData.maxForceCurvePointCount = 0
     sessionData.complete = false
     postExerciseHR = null
     postExerciseHR = []
