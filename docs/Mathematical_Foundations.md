@@ -26,6 +26,8 @@ In our design of the physics engine, we obey the following principles (see also 
 
 ## Overview of algorithms used
 
+At its core, [`Flywheel.js`](../app/engine/Flywheel.js) will manage most of the mathematical complexity: it will turn noisy data into a stable and smooth set of coherent metrics. Looking at [`Flywheel.js`](../app/engine/Flywheel.js) specificaly, in essence it does the following:
+
 ```mermaid
 ---
 config:
@@ -38,15 +40,25 @@ flowchart LR
     G[Linear Regression<br>recoveryDeltaTime] -->|Regression line|B[Cyclic Error Filter<br>cyclicErrorFilter]
 ```
 
+It shows the (noisy) *currentDt* comming in, which is filtered to reduce systematic noise, and then the cleaned data is used directly or is further processed by the other algorithms. Historically, but also as a disgn philosophy, the `Moving regressor` and `Linear regression` algorithms must be sufficiently robust to handle significant noise, even without the `cyclic error filter` not being present. This especially is the case at startup, when the `cyclic error filter` has not been fed with feedaback data yet.
+
 ### Filtering on systematic noise on *CurrentDt*
 
-Several machines, including the Concept2 RowErg, [are known to have small errors in their magnet placement](./rower_settings.md#fixing-magnet-placement-errors). The systematic error filter is designed to reduce the effects of these systematic errors. Although the subsequent calcuations are designed to be robust against noise, the repeating nature has tendency to still disturbe measurements, requiring a different approach to noise supression.
+Several machines, including the Concept2 RowErg, [are known to have small errors in their magnet placement](./rower_settings.md#fixing-magnet-placement-errors). The following sample of three rotations of a Concept2 flywheel shows, due to production tolerances or deliberate design constructs, there are **systematic** errors in the data due to magnet placement or magnet polarity. This results in systematic issues in the datastream:
+
+<img src="img/Concept2_RowErg_Construction_tolerances.jpg" alt="Image showing the sinoid measurement deviations of a Concept 2 RowErg over three full flywheel rotations" width="700">
+<span class="caption">Deviation of the Concept 2 RowErg</span>
+
+The systematic error filter is designed to reduce the effects of these systematic errors. Although the subsequent calcuations are designed to be robust against noise, the repeating nature has tendency to still disturbe measurements, requiring a different approach to noise supression.
 
 As the synchronisation with the actual flywheel position is essential (as somehow it should be known which specific misplaced magnet produces which error) and quite hard to solve, we've chosen the approach to continuously dynamically calculate the error correction value, rather than provide a static value beforehand that has to be synchronised.
 
-A key assumption is that these structural errors will always be present as part of the random noise, and by comparing multiple observations across time, systematic errors can be identified. In essence, the residual between the raw input and the regression corrected projection is used as a basis for future corrections. These concepts are shared with [Kalman filters](https://en.wikipedia.org/wiki/Kalman_filter). Here, as the error is specific for each magnet, we need to maintain such a filter per magnet.
+A key assumption is that these structural errors will always be present as part of the random noise, and by comparing multiple observations across time, systematic errors can be identified. In essence, the residual between the raw input and the regression corrected projection is used as a basis for future corrections. This approach is shared with [Kalman filters](https://en.wikipedia.org/wiki/Kalman_filter). Here, as the error is specific for each magnet, we need to maintain such a filter per magnet.
 
-Here, we use a linear regressor to determine the relation between the raw value and the 'perfect values' (i.e. noise free) per individual magnet. By maintaining a function per magnet, we can calculate the error per magnet as a function of the raw value, allowing for an effective error correction of systematic placement errors in the magnet array.
+Here, we use a linear regressor to determine the relation between the raw *currentDt* value and the 'perfect values' (i.e. noise free) per individual magnet. By maintaining a function per magnet, we can calculate the error per magnet as a function of the raw value, allowing for an effective error correction of systematic placement errors in the magnet array. Here,
+
+* the *slope* of this function depicts a deviation in the magnet placement (the deviation scales with angular velocity),
+* the *intercept* of this function depicts speed independent faults, like magnet strength and polarity deviations.
 
 [`Flywheel.js`](../app/engine/Flywheel.js) both feeds and uses the [`CyclicErrorFilter.js`](../app/engine/utils/CyclicErrorFilter.js). Given its dynamic approach, there is a need for a source of *perfect values*. In [`Flywheel.js`](../app/engine/Flywheel.js) there are two potential sources for estimating the perfect value of a given *CurrentDt*:
 
@@ -54,7 +66,7 @@ Here, we use a linear regressor to determine the relation between the raw value 
 
 * The linear regression used for the drag calculation. This is a discontinuous stream, as data is only collected during the recovery, and can only be processed after the recovery is complete (as only then the regression completes to deliver a completed estimate of the drag slope). The big benefit is that this regression analysis is theoretically sound: [the physics model prescribes a straight line](./physics_openrowingmonitor.md#determining-the-drag-factor-of-the-flywheel) and linear regression is used to calculate it. It has a much wider base, as the regression is conducted over the entirety of the recovery (often dozens of full rotations), making the regression also less vulnerable to systematic errors. Additional benefit is that the regression already is arranged optimally to calculate *perfect values of currentDt* as the dragslope measures the decay of *currentDt* through time. Disadvantage is that shifts (i.e. misalignment of the physical flywheel and the corrections due to missed datapoints or switch bounces) and changes in magnet error are detected relatively late: it will take at least a recovery and part of the drive to detect and correct these issues.
 
-Practical experiments support the above argument: where feeding the algorithm using the Quadratic regression for systematic error correction results in a Goodness Of Fit for the recovery slope of 0.9990, feeding from the linear regression results in a Goodness Of Fit often exceeding 0.9996.
+Practical experiments support the above argument: where feeding the algorithm using the Quadratic regression for systematic error correction results in a Goodness Of Fit for the recovery slope of 0.9990, feeding from the linear regression results in a Goodness Of Fit often exceeding 0.9996 on a Concept2 RowErg.
 
 A key element is the use of a weighed linear regression method, where the weight is based on the Goodness of Fit of the datapoint to prevent badly fitted drag slopes or badly fitting specific datapoints from throwing off the systematic error correction filter too much.
 
@@ -104,15 +116,15 @@ Looking at the signals found in practice, we also observe specific issues, which
 <img src="img/Concept2_RowErg_Construction_tolerances.jpg" alt="Image showing the sinoid measurement deviations of a Concept 2 RowErg over three full flywheel rotations" width="700">
 <span class="caption">Deviation of the Concept 2 RowErg</span>
 
-Fitting a quadratic curve with at least two full rotations of data (in this case, 12 datapoints) seems to reduce the noise to very acceptable levels, forcing the algorithm to follow the trend, not the individual datapoints. In our view, fitting a third-degree polynomial would result in a better fit with the systematic errors, thus resulting in a much less robust signal. As a cubic regression analysis method will lead to overfitting certain error modes, we are constricted to quadratic regression analysis methods. By using a sliding window algorithm, using multiple quadratic approximations for angular velocity &omega; and angular acceleration &alpha; for the same datapoint, we aim to get close to a cubic regressors behaviour, without the overfitting.
-
-@@@@@
+We've choosen to implement a moving regressor in [`MovingWindowRegressor.js`](../app/engine/MovingWindowRegressor.js). As the name suggests, it is based on a [Moving regression algorithm](https://en.wikipedia.org/wiki/Local_regression). More specifically, it shares many traits with a [Savitzky-Golay filter](https://en.wikipedia.org/wiki/Savitzky%E2%80%93Golay_filter). The key difference is that instead of a single estimate at the center of the window, all estimates in the window are used for a final estimate at the end. In our practical experience, this has made the algorithms more robust against outliers. Another major difference is the use of the underlying regression algorithm: where traditionally OLS is used, we use Quadratic Theil-Sen regression.
 
 So far, we were able to implement Quadratic Theil-Senn regression and get reliable and robust results. Currently, the use of Quadratic Theil-Senn regression represents a huge improvement from both the traditional numerical approach (as taken by [[1]](#1) and [[4]](#4)) used by earlier approaches of OpenRowingMonitor. In essence, it is a more advanced Moving Least Squares regression approach, where the regression method is Theil-Sen. Practical testing has confirmed that Quadratic Theil-Senn outperformed all Linear Regression methods in terms of robustness and responsiveness. Based on extensive testing with multiple simulated rowing machines, Quadratic Theil-Senn has proven to deliver the best results and thus is selected to determine &omega; and &alpha;.
 
 The (implied) underlying assumption underpinning the use of Quadratic Theil-Senn regression approach is that the Angular Accelration &alpha; is constant, or near constant by approximation in the flank under measurment. In essence, quadratic Theil-Senn regression would be fitting if the acceleration would be a constant, and the relation of &theta;, &alpha; and &omega; thus would be captured in &theta; = 1/2 \* &alpha; \* t<sup>2</sup> + &omega; \* t. We do realize that in rowing the Angular Accelration &alpha;, by nature of the rowing stroke, will vary based on the position in the Drive phase: the ideal force curve is a heystack, thus the force on the flywheel varies in time.
 
 As the number of datapoints in a *Flanklength* in the relation to the total number of datapoints in a stroke is relatively small, we use quadratic Theil-Senn regression as an approximation on a smaller interval. In tests, quadratic regression has proven to outperform (i.e. less suspect to noise in the signal) both the numerical approach with noise filtering and the linear regression methods. When using the right efficient algorithm, this has the strong benefit of being robust to noise, at the cost of a O(n<sup>2</sup>) calculation per new datapoint (where n is the flanklength). Looking at the resulting fit of the Quadratic Theil-Sen estimator, we see that it consistently is above 0.98, which is an extremely good fit given the noise in the Concept 2 RowErg data. Therefore, we consider this is a sufficiently decent approximation while maintaining an sufficiently efficient algorithm to be able to process all data in the datastream in time.
+
+Fitting a quadratic curve with at least two full rotations of data (in this case, 12 datapoints) seems to reduce the noise to very acceptable levels, forcing the algorithm to follow the trend, not the individual datapoints. In our view, fitting a third-degree polynomial would result in a better fit with the systematic errors, thus resulting in a much less robust signal. As a cubic regression analysis method will lead to overfitting certain error modes, we are constricted to quadratic regression analysis methods. By using a sliding window algorithm, using multiple quadratic approximations for angular velocity &omega; and angular acceleration &alpha; for the same datapoint, we aim to get close to a cubic regressors behaviour, without the overfitting.
 
 Traditionally, the *Flanklength*, or the *bandwith* in a Moving Least Squares regression, is a balance between robustness against noise and its responsiveness to details (i.e. the bias-variance trade-off). It is important to realize that unlike many other implementations, the *Flanklength* is also highly determined by the presence of systematic repeating errors in the signal: bad placement of specific magnets on the flywheel. The typical advice is to use a *Flanklength* of twice the number of magnets, as that completely surpresses the effect repeated patterns present in the data, allowing the algorithm to correct it.
 
