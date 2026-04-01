@@ -157,6 +157,8 @@ sudo apt-get -y install bluetooth bluez libbluetooth-dev libudev-dev git
 sudo apt-get -y install pigpio
 # We disable the pigpio service explicity, as the JS wrapper is alergic to the deamon
 sudo systemctl mask pigpiod.service
+sudo rfkill unblock bluetooth
+sudo systemctl restart bluetooth
 
 print
 print "Installing Node.js..."
