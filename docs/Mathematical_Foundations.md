@@ -26,6 +26,18 @@ In our design of the physics engine, we obey the following principles (see also 
 
 ## Overview of algorithms used
 
+```mermaid
+---
+config:
+  layout: elk
+---
+flowchart LR
+    A@{ shape: text, label: "currentDt"} --> B[Cyclic Error Filter<br>cyclicErrorFilter] --> C@{ shape: text, label: "cleaned currentDt"} --> F@{ shape: text, label: "Base Metrics:<br>* Angular distance<br>* totalTimeSpinning" }
+    C@{ shape: text, label: "cleaned currentDt"} --> D[Moving Regressor<br>_angularDistance] --> E@{ shape: text, label: "Advanced Metrics:<br>* Angular velocity<br>* angular Acceleration<br>* Torque<br>* Total work"}
+    C@{ shape: text, label: "cleaned currentDt"} --> G[Linear Regression<br>recoveryDeltaTime] --> H@{ shape: text, label: "Dragfactor" }
+    G[Linear Regression<br>recoveryDeltaTime] -->|Regression line|B[Cyclic Error Filter<br>cyclicErrorFilter]
+```
+
 ### Filtering on systematic noise on *CurrentDt*
 
 Several machines, including the Concept2 RowErg, [are known to have small errors in their magnet placement](./rower_settings.md#fixing-magnet-placement-errors). The systematic error filter is designed to reduce the effects of these systematic errors. Although the subsequent calcuations are designed to be robust against noise, the repeating nature has tendency to still disturbe measurements, requiring a different approach to noise supression.
