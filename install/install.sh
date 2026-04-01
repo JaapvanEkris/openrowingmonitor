@@ -235,7 +235,7 @@ if $INIT_GUI; then
   print "Installing Graphical User Interface..."
   USERNAME=$(logname)
   if [[ $VERSION == "10 (buster)" ]] || [[ $VERSION == "11 (bullseye)" ]]; then
-    sudo apt-get -y install --no-install-recommends xserver-xorg xserver-xorg-legacy x11-xserver-utils xinit openbox firefox
+    sudo apt-get -y install --no-install-recommends xserver-xorg xserver-xorg-legacy x11-xserver-utils xinit openbox chromium-browser
     sudo -u $USERNAME mkdir -p /home/$USERNAME/.cache
     sudo chown -R $USERNAME:$USERNAME /home/$USERNAME/.cache
     sudo gpasswd -a $USERNAME tty
@@ -248,7 +248,7 @@ if $INIT_GUI; then
     sudo systemctl status webbrowserkiosk --no-pager
   else
     # ToDo: We aim to installs Wayland on Bookworm as Wayland has a better kiosk mode, as soon as we know how to do a decent Kiosk mode
-    sudo apt-get -y install --no-install-recommends xserver-xorg xserver-xorg-legacy x11-xserver-utils xinit openbox firefox
+    sudo apt-get -y install --no-install-recommends xserver-xorg xserver-xorg-legacy x11-xserver-utils xinit openbox chromium-browser
     sudo -u $USERNAME mkdir -p /home/$USERNAME/.cache
     sudo chown -R $USERNAME:$USERNAME /home/$USERNAME/.cache
     sudo gpasswd -a $USERNAME tty
