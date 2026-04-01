@@ -266,11 +266,9 @@ For quadratic functions, it is defined as:
 
 Where $(x_i, y_i)$ is the i-th datapoint in the flank, and $weight_i$ its weight. $\overline{Y}$ is the weighted average of the entire flank in the y axis. a, b and c are the coefficients in $y = a x^2 + b x + c$
 
-However, these implementations suffered from numerical instability. This exposed itself ar relatively small sessions (a 2500 meter row on a Concept2 RowErg) where Goodness Of Fit started to drift, and error between the iteration and running sum started to grow from $10^-15$ to $10^-2$. This latter disturbs the functioning of OpenRowingMonitor. As in the running sum variation a Goodness Of Fit over 1 was frequently encountered, we considered it very likely that it is faulty. Making the underlying `Series.js` object, that is responsible for maintaing these running sums, much more robust by forcing continuous recalculations of these running sums did not resolve this issue.
+However, these implementations suffered from numerical instability. This exposed itself at relatively small sessions (a 2500 meter row on a Concept2 RowErg) where Goodness Of Fit started of the drag calculation started to drift, and the error between the iteration and running sum started to grow from $10^(-15)$ to $10^(-2)$. This latter disturbs the functioning of OpenRowingMonitor. As in the running sum variation a Goodness Of Fit over 1 was frequently encountered, we considered it very likely that it is faulty. Making the underlying `Series.js` object, that is responsible for maintaing these running sums, much more robust by forcing continuous recalculations of these running sums did not resolve this issue.
 
 The current implementation thus relies on the iterative approach, despite the running sum being computationally much more efficient.
-
-@@@@@
 
 ## References
 
