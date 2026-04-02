@@ -1,7 +1,7 @@
 'use strict'
-/*
-  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-*/
+/**
+ * @copyright {@link https://github.com/JaapvanEkris/openrowingmonitor|OpenRowingMonitor}
+ */
 
 import { html } from 'lit'
 import { formatDistance, formatNumber, secondsToTimeString } from '../lib/helper'
@@ -128,13 +128,13 @@ export const DASHBOARD_METRICS = {
     template: (metrics) => {
       // Check to make sure both values are truthy
       // no 0, null, or undefined
-      const validRatio = metrics?.driveDuration && metrics?.recoveryDuration;
-      let ratio;
+      const validRatio = metrics?.driveDuration && metrics?.recoveryDuration
+      let ratio
 
       if (validRatio) {
         ratio = `1:${(metrics.recoveryDuration / metrics.driveDuration).toFixed(1)}`
       } else {
-        ratio = undefined;
+        ratio = undefined
       }
 
       return simpleMetricFactory(ratio, '', 'Ratio')
