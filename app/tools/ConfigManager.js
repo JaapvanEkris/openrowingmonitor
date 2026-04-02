@@ -1,9 +1,8 @@
 'use strict'
-/*
-  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-*/
 /**
- * Merges the different config files and presents the configuration to the application
+ * @copyright {@link https://github.com/JaapvanEkris/openrowingmonitor|OpenRowingMonitor}
+ *
+ * @file Merges the different config files and presents the configuration to the application
  * Checks the config for plausibility, fixes the errors when needed
  */
 /* eslint-disable max-statements,complexity -- There simply is a lot to check before we activate a config. One of the few cases where more is better */
