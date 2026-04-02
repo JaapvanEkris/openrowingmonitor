@@ -1,9 +1,9 @@
 'use strict'
-/*
-  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-
-  Main Initialization Component of the Web Component App
-*/
+/**
+ * @copyright {@link https://github.com/JaapvanEkris/openrowingmonitor|OpenRowingMonitor}
+ *
+ * @file Main Initialization Component of the Web Component App
+ */
 
 import { LitElement, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
@@ -14,6 +14,7 @@ import './components/PerformanceDashboard.js'
 
 // Catch async update errors from Lit 3.x (they are re-fired asynchronously)
 window.addEventListener('unhandledrejection', (event) => {
+  // eslint-disable-next-line no-console -- Needed for debugging
   console.error('Unhandled promise rejection (may be Lit update error):', event.reason)
 })
 
@@ -34,12 +35,12 @@ export class App extends LitElement {
     const config = this._appState.config.guiConfigs
     Object.keys(config).forEach((key) => {
       let savedValue = JSON.parse(localStorage.getItem(key))
-      
+
       // Validate dashboardMetrics against known valid keys
       if (key === 'dashboardMetrics' && Array.isArray(savedValue)) {
         savedValue = savedValue.filter((metric) => DASHBOARD_METRICS[metric] !== undefined)
       }
-      
+
       config[key] = savedValue ?? config[key]
     })
 
@@ -61,7 +62,7 @@ export class App extends LitElement {
     // notify the app about the triggered action
     this.addEventListener('changeGuiSetting', (event) => {
       const detail = { ...event.detail }
-      
+
       // Validate dashboardMetrics against known valid keys before saving
       if (Array.isArray(detail.dashboardMetrics)) {
         detail.dashboardMetrics = detail.dashboardMetrics.filter((metric) => DASHBOARD_METRICS[metric] !== undefined)
