@@ -432,7 +432,6 @@ test('Theoretical_04: Correct Rower behaviour with structural magnet errors', as
   testRecoveryDragFactor(rower, 119.92470860881883) // Theoretical value 120 * 10^âˆ’6 [ k g m 2 ]
 })
 
-
 /**
  * @description Test behaviour for the C2 Model C
  */
