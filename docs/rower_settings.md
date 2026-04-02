@@ -176,6 +176,11 @@ Another specific issue to watch out for are systemic errors in the magnet placem
 
 In some cases, changing the magnet placing or orientation can fix this completely (see for example [this discussion](https://github.com/laberning/openrowingmonitor/discussions/87)), which yields very good results and near-perfect data. Sometimes, you can't fix this or you are unwilling to physically modify the machine. OpenRowingMonitor can handle this kind of systematic error, as long as the *flankLength* (described later) is set to at least two full rotations (in this case, 12 impulses *flankLength* for a 6 magnet machine).
 
+To help limit the errors introduced by magnet placement errors, OpenRowingMonitor provides the *cyclicErrorCorrection* filter. It contains two parameters for the rowerprofile configuration:
+
+* **systematicErrorNumberOfDatapoints**: this determines how many datapoints the filter considers in constructing the filter. As the filter depends on the revocery of the stroke, it is best to think of this in terms of number of recoveries considered. Typically, this filter works best when around two full recoveries are used to determine the structural effect of magnet errors on recorded datapoints. The length of a typical recovery is reported in the syslog as part of the reporting of the dragfactor calculation.
+* **systematicErrorAgressiveness**: this is how much of the systematic error is to be corrected. Values can range from 0 (no correction) to 1.5 ('overcorrect' with 50%). Typically, when used, a correction of 0.8 to 0.9 is very effective. A good indicator is the force curve, which might get bumpy if correction is off. Another good indicator is the goodness of fit of the dragcalculation: when the correction is benefitial, it gets closer to 1.0. Please use some restraint and avoid chocking the algorithm: less correction generally works better.
+
 > [!IMPORTANT]
 > Please fix any mechanical/electrical/quality issues before proceeding, as the subsequent steps depend on a signal with decent quality
 
