@@ -11,7 +11,7 @@ import './AppDialog.js'
 const WORKOUT_CONFIG = {
   distance: {
     title: 'Set Distance',
-    unit: 'metres',
+    unit: 'meters',
     increments: [
       { label: '+100m', value: 100 },
       { label: '+500m', value: 500 },
@@ -19,7 +19,7 @@ const WORKOUT_CONFIG = {
       { label: '+2K', value: 2000 }
     ],
     format (v) {
-      return v >= 999.5 ? (v / 1000).toFixed(v % 1000 === 0 ? 0 : 1) + 'K' : v
+      return v >= 99999.5 ? (v / 1000).toFixed(v % 1000 === 0 ? 0 : 1) + 'K' : v
     },
     buildPlan: (val) => [{ type: 'distance', targetDistance: String(val), targetTime: '0' }]
   },
@@ -33,9 +33,8 @@ const WORKOUT_CONFIG = {
       { label: '+20 min', value: 1200 }
     ],
     format: (v) => {
-      const m = Math.floor(v / 60)
-      const s = v % 60
-      return s > 0 ? `${m}m ${s}s` : `${m}m`
+      const minutes = v / 60
+      return minutes % 1 === 0 ? `${minutes}` : `${minutes.toFixed(2)}`
     },
     buildPlan: (val) => [{ type: 'time', targetDistance: '0', targetTime: String(val) }]
   },
@@ -48,7 +47,7 @@ const WORKOUT_CONFIG = {
       { label: '+100 kcal', value: 100 },
       { label: '+500 kcal', value: 500 }
     ],
-    format: (v) => v + ' kcal',
+    format: (v) => v,
     buildPlan: (val) => [{ type: 'calories', targetCalories: String(val) }]
   }
 }
