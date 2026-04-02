@@ -14,7 +14,7 @@ export const DASHBOARD_METRICS = {
   distance: {
     displayName: 'Distance',
     size: 1,
-    template: (metrics, config) => {
+    template: (metrics, config, onWorkoutOpen) => {
       let distance
       switch (true) {
         case (metrics?.interval?.type === 'rest' && metrics?.pauseCountdownTime > 0):
@@ -30,7 +30,7 @@ export const DASHBOARD_METRICS = {
 
       return html`<dashboard-metric
         style="cursor:pointer"
-        @click=${() => window.dispatchEvent(new CustomEvent('workout-open', { detail: 'distance' }))}
+        @click=${() => onWorkoutOpen?.('distance')}
         .icon=${config?.guiConfigs?.showIcons ? iconRoute : ''}
         .unit=${linearDistance.unit}
         .value=${linearDistance.distance}
@@ -58,12 +58,12 @@ export const DASHBOARD_METRICS = {
   calories: {
     displayName: 'Calories',
     size: 1,
-    template: (metrics, config) => {
+    template: (metrics, config, onWorkoutOpen) => {
       const calories = metrics?.interval?.type === 'calories' ? Math.max(metrics?.interval?.calories?.toEnd, 0) : Math.max(metrics?.interval?.calories?.sinceStart, 0)
 
       return html`<dashboard-metric
         style="cursor:pointer"
-        @click=${() => window.dispatchEvent(new CustomEvent('workout-open', { detail: 'calories' }))}
+        @click=${() => onWorkoutOpen?.('calories')}
         .icon=${config?.guiConfigs?.showIcons ? iconFire : ''}
         .unit=${'kcal'}
         .value=${formatNumber(calories ?? 0)}
@@ -74,7 +74,7 @@ export const DASHBOARD_METRICS = {
   timer: {
     displayName: 'Timer',
     size: 1,
-    template: (metrics, config) => {
+    template: (metrics, config, onWorkoutOpen) => {
       let time
       let icon
       switch (true) {
@@ -93,7 +93,7 @@ export const DASHBOARD_METRICS = {
 
       return html`<dashboard-metric
         style="cursor:pointer"
-        @click=${() => window.dispatchEvent(new CustomEvent('workout-open', { detail: 'time' }))}
+        @click=${() => onWorkoutOpen?.('time')}
         .icon=${config?.guiConfigs?.showIcons ? icon : ''}
         .unit=${''}
         .value=${secondsToTimeString(time ?? 0)}
