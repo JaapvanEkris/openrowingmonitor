@@ -8,9 +8,12 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris), [Abasz](ht
 
 - **Addition of the 'Calories' workout type**. You can now program Intervals and splits based on calories to be burned
 - **GUI Improvements**:
-  - The GUI now has dark (OLED) mode, its layout is more efficient and it has new tiles for Peak Force and Stroke Ratio
-  - You can now set simple (i.e. single distance/time/calories) workouts via the GUI. Just tap on the tile and you can set a limit
-- **Introduction of splits in the fit-file**. The fit-file now also has splits, which makes the fit-file closer to a native Garmin recording of the same session
+  - The GUI now has dark (OLED) mode,
+  - The layout is more efficient and it has new tiles for Peak Force and Ratio
+  - You can now set single distance/time/calories workouts directly from the GUI by tapping on the relevant tile
+- **Fit-file improvements**:
+  - We added a lot of metrics to the FIT-file, bringing it up to par to the RowingData file, in anticipation of intervals.icu improvements
+  - The fit-file now also has splits, which makes the fit-file closer to a native Garmin recording of the same session
 
 ### Newly supported rowers in 0.9.7
 
@@ -23,17 +26,22 @@ For an overview of all supported machines and their support status, please look 
 
 ### Bugfixes and robustness improvements in 0.9.7
 
-- **Fix of the Garmin bluetooth issues** which affected the 'Cycling Power' and 'Cycling Speed and Cadence' Bluetooth profiles (see [issue 125](https://github.com/JaapvanEkris/openrowingmonitor/issues/125), [issue 169](https://github.com/JaapvanEkris/openrowingmonitor/issues/169) and the [known issues in 0.9.6](#known-issues-in-096)).
-- **Brought the Bluetooth FTMS interface further into specification**: several bugfixes in the communication to prevent miscommunication between OpenRowingMonitor and the client
-- **Upgrade of the flywheel systematic error filter**, which now can handle systematic errors of magnet positioning on the flywheel. This is more effective at reducing structural measurement noise and allows a reduction of the code complexity in `Flyhweel.js` as all dependent algorithms can use the same datastream. It reduces noise on the reference system from 1.5% (version 0.9.6) to 0.3% (version 0.9.7) (see [this explanation](https://github.com/JaapvanEkris/openrowingmonitor/discussions/151)).
+- **Introduction of the flywheel systematic error filter**, this filter can handle systematic errors of magnet positioning on the flywheel. This is more effective at reducing structural measurement noise than the previously used smoothing filter and allows a reduction of the code complexity in `Flyhweel.js` as all dependent algorithms can use the same datastream. It reduces noise on the reference system from 1.5% (version 0.9.6) to 0.3% (version 0.9.7) (see [this explanation](https://github.com/JaapvanEkris/openrowingmonitor/discussions/151))
 - **Improvement of the Moving Least Squares regressor**:
   - Code refactoring to isolate this function from `Flywheel.js`, allowing a more thorough testing of this function's behaviour
   - Introduced the 'Local Goodness of Fit' function to improve the robustness against noise. This reduces the effect of outliers on stroke detection, the Force curve, Power curve and Handle speed curve
   - Introduction of a 'Gaussian Weight' filter to reduce the effects of flanks on the regression in a specific datapoint
   - Added documentation about the mathematical foundations of the algorithms used
+- **Fix of the Garmin bluetooth issues** which affected the 'Cycling Power' and 'Cycling Speed and Cadence' Bluetooth profiles (see [issue 125](https://github.com/JaapvanEkris/openrowingmonitor/issues/125), [issue 169](https://github.com/JaapvanEkris/openrowingmonitor/issues/169) and the [known issues in 0.9.6](#known-issues-in-096)).
+- **Brought the Bluetooth FTMS interface further into specification**: several bugfixes in the communication to prevent miscommunication between OpenRowingMonitor and the client
+- **Fixed issue where Apple HR apps would crash ORM**: Fixed an issue where apple HR data would crash OpenRowingMonitor, (see [issue 221](https://github.com/JaapvanEkris/openrowingmonitor/issues/221)).
 - **Fixed a bug in the initialisation of the `Flywheel.js`**
 - **Improved logging in the Strava uploader** for better troubleshooting (see [issue 145](https://github.com/JaapvanEkris/openrowingmonitor/issues/145))
 - **Fixed a bug where VO2Max calculation missed heartrate data** (see [this discussion](https://github.com/JaapvanEkris/openrowingmonitor/discussions/156))
+- **Improved the memory usage of the webkiosk**: We replaced Firefox with a heavily tuned Chrome install, reducing memory usage and surpressed memory warnings regardless (see [issue 130](https://github.com/JaapvanEkris/openrowingmonitor/issues/130))
+- **Fixed a bug in the install script**:
+  - as an adaptation to newer versions of Raspberry OS, we now depend less on the user 'pi' being present (see [issue 135](https://github.com/JaapvanEkris/openrowingmonitor/issues/135) and [issue 155](https://github.com/JaapvanEkris/openrowingmonitor/issues/155))
+  - some package now disables Bluetooth by default. Our installation procedure automatically enables it again (see [issue 206](https://github.com/JaapvanEkris/openrowingmonitor/issues/206))
 - **Increased the test coverage of key algorithms**
 - As usual, all **packages are updated to the newest versions**
 
