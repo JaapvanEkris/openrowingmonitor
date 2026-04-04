@@ -1,6 +1,6 @@
 # OpenRowingMonitor Release Notes
 
-## Version 0.9.7 (March 2026)
+## Version 0.9.7 (April 2026)
 
 Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris), [Abasz](https://github.com/Abasz), [DXCanas](https://github.com/DXCanas), [NickOldfield](https://github.com/NickOldfield), [cwklurks](https://github.com/cwklurks) and [klamp169](https://github.com/klamp169)
 
