@@ -1,6 +1,6 @@
 {
   "name": "OpenRowingMonitor",
-  "version": "0.9.8",
+  "version": "0.9.7",
   "description": "A free and open source performance monitor for rowing machines",
   "main": "app/server.js",
   "author": "Jaap van Ekris",
