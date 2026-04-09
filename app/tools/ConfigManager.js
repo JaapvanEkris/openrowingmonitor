@@ -13,11 +13,11 @@ import log from 'loglevel'
 
 /**
  * @typedef  {{ minumumForceBeforeStroke: number, minumumRecoverySlope: number}} OldRowerProfile
- * @typedef { Config & { peripheralUpdateInterval:number, antplusMode:AntPlusModes, rowerSettings:OldRowerProfile }} OldConfig
+ * @typedef { ConfigFileSettings & { peripheralUpdateInterval:number, antplusMode:AntPlusModes, rowerSettings:OldRowerProfile }} OldConfig
  */
 
 /**
- * @returns {Promise<Config | OldConfig>}
+ * @returns {Promise<ConfigFileSettings | OldConfig>}
  */
 async function getConfig () {
   /**
@@ -32,11 +32,11 @@ async function getConfig () {
 
   // ToDo: check if config.js is a valdif JSON object
 
-  return customConfig !== undefined ? deepMerge(defaultConfig, /** @type {Config} */(customConfig.default)) : defaultConfig
+  return customConfig !== undefined ? deepMerge(defaultConfig, /** @type {DeepPartial<ConfigFileSettings>} */(customConfig.default)) : defaultConfig
 }
 
 /**
- * @param {Config | OldConfig} configToCheck
+ * @param {ConfigFileSettings | OldConfig} configToCheck
  */
 function runConfigMigration (configToCheck) {
   if ('peripheralUpdateInterval' in configToCheck) {
@@ -62,7 +62,7 @@ function runConfigMigration (configToCheck) {
 }
 
 /**
- * @param {Config | OldConfig} configToCheck
+ * @param {ConfigFileSettings | OldConfig} configToCheck
  */
 function checkConfig (configToCheck) {
   checkRangeValue(configToCheck.loglevel, 'default', ['trace', 'debug', 'info', 'warn', 'error', 'silent'], true, 'error')
@@ -88,7 +88,6 @@ function checkConfig (configToCheck) {
   checkBooleanValue(configToCheck, 'gzipTcxFiles', true, false)
   checkBooleanValue(configToCheck, 'createFitFiles', true, true)
   checkBooleanValue(configToCheck, 'gzipFitFiles', true, false)
-  checkBooleanValue(configToCheck, 'simulateWithoutHardware', true, false)
   checkFloatValue(configToCheck.userSettings, 'restingHR', 30, 220, false, true, 40)
   checkFloatValue(configToCheck.userSettings, 'maxHR', configToCheck.userSettings.restingHR, 220, false, true, 220)
   if (configToCheck.createTcxFiles || configToCheck.createFitFiles) {
@@ -181,9 +180,22 @@ function checkConfig (configToCheck) {
   }
 }
 
-const config = await getConfig()
+const fileConfig = await getConfig()
 
-runConfigMigration(config)
-checkConfig(config)
+runConfigMigration(fileConfig)
+checkConfig(fileConfig)
+
+// Determine simulateWithoutHardware from CLI flag or environment variable
+// This is intentionally not part of the config file to prevent accidental commits
+// The env var is also set so that child processes (e.g. forked GpioTimerService) inherit it
+const simulateWithoutHardware = process.argv.includes('--no-hardware') || process.env.ORM_NO_HARDWARE === '1'
+
+if (simulateWithoutHardware) {
+  process.env.ORM_NO_HARDWARE = '1'
+  log.info('Hardware simulation mode enabled via --no-hardware flag or ORM_NO_HARDWARE environment variable')
+}
+
+/** @type {Config} */
+const config = { ...fileConfig, simulateWithoutHardware }
 
 export default config

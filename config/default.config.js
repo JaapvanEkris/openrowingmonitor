@@ -15,7 +15,7 @@ import rowerProfiles from './rowerProfiles.js'
 
 /**
  * The default configuration for the Open Rowing Monitor.
- * @type {Config}
+ * @type {ConfigFileSettings}
  */
 export default {
   // Available log levels: trace, debug, info, warn, error, silent
@@ -110,10 +110,6 @@ export default {
   // Around 100 ms results in a very smooth update experience for distance as well
   // Please note that a smaller value will use more network and cpu ressources
   webUpdateInterval: 200,
-
-  // If set to true, bypasses all hardware checks for BLE and GPIO. Useful for development/simulation
-  // on devices without the proper hardware (e.g., Windows, macOS, or headless Linux servers).
-  simulateWithoutHardware: false,
 
   // Interval between updates of the bluetooth devices (miliseconds)
   // Advised is to update at least once per second, as consumers expect this interval
