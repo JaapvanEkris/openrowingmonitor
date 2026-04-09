@@ -12,8 +12,10 @@ import { createSessionManager } from './engine/SessionManager.js'
 import { createWebServer } from './WebServer.js'
 import { createPeripheralManager } from './peripherals/PeripheralManager.js'
 import { createRecordingManager } from './recorders/recordingManager.js'
-/* eslint-disable-next-line no-unused-vars -- replayRowingSession shouldn't be used in a production environments */
 import { replayRowingSession } from './recorders/RowingReplayer.js'
+import { parseSimulationArgs } from './tools/SimulationArgs.js'
+
+const simulationArgs = parseSimulationArgs(process.argv.slice(2))
 
 const exec = promisify(child_process.exec)
 
@@ -147,12 +149,13 @@ async function shutdownApp () {
   peripheralManager.handleCommand('shutdown')
 }
 
-/* Uncomment the following lines to simulate a session
-setTimeout(function() {
-  replayRowingSession(handleRotationImpulse, {
-    filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', // Concept 2, 2000 meter session
-    realtime: true,
-    loop: true
-  })
-}, 30000)
-*/
+if (simulationArgs.simulate) {
+  log.info(`Simulation mode enabled, replaying '${simulationArgs.simulateFile}' after ${simulationArgs.simulateDelay}ms delay (realtime: ${simulationArgs.realtime}, loop: ${simulationArgs.loop})`)
+  setTimeout(() => {
+    replayRowingSession(handleRotationImpulse, {
+      filename: simulationArgs.simulateFile,
+      realtime: simulationArgs.realtime,
+      loop: simulationArgs.loop
+    })
+  }, simulationArgs.simulateDelay)
+}
