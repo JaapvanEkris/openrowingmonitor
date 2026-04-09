@@ -25,10 +25,12 @@ function parseSimulationArgs (argv) {
     strict: false
   })
 
+  const parsedDelay = parseInt(String(values.simulateDelay ?? '30000'), 10)
+
   return {
     simulate: !!values.simulate,
     simulateFile: String(values.simulateFile ?? 'recordings/Concept2_RowErg_Session_2000meters.csv'),
-    simulateDelay: parseInt(String(values.simulateDelay ?? '30000'), 10),
+    simulateDelay: Number.isFinite(parsedDelay) && parsedDelay >= 0 ? parsedDelay : 30000,
     realtime: !values.simulateFast,
     loop: !values.simulateOnce
   }

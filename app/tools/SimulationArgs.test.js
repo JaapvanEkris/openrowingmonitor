@@ -64,4 +64,25 @@ test('all flags combined', () => {
   assert.is(result.loop, false)
 })
 
+test('non-numeric delay falls back to default', () => {
+  const result = parseSimulationArgs(['--simulate', '--simulateDelay', 'abc'])
+  assert.is(result.simulateDelay, 30000)
+})
+
+test('empty delay falls back to default', () => {
+  const result = parseSimulationArgs(['--simulate', '--simulateDelay', ''])
+  assert.is(result.simulateDelay, 30000)
+})
+
+test('negative delay falls back to default', () => {
+  const result = parseSimulationArgs(['--simulate', '--simulateDelay', '-5000'])
+  assert.is(result.simulateDelay, 30000)
+})
+
+test('unknown flags are ignored', () => {
+  const result = parseSimulationArgs(['--simulate', '--unknownFlag'])
+  assert.is(result.simulate, true)
+  assert.is(result.simulateDelay, 30000)
+})
+
 test.run()
