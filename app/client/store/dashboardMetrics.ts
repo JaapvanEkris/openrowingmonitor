@@ -1,16 +1,16 @@
-'use strict'
 /**
  * @copyright {@link https://github.com/JaapvanEkris/openrowingmonitor|OpenRowingMonitor}
  */
 
-import { html } from 'lit'
+import { html, TemplateResult } from 'lit'
 import { formatDistance, formatNumber, secondsToTimeString } from '../lib/helper'
 import { iconBolt, iconClock, iconAlarmclock, iconFire, iconHeartbeat, iconPaddle, iconRoute, iconStopwatch, rowerIcon } from '../lib/icons'
-import '../components/DashboardForceCurve.js'
-import '../components/DashboardMetric.js'
-import '../components/BatteryIcon.js'
+import '../components/DashboardForceCurve'
+import '../components/DashboardMetric'
+import '../components/BatteryIcon'
+import type { DashboardMetricDefinition } from './types'
 
-export const DASHBOARD_METRICS = {
+export const DASHBOARD_METRICS: Record<string, DashboardMetricDefinition> = {
   distance: {
     displayName: 'Distance',
     size: 1,
@@ -47,7 +47,7 @@ export const DASHBOARD_METRICS = {
     displayName: 'Heart rate',
     size: 1,
     template: (metrics, config) => html`<dashboard-metric .icon=${config?.guiConfigs?.showIcons ? iconHeartbeat : ''} unit="bpm" .value=${formatNumber(metrics?.heartrate)}>
-      ${metrics?.heartRateBatteryLevel > 0 ?
+      ${(metrics?.heartRateBatteryLevel ?? 0) > 0 ?
         html`<battery-icon .batteryLevel=${metrics?.heartRateBatteryLevel}></battery-icon>` :
         ''}
     </dashboard-metric>`
@@ -59,7 +59,7 @@ export const DASHBOARD_METRICS = {
     displayName: 'Calories',
     size: 1,
     template: (metrics, config, onWorkoutOpen) => {
-      const calories = metrics?.interval?.type === 'calories' ? Math.max(metrics?.interval?.calories?.toEnd, 0) : Math.max(metrics?.interval?.calories?.sinceStart, 0)
+      const calories = metrics?.interval?.type === 'calories' ? Math.max(metrics?.interval?.calories?.toEnd ?? 0, 0) : Math.max(metrics?.interval?.calories?.sinceStart ?? 0, 0)
 
       return html`<dashboard-metric
         style="cursor:pointer"
@@ -112,10 +112,10 @@ export const DASHBOARD_METRICS = {
   recoveryDuration: { displayName: 'Recovery duration', size: 1, template: (metrics, config) => simpleMetricFactory(formatNumber(metrics?.recoveryDuration, 2), 'sec', config?.guiConfigs?.showIcons ? 'Recovery' : '') },
 
   forceCurve: { displayName: 'Force curve', size: 2, template: (metrics, config) => html`
-    <dashboard-force-curve 
-      .updateForceCurve=${metrics.metricsContext?.isRecoveryStart} 
-      .value=${metrics?.driveHandleForceCurve} 
-      .divisionMode=${config?.guiConfigs?.forceCurveDivisionMode ?? 0} 
+    <dashboard-force-curve
+      .updateForceCurve=${metrics.metricsContext?.isRecoveryStart}
+      .value=${metrics?.driveHandleForceCurve}
+      .divisionMode=${config?.guiConfigs?.forceCurveDivisionMode ?? 0}
       style="grid-column: span 2"
     ></dashboard-force-curve>
   ` },
@@ -128,11 +128,12 @@ export const DASHBOARD_METRICS = {
     template: (metrics) => {
       // Check to make sure both values are truthy
       // no 0, null, or undefined
-      const validRatio = metrics?.driveDuration && metrics?.recoveryDuration
+      const driveDuration = metrics?.driveDuration
+      const recoveryDuration = metrics?.recoveryDuration
       let ratio
 
-      if (validRatio) {
-        ratio = `1:${(metrics.recoveryDuration / metrics.driveDuration).toFixed(1)}`
+      if (driveDuration && recoveryDuration) {
+        ratio = `1:${(recoveryDuration / driveDuration).toFixed(1)}`
       } else {
         ratio = undefined
       }
@@ -148,6 +149,6 @@ export const DASHBOARD_METRICS = {
   * @param {string} unit The unit of the metric.
   * @param {string | import('lit').TemplateResult<2>} icon The number of decimal places to round to (default: 0).
 */
-function simpleMetricFactory (value = '--', unit = '', icon = '') {
+function simpleMetricFactory (value: string | number | undefined = '--', unit = '', icon: string | TemplateResult = '') {
   return html`<dashboard-metric .icon=${icon} .unit=${unit} .value=${value}></dashboard-metric>`
 }

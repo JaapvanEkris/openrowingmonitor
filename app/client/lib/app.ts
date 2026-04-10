@@ -1,15 +1,20 @@
-'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Initialization file of the Open Rowing Monitor App
 */
 /* eslint-disable no-console -- This runs client side, so I guess we have no logging capabilities? */
-import NoSleep from 'nosleep.js'
-import { filterObjectByKeys } from './helper.js'
+import NoSleep from '@zakj/no-sleep'
+import { APP_STATE } from '../store/appState'
+import type { AppState } from '../store/types'
 
-export function createApp (app) {
-  let socket
+interface AppInterface {
+  updateState: (newState: Partial<AppState>) => void
+  getState: () => AppState
+}
+
+export function createApp (app: AppInterface) {
+  let socket: WebSocket | undefined
 
   initWebsocket()
   resetFields()
@@ -18,10 +23,9 @@ export function createApp (app) {
   let initialWebsocketOpenend = true
   function initWebsocket () {
     // use the native websocket implementation of browser to communicate with backend
-    socket = new WebSocket(`ws://${location.host}/websocket`)
+    socket = new WebSocket(`ws://${import.meta.env.DEV ? `${location.hostname}:${80}` : location.host}/websocket`)
 
-    /* eslint-disable-next-line no-unused-vars -- Standard construct?? */
-    socket.addEventListener('open', (event) => {
+    socket.addEventListener('open', () => {
       console.log('websocket opened')
       if (initialWebsocketOpenend) {
         initialWebsocketOpenend = false
@@ -30,11 +34,10 @@ export function createApp (app) {
 
     socket.addEventListener('error', (error) => {
       console.log('websocket error', error)
-      socket.close()
+      socket?.close()
     })
 
-    /* eslint-disable-next-line no-unused-vars -- Standard construct?? */
-    socket.addEventListener('close', (event) => {
+    socket.addEventListener('close', () => {
       console.log('websocket closed, attempting reconnect')
       setTimeout(() => {
         initWebsocket()
@@ -87,10 +90,11 @@ export function createApp (app) {
   function resetFields () {
     const appState = app.getState()
     // drop all metrics except heartrate
-    app.updateState({ ...appState, metrics: { ...filterObjectByKeys(appState.metrics, ['heartrate', 'heartRateBatteryLevel']) } })
+    const { heartrate, heartRateBatteryLevel } = appState.metrics
+    app.updateState({ metrics: { ...APP_STATE.metrics, heartrate, heartRateBatteryLevel } })
   }
 
-  function handleAction (action) {
+  function handleAction (action: { command: string }) {
     if (!socket) {
       console.error('no socket available for communication!')
       return

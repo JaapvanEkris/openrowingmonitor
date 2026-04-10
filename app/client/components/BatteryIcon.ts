@@ -1,11 +1,10 @@
-'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Component that renders a battery indicator
 */
 
-import { AppElement, svg, css } from './AppElement.js'
+import { AppElement, svg, css } from './AppElement'
 import { customElement, property } from 'lit/decorators.js'
 
 @customElement('battery-icon')
@@ -21,7 +20,7 @@ export class DashboardMetric extends AppElement {
   `
 
   @property({ type: Number })
-  accessor batteryLevel = 0
+  batteryLevel = 0
 
   render () {
     // 416 is the max width value of the battery bar in the SVG graphic

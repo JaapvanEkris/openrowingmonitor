@@ -1,56 +1,12 @@
-'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Component that renders a workout goal picker dialog
 */
-import { AppElement, html, css } from './AppElement.js'
+import { AppElement, html, css } from './AppElement'
 import { customElement, property, state } from 'lit/decorators.js'
-import './AppDialog.js'
-
-const WORKOUT_CONFIG = {
-  distance: {
-    title: 'Set Distance',
-    unit: 'meters',
-    increments: [
-      { label: '+100m', value: 100 },
-      { label: '+500m', value: 500 },
-      { label: '+1K', value: 1000 },
-      { label: '+2K', value: 2000 }
-    ],
-    format (v) {
-      return v >= 99999.5 ? (v / 1000).toFixed(v % 1000 === 0 ? 0 : 1) + 'K' : v
-    },
-    buildPlan: (val) => [{ type: 'distance', targetDistance: String(val), targetTime: '0' }]
-  },
-  time: {
-    title: 'Set Time',
-    unit: 'minutes',
-    increments: [
-      { label: '+1 min', value: 60 },
-      { label: '+5 min', value: 300 },
-      { label: '+10 min', value: 600 },
-      { label: '+20 min', value: 1200 }
-    ],
-    format: (v) => {
-      const minutes = v / 60
-      return minutes % 1 === 0 ? `${minutes}` : `${minutes.toFixed(2)}`
-    },
-    buildPlan: (val) => [{ type: 'time', targetDistance: '0', targetTime: String(val) }]
-  },
-  calories: {
-    title: 'Set Calories',
-    unit: 'kcal',
-    increments: [
-      { label: '+10 kcal', value: 10 },
-      { label: '+50 kcal', value: 50 },
-      { label: '+100 kcal', value: 100 },
-      { label: '+500 kcal', value: 500 }
-    ],
-    format: (v) => v,
-    buildPlan: (val) => [{ type: 'calories', targetCalories: String(val) }]
-  }
-}
+import './AppDialog'
+import { workoutConfig, buildWorkoutPlan } from '../lib/workout-utils'
 
 @customElement('workout-dialog')
 export class WorkoutDialog extends AppElement {
@@ -121,13 +77,13 @@ export class WorkoutDialog extends AppElement {
   `
 
   @property({ type: String })
-  accessor type = 'distance'
+  type = 'distance'
 
   @state()
-  accessor _total = 0
+  _total = 0
 
   get _config () {
-    return WORKOUT_CONFIG[this.type] ?? WORKOUT_CONFIG.distance
+    return workoutConfig[this.type] ?? workoutConfig.distance
   }
 
   render () {
@@ -147,7 +103,7 @@ export class WorkoutDialog extends AppElement {
     `
   }
 
-  _increment (value) {
+  _increment (value: number) {
     this._total += value
   }
 
@@ -155,9 +111,9 @@ export class WorkoutDialog extends AppElement {
     this._total = 0
   }
 
-  _onClose (event) {
+  _onClose (event: CustomEvent) {
     if (event.detail === 'confirm' && this._total > 0) {
-      const plan = this._config.buildPlan(this._total)
+      const plan = buildWorkoutPlan(this.type, this._total)
       this.sendEvent('triggerAction', { command: 'updateIntervalSettings', data: plan })
     }
     this.dispatchEvent(new CustomEvent('close'))
