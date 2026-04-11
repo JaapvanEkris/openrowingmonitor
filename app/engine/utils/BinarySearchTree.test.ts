@@ -15,11 +15,13 @@ describe('Initialisation of the BinarySearchTree', () => {
     const dataTree = createLabelledBinarySearchTree()
     testSize(dataTree, 0)
     testTotalWeight(dataTree, 0)
-    testNumberOfValuesAbove(dataTree, 0, 0)
-    testNumberOfValuesEqualOrBelow(dataTree, 0, 0)
-    testNumberOfValuesAbove(dataTree, 10, 0)
-    testNumberOfValuesEqualOrBelow(dataTree, 10, 0)
-    testMedian(dataTree, 0)
+    testNumberOfValuesAbove(dataTree, 0, undefined)
+    testNumberOfValuesEqualOrBelow(dataTree, 0, undefined)
+    testNumberOfValuesAbove(dataTree, 10, undefined)
+    testNumberOfValuesEqualOrBelow(dataTree, 10, undefined)
+    testMinimum(dataTree, undefined)
+    testMaximum(dataTree, undefined)
+    testMedian(dataTree, undefined)
     testWeightedMedian(dataTree, undefined)
   })
 })
@@ -39,6 +41,8 @@ describe('Test behaviour of the BinarySearchTree when data is pushed', () => {
     testNumberOfValuesEqualOrBelow(dataTree, 0, 0)
     testNumberOfValuesAbove(dataTree, 10, 0)
     testNumberOfValuesEqualOrBelow(dataTree, 10, 1)
+    testMinimum(dataTree, 9)
+    testMaximum(dataTree, 9)
     testMedian(dataTree, 9)
     testWeightedMedian(dataTree, 9)
   })
@@ -56,6 +60,8 @@ describe('Test behaviour of the BinarySearchTree when data is pushed', () => {
     testNumberOfValuesEqualOrBelow(dataTree, 0, 0)
     testNumberOfValuesAbove(dataTree, 10, 0)
     testNumberOfValuesEqualOrBelow(dataTree, 10, 2)
+    testMinimum(dataTree, 3)
+    testMaximum(dataTree, 9)
     testMedian(dataTree, 6)
     testWeightedMedian(dataTree, 6)
   })
@@ -75,16 +81,57 @@ describe('Test behaviour of the BinarySearchTree when data is pushed', () => {
     testNumberOfValuesEqualOrBelow(dataTree, 0, 0)
     testNumberOfValuesAbove(dataTree, 10, 0)
     testNumberOfValuesEqualOrBelow(dataTree, 10, 3)
+    testMinimum(dataTree, 3)
+    testMaximum(dataTree, 9)
     testMedian(dataTree, 6)
     testWeightedMedian(dataTree, 6)
   })
+
+  test('Tree behaviour with three pushed value, with varying weights. Tree = [3, 6, 12]', () => {
+    const dataTree = createLabelledBinarySearchTree()
+    dataTree.push(1, 12, 1)
+    dataTree.push(2, 3, 0)
+    dataTree.push(3, 6, 1)
+    testOrderedSeries(dataTree, [3, 6, 12])
+    testSize(dataTree, 3)
+    testTotalWeight(dataTree, 2)
+    testValueAtInorderPos(dataTree, 1, 3)
+    testValueAtInorderPos(dataTree, 2, 6)
+    testValueAtInorderPos(dataTree, 3, 12)
+    testNumberOfValuesAbove(dataTree, 0, 3)
+    testNumberOfValuesEqualOrBelow(dataTree, 0, 0)
+    testNumberOfValuesAbove(dataTree, 10, 1)
+    testNumberOfValuesEqualOrBelow(dataTree, 10, 2)
+    testMedian(dataTree, 6)
+    testWeightedMedian(dataTree, 9)
+  })
+
+  test('Tree behaviour with a three pushed values without weight (edge case). Series = [3, 6, 9]', () => {
+    const dataTree = createLabelledBinarySearchTree()
+    dataTree.push(1, 9, 0)
+    dataTree.push(2, 3, 0)
+    dataTree.push(3, 6, 0)
+    testOrderedSeries(dataTree, [3, 6, 9])
+    testSize(dataTree, 3)
+    testTotalWeight(dataTree, 0)
+    testValueAtInorderPos(dataTree, 1, 3)
+    testValueAtInorderPos(dataTree, 2, 6)
+    testValueAtInorderPos(dataTree, 3, 9)
+    testNumberOfValuesAbove(dataTree, 0, 3)
+    testNumberOfValuesEqualOrBelow(dataTree, 0, 0)
+    testNumberOfValuesAbove(dataTree, 10, 0)
+    testNumberOfValuesEqualOrBelow(dataTree, 10, 3)
+    testMedian(dataTree, 6)
+    testWeightedMedian(dataTree, undefined)
+  })
+
 })
 
-describe('Test behaviour of the BinarySearchTree when data is pushed and simle removals', () => {
+describe('Test behaviour of the BinarySearchTree when data is pushed and simple (leaf) removals', () => {
 /**
  * Test of the response on a tree with inserts and removals
  */
-  test('Tree behaviour with a fourth pushed value. Tree = [3, 6, 12]', () => {
+  test('Tree behaviour with a fourth pushed value, with varying weights. Tree = [3, 6, 12]', () => {
     const dataTree = createLabelledBinarySearchTree()
     dataTree.push(1, 9, 0.5)
     dataTree.push(2, 3, 0)
@@ -114,9 +161,24 @@ describe('Test behaviour of the BinarySearchTree when data is pushed and simle r
     dataTree.push(1, 9, 0)
     dataTree.push(2, 3, 0)
     dataTree.push(3, 6, 0)
+    testOrderedSeries(dataTree, [3, 6, 9])
+    testSize(dataTree, 3)
+    testTotalWeight(dataTree, 0)
+    testValueAtInorderPos(dataTree, 1, 3)
+    testValueAtInorderPos(dataTree, 2, 6)
+    testValueAtInorderPos(dataTree, 3, 9)
+    testNumberOfValuesAbove(dataTree, 0, 3)
+    testNumberOfValuesEqualOrBelow(dataTree, 0, 0)
+    testNumberOfValuesAbove(dataTree, 10, 0)
+    testNumberOfValuesEqualOrBelow(dataTree, 10, 3)
+    testMedian(dataTree, 6)
+    testWeightedMedian(dataTree, undefined)
     dataTree.remove(1)
+    testOrderedSeries(dataTree, [3, 6])
     dataTree.push(4, 12, 1)
+    testOrderedSeries(dataTree, [3, 6, 12])
     dataTree.remove(2)
+    testOrderedSeries(dataTree, [6, 12])
     dataTree.push(5, -3, 0)
     testOrderedSeries(dataTree, [-3, 6, 12])
     testSize(dataTree, 3)
@@ -133,7 +195,7 @@ describe('Test behaviour of the BinarySearchTree when data is pushed and simle r
   })
 })
 
-describe('Test behaviour of the BinarySearchTree when data is pushed and simle removals', () => {
+describe('Test behaviour of the BinarySearchTree when data is pushed and complex (node) removals', () => {
 /**
  * Test of the response during complex removals (with subtrees being moved around)
  */
@@ -152,6 +214,8 @@ describe('Test behaviour of the BinarySearchTree when data is pushed and simle r
     testSize(dataTree, 9)
     testTotalWeight(dataTree, 7.5)
     testValueAtInorderPos(dataTree, 5, 9)
+    testMinimum(dataTree, 5)
+    testMaximum(dataTree, 12)
     testMedian(dataTree, 9)
     testMedian(dataTree, 9)
     dataTree.remove(1)
@@ -224,11 +288,15 @@ describe('Reset bhaviour of the BinarySearchTree', () => {
     testOrderedSeries(dataTree, [-3, 3, 6, 9, 12])
     dataTree.reset()
     testSize(dataTree, 0)
-    testNumberOfValuesAbove(dataTree, 0, 0)
-    testNumberOfValuesEqualOrBelow(dataTree, 0, 0)
-    testNumberOfValuesAbove(dataTree, 10, 0)
-    testNumberOfValuesEqualOrBelow(dataTree, 10, 0)
-    testMedian(dataTree, 0)
+    testTotalWeight(dataTree, 0)
+    testNumberOfValuesAbove(dataTree, 0, undefined)
+    testNumberOfValuesEqualOrBelow(dataTree, 0, undefined)
+    testNumberOfValuesAbove(dataTree, 10, undefined)
+    testNumberOfValuesEqualOrBelow(dataTree, 10, undefined)
+    testMinimum(dataTree, undefined)
+    testMaximum(dataTree, undefined)
+    testMedian(dataTree, undefined)
+    testWeightedMedian(dataTree, undefined)
   })
 })
 
@@ -254,6 +322,14 @@ function testOrderedSeries (tree: TreeNode, expectedValue: number[]) {
 
 function testValueAtInorderPos (tree: TreeNode, position: number, expectedValue: number) {
   assert.strictEqual(tree.valueAtInorderPos(position), expectedValue, `Expected valueAtInorderPos(${position}) to be ${expectedValue}, encountered ${tree.valueAtInorderPos(position)}`)
+}
+
+function testMinimum (tree: TreeNode, expectedValue: number) {
+  assert.strictEqual(tree.minimum(), expectedValue, `Expected minimum to be ${expectedValue}, encountered ${tree.minimum()}`)
+}
+
+function testMaximum (tree: TreeNode, expectedValue: number) {
+  assert.strictEqual(tree.maximum(), expectedValue, `Expected maximum to be ${expectedValue}, encountered ${tree.maximum()}`)
 }
 
 function testMedian (tree: TreeNode, expectedValue: number) {
