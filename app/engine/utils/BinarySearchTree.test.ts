@@ -256,10 +256,10 @@ function testValueAtInorderPos (tree: TreeNode, position: number, expectedValue:
   assert.strictEqual(tree.valueAtInorderPos(position), expectedValue, `Expected valueAtInorderPos(${position}) to be ${expectedValue}, encountered ${tree.valueAtInorderPos(position)}`)
 }
 
-function testMedian (tree: TreeNode , expectedValue: number) {
+function testMedian (tree: TreeNode, expectedValue: number) {
   assert.strictEqual(tree.median(), expectedValue, `Expected median to be ${expectedValue}, encountered ${tree.median()}`)
 }
 
-function testWeightedMedian (tree: TreeNode , expectedValue: number) {
+function testWeightedMedian (tree: TreeNode, expectedValue: number) {
   assert.strictEqual(tree.weightedMedian(), expectedValue, `Expected weighted median to be ${expectedValue}, encountered ${tree.weightedMedian()}`)
 }
