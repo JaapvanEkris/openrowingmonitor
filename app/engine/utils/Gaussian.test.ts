@@ -1,15 +1,11 @@
 /**
  * @copyright {@link https://github.com/JaapvanEkris/openrowingmonitor|OpenRowingMonitor}
  *
- * @file This tests the Gaussian Weight Kernel
+ * @file This tests the Binary Search Tree. As this object is fundamental for the Theil-Sen regressors, it must be tested thoroughly
  */
 // @vitest-environment node
-import { test, expect, describe, beforeEach } from 'vitest'
+import { test, assert, describe } from 'vitest'
 import { createGaussianWeightFunction } from './Gaussian.ts'
-
-beforeEach(() => {
-  localStorage.clear()
-})
 
 describe('Basic test of Gaussian filter', () => {
 /**
@@ -95,6 +91,5 @@ describe('Basic test of Gaussian filter', () => {
 })
 
 function testWeight (weightFunction: GaussianWeightFunction, xValue: number, expectedValue: number): void {
-  const actualValue = weightFunction.weight(xValue)
-  expect(actualValue).toBe(expectedValue, `Weight should be ${expectedValue} at x = ${xValue}, is ${actualValue}`)
+  assert.strictEqual(weightFunction.weight(xValue), expectedValue, `Weight should be should be ${expectedValue} at x = ${xValue}, is ${weightFunction.weight(xValue)}`)
 }
