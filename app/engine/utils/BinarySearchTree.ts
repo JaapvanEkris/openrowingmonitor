@@ -110,7 +110,11 @@ export function createLabelledBinarySearchTree () {
   }
 
   function minimum (): number {
-    return minimumValueInTree(tree!)
+    if (tree !== null && tree.numberOfLeafsAndNodes! > 0) {
+      return minimumValueInTree(tree!)
+    } else {
+      return undefined
+    }
   }
 
   function minimumValueInTree (subTree: TreeNode): number {
@@ -122,7 +126,11 @@ export function createLabelledBinarySearchTree () {
   }
 
   function maximum (): number {
-    return maximumValueInTree(tree!)
+    if (tree !== null && tree.numberOfLeafsAndNodes > 0) {
+      return maximumValueInTree(tree!)
+    } else {
+      return undefined
+    }
   }
 
   function maximumValueInTree (subTree: TreeNode): number {
@@ -134,7 +142,11 @@ export function createLabelledBinarySearchTree () {
   }
 
   function numberOfValuesAbove (testedValue: number): number {
-    return countNumberOfValuesAboveInTree(tree, testedValue)
+    if (tree !== null && tree.numberOfLeafsAndNodes > 0) {
+      return countNumberOfValuesAboveInTree(tree, testedValue)
+    } else {
+      return undefined
+    }
   }
 
   function countNumberOfValuesAboveInTree (currentTree: TreeNode | null, testedValue: number): number {
@@ -152,8 +164,13 @@ export function createLabelledBinarySearchTree () {
     }
   }
 
+
   function numberOfValuesEqualOrBelow (testedValue: number): number {
-    return countNumberOfValuesEqualOrBelowInTree(tree, testedValue)
+    if (tree !== null && tree.numberOfLeafsAndNodes > 0) {
+      return countNumberOfValuesEqualOrBelowInTree(tree, testedValue)
+    } else {
+      return undefined
+    }
   }
 
   function countNumberOfValuesEqualOrBelowInTree (currentTree: TreeNode | null, testedValue: number): number {
@@ -337,7 +354,7 @@ export function createLabelledBinarySearchTree () {
       const mid: number = Math.floor(tree.numberOfLeafsAndNodes! / 2)
       return tree.numberOfLeafsAndNodes! % 2 !== 0 ? valueAtInorderPosition(tree, mid + 1)! : (valueAtInorderPosition(tree, mid)! + valueAtInorderPosition(tree, mid + 1)!) / 2
     } else {
-      return 0
+      return undefined
     }
   }
 
