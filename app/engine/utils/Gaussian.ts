@@ -1,7 +1,7 @@
 /**
  * @copyright {@link https://github.com/JaapvanEkris/openrowingmonitor|OpenRowingMonitor}
  *
- * @file  This implements a Gaussian weight function, which is used in the moving regression filter
+ * @file This implements a Gaussian weight function, which is used in the moving regression filter
  * @see {@link https://en.wikipedia.org/wiki/Kernel_(statistics)#Kernel_functions_in_common_use|the description of the various kernels}
  * Please realize the constant factor 1/Math.Pow(2 * Math.pi(), 0.5) is omitted as it cancels out in the subsequent weight averaging filtering
  */
