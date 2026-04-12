@@ -53,10 +53,14 @@ export class PerformanceDashboard extends AppElement {
 
     .retile-controls {
       display: flex;
+      position: relative;
+      z-index: 10;
     }
 
     .retile-select {
       font-size: 0.4em;
+      padding: 4px 8px;
+      min-width: 80px;
       background: var(--theme-button-color);
       color: var(--theme-font-color);
       cursor: pointer;
@@ -256,9 +260,10 @@ export class PerformanceDashboard extends AppElement {
     const availableMetrics = this._getAvailableMetrics(slotsIfReplaced)
 
     const controls = html`
-      <div class="retile-controls">
+      <div class="retile-controls" @click=${(e: Event) => e.stopPropagation()}>
         <select
           class="retile-select"
+          @click=${(e: Event) => e.stopPropagation()}
           @change=${(e: Event) => this._handleMetricAction(index, (e.target as HTMLSelectElement).value)}
           title="Tile Actions"
         >
@@ -320,9 +325,10 @@ export class PerformanceDashboard extends AppElement {
   dashboardMetricComponentsFactory = (appState: AppState) => {
     const metrics = appState.metrics
     const configs = appState.config
+    const workoutHandler = this._retileMode ? undefined : this._handleWorkoutOpen
 
     const dashboardMetricComponents: Record<string, (slotContent?: TemplateResult | string) => TemplateResult> = Object.keys(DASHBOARD_METRICS).reduce((dashboardMetrics: Record<string, (slotContent?: TemplateResult | string) => TemplateResult>, key) => {
-      dashboardMetrics[key] = (slotContent?: TemplateResult | string) => DASHBOARD_METRICS[key].template(metrics, configs, this._handleWorkoutOpen, slotContent)
+      dashboardMetrics[key] = (slotContent?: TemplateResult | string) => DASHBOARD_METRICS[key].template(metrics, configs, workoutHandler, slotContent)
 
       return dashboardMetrics
     }, {})

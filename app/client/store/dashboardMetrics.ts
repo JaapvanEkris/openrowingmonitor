@@ -29,8 +29,8 @@ export const DASHBOARD_METRICS: Record<string, DashboardMetricDefinition> = {
       const linearDistance = formatDistance(distance ?? 0)
 
       return html`<dashboard-metric
-        style="cursor:pointer"
-        @click=${() => onWorkoutOpen?.('distance')}
+        style="${onWorkoutOpen ? 'cursor:pointer' : ''}"
+        @click=${onWorkoutOpen ? () => onWorkoutOpen('distance') : undefined}
         .icon=${config?.guiConfigs?.showIcons ? iconRoute : ''}
         .unit=${linearDistance.unit}
         .value=${linearDistance.distance}
@@ -65,8 +65,8 @@ export const DASHBOARD_METRICS: Record<string, DashboardMetricDefinition> = {
       const calories = metrics?.interval?.type === 'calories' ? Math.max(metrics?.interval?.calories?.toEnd ?? 0, 0) : Math.max(metrics?.interval?.calories?.sinceStart ?? 0, 0)
 
       return html`<dashboard-metric
-        style="cursor:pointer"
-        @click=${() => onWorkoutOpen?.('calories')}
+        style="${onWorkoutOpen ? 'cursor:pointer' : ''}"
+        @click=${onWorkoutOpen ? () => onWorkoutOpen('calories') : undefined}
         .icon=${config?.guiConfigs?.showIcons ? iconFire : ''}
         .unit=${'kcal'}
         .value=${formatNumber(calories ?? 0)}
@@ -97,8 +97,8 @@ export const DASHBOARD_METRICS: Record<string, DashboardMetricDefinition> = {
       }
 
       return html`<dashboard-metric
-        style="cursor:pointer"
-        @click=${() => onWorkoutOpen?.('time')}
+        style="${onWorkoutOpen ? 'cursor:pointer' : ''}"
+        @click=${onWorkoutOpen ? () => onWorkoutOpen('time') : undefined}
         .icon=${config?.guiConfigs?.showIcons ? icon : ''}
         .unit=${''}
         .value=${secondsToTimeString(time ?? 0)}
