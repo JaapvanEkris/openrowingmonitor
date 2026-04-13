@@ -8,22 +8,14 @@
 /**
  * Represents a node in the binary search tree
  */
-interface TreeNode {
+interface BinarySearchTree {
   label: string | number | null
   value: number | null
   weight: number | null
-  leftNode: TreeNode | null
-  rightNode: TreeNode | null
+  leftNode: BinarySearchTree | null
+  rightNode: BinarySearchTree | null
   numberOfLeafsAndNodes: number | null
   totalWeight: number | null
-}
-
-/**
- * Represents a node with cumulative weight information
- */
-interface WeightedNode {
-  value: number
-  cumulativeWeight: number
 }
 
 /**
@@ -31,7 +23,71 @@ interface WeightedNode {
  * It allows for efficient determining the Weighted Median, Number of Above and Below
  */
 export function createLabelledBinarySearchTree () {
-  let tree: TreeNode | null = null
+  let tree: BinarySearchTree | null = null
+
+  // To prevent long linked lists from forming (resuling in heap overflows), we need to balance the tree
+  // Neither child may hold more than this fraction of its parent's subtree nodes.
+  // 0.7 keeps depth at O(log n) while avoiding over-rotation on sequential inserts.
+  const BALANCE_FACTOR = 0.7
+
+  /**
+   * Recalculates numberOfLeafsAndNodes and totalWeight from already-correct children.
+   * Called after rotations so no separate accounting pass is needed.
+   */
+  function updateNode (node: BinarySearchTree): void {
+    const leftCount = node.leftNode?.numberOfLeafsAndNodes ?? 0
+    const rightCount = node.rightNode?.numberOfLeafsAndNodes ?? 0
+    node.numberOfLeafsAndNodes = leftCount + rightCount + 1
+    const leftWeight = node.leftNode?.totalWeight ?? 0
+    const rightWeight = node.rightNode?.totalWeight ?? 0
+    node.totalWeight = leftWeight + rightWeight + node.weight!
+  }
+
+  function rotateRight (node: BinarySearchTree): BinarySearchTree {
+    const newRoot = node.leftNode!
+    node.leftNode = newRoot.rightNode
+    newRoot.rightNode = node
+    updateNode(node)
+    updateNode(newRoot)
+    return newRoot
+  }
+
+  function rotateLeft (node: BinarySearchTree): BinarySearchTree {
+    const newRoot = node.rightNode!
+    node.rightNode = newRoot.leftNode
+    newRoot.leftNode = node
+    updateNode(node)
+    updateNode(newRoot)
+    return newRoot
+  }
+
+  /**
+   * Weight-balanced (BB) tree rebalance.
+   * A single or double rotation is applied when one child exceeds BALANCE_FACTOR
+   * of the subtree total. Double rotation handles the inner-grandchild-heavy case.
+   * Called bottom-up by pushInTree's returning call stack â€” no extra traversal.
+   */
+  function rebalance (node: BinarySearchTree): BinarySearchTree {
+    const total = node.numberOfLeafsAndNodes!
+    const leftSize = node.leftNode?.numberOfLeafsAndNodes ?? 0
+    const rightSize = node.rightNode?.numberOfLeafsAndNodes ?? 0
+
+    if (leftSize > BALANCE_FACTOR * total) {
+      if ((node.leftNode?.rightNode?.numberOfLeafsAndNodes ?? 0) > (node.leftNode?.leftNode?.numberOfLeafsAndNodes ?? 0)) {
+        node.leftNode = rotateLeft(node.leftNode!)
+      }
+      return rotateRight(node)
+    }
+
+    if (rightSize > BALANCE_FACTOR * total) {
+      if ((node.rightNode?.leftNode?.numberOfLeafsAndNodes ?? 0) > (node.rightNode?.rightNode?.numberOfLeafsAndNodes ?? 0)) {
+        node.rightNode = rotateRight(node.rightNode!)
+      }
+      return rotateLeft(node)
+    }
+
+    return node
+  }
 
   /**
    * @param {float} label to use to destroy it later
@@ -54,7 +110,7 @@ export function createLabelledBinarySearchTree () {
    * @param {float} value to store
    * @param {float} weight attributed to the value
    */
-  function pushInTree (currentTree: TreeNode, label: string | number, value: number, weight: number): TreeNode {
+  function pushInTree (currentTree: BinarySearchTree, label: string | number, value: number, weight: number): BinarySearchTree {
     if (value <= currentTree.value!) {
       // The value should be on the left side of currentTree
       if (currentTree.leftNode === null) {
@@ -72,10 +128,10 @@ export function createLabelledBinarySearchTree () {
     }
     currentTree.numberOfLeafsAndNodes = currentTree.numberOfLeafsAndNodes! + 1
     currentTree.totalWeight = currentTree.totalWeight! + weight
-    return currentTree
+    return rebalance(currentTree)
   }
 
-  function newNode (label: number, value: number, weight: number): TreeNode {
+  function newNode (label: number, value: number, weight: number): BinarySearchTree {
     return {
       label,
       value,
@@ -117,7 +173,7 @@ export function createLabelledBinarySearchTree () {
     }
   }
 
-  function minimumValueInTree (subTree: TreeNode): number {
+  function minimumValueInTree (subTree: BinarySearchTree): number {
     if (subTree.leftNode === null) {
       return subTree.value!
     } else {
@@ -133,7 +189,7 @@ export function createLabelledBinarySearchTree () {
     }
   }
 
-  function maximumValueInTree (subTree: TreeNode): number {
+  function maximumValueInTree (subTree: BinarySearchTree): number {
     if (subTree.rightNode === null) {
       return subTree.value!
     } else {
@@ -149,7 +205,7 @@ export function createLabelledBinarySearchTree () {
     }
   }
 
-  function countNumberOfValuesAboveInTree (currentTree: TreeNode | null, testedValue: number): number {
+  function countNumberOfValuesAboveInTree (currentTree: BinarySearchTree | null, testedValue: number): number {
     if (currentTree === null) {
       return 0
     } else {
@@ -164,7 +220,6 @@ export function createLabelledBinarySearchTree () {
     }
   }
 
-
   function numberOfValuesEqualOrBelow (testedValue: number): number {
     if (tree !== null && tree.numberOfLeafsAndNodes > 0) {
       return countNumberOfValuesEqualOrBelowInTree(tree, testedValue)
@@ -173,7 +228,7 @@ export function createLabelledBinarySearchTree () {
     }
   }
 
-  function countNumberOfValuesEqualOrBelowInTree (currentTree: TreeNode | null, testedValue: number): number {
+  function countNumberOfValuesEqualOrBelowInTree (currentTree: BinarySearchTree | null, testedValue: number): number {
     if (currentTree === null) {
       return 0
     } else {
@@ -194,7 +249,7 @@ export function createLabelledBinarySearchTree () {
     }
   }
 
-  function removeFromTree (currentTree: TreeNode, label: string | number): TreeNode | null {
+  function removeFromTree (currentTree: BinarySearchTree, label: string | number): BinarySearchTree | null {
     // Clean up the underlying sub-trees first
     if (currentTree.leftNode !== null) {
       currentTree.leftNode = removeFromTree(currentTree.leftNode, label)
@@ -230,14 +285,14 @@ export function createLabelledBinarySearchTree () {
           // as there are two potential nodes to use, we try to balance the tree a bit more as this increases performance
           if (currentTree.leftNode.numberOfLeafsAndNodes! > currentTree.rightNode.numberOfLeafsAndNodes!) {
             // The left sub-tree is bigger then the right one, lets use the closest predecessor to restore some balance
-            const _closestPredecessor: TreeNode = closestPredecessor(currentTree.leftNode)
+            const _closestPredecessor: BinarySearchTree = closestPredecessor(currentTree.leftNode)
             currentTree.value = _closestPredecessor.value
             currentTree.label = _closestPredecessor.label
             currentTree.weight = _closestPredecessor.weight
             currentTree.leftNode = destroyclosestPredecessor(currentTree.leftNode)
           } else {
             // The right sub-tree is smaller then the right one, lets use the closest successor to restore some balance
-            const _closestSuccesor: TreeNode = closestSuccesor(currentTree.rightNode)
+            const _closestSuccesor: BinarySearchTree = closestSuccesor(currentTree.rightNode)
             currentTree.value = _closestSuccesor.value
             currentTree.label = _closestSuccesor.label
             currentTree.weight = _closestSuccesor.weight
@@ -275,7 +330,7 @@ export function createLabelledBinarySearchTree () {
     return currentTree
   }
 
-  function closestPredecessor (currentTree: TreeNode): TreeNode {
+  function closestPredecessor (currentTree: BinarySearchTree): BinarySearchTree {
     // This function finds the maximum value in a tree
     if (currentTree.rightNode !== null) {
       // We haven't reached the end of the tree yet
@@ -286,7 +341,7 @@ export function createLabelledBinarySearchTree () {
     }
   }
 
-  function destroyclosestPredecessor (currentTree: TreeNode): TreeNode | null {
+  function destroyclosestPredecessor (currentTree: BinarySearchTree): BinarySearchTree | null {
     // This function finds the maximum value in a tree
     if (currentTree.rightNode !== null) {
       // We haven't reached the end of the tree yet
@@ -309,7 +364,7 @@ export function createLabelledBinarySearchTree () {
     }
   }
 
-  function closestSuccesor (currentTree: TreeNode): TreeNode {
+  function closestSuccesor (currentTree: BinarySearchTree): BinarySearchTree {
     // This function finds the maximum value in a tree
     if (currentTree.leftNode !== null) {
       // We haven't reached the end of the tree yet
@@ -320,7 +375,7 @@ export function createLabelledBinarySearchTree () {
     }
   }
 
-  function destroyclosestSuccessor (currentTree: TreeNode): TreeNode | null {
+  function destroyclosestSuccessor (currentTree: BinarySearchTree): BinarySearchTree | null {
     // This function finds the maximum value in a tree
     if (currentTree.leftNode !== null) {
       // We haven't reached the end of the tree yet
@@ -365,8 +420,8 @@ export function createLabelledBinarySearchTree () {
     if (!tree || tree.totalWeight === 0) { return undefined }
 
     const half: number = tree.totalWeight! / 2
-    const underNode: TreeNode = findUndershootingNode(tree, half, 0)
-    const overNode: TreeNode = findOvershootingNode(tree, half, 0)
+    const underNode: BinarySearchTree = findUndershootingNode(tree, half, 0)
+    const overNode: BinarySearchTree = findOvershootingNode(tree, half, 0)
 
     switch (true) {
       case (!underNode && !overNode):
@@ -389,7 +444,7 @@ export function createLabelledBinarySearchTree () {
   /**
    * This helper function identifies the node that is closest below the set weight
    */
-  function findUndershootingNode (node: TreeNode | null, targetWeight: number, accWeight: number = 0): WeightedNode | null {
+  function findUndershootingNode (node: BinarySearchTree | null, targetWeight: number, accWeight: number = 0): BinarySearchTree | null {
     if (!node) { return null }
 
     const leftWeight: number = node.leftNode ? node.leftNode.totalWeight! : 0
@@ -411,7 +466,7 @@ export function createLabelledBinarySearchTree () {
   /**
    * This helper function identifies the node that is closest above the set weight
    */
-  function findOvershootingNode (node: TreeNode | null, targetWeight: number, accWeight: number = 0): WeightedNode | null {
+  function findOvershootingNode (node: BinarySearchTree | null, targetWeight: number, accWeight: number = 0): BinarySearchTree | null {
     if (!node) { return null }
 
     const leftWeight: number = node.leftNode ? node.leftNode.totalWeight! : 0
@@ -421,7 +476,7 @@ export function createLabelledBinarySearchTree () {
     switch (true) {
       case (targetWeight < weightBeforeNode):
         // eslint-disable-next-line no-case-declarations -- Code clarity outweighs lint rules
-        const leftResult: TreeNode = findOvershootingNode(node.leftNode, targetWeight, accWeight)
+        const leftResult: BinarySearchTree = findOvershootingNode(node.leftNode, targetWeight, accWeight)
         return leftResult || { value: node.value!, cumulativeWeight: weightBeforeNode }
       case (targetWeight >= weightUpToNode):
         return findOvershootingNode(node.rightNode, targetWeight, weightUpToNode)
@@ -441,7 +496,7 @@ export function createLabelledBinarySearchTree () {
     }
   }
 
-  function valueAtInorderPosition (currentTree: TreeNode | null, position: number): number | undefined {
+  function valueAtInorderPosition (currentTree: BinarySearchTree | null, position: number): number | undefined {
     let currentNodePosition: number
     if (currentTree === null) {
       // We are now an empty tree, this shouldn't happen
@@ -473,11 +528,14 @@ export function createLabelledBinarySearchTree () {
     }
   }
 
+  /**
+   * @remark: BE AWARE: TESTING PURPOSSES ONLY!
+   */
   function orderedSeries (): number[] {
     return orderedTree(tree)
   }
 
-  function orderedTree (currentTree: TreeNode | null): number[] {
+  function orderedTree (currentTree: BinarySearchTree | null): number[] {
     if (currentTree === null) {
       return []
     } else {
@@ -491,7 +549,7 @@ export function createLabelledBinarySearchTree () {
     tree = null
   }
 
-  function resetTree (currentTree: TreeNode | null): void {
+  function resetTree (currentTree: BinarySearchTree | null): void {
     if (currentTree !== null) {
       currentTree.label = null
       currentTree.value = null
