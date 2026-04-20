@@ -162,7 +162,7 @@ export function createFITRecorder (config) {
    * @param {float} metrics.workout.caloriesSpent.moving - The total calories burned (Calories) during movement in the enire workout (Calories)
    * @param {float} metrics.workout.caloriesSpent.rest - The total calories burned during resting in the enire workout (Calories)
    * @param {object} metrics.interval - All metrics related to the ORM interval progress
-   * @param {integer} metrics.interval.workoutStepNumber - Current workoutstep number the ORM interval belongs to
+   * @param {integer} metrics.interval.Number - Current interval (=workoutstep) number the ORM interval belongs to
    * @param {string} metrics.interval.type - Type of the interval (i.e. 'distance', 'time' or 'calories')
    * @param {object} metrics.interval.timeSpent - All time-related metrics related to the ORM interval progress
    * @param {object} metrics.interval.timeSpent.total - The total time spent in the ORM interval (i.e. both moving and resting, in seconds)
@@ -260,7 +260,7 @@ export function createFITRecorder (config) {
         // eslint-disable-next-line no-case-declarations -- Code clarity outweighs lint rules
         const lastActiveSplitEndtime = sessionData.splits[sessionData.splits.length - 1].endTime
         addRestSplit(metrics, lastActiveSplitEndtime)
-        addRestLap(metrics, lastActiveSplitEndtime, metrics.interval.workoutStepNumber)
+        addRestLap(metrics, lastActiveSplitEndtime, metrics.interval.number)
         // Now start a new active split and lap
         splitHRMetrics.reset()
         startSplit(metrics)
@@ -477,7 +477,7 @@ export function createFITRecorder (config) {
    * @param {boolean} metrics.metricsContext.isSplitEnd - Are the metrics recorded at the end of an ORM split (i.e. Garmin Lap)
    * @param {boolean} metrics.metricsContext.isPauseStart - Are the metrics recorded at the start of a pause
    * @param {boolean} metrics.metricsContext.isSessionStop - Are the metrics recorded at the end of the session (i.e. the last and final metrics report)
-   * @param {integer} metrics.interval.workoutStepNumber - Current workoutstep number the ORM split belongs to
+   * @param {integer} metrics.interval.number - Current interval (=workoutstep) number the ORM split belongs to
    * @param {string} metrics.interval.type - Type of the interval (i.e. 'distance', 'time' or 'calories')
    * @param {object} metrics.split.timeSpent - All time-related metrics related to the ORM interval progress
    * @param {object} metrics.split.timeSpent.total - The total time spent in the ORM split (seconds)
@@ -513,7 +513,7 @@ export function createFITRecorder (config) {
    */
   function calculateLapMetrics (metrics) {
     const lapnumber = sessionData.laps.length - 1
-    sessionData.laps[lapnumber].workoutStepNumber = metrics.interval.workoutStepNumber
+    sessionData.laps[lapnumber].workoutStepNumber = metrics.interval.number
     sessionData.laps[lapnumber].endTime = metrics.timestamp
     switch (true) {
       case (metrics.metricsContext.isSessionStop && (metrics.interval.type === 'distance' || metrics.interval.type === 'time')):
