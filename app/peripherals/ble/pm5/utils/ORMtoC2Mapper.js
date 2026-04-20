@@ -1,8 +1,7 @@
 'use strict'
-/*
-  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
-*/
 /**
+ * @copyright {@link https://github.com/JaapvanEkris/openrowingmonitor|OpenRowingMonitor}
+ *
  * @file Contains all mapping functions needed to map the internal ORM state to the externally communicated Concept2 PM5 states
  * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/PM5_Interface.md|for the entire interface description}
  */
@@ -304,7 +303,7 @@ export function toC2OperationalState (baseMetrics) {
 export function appendPauseIntervalToActiveInterval (activeMetrics, pauseMetrics) {
   const result = { ...pauseMetrics }
   result.interval = activeMetrics.interval
-  result.interval.workoutStepNumber = pauseMetrics.interval.workoutStepNumber
+  result.interval.number = pauseMetrics.interval.number
   result.interval.timeSpent.moving = activeMetrics.interval.timeSpent.moving
   result.interval.timeSpent.rest = pauseMetrics.interval.timeSpent.rest
   result.interval.timeSpent.total = activeMetrics.interval.timeSpent.moving + pauseMetrics.interval.timeSpent.rest
@@ -325,7 +324,7 @@ export function appendPauseIntervalToActiveInterval (activeMetrics, pauseMetrics
 export function mergeTwoSplits (firstMetrics, secondMetrics) {
   const result = { ...secondMetrics }
   result.split.C2number = secondMetrics.split.C2number
-  result.split.workoutStepNumber = secondMetrics.split.workoutStepNumber
+  result.split.number = secondMetrics.split.number
   result.split.numberOfStrokes = firstMetrics.split.numberOfStrokes + secondMetrics.split.numberOfStrokes
   result.split.distance.absoluteStart = firstMetrics.split.distance.absoluteStart
   result.split.distance.fromStart = firstMetrics.split.distance.fromStart + secondMetrics.split.distance.fromStart
