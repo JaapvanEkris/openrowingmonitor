@@ -1,3 +1,4 @@
+'use strict'
 /**
  * @copyright {@link https://github.com/JaapvanEkris/openrowingmonitor|OpenRowingMonitor}
  *
@@ -5,96 +6,62 @@
  */
 /* eslint-disable max-lines -- This code has to handle a lot of different situations */
 
+// ---------------------------------------------------------------------------
+// Public interface
+// ---------------------------------------------------------------------------
+
 /**
  * Represents a node in the binary search tree
  */
-interface BinarySearchTree {
-  label: string | number | null
+export interface BinarySearchTree {
+  push(label: Readonly<number>, value: Readonly<number>, weight?: Readonly<number>): void
+  remove(label: Readonly<number>): void
+  size(): number
+  totalWeight(): number
+  minimum(): number
+  maximum(): number
+  numberOfValuesAbove(testedValue: Readonly<number>): number
+  numberOfValuesEqualOrBelow(testedValue: Readonly<number>): number
+  median(): number
+  weightedMedian(): number | undefined
+  valueAtInorderPos(position: Readonly<number>): number | undefined
+  orderedSeries(): number[]
+  reset(): void
+}
+
+// ---------------------------------------------------------------------------
+// Implementation
+// ---------------------------------------------------------------------------
+
+interface BinarySearchTreeNode {
+  label: number | null
   value: number | null
   weight: number | null
-  leftNode: BinarySearchTree | null
-  rightNode: BinarySearchTree | null
+  leftNode: BinarySearchTreeNode | null
+  rightNode: BinarySearchTreeNode | null
   numberOfLeafsAndNodes: number | null
   totalWeight: number | null
 }
 
 /**
- * This creates an ordered series with labels and optional weights
+ * @description This creates an ordered series with labels and optional weights
  * It allows for efficient determining the Weighted Median, Number of Above and Below
  */
-export function createLabelledBinarySearchTree () {
-  let tree: BinarySearchTree | null = null
+export function createLabelledBinarySearchTree (): BinarySearchTree {
+  let tree: BinarySearchTreeNode | null = null
 
   // To prevent long linked lists from forming (resuling in heap overflows), we need to balance the tree
   // Neither child may hold more than this fraction of its parent's subtree nodes.
   // 0.7 keeps depth at O(log n) while avoiding over-rotation on sequential inserts.
-  const BALANCE_FACTOR = 0.7
+  const balanceFactor = 0.7
 
   /**
-   * Recalculates numberOfLeafsAndNodes and totalWeight from already-correct children.
-   * Called after rotations so no separate accounting pass is needed.
+   * @description inserts a value into the tree
+   * @param {float} label - label to use to destroy the value later
+   * @param {float} value - value to store
+   * @param {float} weight - optional weight attributed to the value (default = 1)
    */
-  function updateNode (node: BinarySearchTree): void {
-    const leftCount = node.leftNode?.numberOfLeafsAndNodes ?? 0
-    const rightCount = node.rightNode?.numberOfLeafsAndNodes ?? 0
-    node.numberOfLeafsAndNodes = leftCount + rightCount + 1
-    const leftWeight = node.leftNode?.totalWeight ?? 0
-    const rightWeight = node.rightNode?.totalWeight ?? 0
-    node.totalWeight = leftWeight + rightWeight + node.weight!
-  }
-
-  function rotateRight (node: BinarySearchTree): BinarySearchTree {
-    const newRoot = node.leftNode!
-    node.leftNode = newRoot.rightNode
-    newRoot.rightNode = node
-    updateNode(node)
-    updateNode(newRoot)
-    return newRoot
-  }
-
-  function rotateLeft (node: BinarySearchTree): BinarySearchTree {
-    const newRoot = node.rightNode!
-    node.rightNode = newRoot.leftNode
-    newRoot.leftNode = node
-    updateNode(node)
-    updateNode(newRoot)
-    return newRoot
-  }
-
-  /**
-   * Weight-balanced (BB) tree rebalance.
-   * A single or double rotation is applied when one child exceeds BALANCE_FACTOR
-   * of the subtree total. Double rotation handles the inner-grandchild-heavy case.
-   * Called bottom-up by pushInTree's returning call stack â€” no extra traversal.
-   */
-  function rebalance (node: BinarySearchTree): BinarySearchTree {
-    const total = node.numberOfLeafsAndNodes!
-    const leftSize = node.leftNode?.numberOfLeafsAndNodes ?? 0
-    const rightSize = node.rightNode?.numberOfLeafsAndNodes ?? 0
-
-    if (leftSize > BALANCE_FACTOR * total) {
-      if ((node.leftNode?.rightNode?.numberOfLeafsAndNodes ?? 0) > (node.leftNode?.leftNode?.numberOfLeafsAndNodes ?? 0)) {
-        node.leftNode = rotateLeft(node.leftNode!)
-      }
-      return rotateRight(node)
-    }
-
-    if (rightSize > BALANCE_FACTOR * total) {
-      if ((node.rightNode?.leftNode?.numberOfLeafsAndNodes ?? 0) > (node.rightNode?.rightNode?.numberOfLeafsAndNodes ?? 0)) {
-        node.rightNode = rotateRight(node.rightNode!)
-      }
-      return rotateLeft(node)
-    }
-
-    return node
-  }
-
-  /**
-   * @param {float} label to use to destroy it later
-   * @param {float} value to store
-   * @param {float} weight attributed to the value (default = 1)
-   */
-  function push (label: string | number, value: number, weight: number = 1): void {
+  function push (label: Readonly<number>, value: Readonly<number>, weight: Readonly<number> = 1): void {
     if (value === undefined || isNaN(value)) { return }
     if (tree === null) {
       tree = newNode(label, value, weight)
@@ -104,13 +71,14 @@ export function createLabelledBinarySearchTree () {
   }
 
   /**
-   * Helper function to actually push value in the current tree
-   * @param {object} the current tree
-   * @param {float} label to use to destroy it later
-   * @param {float} value to store
-   * @param {float} weight attributed to the value
+   * @description Helper function to actually push value in the current tree
+   * @param {object} currentTree - the current tree/branch
+   * @param {float} label - label to use to destroy the inserted value later
+   * @param {float} value - value to store
+   * @param {float} weight - weight attributed to the value
+   * @returns {object} the tree/branch with the value inserted
    */
-  function pushInTree (currentTree: BinarySearchTree, label: string | number, value: number, weight: number): BinarySearchTree {
+  function pushInTree (currentTree: Readonly<BinarySearchTreeNode>, label: Readonly<number>, value: Readonly<number>, weight: Readonly<number>): BinarySearchTreeNode {
     if (value <= currentTree.value!) {
       // The value should be on the left side of currentTree
       if (currentTree.leftNode === null) {
@@ -131,7 +99,14 @@ export function createLabelledBinarySearchTree () {
     return rebalance(currentTree)
   }
 
-  function newNode (label: number, value: number, weight: number): BinarySearchTree {
+  /**
+   * @description Helper function to create a new node
+   * @param {float} label - label to use to destroy the inserted value later
+   * @param {float} value - value to store
+   * @param {float} weight - weight attributed to the value
+   * @returns {object} a node with the value and weight
+   */
+  function newNode (label: Readonly<number>, value: Readonly<number>, weight: Readonly<number>): BinarySearchTreeNode {
     return {
       label,
       value,
@@ -144,7 +119,7 @@ export function createLabelledBinarySearchTree () {
   }
 
   /**
-   * @result {integer} number of values stored in the tree
+   * @returns {integer} number of values stored in the tree
    */
   function size (): number {
     if (tree !== null) {
@@ -155,7 +130,7 @@ export function createLabelledBinarySearchTree () {
   }
 
   /**
-   * @result {float} total weight stored in the tree
+   * @returns {float} total weight stored in the tree
    */
   function totalWeight (): number {
     if (tree !== null) {
@@ -165,6 +140,10 @@ export function createLabelledBinarySearchTree () {
     }
   }
 
+  /**
+   * @description retrieves the minimum value stored in the tree
+   * @returns {float} minimum value stored in the tree
+   */
   function minimum (): number {
     if (tree !== null && tree.numberOfLeafsAndNodes! > 0) {
       return minimumValueInTree(tree!)
@@ -173,7 +152,12 @@ export function createLabelledBinarySearchTree () {
     }
   }
 
-  function minimumValueInTree (subTree: BinarySearchTree): number {
+  /**
+   * @description retrieves the minimum value stored in the tree/branch
+   * @param {object} subtTree - the current tree/branch to search
+   * @returns {float} minimum value stored in the subtree
+   */
+  function minimumValueInTree (subTree: Readonly<BinarySearchTreeNode>): number {
     if (subTree.leftNode === null) {
       return subTree.value!
     } else {
@@ -181,6 +165,10 @@ export function createLabelledBinarySearchTree () {
     }
   }
 
+  /**
+   * @description retrieves the maximum value stored in the tree
+   * @returns {float} maximum value stored in the tree
+   */
   function maximum (): number {
     if (tree !== null && tree.numberOfLeafsAndNodes > 0) {
       return maximumValueInTree(tree!)
@@ -189,7 +177,12 @@ export function createLabelledBinarySearchTree () {
     }
   }
 
-  function maximumValueInTree (subTree: BinarySearchTree): number {
+  /**
+   * @description retrieves the maximum value stored in the tree/branch
+   * @param {object} subTree - the current tree/branch to search
+   * @returns {float} maximum value stored in the subtree
+   */
+  function maximumValueInTree (subTree: Readonly<BinarySearchTreeNode>): number {
     if (subTree.rightNode === null) {
       return subTree.value!
     } else {
@@ -197,7 +190,12 @@ export function createLabelledBinarySearchTree () {
     }
   }
 
-  function numberOfValuesAbove (testedValue: number): number {
+  /**
+   * @description retrieves the number of values above the testedvalue stored in the tree
+   * @param {float} testedValue - thresholdvalue to test for
+   * @returns {integer} number of values above the tested value stored in the tree
+   */
+  function numberOfValuesAbove (testedValue: Readonly<number>): number {
     if (tree !== null && tree.numberOfLeafsAndNodes > 0) {
       return countNumberOfValuesAboveInTree(tree, testedValue)
     } else {
@@ -205,7 +203,13 @@ export function createLabelledBinarySearchTree () {
     }
   }
 
-  function countNumberOfValuesAboveInTree (currentTree: BinarySearchTree | null, testedValue: number): number {
+  /**
+   * @description retrieves the number of values above the testedvalue stored in the tree/branch
+   * @param {object} currentTree - the current tree/branch to search
+   * @param {float} testedValue - thresholdvalue to test for
+   * @returns {integer} number of values above the tested value stored in the tree
+   */
+  function countNumberOfValuesAboveInTree (currentTree: Readonly<BinarySearchTreeNode> | null, testedValue: Readonly<number>): number {
     if (currentTree === null) {
       return 0
     } else {
@@ -220,7 +224,12 @@ export function createLabelledBinarySearchTree () {
     }
   }
 
-  function numberOfValuesEqualOrBelow (testedValue: number): number {
+  /**
+   * @description retrieves the number of values equal or below the testedvalue stored in the tree
+   * @param {float} testedValue - thresholdvalue to test for
+   * @returns {integer} number of values equal or below the tested value stored in the tree
+   */
+  function numberOfValuesEqualOrBelow (testedValue: Readonly<number>): number {
     if (tree !== null && tree.numberOfLeafsAndNodes > 0) {
       return countNumberOfValuesEqualOrBelowInTree(tree, testedValue)
     } else {
@@ -228,7 +237,13 @@ export function createLabelledBinarySearchTree () {
     }
   }
 
-  function countNumberOfValuesEqualOrBelowInTree (currentTree: BinarySearchTree | null, testedValue: number): number {
+  /**
+   * @description retrieves the number of values above the testedvalue stored in the tree/branch
+   * @param {object} currentTree - the current tree/branch to search
+   * @param {float} testedValue - thresholdvalue to test for
+   * @returns {integer} number of values above the tested value stored in the tree
+   */
+  function countNumberOfValuesEqualOrBelowInTree (currentTree: Readonly<BinarySearchTreeNode> | null, testedValue: Readonly<number>): number {
     if (currentTree === null) {
       return 0
     } else {
@@ -243,13 +258,22 @@ export function createLabelledBinarySearchTree () {
     }
   }
 
-  function remove (label: string | number): void {
+  /**
+   * @description Removes all values labelled with 'label' from the tree
+   * @param {float} label - label relating to the values to be removed
+   */
+  function remove (label: Readonly<number>): void {
     if (tree !== null) {
       tree = removeFromTree(tree, label)
     }
   }
 
-  function removeFromTree (currentTree: BinarySearchTree, label: string | number): BinarySearchTree | null {
+  /**
+   * @description Removes all values labelled with 'label' from the tree
+   * @param {object} currentTree - the current tree/branch to search for removing values
+   * @param {float} label - label relating to the values to be removed
+   */
+  function removeFromTree (currentTree: Readonly<BinarySearchTreeNode>, label: Readonly<number>): BinarySearchTreeNode | null {
     // Clean up the underlying sub-trees first
     if (currentTree.leftNode !== null) {
       currentTree.leftNode = removeFromTree(currentTree.leftNode, label)
@@ -285,14 +309,14 @@ export function createLabelledBinarySearchTree () {
           // as there are two potential nodes to use, we try to balance the tree a bit more as this increases performance
           if (currentTree.leftNode.numberOfLeafsAndNodes! > currentTree.rightNode.numberOfLeafsAndNodes!) {
             // The left sub-tree is bigger then the right one, lets use the closest predecessor to restore some balance
-            const _closestPredecessor: BinarySearchTree = closestPredecessor(currentTree.leftNode)
+            const _closestPredecessor: BinarySearchTreeNode = closestPredecessor(currentTree.leftNode)
             currentTree.value = _closestPredecessor.value
             currentTree.label = _closestPredecessor.label
             currentTree.weight = _closestPredecessor.weight
             currentTree.leftNode = destroyclosestPredecessor(currentTree.leftNode)
           } else {
             // The right sub-tree is smaller then the right one, lets use the closest successor to restore some balance
-            const _closestSuccesor: BinarySearchTree = closestSuccesor(currentTree.rightNode)
+            const _closestSuccesor: BinarySearchTreeNode = closestSuccesor(currentTree.rightNode)
             currentTree.value = _closestSuccesor.value
             currentTree.label = _closestSuccesor.label
             currentTree.weight = _closestSuccesor.weight
@@ -330,8 +354,12 @@ export function createLabelledBinarySearchTree () {
     return currentTree
   }
 
-  function closestPredecessor (currentTree: BinarySearchTree): BinarySearchTree {
-    // This function finds the maximum value in a tree
+  /**
+   * @description This helper function finds the maximum value in a subtree and returns the node
+   * @param {object} currentTree - the current tree/branch to search for the maximum value
+   * @param {object} the node with the maximum value
+   */
+  function closestPredecessor (currentTree: Readonly<BinarySearchTreeNode>): BinarySearchTreeNode {
     if (currentTree.rightNode !== null) {
       // We haven't reached the end of the tree yet
       return closestPredecessor(currentTree.rightNode)
@@ -341,8 +369,12 @@ export function createLabelledBinarySearchTree () {
     }
   }
 
-  function destroyclosestPredecessor (currentTree: BinarySearchTree): BinarySearchTree | null {
-    // This function finds the maximum value in a tree
+  /**
+   * @description This helper function finds the maximum value in a subtree and returns the modified subtree
+   * @param {object} currentTree - the current tree/branch to search for the maximum value
+   * @param {object} the subtree with the maximum value removed
+   */
+  function destroyclosestPredecessor (currentTree: Readonly<BinarySearchTreeNode>): BinarySearchTreeNode | null {
     if (currentTree.rightNode !== null) {
       // We haven't reached the end of the tree yet
       currentTree.rightNode = destroyclosestPredecessor(currentTree.rightNode)
@@ -364,8 +396,12 @@ export function createLabelledBinarySearchTree () {
     }
   }
 
-  function closestSuccesor (currentTree: BinarySearchTree): BinarySearchTree {
-    // This function finds the maximum value in a tree
+  /**
+   * @description This helper function finds the minimum value in a subtree and returns the node
+   * @param {object} currentTree - the current tree/branch to search for the minimum value
+   * @param {object} the node with the minimum value
+   */
+  function closestSuccesor (currentTree: Readonly<BinarySearchTreeNode>): BinarySearchTreeNode {
     if (currentTree.leftNode !== null) {
       // We haven't reached the end of the tree yet
       return closestSuccesor(currentTree.leftNode)
@@ -375,8 +411,12 @@ export function createLabelledBinarySearchTree () {
     }
   }
 
-  function destroyclosestSuccessor (currentTree: BinarySearchTree): BinarySearchTree | null {
-    // This function finds the maximum value in a tree
+  /**
+   * @description This helper function finds the minimum value in a subtree and returns the modified subtree
+   * @param {object} currentTree - the current tree/branch to search for the minimum value
+   * @param {object} the subtree with the minimum value removed
+   */
+  function destroyclosestSuccessor (currentTree: Readonly<BinarySearchTreeNode>): BinarySearchTreeNode | null {
     if (currentTree.leftNode !== null) {
       // We haven't reached the end of the tree yet
       currentTree.leftNode = destroyclosestSuccessor(currentTree.leftNode)
@@ -399,9 +439,81 @@ export function createLabelledBinarySearchTree () {
   }
 
   /**
+   * @description This implements a Weight-balanced (BB) tree rebalance.
+   * A single or double rotation is applied when one child exceeds balanceFactor of the subtree total. Double rotation handles the inner-grandchild-heavy case.
+   * Called bottom-up by pushInTree's returning call stack to prevent extra tree traversal.
+   * @param {object} node - the current tree/branch to rebalance
+   */
+  /* eslint-disable complexity -- This has a lot of edge cases to handle */
+  function rebalance (node: Readonly<BinarySearchTreeNode>): BinarySearchTreeNode {
+    const total: number = node.numberOfLeafsAndNodes!
+    const leftSize: number = node.leftNode?.numberOfLeafsAndNodes ?? 0
+    const rightSize: number = node.rightNode?.numberOfLeafsAndNodes ?? 0
+
+    if (leftSize > balanceFactor * total) {
+      if ((node.leftNode?.rightNode?.numberOfLeafsAndNodes ?? 0) > (node.leftNode?.leftNode?.numberOfLeafsAndNodes ?? 0)) {
+        node.leftNode = rotateLeft(node.leftNode!)
+      }
+      return rotateRight(node)
+    }
+
+    if (rightSize > balanceFactor * total) {
+      if ((node.rightNode?.leftNode?.numberOfLeafsAndNodes ?? 0) > (node.rightNode?.rightNode?.numberOfLeafsAndNodes ?? 0)) {
+        node.rightNode = rotateRight(node.rightNode!)
+      }
+      return rotateLeft(node)
+    }
+
+    return node
+  }
+  /* eslint-enable complexity */
+
+  /**
+   * @description This recalculates numberOfLeafsAndNodes and totalWeight from already-correct children. Called after rotations so no separate accounting pass is needed.
+   * @param {object} node - the current tree/branch to recalculate
+   */
+  function updateNode (node: BinarySearchTreeNode): void {
+    const leftCount = node.leftNode?.numberOfLeafsAndNodes ?? 0
+    const rightCount = node.rightNode?.numberOfLeafsAndNodes ?? 0
+    node.numberOfLeafsAndNodes = leftCount + rightCount + 1
+    const leftWeight = node.leftNode?.totalWeight ?? 0
+    const rightWeight = node.rightNode?.totalWeight ?? 0
+    node.totalWeight = leftWeight + rightWeight + node.weight!
+  }
+
+  /**
+   * @description Helper function to rotate the tree right, to rebalance the tree again
+   * @param {object} node - the current tree/branch to rebalance
+   * @returns a rebalanced tree/branch
+   */
+  function rotateRight (node: Readonly<BinarySearchTreeNode>): BinarySearchTreeNode {
+    const newRoot = node.leftNode!
+    node.leftNode = newRoot.rightNode
+    newRoot.rightNode = node
+    updateNode(node)
+    updateNode(newRoot)
+    return newRoot
+  }
+
+  /**
+   * @description Helper function to rotate the tree left, to rebalance the tree again
+   * @param {object} node - the current tree/branch to rebalance
+   * @returns a rebalanced tree/branch
+   */
+  function rotateLeft (node: Readonly<BinarySearchTreeNode>): BinarySearchTreeNode {
+    const newRoot = node.rightNode!
+    node.rightNode = newRoot.leftNode
+    newRoot.leftNode = node
+    updateNode(node)
+    updateNode(newRoot)
+    return newRoot
+  }
+
+  /**
+   * @description the regular median of the entire tree
    * BE AWARE, UNLIKE WITH ARRAYS, THE COUNTING STARTS WITH THE WEIGHT SUM! !!! !!!
    * THIS LOGIC THUS WORKS DIFFERENT THAN STANDARD MEDIAN! !!!!!!
-   * @returns {float} the median of the tree
+   * @returns {float} the regular median of the tree
    */
   function median (): number {
     if (tree !== null && tree.numberOfLeafsAndNodes! > 0) {
@@ -414,14 +526,15 @@ export function createLabelledBinarySearchTree () {
   }
 
   /**
-   * @returns {float} the weighed median of the entire tree, with linear interpolation between datapoints if needed
+   * @description the weighed median of the entire tree, with linear interpolation between datapoints if needed
+   * @returns {float} the weighed median of the entire tree
    */
   function weightedMedian (): number | undefined {
     if (!tree || tree.totalWeight === 0) { return undefined }
 
     const half: number = tree.totalWeight! / 2
-    const underNode: BinarySearchTree = findUndershootingNode(tree, half, 0)
-    const overNode: BinarySearchTree = findOvershootingNode(tree, half, 0)
+    const underNode: BinarySearchTreeNode = findUndershootingNode(tree, half, 0)
+    const overNode: BinarySearchTreeNode = findOvershootingNode(tree, half, 0)
 
     switch (true) {
       case (!underNode && !overNode):
@@ -442,9 +555,12 @@ export function createLabelledBinarySearchTree () {
   }
 
   /**
-   * This helper function identifies the node that is closest below the set weight
+   * @description This helper function identifies the node that is closest below the set weight
+   * @param {object} node - the current tree/branch to search the closest node under the total weight
+   * @param {number} targetWeight - weight to get close to (but stay below)
+   * @param {number} accWeight - already accumulated weight in the tree ommitted
    */
-  function findUndershootingNode (node: BinarySearchTree | null, targetWeight: number, accWeight: number = 0): BinarySearchTree | null {
+  function findUndershootingNode (node: Readonly<BinarySearchTreeNode> | null, targetWeight: Readonly<number>, accWeight: Readonly<number> = 0): BinarySearchTreeNode | null {
     if (!node) { return null }
 
     const leftWeight: number = node.leftNode ? node.leftNode.totalWeight! : 0
@@ -464,9 +580,12 @@ export function createLabelledBinarySearchTree () {
   }
 
   /**
-   * This helper function identifies the node that is closest above the set weight
+   * @description This helper function identifies the node that is closest above the set weight
+   * @param {object} node - the current tree/branch to search the closest node above the total weight
+   * @param {number} targetWeight - weight to get close to (but stay above)
+   * @param {number} accWeight - already accumulated weight in the tree ommitted
    */
-  function findOvershootingNode (node: BinarySearchTree | null, targetWeight: number, accWeight: number = 0): BinarySearchTree | null {
+  function findOvershootingNode (node: Readonly<BinarySearchTreeNode> | null, targetWeight: Readonly<number>, accWeight: Readonly<number> = 0): BinarySearchTreeNode | null {
     if (!node) { return null }
 
     const leftWeight: number = node.leftNode ? node.leftNode.totalWeight! : 0
@@ -476,7 +595,7 @@ export function createLabelledBinarySearchTree () {
     switch (true) {
       case (targetWeight < weightBeforeNode):
         // eslint-disable-next-line no-case-declarations -- Code clarity outweighs lint rules
-        const leftResult: BinarySearchTree = findOvershootingNode(node.leftNode, targetWeight, accWeight)
+        const leftResult: BinarySearchTreeNode = findOvershootingNode(node.leftNode, targetWeight, accWeight)
         return leftResult || { value: node.value!, cumulativeWeight: weightBeforeNode }
       case (targetWeight >= weightUpToNode):
         return findOvershootingNode(node.rightNode, targetWeight, weightUpToNode)
@@ -486,9 +605,12 @@ export function createLabelledBinarySearchTree () {
   }
 
   /**
+   * @description This function returns the value at the 'position' when the BST would be ordered
+   * @param {integer} position - position to return from the ordered array
+   * @returns {float} the value at 'position' from the ordered array
    * @remark: BE AWARE TESTING PURPOSSES ONLY
    */
-  function valueAtInorderPos (position: number): number | undefined {
+  function valueAtInorderPos (position: Readonly<number>): number | undefined {
     if (tree !== null && position >= 1) {
       return valueAtInorderPosition(tree, position)
     } else {
@@ -496,7 +618,13 @@ export function createLabelledBinarySearchTree () {
     }
   }
 
-  function valueAtInorderPosition (currentTree: BinarySearchTree | null, position: number): number | undefined {
+  /**
+   * @description This function returns the value at the 'position' when the BST would be ordered
+   * @param {object} currentTree - the current tree/branch to look for the ordered value
+   * @param {integer} position - position to return from the ordered array
+   * @returns {float} the value at 'position' from the ordered array
+   */
+  function valueAtInorderPosition (currentTree: Readonly<BinarySearchTreeNode> | null, position: Readonly<number>): number | undefined {
     let currentNodePosition: number
     if (currentTree === null) {
       // We are now an empty tree, this shouldn't happen
@@ -529,13 +657,20 @@ export function createLabelledBinarySearchTree () {
   }
 
   /**
-   * @remark: BE AWARE: TESTING PURPOSSES ONLY!
+   * @description This function returns all values in the tree
+   * @returns {array} the entire tree as ordered array
+   * @remark: BE AWARE TESTING PURPOSSES ONLY
    */
   function orderedSeries (): number[] {
     return orderedTree(tree)
   }
 
-  function orderedTree (currentTree: BinarySearchTree | null): number[] {
+  /**
+   * @description This function returns all values in the tree
+   * @param {object} currentTree - the current tree/branch to look for the ordered value
+   * @returns {array} the entire tree/branch as ordered array
+   */
+  function orderedTree (currentTree: Readonly<BinarySearchTreeNode> | null): number[] {
     if (currentTree === null) {
       return []
     } else {
@@ -544,12 +679,19 @@ export function createLabelledBinarySearchTree () {
     }
   }
 
+  /**
+   * @description This function empties the tree
+   */
   function reset (): void {
     resetTree(tree)
     tree = null
   }
 
-  function resetTree (currentTree: BinarySearchTree | null): void {
+  /**
+   * @description This function empties the tree and destroys all its nodes
+   * @param {object} currentTree - the current tree/branch to destroy
+   */
+  function resetTree (currentTree: BinarySearchTreeNode | null): void {
     if (currentTree !== null) {
       currentTree.label = null
       currentTree.value = null
