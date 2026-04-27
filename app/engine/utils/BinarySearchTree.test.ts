@@ -124,7 +124,6 @@ describe('Test behaviour of the BinarySearchTree when data is pushed', () => {
     testMedian(dataTree, 6)
     testWeightedMedian(dataTree, undefined)
   })
-
 })
 
 describe('Test behaviour of the BinarySearchTree when data is pushed and simple (leaf) removals', () => {
@@ -274,7 +273,100 @@ describe('Test behaviour of the BinarySearchTree when data is pushed and complex
   })
 })
 
-describe('Reset bhaviour of the BinarySearchTree', () => {
+describe('Test behaviour of the BinarySearchTree in heavy update scenarios', () => {
+// These stress tests test the reliability of the binary search tree storage and balancing properties after a huge number of updates
+  test('STRESS_Theoretical_01: Stress test of the BinarySearchTree with 6,400,000 random inserts', () => {
+    const dataTree = createLabelledBinarySearchTree()
+
+    dataTree.push(0.50, 0.50, 1)
+    dataTree.push(0.25, 0.25, 1)
+    dataTree.push(0.125, 0.125, 1)
+    dataTree.push(0.375, 0.375, 1)
+    dataTree.push(0.75, 0.75, 1)
+    dataTree.push(0.625, 0.625, 1)
+    dataTree.push(0.875, 0.875, 1)
+
+    let j = 0
+    let randomvalue
+    while (j < 3200000) {
+      randomvalue = Math.random()
+      dataTree.push(randomvalue, randomvalue, 1)
+      dataTree.push(randomvalue, 1 - randomvalue, 1)
+      j++
+    }
+    testSize(dataTree, 6400007)
+    testTotalWeight(dataTree, 6400007)
+  }, 120000) // Timeout value in ms
+
+  test('STRESS_Theoretical_02: Stress test of the BinarySearchTree with 6,400,000 identical inserts (balancing test)', () => {
+    const dataTree = createLabelledBinarySearchTree()
+
+    let j = 0
+    while (j < 6400000) {
+      dataTree.push(j, 1, 1)
+      j++
+    }
+    testSize(dataTree, 6400000)
+    testTotalWeight(dataTree, 6400000)
+    testMinimum(dataTree, 1)
+    testMaximum(dataTree, 1)
+    testMedian(dataTree, 1)
+  }, 90000) // Timeout value in ms
+
+  test('STRESS_Theoretical_03: Stress test of the BinarySearchTree with 6,400,000 reverse ordered datapoints (balancing test)', () => {
+    const dataTree = createLabelledBinarySearchTree()
+
+    let j = 0
+    while (j < 6400000) {
+      dataTree.push(j, 6400000 - j, 1)
+      j++
+    }
+    dataTree.push(6400000, 0, 1)
+    testSize(dataTree, 6400001)
+    testTotalWeight(dataTree, 6400001)
+    testMinimum(dataTree, 0)
+    testMaximum(dataTree, 6400000)
+    testMedian(dataTree, 3200000)
+  }, 90000) // Timeout value in ms
+
+  test('STRESS_Theoretical_04: Stress test of the BinarySearchTree with 64,000 reverse ordered datapoints, with removals and readditon of 32,000 (balancing test)', () => {
+    const dataTree = createLabelledBinarySearchTree()
+
+    // Let's create the initial tree
+    let j = 0
+    while (j < 64000) {
+      dataTree.push(j, 64000 - j, 1)
+      j++
+    }
+    dataTree.push(64000, 0, 1)
+    testSize(dataTree, 64001)
+    testTotalWeight(dataTree, 64001)
+    testMinimum(dataTree, 0)
+    testMaximum(dataTree, 64000)
+    testMedian(dataTree, 32000)
+
+    // Let's remove the first 3200000 datapoints (cutting of the head of the tree)
+    j = 0
+    while (j < 32000) {
+      dataTree.remove(j)
+      j++
+    }
+
+    // Let's insert the datapoints again
+    j = 0
+    while (j < 32000) {
+      dataTree.push(j, 64000 - j, 1)
+      j++
+    }
+    testSize(dataTree, 64001)
+    testTotalWeight(dataTree, 64001)
+    testMinimum(dataTree, 0)
+    testMaximum(dataTree, 64000)
+    testMedian(dataTree, 32000)
+  }, 240000) // Timeout value in ms
+})
+
+describe('Reset behaviour of the BinarySearchTree', () => {
 /**
  * Test of the response on an empty tree
  */
