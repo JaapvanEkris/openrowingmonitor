@@ -2,7 +2,7 @@
 /**
  * @copyright {@link https://github.com/JaapvanEkris/openrowingmonitor|OpenRowingMonitor}
  *
- * @file This is an ordered series with labels and optional weights
+ * @file This is an abstract type (BinarySearchTress) as an efficient implementation of an ordered series with labels and optional weights
  */
 /* eslint-disable max-lines -- This code has to handle a lot of different situations */
 
@@ -10,9 +10,6 @@
 // Public interface
 // ---------------------------------------------------------------------------
 
-/**
- * Represents a node in the binary search tree
- */
 export interface BinarySearchTree {
   push(label: Readonly<number>, value: Readonly<number>, weight?: Readonly<number>): void
   remove(label: Readonly<number>): void
@@ -33,6 +30,9 @@ export interface BinarySearchTree {
 // Implementation
 // ---------------------------------------------------------------------------
 
+/**
+ * Representation of a node in the binary search tree
+ */
 interface BinarySearchTreeNode {
   label: number | null
   value: number | null
