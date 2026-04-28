@@ -2,7 +2,7 @@
 /**
  * @copyright {@link https://github.com/JaapvanEkris/openrowingmonitor|OpenRowingMonitor}
  *
- * @file This is an abstract type (BinarySearchTress) as an efficient implementation of an ordered series with labels and optional weights
+ * @file This is an abstract datatype (BinarySearchTree) as an efficient implementation of an ordered series with labels and optional weights, allowing quick retrieval of a (Weighed) Median
  */
 /* eslint-disable max-lines -- This code has to handle a lot of different situations */
 
