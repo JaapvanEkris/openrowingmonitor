@@ -303,6 +303,6 @@ describe('Test of init-failures of Gaussian filter', () => {
   })
 })
 
-function testWeight (weightFunction: GaussianWeightFunction, xValue: number, expectedValue: number): void {
+function testWeight (weightFunction: Readonly<GaussianWeightFunction>, xValue: Readonly<number>, expectedValue: Readonly<number>): void {
   assert.strictEqual(weightFunction.weight(xValue), expectedValue, `Weight should be should be ${expectedValue} at x = ${xValue}, is ${weightFunction.weight(xValue)}`)
 }
