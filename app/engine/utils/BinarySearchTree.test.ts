@@ -392,42 +392,42 @@ describe('Reset behaviour of the BinarySearchTree', () => {
   })
 })
 
-function testSize (tree: TreeNode, expectedValue: number) {
+function testSize (tree: Readonly<TreeNode>, expectedValue: Readonly<number>) {
   assert.strictEqual(tree.size(), expectedValue, `Expected size should be ${expectedValue}, encountered ${tree.size()}`)
 }
 
-function testTotalWeight (tree: TreeNode, expectedValue: number) {
+function testTotalWeight (tree: Readonly<TreeNode>, expectedValue: Readonly<number>) {
   assert.strictEqual(tree.totalWeight(), expectedValue, `Expected weight should be ${expectedValue}, encountered ${tree.totalWeight()}`)
 }
 
-function testNumberOfValuesAbove (tree: TreeNode, cutoff: number, expectedValue: number) {
+function testNumberOfValuesAbove (tree: Readonly<TreeNode>, cutoff: Readonly<number>, expectedValue: Readonly<number>) {
   assert.strictEqual(tree.numberOfValuesAbove(cutoff), expectedValue, `Expected numberOfValuesAbove(${cutoff}) to be ${expectedValue}, encountered ${tree.numberOfValuesAbove(cutoff)}`)
 }
 
-function testNumberOfValuesEqualOrBelow (tree: TreeNode, cutoff: number, expectedValue: number) {
+function testNumberOfValuesEqualOrBelow (tree: Readonly<TreeNode>, cutoff: Readonly<number>, expectedValue: Readonly<number>) {
   assert.strictEqual(tree.numberOfValuesEqualOrBelow(cutoff), expectedValue, `Expected numberOfValuesEqualOrBelow(${cutoff}) to be ${expectedValue}, encountered ${tree.numberOfValuesEqualOrBelow(cutoff)}`)
 }
 
-function testOrderedSeries (tree: TreeNode, expectedValue: number[]) {
+function testOrderedSeries (tree: Readonly<TreeNode>, expectedValue: Readonly<number[]>) {
   assert.strictEqual(tree.orderedSeries().toString(), expectedValue.toString(), `Expected ordered series to be ${expectedValue}, encountered ${tree.orderedSeries()}`)
 }
 
-function testValueAtInorderPos (tree: TreeNode, position: number, expectedValue: number) {
+function testValueAtInorderPos (tree: Readonly<TreeNode>, position: Readonly<number>, expectedValue: Readonly<number>) {
   assert.strictEqual(tree.valueAtInorderPos(position), expectedValue, `Expected valueAtInorderPos(${position}) to be ${expectedValue}, encountered ${tree.valueAtInorderPos(position)}`)
 }
 
-function testMinimum (tree: TreeNode, expectedValue: number) {
+function testMinimum (tree: Readonly<TreeNode>, expectedValue: Readonly<number>) {
   assert.strictEqual(tree.minimum(), expectedValue, `Expected minimum to be ${expectedValue}, encountered ${tree.minimum()}`)
 }
 
-function testMaximum (tree: TreeNode, expectedValue: number) {
+function testMaximum (tree: Readonly<TreeNode>, expectedValue: Readonly<number>) {
   assert.strictEqual(tree.maximum(), expectedValue, `Expected maximum to be ${expectedValue}, encountered ${tree.maximum()}`)
 }
 
-function testMedian (tree: TreeNode, expectedValue: number) {
+function testMedian (tree: Readonly<TreeNode>, expectedValue: Readonly<number>) {
   assert.strictEqual(tree.median(), expectedValue, `Expected median to be ${expectedValue}, encountered ${tree.median()}`)
 }
 
-function testWeightedMedian (tree: TreeNode, expectedValue: number) {
+function testWeightedMedian (tree: Readonly<TreeNode>, expectedValue: Readonly<number>) {
   assert.strictEqual(tree.weightedMedian(), expectedValue, `Expected weighted median to be ${expectedValue}, encountered ${tree.weightedMedian()}`)
 }
