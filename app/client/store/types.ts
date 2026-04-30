@@ -105,12 +105,23 @@ export interface RowingMetrics {
   workout?: IntervalData
 }
 
+export interface GridOrientationConfig {
+  columns: number
+  rows: number
+}
+
+export interface GridConfig {
+  landscape: GridOrientationConfig
+  portrait: GridOrientationConfig
+}
+
 export interface GuiConfig {
   dashboardMetrics: string[]
   showIcons: boolean
   maxNumberOfTiles: number
   trueBlackTheme: boolean
   forceCurveDivisionMode: number
+  gridConfig: GridConfig
 }
 
 export interface AppConfig {
@@ -130,5 +141,5 @@ export interface AppState {
 export interface DashboardMetricDefinition {
   displayName: string
   size: number
-  template: (metrics: RowingMetrics, config?: AppConfig, onWorkoutOpen?: (type: string) => void) => TemplateResult
+  template: (metrics: RowingMetrics, config?: AppConfig, onWorkoutOpen?: (type: string) => void, slotContent?: TemplateResult | string) => TemplateResult
 }

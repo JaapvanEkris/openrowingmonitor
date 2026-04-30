@@ -53,7 +53,11 @@ export const APP_STATE: AppState = {
       showIcons: true,
       maxNumberOfTiles: 8,
       trueBlackTheme: false,
-      forceCurveDivisionMode: 0
+      forceCurveDivisionMode: 0,
+      gridConfig: {
+        landscape: { columns: 4, rows: 2 },
+        portrait: { columns: 2, rows: 4 }
+      }
     }
   }
 }

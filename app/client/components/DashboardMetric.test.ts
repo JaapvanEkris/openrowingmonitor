@@ -24,21 +24,21 @@ describe('value display', () => {
 })
 
 describe('icon rendering', () => {
-  test('should use empty class strings when no icon is provided', () => {
+  test('should use label class when no icon is provided', () => {
     const el = new DashboardMetric()
     el.icon = ''
     const result = (el as any).render()
-    // When icon is '', the class is '' and font-size style is 200%
-    expect(result.values).toContain('font-size: 200%;')
+    // When icon is '', hasIcon is false, so the div class is 'label'
+    expect(result.values).toContain('label')
   })
 
-  test('should use label/icon classes when an icon is provided', () => {
+  test('should use icon class when an icon is provided', () => {
     const el = new DashboardMetric()
     el.icon = 'some-icon'
     const result = (el as any).render()
-    expect(result.values).toContain('label')
+    // When icon is not '', hasIcon is true, so the div class is 'icon'
     expect(result.values).toContain('icon')
-    // When icon is not '', there's no inline font-size override
-    expect(result.values).not.toContain('font-size: 200%;')
+    // metric-value gets 'with-icon' added via template interpolation
+    expect(result.values).toContain('with-icon')
   })
 })
