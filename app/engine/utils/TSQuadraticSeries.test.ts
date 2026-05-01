@@ -210,7 +210,6 @@ describe('Initialisation of the TSQuadraticSeries object', () => {
     testXProjectionEquals(dataSeries, 0, 2)
     testXProjectionEquals(dataSeries, 1, 6)
   })
-
 })
 
 describe('Test behaviour of the TSQuadraticSeries object when data is pushed', () => {
