@@ -15,14 +15,16 @@ export interface BinarySearchTree {
   remove(label: Readonly<number>): void
   size(): number
   totalWeight(): number
-  minimum(): number
-  maximum(): number
-  numberOfValuesAbove(testedValue: Readonly<number>): number
-  numberOfValuesEqualOrBelow(testedValue: Readonly<number>): number
-  median(): number
+  minimum(): number | undefined
+  maximum(): number | undefined
+  numberOfValuesAbove(testedValue: Readonly<number>): number | undefined
+  numberOfValuesEqualOrBelow(testedValue: Readonly<number>): number | undefined
+  median(): number | undefined
   weightedMedian(): number | undefined
   valueAtInorderPos(position: Readonly<number>): number | undefined
   orderedSeries(): number[]
+  reliable(): boolean
+  reliableWeighted(): boolean
   reset(): void
 }
 
@@ -680,6 +682,20 @@ export function createLabelledBinarySearchTree (): BinarySearchTree {
   }
 
   /**
+   * @returns whether the binary search tree should be considered reliable to produce results for normal ordered operations
+   */
+  function reliable (): boolean {
+    return (tree !== null && tree?.numberOfLeafsAndNodes >= 1)
+  }
+
+  /**
+   * @returns whether the binary search tree should be considered reliable to produce results in weighted operations
+   */
+  function reliableWeighted (): boolean {
+    return (tree !== null && tree?.numberOfLeafsAndNodes >= 1 && tree?.totalWeight > 0)
+  }
+
+  /**
    * @description This function empties the tree
    */
   function reset (): void {
@@ -722,6 +738,8 @@ export function createLabelledBinarySearchTree (): BinarySearchTree {
     weightedMedian,
     valueAtInorderPos,
     orderedSeries,
+    reliable,
+    reliableWeighted,
     reset
   }
 }
