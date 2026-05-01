@@ -77,7 +77,7 @@ export function createTSLinearSeries (maxSeriesLength: Readonly<number> = 0): TS
    */
   function push (x: Readonly<number>, y: Readonly<number>, w: Readonly<number> = 1): void {
     if (x === undefined || isNaN(x) || y === undefined || isNaN(y)) { return }
-    if (isNaN(w)) { w = 0.01}
+    if (isNaN(w)) { w = 0.01 }
 
     if (maxSeriesLength > 0 && X.length() >= maxSeriesLength) {
       // The maximum of the array has been reached, so when pushing the x,y the array gets shifted,
@@ -209,7 +209,7 @@ export function createTSLinearSeries (maxSeriesLength: Readonly<number> = 0): TS
           _goodnessOfFit = 0.01
           break
         case (_sst !== 0):
-          _goodnessOfFit = 1 - (sse /_sst)
+          _goodnessOfFit = 1 - (sse / _sst)
           break
         default:
           // When SST = 0, R2 isn't defined
@@ -315,12 +315,7 @@ export function createTSLinearSeries (maxSeriesLength: Readonly<number> = 0): TS
         let i: number = 0
         while (i < X.length()) {
           // Please note, we recreate the B-tree for each newly added datapoint anyway, so the label i isn't relevant
-          const xVal: number | undefined = X.get(i)
-          const yVal: number | undefined = Y.get(i)
-          const weightVal: number | undefined = weight.get(i)
-          if (xVal !== undefined && yVal !== undefined && weightVal !== undefined) {
-            B.push(i, (yVal - (_A * xVal)), weightVal)
-          }
+          B.push(i, (Y.get(i) - (_A * X.get(i))), weight.get(i))
           i++
         }
         _B = B.weightedMedian() ?? 0
