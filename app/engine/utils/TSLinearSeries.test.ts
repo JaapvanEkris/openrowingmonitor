@@ -858,6 +858,7 @@ function testMaximumX (series: Readonly<TSLinearSeries>, expectedValue: Readonly
 function testMaximumY (series: Readonly<TSLinearSeries>, expectedValue: Readonly<number>) {
   assert.strictEqual(series.Y.maximum(), expectedValue, `Expected Y.maximum to be ${expectedValue}, encountered a ${series.Y.maximum()}`)
 }
+
 function testMedianX (series: Readonly<TSLinearSeries>, expectedValue: Readonly<number>) {
   assert.strictEqual(series.X.median(), expectedValue, `Expected X.median to be ${expectedValue}, encountered a ${series.X.median()}`)
 }
