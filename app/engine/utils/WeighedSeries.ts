@@ -17,14 +17,14 @@ export interface WeighedSeries {
   atSeriesBegin(): number | undefined
   atSeriesEnd(): number | undefined
   get(position: Readonly<number>): number | undefined
-  numberOfValuesAbove(testedValue: Readonly<number>): number
-  numberOfValuesEqualOrBelow(testedValue: Readonly<number>): number
-  sum(): number
+  numberOfValuesAbove(testedValue: Readonly<number>): number | undefined
+  numberOfValuesEqualOrBelow(testedValue: Readonly<number>): number | undefined
+  sum(): number | undefined
   average(): number | undefined
   weighedAverage(): number | undefined
-  minimum(): number
-  maximum(): number
-  median(): number
+  minimum(): number | undefined
+  maximum(): number | undefined
+  median(): number | undefined
   series(): number[]
   reliable(): boolean
   reliableWeighted(): boolean
