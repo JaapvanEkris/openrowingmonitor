@@ -33,18 +33,18 @@ const log = loglevel.getLogger('RowingEngine')
 // ---------------------------------------------------------------------------
 
 export interface TSLinearSeries {
-  push: (x: Readonly<number>, y: Readonly<number>, w?: Readonly<number>) => void
+  push(x: Readonly<number>, y: Readonly<number>, w?: Readonly<number>): void
   readonly X: Series
   readonly Y: Series
-  slope(): number | null
-  intercept(): number | null
-  coefficientA(): number | null
-  coefficientB(): number | null
+  slope(): number | undefined
+  intercept(): number | undefined
+  coefficientA(): number | undefined
+  coefficientB(): number | undefined
   length(): number
-  goodnessOfFit(): number | null
-  localGoodnessOfFit(position: Readonly<number>): number | null
-  projectX(x: Readonly<number>): number | null
-  projectY(y: Readonly<number>): number | null
+  goodnessOfFit(): number | undefined
+  localGoodnessOfFit(position: Readonly<number>): number | undefined
+  projectX(x: Readonly<number>): number | undefined
+  projectY(y: Readonly<number>): number | undefined
   reliable(): boolean
   reset(): void
 }
@@ -121,7 +121,7 @@ export function createTSLinearSeries (maxSeriesLength: Readonly<number> = 0): TS
   /**
    * @returns {float} the slope of the linear function
    */
-  function slope (): number {
+  function slope (): number | undefined {
     if (X.length() >= 2 && A.reliableWeighted()) {
       return _A
     } else {
@@ -132,7 +132,7 @@ export function createTSLinearSeries (maxSeriesLength: Readonly<number> = 0): TS
   /**
    * @returns {float} the intercept of the linear function
    */
-  function intercept (): number {
+  function intercept (): number | undefined {
     if (X.length() >= 2 && A.reliableWeighted()) {
       calculateIntercept()
       return _B
@@ -144,7 +144,7 @@ export function createTSLinearSeries (maxSeriesLength: Readonly<number> = 0): TS
   /**
    * @returns {float} the coefficient a of the linear function y = a * x + b
    */
-  function coefficientA (): number {
+  function coefficientA (): number | undefined {
     if (X.length() >= 2 && A.reliableWeighted()) {
       return _A
     } else {
@@ -155,7 +155,7 @@ export function createTSLinearSeries (maxSeriesLength: Readonly<number> = 0): TS
   /**
    * @returns {float} the coefficient b of the linear function y = a * x + b
    */
-  function coefficientB (): number {
+  function coefficientB (): number | undefined {
     if (X.length() >= 2 && A.reliableWeighted()) {
       calculateIntercept()
       return _B
@@ -178,8 +178,8 @@ export function createTSLinearSeries (maxSeriesLength: Readonly<number> = 0): TS
    * pushes from the TSQuadratic regressor processing its linear residu
    * @see {@link https://web.maths.unsw.edu.au/~adelle/Garvan/Assays/GoodnessOfFit.html|Goodness-of-Fit Statistics}
    */
-  function goodnessOfFit (): number {
-    if (X.length() < 2 || !A.reliableWeighted()) { return undefined }
+  function goodnessOfFit (): number | undefined {
+    if (X.length() < 2 || !A.reliableWeighted() || weight.sum() === 0) { return undefined }
     let i: number = 0
     let sse: number = 0
     calculateIntercept()
@@ -223,7 +223,7 @@ export function createTSLinearSeries (maxSeriesLength: Readonly<number> = 0): TS
    * @param {integer} position - The position in the series for which the Local Goodness Of Fit has to be calcuated
    * @returns {float} the local R^2 as a local goodness of fit indicator
    */
-  function localGoodnessOfFit (position: Readonly<number>): number {
+  function localGoodnessOfFit (position: Readonly<number>): number | undefined {
     if (_sst === null) {
       // Force the recalculation of the _sst
       goodnessOfFit()
@@ -260,7 +260,7 @@ export function createTSLinearSeries (maxSeriesLength: Readonly<number> = 0): TS
    * @param {float} x - the x value to be projected
    * @returns {float} the resulting y value when projected via the linear function
    */
-  function projectX (x: Readonly<number>): number {
+  function projectX (x: Readonly<number>): number | undefined {
     if (X.length() >= 2 && A.reliableWeighted()) {
       calculateIntercept()
       return (_A * x) + _B
@@ -273,7 +273,7 @@ export function createTSLinearSeries (maxSeriesLength: Readonly<number> = 0): TS
    * @param {float} y - the y value to be solved
    * @returns {float} the resulting x value when solved via the linear function
    */
-  function projectY (y: Readonly<number>): number {
+  function projectY (y: Readonly<number>): number | undefined {
     if (X.length() >= 2 && A.reliableWeighted() && _A !== 0) {
       calculateIntercept()
       return ((y - _B) / _A)
@@ -288,7 +288,7 @@ export function createTSLinearSeries (maxSeriesLength: Readonly<number> = 0): TS
    * @param {integer} pointTwo - The position in the series of the second datapoint used for the slope calculation
    * @returns {float} the slope of the linear function
    */
-  function calculateSlope (pointOne: Readonly<number>, pointTwo: Readonly<number>): number {
+  function calculateSlope (pointOne: Readonly<number>, pointTwo: Readonly<number>): number | undefined {
     const xOne: number | undefined = X.get(pointOne)
     const xTwo: number | undefined = X.get(pointTwo)
     const yOne: number | undefined = Y.get(pointOne)
