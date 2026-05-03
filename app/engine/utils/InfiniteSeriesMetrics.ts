@@ -69,7 +69,7 @@ export function createInfiniteSeriesMetrics (): InfiniteSeriesMetrics {
    * @description This determines the total sum of the series.
    * @returns {float} sum of the entire series
    */
-  function sum (): number {
+  function sum (): number | undefined {
     if (seriesCount > 0) {
       return seriesSum
     } else {
@@ -80,7 +80,7 @@ export function createInfiniteSeriesMetrics (): InfiniteSeriesMetrics {
   /**
    * @returns {float} average of the entire series
    */
-  function average (): number {
+  function average (): number | undefined {
     if (seriesCount > 0) {
       return seriesSum / seriesCount
     } else {
@@ -91,7 +91,7 @@ export function createInfiniteSeriesMetrics (): InfiniteSeriesMetrics {
   /**
    * @returns {float} smallest element in the series
    */
-  function minimum (): number {
+  function minimum (): number | undefined {
     if (min !== undefined && seriesCount > 0) {
       return min
     } else {
@@ -102,7 +102,7 @@ export function createInfiniteSeriesMetrics (): InfiniteSeriesMetrics {
   /**
    * @returns largest value in the series
    */
-  function maximum (): number {
+  function maximum (): number | undefined {
     if (max !== undefined && seriesCount > 0) {
       return max
     } else {
