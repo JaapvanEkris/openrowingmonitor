@@ -65,6 +65,7 @@ export function createLabelledBinarySearchTree (): BinarySearchTree {
    */
   function push (label: Readonly<number>, value: Readonly<number>, weight: Readonly<number> = 1): void {
     if (value === undefined || isNaN(value)) { return }
+    if (weight === undefined || isNaN(weight)) { weight = 0.01 }
     if (tree === null) {
       tree = newNode(label, value, weight)
     } else {
@@ -102,7 +103,7 @@ export function createLabelledBinarySearchTree (): BinarySearchTree {
   }
 
   /**
-   * @description Helper function to create a new node
+    * @description Helper function to create a new node
    * @param {float} label - label to use to destroy the inserted value later
    * @param {float} value - value to store
    * @param {float} weight - weight attributed to the value
