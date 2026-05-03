@@ -32,7 +32,7 @@ export function createGaussianWeightFunction (): GaussianWeight {
    * @param {float} xEnd - the maximum x value of the window
    */
   function setWindowWidth (xBegin: Readonly<number>, xEnd: Readonly<number>): void {
-    if (xBegin < xEnd) {
+    if (xBegin !== undefined && isNaN(xBegin) && xEnd !== undefined && isNaN(xEnd) && xBegin < xEnd) {
       begin = xBegin
       end = xEnd
       halfLength = (end - begin) / 2
@@ -50,7 +50,7 @@ export function createGaussianWeightFunction (): GaussianWeight {
    * @returns The calculated Gaussian weight
    */
   function weight (x: Readonly<number>): number | undefined {
-    if (!halfLength > 0) { return undefined }
+    if (!halfLength > 0 || x === undefined || isNaN(x)) { return undefined }
     if (x >= begin && end >= x) {
       const normalizedDistance: number = Math.abs((middle - x) / halfLength)
       return Math.exp(-0.5 * Math.pow(normalizedDistance, 2))
