@@ -71,10 +71,10 @@ export function createCurveMetrics (minimumValue: number): CurveMetrics {
       curve.pop()
     }
     const length: number = curve.length
-    const sum: number = length > 0 ? curve.reduce((total: number, item: number) => total + item) : undefined
-    const average: number = (length > 0 && sum > 0) ? sum / length : undefined
-    const peak: number = (length > 0 && _max > 0) ? _max : undefined
-    const peakNormalizedPosition: number = (length > 0 && _max > 0 && _peakPosition > 0) ? Math.min(1, _peakPosition / length) : undefined
+    const sum: number | undefined = length > 0 ? curve.reduce((total: number, item: number) => total + item) : undefined
+    const average: number | undefined = (length > 0 && sum > 0) ? sum / length : undefined
+    const peak: number | undefined = (length > 0 && _max > 0) ? _max : undefined
+    const peakNormalizedPosition: number | undefined = (length > 0 && _max > 0 && _peakPosition > 0) ? Math.min(1, _peakPosition / length) : undefined
     return { curve, peak, peakNormalizedPosition, average, length }
   }
 
