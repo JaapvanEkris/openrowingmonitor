@@ -13,10 +13,10 @@
 export interface InfiniteSeries {
   push(value: Readonly<number>): void
   length(): number
-  sum(): number | null
-  average(): number | null
-  minimum(): number | null
-  maximum(): number | null
+  sum(): number | undefined
+  average(): number | undefined
+  minimum(): number | undefined
+  maximum(): number | undefined
   reset(): void
 }
 
@@ -32,7 +32,6 @@ export function createInfiniteSeriesMetrics (): InfiniteSeriesMetrics {
   let max: number | undefined = undefined
   let seriesSum: number = 0
   let seriesCount: number = 0
-
   /**
    * @param {float} value - value to be added to the series
    */
@@ -72,7 +71,7 @@ export function createInfiniteSeriesMetrics (): InfiniteSeriesMetrics {
    */
   function sum (): number {
     if (seriesCount > 0) {
-      return seriesSum // @ToDo: return undefined when series is empty
+      return seriesSum
     } else {
       return undefined
     }
@@ -81,7 +80,7 @@ export function createInfiniteSeriesMetrics (): InfiniteSeriesMetrics {
   /**
    * @returns {float} average of the entire series
    */
-  function average (): number { // @ToDo: return undefined when series is empty
+  function average (): number {
     if (seriesCount > 0) {
       return seriesSum / seriesCount
     } else {
