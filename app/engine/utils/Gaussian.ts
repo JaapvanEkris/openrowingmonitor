@@ -13,7 +13,7 @@
 
 export interface GaussianWeight {
   setWindowWidth(xBegin: Readonly<number>, xEnd: Readonly<number>): void
-  weight(x: Readonly<number>): number | null
+  weight(x: Readonly<number>): number | undefined
 }
 
 // ---------------------------------------------------------------------------
