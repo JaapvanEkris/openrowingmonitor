@@ -432,7 +432,6 @@ describe('Test Edge cases of the Weighed Series', () => {
     testMinimum(dataSeries, 3)
     testMaximum(dataSeries, 12)
   })
-
 })
 
 describe('Test behaviour of the Weighed Series object when reset', () => {
