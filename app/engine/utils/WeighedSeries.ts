@@ -98,7 +98,7 @@ export function createWeighedSeries (maxSeriesLength: Readonly<number> = 0, defa
    * @param {float} testedValue - Tested value
    * @returns {integer} Count of values in the series above the tested value
    */
-  function numberOfValuesAbove (testedValue: number): number {
+  function numberOfValuesAbove (testedValue: number): number | undefined {
     return dataArray.numberOfValuesAbove(testedValue)
   }
 
@@ -107,7 +107,7 @@ export function createWeighedSeries (maxSeriesLength: Readonly<number> = 0, defa
    * @param {float} testedValue - Tested value
    * @returns {integer} Number of values in the series below or equal to the tested value
    */
-  function numberOfValuesEqualOrBelow (testedValue: number): number {
+  function numberOfValuesEqualOrBelow (testedValue: number): number | undefined {
     return dataArray.numberOfValuesEqualOrBelow(testedValue)
   }
 
@@ -115,7 +115,7 @@ export function createWeighedSeries (maxSeriesLength: Readonly<number> = 0, defa
    * Calculates the sum of the entire series
    * @returns {float} Sum of the entire series
    */
-  function sum (): number {
+  function sum (): number | undefined {
     return dataArray.sum()
   }
 
@@ -148,14 +148,14 @@ export function createWeighedSeries (maxSeriesLength: Readonly<number> = 0, defa
   /**
    * @returns {float} Smallest element in the series
    */
-  function minimum (): number {
+  function minimum (): number | undefined {
     return dataArray.minimum()
   }
 
   /**
    * @returns {float} Largest value in the series
    */
-  function maximum (): number {
+  function maximum (): number | undefined {
     return dataArray.maximum()
   }
 
@@ -164,7 +164,7 @@ export function createWeighedSeries (maxSeriesLength: Readonly<number> = 0, defa
    * As this is a CPU intensive approach, DO NOT USE FOR LARGE SERIES!. For larger series, use the BinarySearchTree.js instead
    * @returns {float} Median of the series
    */
-  function median (): number {
+  function median (): number | undefined {
     return dataArray.median()
   }
 
