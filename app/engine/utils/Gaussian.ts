@@ -49,7 +49,7 @@ export function createGaussianWeightFunction (): GaussianWeight {
    * @param {float} x - the x value of the datapoint
    * @returns The calculated Gaussian weight
    */
-  function weight (x: Readonly<number>): number {
+  function weight (x: Readonly<number>): number | undefined {
     if (!halfLength > 0) { return undefined }
     if (x >= begin && end >= x) {
       const normalizedDistance: number = Math.abs((middle - x) / halfLength)
