@@ -76,7 +76,7 @@ export function createTSLinearSeries (maxSeriesLength: Readonly<number> = 0): TS
    * where the a's are labeled in the BinarySearchTree with their Xi when they BEGIN in the point (Xi, Yi)
    */
   function push (x: Readonly<number>, y: Readonly<number>, w: Readonly<number> = 1): void {
-    if (x === undefined || isNaN(x) || y === undefined || isNaN(y)) { return }
+    if (x === undefined || isNaN(x) || y === undefined || isNaN(y) || w === undefined || isNaN(w)) { return }
     if (isNaN(w)) { w = 0.01 }
 
     if (maxSeriesLength > 0 && X.length() >= maxSeriesLength) {
