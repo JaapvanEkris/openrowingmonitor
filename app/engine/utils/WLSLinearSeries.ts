@@ -35,12 +35,12 @@ export interface WLSLinearSeries {
   readonly Y: Series
   readonly weight: Series
   push(x: Readonly<number>, y: Readonly<number>, w?: Readonly<number>): void
-  slope(): number
-  intercept(): number
-  length(): number
-  goodnessOfFit(): number
-  projectX(x: Readonly<number>): number
-  projectY(y: Readonly<number>): number
+  slope(): number | undefined
+  intercept(): number | undefined
+  length(): number | undefined
+  goodnessOfFit(): number | undefined
+  projectX(x: Readonly<number>): number | undefined
+  projectY(y: Readonly<number>): number | undefined
   reliable(): boolean
   reset(): void
 }
@@ -124,7 +124,7 @@ export function createWLSLinearSeries (maxSeriesLength: Readonly<number> = 0): W
   /**
    * @returns {float} the slope of the linear function
    */
-  function slope (): number {
+  function slope (): number | undefined {
     if (X.length() >= 2 && _denominator !== 0 && weight.sum() > 0) {
       return _slope
     } else {
@@ -135,7 +135,7 @@ export function createWLSLinearSeries (maxSeriesLength: Readonly<number> = 0): W
   /**
    * @returns {float} the intercept of the linear function
    */
-  function intercept (): number {
+  function intercept (): number | undefined {
     if (X.length() >= 2 && _denominator !== 0 && weight.sum() > 0) {
       return _intercept
     } else {
@@ -165,7 +165,7 @@ export function createWLSLinearSeries (maxSeriesLength: Readonly<number> = 0): W
    * @param {float} x - the x value to be projected
    * @returns {float} the resulting y value when projected via the linear function
    */
-  function projectX (x: Readonly<number>): number {
+  function projectX (x: Readonly<number>): number | undefined {
     if (X.length() >= 2 && _denominator !== 0 && weight.sum() > 0) {
       return (_slope * x) + _intercept
     } else {
@@ -177,7 +177,7 @@ export function createWLSLinearSeries (maxSeriesLength: Readonly<number> = 0): W
    * @param {float} y - the y value to be solved
    * @returns {float} the resulting x value when solved via the linear function
    */
-  function projectY (y: Readonly<number>): number {
+  function projectY (y: Readonly<number>): number | undefined {
     if (X.length() >= 2 && _denominator !== 0 && _slope !== 0 && weight.sum() > 0) {
       return ((y - _intercept) / _slope)
     } else {
