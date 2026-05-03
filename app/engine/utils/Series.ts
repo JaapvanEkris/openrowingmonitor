@@ -116,7 +116,7 @@ export function createSeries (maxSeriesLength: Readonly<number> = 0): Series {
    * Gets the oldest value of the series (i.e. the one first added)
    * @returns {float} the oldest value of the series
    */
-  function atSeriesBegin (): number {
+  function atSeriesBegin (): number | undefined {
     if (seriesArray.length > 0) {
       return seriesArray[0]
     } else {
@@ -128,7 +128,7 @@ export function createSeries (maxSeriesLength: Readonly<number> = 0): Series {
    * Gets the youngest value of the series (i.e. the one last added)
    * @returns {float} the youngest value of the series
    */
-  function atSeriesEnd (): number {
+  function atSeriesEnd (): number | undefined {
     if (seriesArray.length > 0) {
       return seriesArray[seriesArray.length - 1]
     } else {
@@ -154,7 +154,7 @@ export function createSeries (maxSeriesLength: Readonly<number> = 0): Series {
    * @param {float} testedValue - tested value
    * @returns {integer} count of values in the series above the tested value
    */
-  function numberOfValuesAbove (testedValue: Readonly<number>): number {
+  function numberOfValuesAbove (testedValue: Readonly<number>): number | undefined {
     if (!seriesArray.length > 0) { return undefined }
     if (testedValue === 0) {
       return numPos
@@ -176,7 +176,7 @@ export function createSeries (maxSeriesLength: Readonly<number> = 0): Series {
    * @param {float} testedValue - tested value
    * @returns {integer} number of values in the series below or equal to the tested value
    */
-  function numberOfValuesEqualOrBelow (testedValue: Readonly<number>): number {
+  function numberOfValuesEqualOrBelow (testedValue: Readonly<number>): number | undefined {
     if (!seriesArray.length > 0) { return undefined }
     if (testedValue === 0) {
       return numNeg
@@ -198,7 +198,7 @@ export function createSeries (maxSeriesLength: Readonly<number> = 0): Series {
    * As a running sum becomes unstable after longer running sums, we need to summarise this via a reduce
    * @returns {float} sum of the entire series
    */
-  function sum (): number {
+  function sum (): number | undefined {
     if (!seriesArray.length > 0) { return undefined }
     if (seriesSum === null) {
       seriesSum = seriesArray.reduce((total: number, item: number) => total + item)
@@ -210,7 +210,7 @@ export function createSeries (maxSeriesLength: Readonly<number> = 0): Series {
    * Calculates the average of the entire series
    * @returns {float} average of the entire series
    */
-  function average (): number {
+  function average (): number | undefined {
     if (seriesArray.length > 0) {
       return sum() / seriesArray.length
     } else {
@@ -222,7 +222,7 @@ export function createSeries (maxSeriesLength: Readonly<number> = 0): Series {
    * Gets the smallest element in the series
    * @returns {float} smallest element in the series
    */
-  function minimum (): number {
+  function minimum (): number | undefined {
     if (seriesArray.length > 0) {
       if (isNaN(min as number)) {
         min = Math.min(...seriesArray)
@@ -237,7 +237,7 @@ export function createSeries (maxSeriesLength: Readonly<number> = 0): Series {
    * Gets the largest value in the series
    * @returns {float} largest value in the series
    */
-  function maximum (): number {
+  function maximum (): number | undefined {
     if (seriesArray.length > 0) {
       if (isNaN(max as number)) {
         max = Math.max(...seriesArray)
@@ -254,7 +254,7 @@ export function createSeries (maxSeriesLength: Readonly<number> = 0): Series {
    * For larger series, use the BinarySearchTree instead
    * @returns {float} median of the series
    */
-  function median (): number {
+  function median (): number | undefined {
     if (seriesArray.length > 0) {
       const mid: number = Math.floor(seriesArray.length / 2)
       const sortedArray: number[] = [...seriesArray].sort((a: number, b: number) => a - b)
