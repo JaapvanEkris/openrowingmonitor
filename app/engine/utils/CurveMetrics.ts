@@ -40,6 +40,7 @@ export function createCurveMetrics (minimumValue: number): CurveMetrics {
    * @param {float} value - value to be added to the series
    */
   function push (value: Readonly<number>): void {
+    if (value === undefined || isNaN(value)) { return }  
     if (_curve.length < 2 && value < minimumValue) {
       reset()
       return
