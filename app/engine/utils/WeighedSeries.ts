@@ -184,7 +184,6 @@ export function createWeighedSeries (maxSeriesLength: Readonly<number> = 0, defa
     return (dataArray.length() > 0 && weightArray.sum() > 0)
   }
 
-
   /**
    * Gets the entire series of datapoints
    * @returns {float[]} Array of all datapoints in the series
