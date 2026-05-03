@@ -14,18 +14,17 @@
 export interface Series {
   push(x: Readonly<number>): void
   length(): number
-  get(index: Readonly<number>): number | null
-  atSeriesBegin(): number
-  atSeriesEnd(): number
-  numberOfValuesAbove(testedValue: Readonly<number>): number
-  numberOfValuesEqualOrBelow(testedValue: Readonly<number>): number
-  average(): number
-  minimum(): number
-  maximum(): number
-  median(): number
+  get(index: Readonly<number>): number | undefined
+  atSeriesBegin(): number | undefined
+  atSeriesEnd(): number | undefined
+  numberOfValuesAbove(testedValue: Readonly<number>): number | undefined
+  numberOfValuesEqualOrBelow(testedValue: Readonly<number>): number | undefined
+  average(): number | undefined
+  minimum(): number | undefined
+  maximum(): number | undefined
+  median(): number | undefined
   series(): number[]
-  length(): number
-  sum(): number
+  sum(): number | undefined
   reset(): void
 }
 
