@@ -11,10 +11,10 @@
 
 export interface CurveAndMetrics {
   readonly curve: number[]
-  readonly peak: number
-  readonly peakNormalizedPosition: number
-  readonly average: number
-  readonly length: number
+  readonly peak: number | undefined
+  readonly peakNormalizedPosition: number | undefined
+  readonly average: number | undefined
+  readonly length: number | undefined
 }
 
 export interface CurveMetrics {
