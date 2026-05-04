@@ -1471,7 +1471,7 @@ export function createFITRecorder (config) {
       developerFieldValues.push({ developer_data_index: 0, field_num: 17, value: trackpoint.drivePeakHandleForceNormalizedPosition * 100 })
     }
 
-    if (trackpoint.forceCurve.length > 0 && trackpoint.forceCurve.length < Math.min(127, sessionData.maxForceCurvePointCount)) {
+    if (trackpoint.forceCurve.length > 0 && trackpoint.forceCurve.length <= Math.min(127, sessionData.maxForceCurvePointCount)) {
       const sampleInterval = trackpoint.driveLength / trackpoint.forceCurve.length
       const paddedForceCurve = Array.from({ length: Math.min(127, sessionData.maxForceCurvePointCount) }, (_, i) => trackpoint.forceCurve[i] ?? '0')
       developerFieldValues.push({ developer_data_index: 0, field_num: 90, value: 2 })
