@@ -222,12 +222,6 @@ So setting the value for *maximumTimeBetweenImpulses* too high might block this 
 
 Please note that there is a watchdog on the presence of new *currentDt* messages during an active rowing session: when the last recieved value is *maximumStrokeTimeBeforePause* ago, it will force a hard stop of the session. This watchdog will not be triggered during normal rowing sessions, but might be needed for specific magnetic resistance based machines as they tend to stop extremely fast, cutting the engine off new *currentDt* values (i.e. before the normal *maximumStrokeTimeBeforePause* expires while respecting the above conditions).
 
-### Review smoothing
-
-**smoothing** is the ultimate fallback mechanism for rowers with very noisy data. Please refrain from using it, unless as a last resort (typically increasing *flankLength* is more effective and leads to better results). For all known rowers currently maintained by OpenRowingMonitor, **NONE** needed this, so only start working with this when the raw files show you have a very noisy signal, physical measures don't work and you can't get your stroke detection to work with other means (please note that we design the mechanisms here to be robust, so they can take a hit).
-
-This is a running median filter, effectively killing any extreme values. By default, it is set to 1 (off). A value of 3 will allow it to completely ignore any single extreme values, which should do the trick for most rowers.
-
 ## Critical parameters you must change or review for stroke detection
 
 The key feature for OpenRowingMonitor is to reliably produce metrics you see on the monitor, share via Bluetooth with games and share with Strava and the like. Typically, these metrics are reported on a per-stroke basis, so a key element in getting rowing data right is getting the stroke detection right. It must be noted that we calculate most essential metrics in such a way that missing an individual stroke isn't a big deal, it will not even give hickups when this happens. However, the more advanced metrics (like drive length, stroke length, powercurves) won't provide any useful data when the stroke or stroke phase isn't detected properly. There are several critical parameters that are required for OpenRowingMonitor's stroke detection to work. In this section, we help you set the most critical ones.

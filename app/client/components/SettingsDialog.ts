@@ -1,15 +1,15 @@
-'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Component that renders the action buttons of the dashboard
 */
 
-import { AppElement, html, css } from './AppElement.js'
+import { AppElement, html, css } from './AppElement'
 import { customElement, property, query, queryAll, state } from 'lit/decorators.js'
-import { iconSettings } from '../lib/icons.js'
-import './AppDialog.js'
-import { DASHBOARD_METRICS } from '../store/dashboardMetrics.js'
+import { iconSettings } from '../lib/icons'
+import './AppDialog'
+import { DASHBOARD_METRICS } from '../store/dashboardMetrics'
+import type { GuiConfig } from '../store/types'
 
 @customElement('settings-dialog')
 export class DashboardActions extends AppElement {
@@ -99,37 +99,37 @@ export class DashboardActions extends AppElement {
   `
 
   @property({ type: Object })
-   accessor config = {}
+   config!: GuiConfig
 
   @queryAll('.metric-selector input')
-  accessor _inputs
+  _inputs!: NodeListOf<HTMLInputElement>
 
   @query('input[name="showIcons"]')
-  accessor _showIconInput
+  _showIconInput!: HTMLInputElement
 
   @query('input[name="maxNumberOfTiles"]')
-  accessor _maxNumberOfTilesInput
+  _maxNumberOfTilesInput!: HTMLInputElement
 
   @query('input[name="trueBlackTheme"]')
-  accessor _trueBlackThemeInput
+  _trueBlackThemeInput!: HTMLInputElement
 
   @state()
-  accessor _selectedMetrics = []
+  _selectedMetrics: string[] = []
 
   @state()
-  accessor _sumSelectedSlots = 0
+  _sumSelectedSlots = 0
 
   @state()
-  accessor _isValid = false
+  _isValid = false
 
   @state()
-  accessor _showIcons = true
+  _showIcons = true
 
   @state()
-  accessor _maxNumberOfTiles = 8
+  _maxNumberOfTiles = 8
 
   @state()
-  accessor _trueBlackTheme = false
+  _trueBlackTheme = false
 
   render () {
     return html`
@@ -177,8 +177,8 @@ export class DashboardActions extends AppElement {
     } else {
       this._isValid = false
     }
-    [...this._inputs].forEach(input => {
-      input.checked = this._selectedMetrics.find(metric => metric === input.name) !== undefined
+    [...this._inputs].forEach((input) => {
+      input.checked = this._selectedMetrics.find((metric) => metric === input.name) !== undefined
     })
     this._showIconInput.checked = this._showIcons
     this._maxNumberOfTilesInput.checked = this._maxNumberOfTiles === 12
@@ -186,7 +186,7 @@ export class DashboardActions extends AppElement {
   }
 
   renderAvailableMetricList () {
-    return Object.keys(DASHBOARD_METRICS).map(key => html`
+    return Object.keys(DASHBOARD_METRICS).map((key) => html`
       <label>
         <input @change=${this.toggleCheck} name=${key} size=${DASHBOARD_METRICS[key].size} type="checkbox" />
       <span>${DASHBOARD_METRICS[key].displayName}</span></label>
@@ -194,15 +194,16 @@ export class DashboardActions extends AppElement {
   }
 
   renderSelectedMetrics () {
-    const selectedMetrics = [html`<tr>${[0, 1, 2, 3].map(index => html`<td style="${this._selectedMetrics[3] === this._selectedMetrics[4] && index === 3 ? 'color: red' : ''}">${this._selectedMetrics[index]}</td>`)}</tr>`]
-    selectedMetrics.push(html`<tr>${[4, 5, 6, 7].map(index => html`<td  style="${
+    const selectedMetrics = [html`<tr>${[0, 1, 2, 3].map((index: number) => html`<td style="${this._selectedMetrics[3] === this._selectedMetrics[4] && index === 3 ? 'color: red' : ''}">${this._selectedMetrics[index]}</td>`)}</tr>`]
+    selectedMetrics.push(html`<tr>${[4, 5, 6, 7].map((index: number) => html`<td  style="${
       (index === 4 && this._selectedMetrics[3] === this._selectedMetrics[4]) ||
       (index === 7 && this._selectedMetrics[7] === this._selectedMetrics[8]) ?
         'color: red' :
         ''
       }">${this._selectedMetrics[index]}</td>`)}</tr>`)
     if (this._maxNumberOfTiles === 12) {
-      selectedMetrics.push(html`<tr>${[8, 9, 10, 11].map(index => html`<td  style="${
+      selectedMetrics.push(html`<tr>${[8, 9, 10, 11].map((index: number) => html`<td  style="${
+
         (index === 8 && this._selectedMetrics[7] === this._selectedMetrics[8]) ||
         (index === 11 && this._selectedMetrics.length > 12) ?
           'color: red' :
@@ -213,20 +214,21 @@ export class DashboardActions extends AppElement {
     return selectedMetrics
   }
 
-  toggleCheck (e) {
-    if (e.target.checked && ((this._selectedMetrics.length % 4 === 3 && e.target.size > 1) || (this._sumSelectedSlots + e.target.size > this._maxNumberOfTiles))) {
+  toggleCheck (e: Event) {
+    const target = e.target as HTMLInputElement & { size: number }
+    if (target.checked && ((this._selectedMetrics.length % 4 === 3 && target.size > 1) || (this._sumSelectedSlots + target.size > this._maxNumberOfTiles))) {
       this._isValid = this.isFormValid()
-      e.target.checked = false
+      target.checked = false
       return
     }
 
-    if (e.target.checked) {
-      for (let index = 0; index < e.target.size; index++) {
-        this._selectedMetrics = [...this._selectedMetrics, e.target.name]
+    if (target.checked) {
+      for (let index = 0; index < target.size; index++) {
+        this._selectedMetrics = [...this._selectedMetrics, target.name]
       }
     } else {
-      for (let index = 0; index < e.target.size; index++) {
-        this._selectedMetrics.splice(this._selectedMetrics.findIndex(metric => metric === e.target.name), 1)
+      for (let index = 0; index < target.size; index++) {
+        this._selectedMetrics.splice(this._selectedMetrics.findIndex((metric) => metric === target.name), 1)
         this._selectedMetrics = [...this._selectedMetrics]
       }
     }
@@ -239,24 +241,24 @@ export class DashboardActions extends AppElement {
     }
   }
 
-  toggleIcons (e) {
-    this._showIcons = e.target.checked
+  toggleIcons (e: Event) {
+    this._showIcons = (e.target as HTMLInputElement).checked
   }
 
-  toggleMaxTiles (e) {
-    this._maxNumberOfTiles = e.target.checked ? 12 : 8
+  toggleMaxTiles (e: Event) {
+    this._maxNumberOfTiles = (e.target as HTMLInputElement).checked ? 12 : 8
     this._isValid = this.isFormValid()
   }
 
-  toggleTrueBlackTheme (e) {
-    this._trueBlackTheme = e.target.checked
+  toggleTrueBlackTheme (e: Event) {
+    this._trueBlackTheme = (e.target as HTMLInputElement).checked
   }
 
   isFormValid () {
     return this._sumSelectedSlots === this._maxNumberOfTiles && this._selectedMetrics[3] !== this._selectedMetrics[4] && this._selectedMetrics[7] !== this._selectedMetrics?.[8]
   }
 
-  close (event) {
+  close (event: CustomEvent) {
     this.dispatchEvent(new CustomEvent('close'))
     if (event.detail === 'confirm') {
       this.sendEvent('changeGuiSetting', {

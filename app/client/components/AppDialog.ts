@@ -1,19 +1,15 @@
-'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Component that renders a html dialog
 */
-import { AppElement, html, css } from './AppElement.js'
+import { AppElement, html, css } from './AppElement'
 import { customElement, property } from 'lit/decorators.js'
-import { ref, createRef } from 'lit/directives/ref.js'
+import { ref, createRef, Ref } from 'lit/directives/ref.js'
 
 @customElement('app-dialog')
 export class AppDialog extends AppElement {
-  constructor () {
-    super()
-    this.dialog = createRef()
-  }
+  dialog: Ref<HTMLDialogElement> = createRef()
 
   static styles = css`
     dialog {
@@ -72,10 +68,10 @@ export class AppDialog extends AppElement {
     }
   `
   @property({ type: Boolean })
-  accessor isValid = true
+  isValid = true
 
   @property({ type: Boolean, reflect: true })
-  accessor dialogOpen
+  dialogOpen: boolean | undefined
 
   render () {
     return html`
@@ -93,8 +89,8 @@ export class AppDialog extends AppElement {
     `
   }
 
-  close (event) {
-    if (event.target.returnValue !== 'confirm') {
+  close (event: Event) {
+    if ((event?.target as HTMLDialogElement).returnValue !== 'confirm') {
       this.dispatchEvent(new CustomEvent('close', { detail: 'cancel' }))
     } else {
       this.dispatchEvent(new CustomEvent('close', { detail: 'confirm' }))
@@ -103,20 +99,20 @@ export class AppDialog extends AppElement {
 
   confirm () {
     if (this.isValid) {
-      this.dialog.value.close('confirm')
+      this.dialog.value?.close('confirm')
     }
   }
 
   firstUpdated () {
-    this.dialog.value.showModal()
+    this.dialog.value?.showModal()
   }
 
-  updated (changedProperties) {
+  updated (changedProperties: Map<string, unknown>) {
     if (changedProperties.has('dialogOpen')) {
       if (this.dialogOpen) {
-        this.dialog.value.showModal()
+        this.dialog.value?.showModal()
       } else {
-        this.dialog.value.close()
+        this.dialog.value?.close()
       }
     }
   }

@@ -1,15 +1,15 @@
-'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Toolbar component combining settings and action buttons
 */
 
-import { AppElement, html, css } from './AppElement.js'
+import { AppElement, html, css, TemplateResult } from './AppElement'
 import { customElement, property, state } from 'lit/decorators.js'
-import { iconSettings, iconUndo, iconExpand, iconCompress, iconPoweroff, iconBluetooth, iconUpload, iconHeartbeat, iconAntplus } from '../lib/icons.js'
-import './SettingsDialog.js'
-import './AppDialog.js'
+import { iconSettings, iconUndo, iconExpand, iconCompress, iconPoweroff, iconBluetooth, iconUpload, iconHeartbeat, iconAntplus } from '../lib/icons'
+import './SettingsDialog'
+import './AppDialog'
+import type { AppConfig } from '../store/types'
 
 @customElement('dashboard-toolbar')
 export class DashboardToolbar extends AppElement {
@@ -83,13 +83,13 @@ export class DashboardToolbar extends AppElement {
   `
 
   @property({ type: Object })
-  accessor config = {}
+  config!: AppConfig
 
   @state()
-  accessor _appMode = 'BROWSER'
+  _appMode = 'BROWSER'
 
   @state()
-  accessor _dialog
+  _dialog?: TemplateResult
 
   render () {
     return html`
@@ -139,7 +139,7 @@ export class DashboardToolbar extends AppElement {
 
   renderOptionalButtons () {
     const buttons = []
-    if (this._appMode === 'BROWSER' && document.documentElement.requestFullscreen) {
+    if (this._appMode === 'BROWSER' && typeof document.documentElement.requestFullscreen === 'function') {
       buttons.push(html`
         <button @click=${this.toggleFullscreen} title="Toggle Fullscreen">
           <span class="fullscreen-icon">${iconExpand}</span>
@@ -187,7 +187,7 @@ export class DashboardToolbar extends AppElement {
   toggleFullscreen () {
     const fullscreenElement = document.getElementsByTagName('web-app')[0]
     if (!document.fullscreenElement) {
-      fullscreenElement.requestFullscreen({ navigationUI: 'hide' })
+      fullscreenElement.requestFullscreen({ navigationUI: 'hide' } as FullscreenOptions)
     } else {
       if (document.exitFullscreen) {
         document.exitFullscreen()
@@ -213,7 +213,7 @@ export class DashboardToolbar extends AppElement {
 
   uploadTraining () {
     this._dialog = html`
-      <app-dialog @close=${(event) => {
+      <app-dialog @close=${(event: CustomEvent) => {
         // this._dialog = undefined
         if (event.detail === 'confirm') {
           this.sendEvent('triggerAction', { command: 'upload' })
@@ -227,7 +227,7 @@ export class DashboardToolbar extends AppElement {
 
   shutdown () {
     this._dialog = html`
-      <app-dialog @close=${(event) => {
+      <app-dialog @close=${(event: CustomEvent) => {
         this._dialog = undefined
         if (event.detail === 'confirm') {
           this.sendEvent('triggerAction', { command: 'shutdown' })

@@ -1,11 +1,12 @@
-'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 */
 /**
  * @file Defines the initial global state of the webclient, before the webserver pushes actual data
  */
-export const APP_STATE = {
+import type { AppState } from './types'
+
+export const APP_STATE: AppState = {
   // contains all the rowing metrics that are delivered from the backend
   metrics: {
     strokeState: 'WaitingForDrive',

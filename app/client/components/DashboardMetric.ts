@@ -1,11 +1,10 @@
-'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Component that renders a metric of the dashboard
 */
 
-import { AppElement, html, css } from './AppElement.js'
+import { AppElement, html, css } from './AppElement'
 import { customElement, property } from 'lit/decorators.js'
 
 @customElement('dashboard-metric')
@@ -35,13 +34,13 @@ export class DashboardMetric extends AppElement {
   `
 
   @property({ type: Object })
-  accessor icon = ''
+  icon: unknown = ''
 
   @property({ type: String })
-  accessor unit = ''
+  unit = ''
 
   @property({ type: String })
-  accessor value
+  value: string | number | undefined
 
   render () {
     return html`
