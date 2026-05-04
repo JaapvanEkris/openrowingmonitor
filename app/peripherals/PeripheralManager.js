@@ -201,12 +201,18 @@ export function createPeripheralManager (config) {
    * @param {BluetoothModes} newMode
    */
   async function createBlePeripheral (newMode) {
+    if (config.simulateWithoutHardware) {
+      log.info('Hardware initialization: simulateWithoutHardware is true. BLE peripherals are bypassed.')
+      newMode = 'OFF'
+    }
+
     try {
       if (_bleManager === undefined && newMode !== 'OFF') {
         _bleManager = new BleManager()
       }
     } catch (error) {
-      log.error('BleManager creation error: ', error)
+      log.warn('BleManager creation error (BLE not available on this platform): ', error.message)
+      bleMode = 'OFF'
       return
     }
 
@@ -280,6 +286,11 @@ export function createPeripheralManager (config) {
    * @param {AntPlusModes} newMode
    */
   async function createAntPeripheral (newMode) {
+    if (config.simulateWithoutHardware) {
+      log.info('Hardware initialization: simulateWithoutHardware is true. ANT+ peripherals are bypassed.')
+      newMode = 'OFF'
+    }
+
     if (antPeripheral) {
       await antPeripheral?.destroy()
       antPeripheral = undefined
@@ -376,7 +387,8 @@ export function createPeripheralManager (config) {
             _bleManager = new BleManager()
           }
         } catch (error) {
-          log.error('BleManager creation error: ', error)
+          log.warn('BleManager creation error (BLE not available on this platform): ', error.message)
+          hrmMode = 'OFF'
           return
         }
         hrmPeripheral = createBleHrmPeripheral(_bleManager)

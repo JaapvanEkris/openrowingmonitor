@@ -7,14 +7,48 @@
   possible to real time.
 */
 import process from 'process'
-import pigpio from 'pigpio'
 import os from 'os'
 import config from '../tools/ConfigManager.js'
 import log from 'loglevel'
 
 log.setLevel(config.loglevel.default)
 
-export function createGpioTimerService () {
+export async function createGpioTimerService () {
+  if (config.simulateWithoutHardware) {
+    log.info('Hardware initialization: simulateWithoutHardware is true. GPIO service is bypassed.')
+    return
+  }
+
+  let pigpio
+  try {
+    const pigpioModule = await import('pigpio')
+    pigpio = pigpioModule.default
+
+    // The JS wrapper loads even if the C library fails to initialize (e.g. on non-Pi or missing root).
+    // When the C library fails, the exported functions exist but wrap undefined C-bindings, causing a 
+    // TypeError when called. We catch this explicitly to verify true compatibility before proceeding.
+    let hwRev
+    try {
+      hwRev = pigpio.hardwareRevision()
+    } catch (e) {
+      if (e instanceof TypeError && e.message.includes('is not a function')) {
+        log.info('Hardware initialization: pigpio C library failed to initialize (likely not a supported Raspberry Pi or missing root). GPIO service is bypassed.')
+        return
+      }
+      throw e // re-throw unexpected errors
+    }
+
+    if (hwRev === 0) {
+      log.info('Hardware initialization: pigpio reports unknown/unsupported hardware revision. GPIO service is bypassed.')
+      return
+    }
+
+    log.info(`Hardware initialization: pigpio initialized successfully (Hardware Revision: ${hwRev.toString(16)}). Attempting to start GPIO service.`)
+  } catch (error) {
+    log.info(`Hardware initialization: Failed to load pigpio module (${error.message}). GPIO service is bypassed.`)
+    return
+  }
+
   // Import the settings from the settings file
   const triggeredFlank = config.gpioTriggeredFlank
   const pollingInterval = config.gpioPollingInterval
