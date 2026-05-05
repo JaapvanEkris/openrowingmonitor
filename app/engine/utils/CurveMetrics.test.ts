@@ -125,45 +125,6 @@ describe('Test of basic curve recording', () => {
   })
 })
 
-// describe('Test of curve reset behaviour')
-describe('Test of curve reset behaviour', () => {
-  test('Init_01: Basic Init', () => {
-    const curve = createCurveMetrics(0)
-    let curveMetrics = curve.completeCurveAndMetrics()
-    testCurveLength(curveMetrics, 0)
-    testCurveAverage(curveMetrics, undefined)
-    testCurvePeak(curveMetrics, undefined)
-    testCurvePeakPosition(curveMetrics, undefined)
-    testCurve(curveMetrics, [])
-
-    let i = 1
-    while (i < 101) {
-      if (i < 51) {
-        curve.push(i * 12)
-      } else {
-        curve.push(1200 - (i * 12))
-      }
-      i++
-    }
-
-    curveMetrics = curve.completeCurveAndMetrics()
-    testCurveLength(curveMetrics, 100)
-    testCurveAverage(curveMetrics, 300)
-    testCurvePeak(curveMetrics, 600)
-    testCurvePeakPosition(curveMetrics, 0.5)
-    testCurve(curveMetrics, [12, 24, 36, 48, 60, 72, 84, 96, 108, 120, 132, 144, 156, 168, 180, 192, 204, 216, 228, 240, 252, 264, 276, 288, 300, 312, 324, 336, 348, 360, 372, 384, 396, 408, 420, 432, 444, 456, 468, 480, 492, 504, 516, 528, 540, 552, 564, 576, 588, 600, 588, 576, 564, 552, 540, 528, 516, 504, 492, 480, 468, 456, 444, 432, 420, 408, 396, 384, 372, 360, 348, 336, 324, 312, 300, 288, 276, 264, 252, 240, 228, 216, 204, 192, 180, 168, 156, 144, 132, 120, 108, 96, 84, 72, 60, 48, 36, 24, 12, 0])
-
-    curve.reset()
-
-    curveMetrics = curve.completeCurveAndMetrics()
-    testCurveLength(curveMetrics, 0)
-    testCurveAverage(curveMetrics, undefined)
-    testCurvePeak(curveMetrics, undefined)
-    testCurvePeakPosition(curveMetrics, undefined)
-    testCurve(curveMetrics, [])
-  })
-})
-
 describe('Test of recording of curves with leading noise', () => {
   test('Leading_Theoretical_01: Basic Pyramid', () => {
     const curve = createCurveMetrics(0)
@@ -694,6 +655,44 @@ describe('Test of recording of curves with both leading and trailing noise, and 
     testCurvePeak(curveMetrics, 1000.25)
     testCurvePeakPosition(curveMetrics, 0.5051020408163265)
     testCurve(curveMetrics, [24.25, 48, 71.25, 94, 116.25, 138, 159.25, 180, 200.25, 220, 239.25, 258, 276.25, 294, 311.25, 328, 344.25, 360, 375.25, 390, 404.25, 418, 431.25, 444, 456.25, 468, 479.25, 490, 500.25, 510, 519.25, 528, 536.25, 544, 551.25, 558, 564.25, 570, 575.25, 580, 584.25, 588, 591.25, 594, 596.25, 598, 599.25, 600, 600.25, 600, 599.25, 598, 596.25, 594, 591.25, 588, 584.25, 580, 600.25, 620, 639.25, 658, 676.25, 694, 711.25, 728, 744.25, 760, 775.25, 790, 804.25, 818, 831.25, 844, 856.25, 868, 879.25, 890, 900.25, 910, 919.25, 928, 936.25, 944, 951.25, 958, 964.25, 970, 975.25, 980, 984.25, 988, 991.25, 994, 996.25, 998, 999.25, 1000, 1000.25, 1000, 999.25, 998, 996.25, 994, 991.25, 988, 984.25, 980, 975.25, 970, 964.25, 958, 951.25, 944, 936.25, 928, 919.25, 910, 900.25, 890, 879.25, 868, 856.25, 844, 831.25, 818, 804.25, 790, 775.25, 760, 744.25, 728, 711.25, 694, 676.25, 658, 639.25, 620, 580, 584.25, 588, 591.25, 594, 596.25, 598, 599.25, 600, 600.25, 600, 599.25, 598, 596.25, 594, 591.25, 588, 584.25, 580, 575.25, 570, 564.25, 558, 551.25, 544, 536.25, 528, 519.25, 510, 500.25, 490, 479.25, 468, 456.25, 444, 431.25, 418, 404.25, 390, 375.25, 360, 344.25, 328, 311.25, 294, 276.25, 258, 239.25, 220, 200.25, 180, 159.25, 138, 116.25, 94, 71.25, 48, 24.25])
+  })
+})
+
+describe('Test of curve reset behaviour', () => {
+  test('Reset_01: Effect of a reset on a curve', () => {
+    const curve = createCurveMetrics(0)
+    let curveMetrics = curve.completeCurveAndMetrics()
+    testCurveLength(curveMetrics, 0)
+    testCurveAverage(curveMetrics, undefined)
+    testCurvePeak(curveMetrics, undefined)
+    testCurvePeakPosition(curveMetrics, undefined)
+    testCurve(curveMetrics, [])
+
+    let i = 1
+    while (i < 101) {
+      if (i < 51) {
+        curve.push(i * 12)
+      } else {
+        curve.push(1200 - (i * 12))
+      }
+      i++
+    }
+
+    curveMetrics = curve.completeCurveAndMetrics()
+    testCurveLength(curveMetrics, 100)
+    testCurveAverage(curveMetrics, 300)
+    testCurvePeak(curveMetrics, 600)
+    testCurvePeakPosition(curveMetrics, 0.5)
+    testCurve(curveMetrics, [12, 24, 36, 48, 60, 72, 84, 96, 108, 120, 132, 144, 156, 168, 180, 192, 204, 216, 228, 240, 252, 264, 276, 288, 300, 312, 324, 336, 348, 360, 372, 384, 396, 408, 420, 432, 444, 456, 468, 480, 492, 504, 516, 528, 540, 552, 564, 576, 588, 600, 588, 576, 564, 552, 540, 528, 516, 504, 492, 480, 468, 456, 444, 432, 420, 408, 396, 384, 372, 360, 348, 336, 324, 312, 300, 288, 276, 264, 252, 240, 228, 216, 204, 192, 180, 168, 156, 144, 132, 120, 108, 96, 84, 72, 60, 48, 36, 24, 12, 0])
+
+    curve.reset()
+
+    curveMetrics = curve.completeCurveAndMetrics()
+    testCurveLength(curveMetrics, 0)
+    testCurveAverage(curveMetrics, undefined)
+    testCurvePeak(curveMetrics, undefined)
+    testCurvePeakPosition(curveMetrics, undefined)
+    testCurve(curveMetrics, [])
   })
 })
 
