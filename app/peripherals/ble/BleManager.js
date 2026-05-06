@@ -1,5 +1,4 @@
 import loglevel from 'loglevel'
-import config from '../../tools/ConfigManager.js'
 
 /**
  * @typedef {import('./ble-host.interface.js').BleManager} BleHostManager
@@ -8,6 +7,11 @@ import config from '../../tools/ConfigManager.js'
 const log = loglevel.getLogger('Peripherals')
 
 export class BleManager {
+  /**
+   * @type {Config}
+   */
+  #config
+
   /**
    * @type {import('hci-socket') | undefined}
    */
@@ -29,17 +33,24 @@ export class BleManager {
    */
   #NodeBleHost
 
+  /**
+   * @param {Config} config
+   */
+  constructor (config) {
+    this.#config = config
+  }
+
   open () {
-    if (config.simulateWithoutHardware) {
+    if (this.#config.simulateWithoutHardware) {
       log.info('Hardware initialization: simulateWithoutHardware is true. BLE manager is bypassed.')
       return Promise.reject(new Error('simulateWithoutHardware is true, BLE disabled.'))
     }
-    
+
     if (process.platform !== 'linux') {
       log.info(`Hardware initialization: BLE requires Linux. Current platform is ${process.platform}. BLE manager is bypassed.`)
       return Promise.reject(new Error(`BLE requires Linux, current platform: ${process.platform}`))
     }
-    
+
     log.info('Hardware initialization: BLE enabled on Linux. Attempting to start BLE manager.')
 
     if (this.#manager !== undefined) {

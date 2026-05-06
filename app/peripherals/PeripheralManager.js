@@ -208,7 +208,7 @@ export function createPeripheralManager (config) {
 
     try {
       if (_bleManager === undefined && newMode !== 'OFF') {
-        _bleManager = new BleManager()
+        _bleManager = new BleManager(config)
       }
     } catch (error) {
       log.warn('BleManager creation error (BLE not available on this platform): ', error.message)
@@ -384,7 +384,7 @@ export function createPeripheralManager (config) {
         log.info('heart rate profile: BLE')
         try {
           if (_bleManager === undefined) {
-            _bleManager = new BleManager()
+            _bleManager = new BleManager(config)
           }
         } catch (error) {
           log.warn('BleManager creation error (BLE not available on this platform): ', error.message)
