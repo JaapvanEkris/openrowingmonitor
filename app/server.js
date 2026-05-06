@@ -141,7 +141,9 @@ process.once('uncaughtException', async (error) => {
 // This shuts down the pi, use with caution!
 async function shutdownApp () {
   // As we are shutting down, we need to make sure things are closed down nicely and save what we can
-  gpioTimerService.kill()
+  if (gpioTimerService) {
+    gpioTimerService.kill()
+  }
   await recordingManager.handleCommand('shutdown')
   // We don't want to wait for the peripherals to close, as then an unresponsive peripheral will block the shutdown process that can remedy it
   peripheralManager.handleCommand('shutdown')

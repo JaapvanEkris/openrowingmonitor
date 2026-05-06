@@ -20,6 +20,7 @@
   "scripts": {
     "lint": "eslint ./app ./config && markdownlint-cli2 '**/*.md' '#node_modules'",
     "start": "node app/server.js",
+    "no-hardware": "node app/server.js --no-hardware",
     "dev": "vite",
     "build": "vite build",
     "build:watch": "vite build --watch",

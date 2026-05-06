@@ -64,4 +64,10 @@
  * @property {string} shutdownCommand - The command to shutdown the device via the user interface.
  * @property {string} stravaClientId - The "Client ID" of your Strava API Application.
  * @property {string} stravaClientSecret - The "Client Secret" of your Strava API Application.
+ * @property {boolean} simulateWithoutHardware - Whether hardware (GPIO, BLE, ANT+) is bypassed. Set at runtime via --no-hardware CLI flag or ORM_NO_HARDWARE env var.
+ */
+
+/**
+ * Config type as provided by the config files, without runtime-injected properties.
+ * @typedef {Omit<Config, 'simulateWithoutHardware'>} ConfigFileSettings
  */

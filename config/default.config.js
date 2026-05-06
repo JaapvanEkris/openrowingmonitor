@@ -15,7 +15,7 @@ import rowerProfiles from './rowerProfiles.js'
 
 /**
  * The default configuration for the Open Rowing Monitor.
- * @type {Config}
+ * @type {ConfigFileSettings}
  */
 export default {
   // Available log levels: trace, debug, info, warn, error, silent
