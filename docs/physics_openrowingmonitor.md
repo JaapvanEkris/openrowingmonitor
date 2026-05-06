@@ -62,7 +62,9 @@ As described in [the architecture](Architecture.md), the rowing engine is the co
 
 * `engine/Rower.js`, which transforms rotational metrics in a rowing state and linear metrics,
 
-* `engine/RowingStatistics.js`, which manages session state, session metrics and optimizes metrics for presentation.
+* `engine/RowingStatistics.js`, which persists metrics during the stroke and optimizes metrics for presentation.
+
+* `engine/SessionManager.js`, which manages session state and session metrics
 
 Although the physics is well-understood and even well-described publicly (see [[1]](#1),[[2]](#2),[[3]](#3) and [[4]](#4)), applying these formulae in a practical solution for multiple rowers delivering reliable results is quite challenging. Especially small errors, noise, tends to produce visible effects on the recorded metrics. Therefore, in our design of the physics engine, we obey the following principles (see also [the architecture document](Architecture.md)):
 
