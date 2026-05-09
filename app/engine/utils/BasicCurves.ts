@@ -388,7 +388,7 @@ export function randomXFuzzing (datapointnumber: Readonly<number>, inputTupple: 
   const noise = 0.99975 + (maxNoiseLevel * noiseVector[datapointnumber % 200])
 
   return {
-    x: inputTupple.x * noise),
+    x: (inputTupple.x * noise),
     y: inputTupple.y
   }
 }
