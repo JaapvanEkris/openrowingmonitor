@@ -270,10 +270,9 @@ export function createFITRecorder (config) {
       case (metrics.metricsContext.isPauseEnd && metrics.metricsContext.isUnplannedPause):
         // The session is resumed, so it was an unplanned pause instead of a stop. First add the rest lap (= ORM split)
         // eslint-disable-next-line no-case-declarations -- Code clarity outweighs lint rules
-        const lastActiveSplitEndtime = sessionData.laps[sessionData.length - 1].endTime
-        addRestLap(metrics, lastActiveSplitEndtime, metrics.interval.number)
-        // Now start a new active split and lap
-        splitHRMetrics.reset()
+        const lastActiveLapEndtime = sessionData.laps[sessionData.laps.length - 1].endTime
+        addRestLap(metrics, lastActiveLapEndtime, metrics.interval.number)
+        // Now start a new active lap (= ORM split)
         startLap(metrics)
         addMetricsToStrokesArray(metrics)
         break
@@ -535,7 +534,7 @@ export function createFITRecorder (config) {
    */
   function calculateLapMetrics (metrics) {
     const lapnumber = sessionData.laps.length - 1
-    sessionData.laps[lapnumber].workoutStepNumber = metrics.interval.number
+    sessionData.laps[lapnumber].workoutStepNumber = metrics.interval.number // Sessionmanager guarantees this is identical to the WorkoutStep Number
     sessionData.laps[lapnumber].endTime = metrics.timestamp
     switch (true) {
       case (metrics.metricsContext.isSessionStop && (metrics.interval.type === 'distance' || metrics.interval.type === 'time')):
