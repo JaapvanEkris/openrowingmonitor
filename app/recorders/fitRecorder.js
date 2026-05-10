@@ -244,7 +244,19 @@ export function createFITRecorder (config) {
         postExerciseHR = []
         measureRecoveryHR()
         break
+      case (metrics.metricsContext.isPauseStart && metrics.metricsContext.isUnplannedPause && lastMetrics.sessionState === 'Rowing'):
+        // This is an unplanned pause, or potentially a premature session stop
+        addMetricsToStrokesArray(metrics)
+        calculateLapMetrics(metrics)
+        calculateSplitMetrics(metrics)
+        calculateSessionMetrics(metrics)
+        resetLapMetrics()
+        postExerciseHR = null
+        postExerciseHR = []
+        measureRecoveryHR()
+        break
       case (metrics.metricsContext.isPauseStart && lastMetrics.sessionState === 'Rowing'):
+        // The stop is planned as a rest interval, but a restart isn't guaranteed
         addMetricsToStrokesArray(metrics)
         calculateLapMetrics(metrics)
         calculateSplitMetrics(metrics)
@@ -255,8 +267,18 @@ export function createFITRecorder (config) {
         postExerciseHR = []
         measureRecoveryHR()
         break
+      case (metrics.metricsContext.isPauseEnd && metrics.metricsContext.isUnplannedPause):
+        // The session is resumed, so it was an unplanned pause instead of a stop. First add the rest lap (= ORM split)
+        // eslint-disable-next-line no-case-declarations -- Code clarity outweighs lint rules
+        const lastActiveSplitEndtime = sessionData.laps[sessionData.length - 1].endTime
+        addRestLap(metrics, lastActiveSplitEndtime, metrics.interval.number)
+        // Now start a new active split and lap
+        splitHRMetrics.reset()
+        startLap(metrics)
+        addMetricsToStrokesArray(metrics)
+        break
       case (metrics.metricsContext.isPauseEnd):
-        // The session is resumed, so it was a pause instead of a stop. First add the rest split and lap
+        // The session is resumed from a planned pause. First add the rest split and lap
         // eslint-disable-next-line no-case-declarations -- Code clarity outweighs lint rules
         const lastActiveSplitEndtime = sessionData.splits[sessionData.splits.length - 1].endTime
         addRestSplit(metrics, lastActiveSplitEndtime)
@@ -590,7 +612,6 @@ export function createFITRecorder (config) {
    * @param {boolean} metrics.metricsContext.isIntervalEnd - Are the metrics recorded at the end of the ORM Interval (i.e. Garmin Split)
    */
   function addRestLap (metrics, startTime, workoutStepNo) {
-    resetLapMetrics()
     const lapnumber = sessionData.laps.length
     sessionData.laps.push({
       startTime: startTime,
@@ -606,6 +627,7 @@ export function createFITRecorder (config) {
       summary: { ...metrics.split },
       complete: true
     })
+    resetLapMetrics()
     VO2max.handleRestart(metrics.split.timeSpent.moving)
   }
 
