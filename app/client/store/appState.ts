@@ -52,7 +52,6 @@ export const APP_STATE: AppState = {
       landscapeDashboardMetrics: ['distance', 'timer', 'pace', 'power', 'stkRate', 'totalStk', 'calories'],
       portraitDashboardMetrics: ['distance', 'timer', 'pace', 'power', 'stkRate', 'totalStk', 'calories'],
       showIcons: true,
-      maxNumberOfTiles: 8,
       trueBlackTheme: false,
       forceCurveDivisionMode: 0,
       gridConfig: {

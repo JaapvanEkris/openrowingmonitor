@@ -19,7 +19,6 @@ function createToolbar (config: Partial<AppConfig> = {}): DashboardToolbar {
       landscapeDashboardMetrics: [],
       portraitDashboardMetrics: [],
       showIcons: true,
-      maxNumberOfTiles: 8,
       trueBlackTheme: false,
       forceCurveDivisionMode: 0,
       gridConfig: {

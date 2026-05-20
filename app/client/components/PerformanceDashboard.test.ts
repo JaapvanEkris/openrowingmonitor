@@ -24,22 +24,6 @@ describe('dashboardMetricComponentsFactory', () => {
   })
 })
 
-describe('grid class', () => {
-  test('should return "rows-3" when maxNumberOfTiles is 12', () => {
-    const dashboard = createDashboard()
-    dashboard.appState.config.guiConfigs.maxNumberOfTiles = 12
-    const gridClass = dashboard.appState.config.guiConfigs.maxNumberOfTiles === 12 ? 'rows-3' : ''
-    expect(gridClass).toBe('rows-3')
-  })
-
-  test('should return empty string when maxNumberOfTiles is 8', () => {
-    const dashboard = createDashboard()
-    dashboard.appState.config.guiConfigs.maxNumberOfTiles = 8
-    const gridClass = dashboard.appState.config.guiConfigs.maxNumberOfTiles === 12 ? 'rows-3' : ''
-    expect(gridClass).toBe('')
-  })
-})
-
 describe('_computeGridConfig', () => {
   function mockMatchMedia (isPortrait: boolean) {
     vi.spyOn(window, 'matchMedia').mockReturnValue({

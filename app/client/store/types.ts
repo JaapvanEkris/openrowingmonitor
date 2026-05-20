@@ -119,7 +119,6 @@ export interface GuiConfig {
   landscapeDashboardMetrics: string[]
   portraitDashboardMetrics: string[]
   showIcons: boolean
-  maxNumberOfTiles: number
   trueBlackTheme: boolean
   forceCurveDivisionMode: number
   gridConfig: GridConfig

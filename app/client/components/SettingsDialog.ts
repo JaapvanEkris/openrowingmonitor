@@ -5,23 +5,72 @@
 */
 
 import { AppElement, html, css } from './AppElement'
-import { customElement, property, query, queryAll, state } from 'lit/decorators.js'
+import { customElement, property, query, state } from 'lit/decorators.js'
 import { iconSettings } from '../lib/icons'
 import './AppDialog'
-import { DASHBOARD_METRICS } from '../store/dashboardMetrics'
 import type { GuiConfig } from '../store/types'
 
 @customElement('settings-dialog')
 export class DashboardActions extends AppElement {
   static styles = css`
-    .metric-selector-feedback{
-      font-size: 0.5em;
-      padding-top: 8px;
+    .settings-dialog {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
 
-    .settings-dialog>div.metric-selector{
-      display: grid;
-      grid-template-columns: repeat(3,max-content);
+    .grid-config {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .grid-config fieldset {
+      border: 1px solid var(--theme-font-color);
+      border-radius: var(--theme-border-radius);
+      padding: 6px 10px;
+    }
+
+    .grid-config legend {
+      font-size: 0.6em;
+      text-align: left;
+    }
+
+    .grid-config label {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.6em;
+      margin-top: 6px;
+    }
+
+    .grid-config input[type="range"] {
+      width: 100%;
+      cursor: pointer;
+    }
+
+    input[type="checkbox"] {
+      cursor: pointer;
+      align-self: center;
+      width: 1.5em;
+      height: 1.5em;
+    }
+
+    label > span {
+      cursor: pointer;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    .icon {
+      height: 1.6em;
+    }
+
+    .dialog-title {
+      text-align: center;
+    }
+
+    .show-icons-selector {
+      display: flex;
       gap: 8px;
     }
 
@@ -36,63 +85,6 @@ export class DashboardActions extends AppElement {
       font-size: 0.7em;
     }
 
-    .experimental-settings label>input {
-      font-size: 0.7em;
-    }
-
-    .settings-dialog>div>label{
-      font-size: 0.6em;
-      width: fit-content;
-    }
-
-    input[type="checkbox"]{
-      cursor: pointer;
-      align-self: center;
-      width: 1.5em;
-      height: 1.5em;
-    }
-
-    label>span {
-      cursor: pointer;
-      -webkit-user-select: none;
-      user-select: none;
-    }
-
-    .icon {
-      height: 1.6em;
-    }
-
-    legend{
-      text-align: center;
-    }
-
-    table {
-      min-height: 70px;
-      margin-top: 8px;
-      width: 100%;
-    }
-
-    table, th, td {
-      font-size: 0.9em;
-      border: 1px solid white;
-      border-collapse: collapse;
-    }
-
-    tr {
-      height: 50%;
-    }
-
-    th, td {
-      padding: 8px;
-      text-align: center;
-      background-color: var(--theme-widget-color);
-    }
-
-    .show-icons-selector {
-      display: flex;
-      gap: 8px;
-    }
-
     app-dialog > *:last-child {
       margin-bottom: -24px;
     }
@@ -101,50 +93,71 @@ export class DashboardActions extends AppElement {
   @property({ type: Object })
    config!: GuiConfig
 
-  @queryAll('.metric-selector input')
-  _inputs!: NodeListOf<HTMLInputElement>
-
   @query('input[name="showIcons"]')
   _showIconInput!: HTMLInputElement
-
-  @query('input[name="maxNumberOfTiles"]')
-  _maxNumberOfTilesInput!: HTMLInputElement
 
   @query('input[name="trueBlackTheme"]')
   _trueBlackThemeInput!: HTMLInputElement
 
   @state()
-  _selectedMetrics: string[] = []
+  _columns = 4
 
   @state()
-  _sumSelectedSlots = 0
+  _rows = 2
 
   @state()
-  _isValid = false
+  _isPortrait = false
 
   @state()
   _showIcons = true
 
   @state()
-  _maxNumberOfTiles = 8
-
-  @state()
   _trueBlackTheme = false
+
+  _orientationMediaQuery: MediaQueryList | null = null
+  _handleOrientationChange = (e: MediaQueryListEvent) => {
+    ;[this._columns, this._rows] = [this._rows, this._columns]
+    this._isPortrait = e.matches
+  }
+
+  connectedCallback () {
+    super.connectedCallback()
+    this._orientationMediaQuery = window.matchMedia('(orientation: portrait)')
+    this._orientationMediaQuery.addEventListener('change', this._handleOrientationChange)
+  }
+
+  disconnectedCallback () {
+    super.disconnectedCallback()
+    this._orientationMediaQuery?.removeEventListener('change', this._handleOrientationChange)
+  }
 
   render () {
     return html`
-    <app-dialog class="settings-dialog" .isValid=${this._isValid} @close=${this.close}>
-    <legend>${iconSettings}<br/>Settings</legend>
+    <app-dialog class="settings-dialog" .isValid=${true} @close=${this.close}>
+    <p class="dialog-title">${iconSettings}<br/>Settings</p>
 
-    <p>Select metrics to be shown:</p>
-    <div class="metric-selector">
-      ${this.renderAvailableMetricList()}
+    <div class="grid-config">
+      <fieldset>
+        <legend>Grid layout (${this._isPortrait ? 'portrait' : 'landscape'})</legend>
+        <label>
+          <span>Columns: ${this._columns}</span>
+          <input
+            type="range" min="1" .max=${this._isPortrait ? '4' : '8'}
+            .value=${String(this._columns)}
+            @input=${(e: Event) => { this._columns = parseInt((e.target as HTMLInputElement).value, 10) }}
+          />
+        </label>
+        <label>
+          <span>Rows: ${this._rows}</span>
+          <input
+            type="range" min="1" .max=${this._isPortrait ? '8' : '4'}
+            .value=${String(this._rows)}
+            @input=${(e: Event) => { this._rows = parseInt((e.target as HTMLInputElement).value, 10) }}
+          />
+        </label>
+      </fieldset>
     </div>
-    <div class="metric-selector-feedback">Slots remaining:  ${this._maxNumberOfTiles - this._sumSelectedSlots}
-      <table>
-        ${this.renderSelectedMetrics()}
-      </table>
-    </div>
+
     <p class="show-icons-selector">
       <label>
         <span>Show icons</span>
@@ -153,10 +166,6 @@ export class DashboardActions extends AppElement {
     </p>
     <p class="experimental-settings">
       Experimental settings:
-      <label>
-        <span>Use 12 cell grid</span>
-        <input @change=${this.toggleMaxTiles} name="maxNumberOfTiles" type="checkbox" />
-      </label>
       <label>
         <span>True Black theme (OLED/AMOLED)</span>
         <input @change=${this.toggleTrueBlackTheme} name="trueBlackTheme" type="checkbox" />
@@ -167,104 +176,39 @@ export class DashboardActions extends AppElement {
   }
 
   firstUpdated () {
-    this._selectedMetrics = [...this.config.landscapeDashboardMetrics]
-    this._sumSelectedSlots = this._selectedMetrics.length
+    this._isPortrait = window.matchMedia('(orientation: portrait)').matches
+    const orientConfig = this._isPortrait ? this.config.gridConfig.portrait : this.config.gridConfig.landscape
+    this._columns = orientConfig.columns
+    this._rows = orientConfig.rows
     this._showIcons = this.config.showIcons
-    this._maxNumberOfTiles = this.config.maxNumberOfTiles
     this._trueBlackTheme = this.config.trueBlackTheme ?? false
-    if (this._sumSelectedSlots === this._maxNumberOfTiles) {
-      this._isValid = true
-    } else {
-      this._isValid = false
-    }
-    [...this._inputs].forEach((input) => {
-      input.checked = this._selectedMetrics.find((metric) => metric === input.name) !== undefined
-    })
     this._showIconInput.checked = this._showIcons
-    this._maxNumberOfTilesInput.checked = this._maxNumberOfTiles === 12
     this._trueBlackThemeInput.checked = this._trueBlackTheme
-  }
-
-  renderAvailableMetricList () {
-    return Object.keys(DASHBOARD_METRICS).map((key) => html`
-      <label>
-        <input @change=${this.toggleCheck} name=${key} size=${DASHBOARD_METRICS[key].size} type="checkbox" />
-      <span>${DASHBOARD_METRICS[key].displayName}</span></label>
-    `)
-  }
-
-  renderSelectedMetrics () {
-    const selectedMetrics = [html`<tr>${[0, 1, 2, 3].map((index: number) => html`<td style="${this._selectedMetrics[3] === this._selectedMetrics[4] && index === 3 ? 'color: red' : ''}">${this._selectedMetrics[index]}</td>`)}</tr>`]
-    selectedMetrics.push(html`<tr>${[4, 5, 6, 7].map((index: number) => html`<td  style="${
-      (index === 4 && this._selectedMetrics[3] === this._selectedMetrics[4]) ||
-      (index === 7 && this._selectedMetrics[7] === this._selectedMetrics[8]) ?
-        'color: red' :
-        ''
-      }">${this._selectedMetrics[index]}</td>`)}</tr>`)
-    if (this._maxNumberOfTiles === 12) {
-      selectedMetrics.push(html`<tr>${[8, 9, 10, 11].map((index: number) => html`<td  style="${
-
-        (index === 8 && this._selectedMetrics[7] === this._selectedMetrics[8]) ||
-        (index === 11 && this._selectedMetrics.length > 12) ?
-          'color: red' :
-          ''
-        }">${this._selectedMetrics[index]}</td>`)}</tr>`)
-    }
-
-    return selectedMetrics
-  }
-
-  toggleCheck (e: Event) {
-    const target = e.target as HTMLInputElement & { size: number }
-    if (target.checked && ((this._selectedMetrics.length % 4 === 3 && target.size > 1) || (this._sumSelectedSlots + target.size > this._maxNumberOfTiles))) {
-      this._isValid = this.isFormValid()
-      target.checked = false
-      return
-    }
-
-    if (target.checked) {
-      for (let index = 0; index < target.size; index++) {
-        this._selectedMetrics = [...this._selectedMetrics, target.name]
-      }
-    } else {
-      for (let index = 0; index < target.size; index++) {
-        this._selectedMetrics.splice(this._selectedMetrics.findIndex((metric) => metric === target.name), 1)
-        this._selectedMetrics = [...this._selectedMetrics]
-      }
-    }
-
-    this._sumSelectedSlots = this._selectedMetrics.length
-    if (this.isFormValid()) {
-      this._isValid = true
-    } else {
-      this._isValid = false
-    }
   }
 
   toggleIcons (e: Event) {
     this._showIcons = (e.target as HTMLInputElement).checked
   }
 
-  toggleMaxTiles (e: Event) {
-    this._maxNumberOfTiles = (e.target as HTMLInputElement).checked ? 12 : 8
-    this._isValid = this.isFormValid()
-  }
-
   toggleTrueBlackTheme (e: Event) {
     this._trueBlackTheme = (e.target as HTMLInputElement).checked
-  }
-
-  isFormValid () {
-    return this._sumSelectedSlots === this._maxNumberOfTiles && this._selectedMetrics[3] !== this._selectedMetrics[4] && this._selectedMetrics[7] !== this._selectedMetrics?.[8]
   }
 
   close (event: CustomEvent) {
     this.dispatchEvent(new CustomEvent('close'))
     if (event.detail === 'confirm') {
+      const gridConfig = this._isPortrait ?
+        {
+          landscape: { columns: this._rows, rows: this._columns },
+          portrait: { columns: this._columns, rows: this._rows }
+        } :
+        {
+          landscape: { columns: this._columns, rows: this._rows },
+          portrait: { columns: this._rows, rows: this._columns }
+        }
       this.sendEvent('changeGuiSetting', {
-        landscapeDashboardMetrics: this._selectedMetrics,
+        gridConfig,
         showIcons: this._showIcons,
-        maxNumberOfTiles: this._maxNumberOfTiles,
         trueBlackTheme: this._trueBlackTheme
       })
     }
