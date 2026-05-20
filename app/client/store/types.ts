@@ -116,7 +116,8 @@ export interface GridConfig {
 }
 
 export interface GuiConfig {
-  dashboardMetrics: string[]
+  landscapeDashboardMetrics: string[]
+  portraitDashboardMetrics: string[]
   showIcons: boolean
   maxNumberOfTiles: number
   trueBlackTheme: boolean

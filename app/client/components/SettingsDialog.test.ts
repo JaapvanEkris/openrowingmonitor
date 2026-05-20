@@ -10,7 +10,8 @@ import { DashboardActions as SettingsDialog } from './SettingsDialog'
 function createSettingsDialog (): SettingsDialog {
   const dialog = new SettingsDialog()
   dialog.config = {
-    dashboardMetrics: [],
+    landscapeDashboardMetrics: [],
+    portraitDashboardMetrics: [],
     showIcons: true,
     maxNumberOfTiles: 8,
     trueBlackTheme: false,
@@ -85,7 +86,7 @@ describe('close', () => {
 
     expect(received).toBeDefined()
     expect(received!.detail).toEqual({
-      dashboardMetrics: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'],
+      landscapeDashboardMetrics: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'],
       showIcons: false,
       maxNumberOfTiles: 8,
       trueBlackTheme: true

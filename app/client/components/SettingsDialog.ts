@@ -167,7 +167,7 @@ export class DashboardActions extends AppElement {
   }
 
   firstUpdated () {
-    this._selectedMetrics = [...this.config.dashboardMetrics]
+    this._selectedMetrics = [...this.config.landscapeDashboardMetrics]
     this._sumSelectedSlots = this._selectedMetrics.length
     this._showIcons = this.config.showIcons
     this._maxNumberOfTiles = this.config.maxNumberOfTiles
@@ -262,7 +262,7 @@ export class DashboardActions extends AppElement {
     this.dispatchEvent(new CustomEvent('close'))
     if (event.detail === 'confirm') {
       this.sendEvent('changeGuiSetting', {
-        dashboardMetrics: this._selectedMetrics,
+        landscapeDashboardMetrics: this._selectedMetrics,
         showIcons: this._showIcons,
         maxNumberOfTiles: this._maxNumberOfTiles,
         trueBlackTheme: this._trueBlackTheme

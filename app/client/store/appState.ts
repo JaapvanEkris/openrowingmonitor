@@ -49,7 +49,8 @@ export const APP_STATE: AppState = {
     // true if remote device shutdown is enabled
     shutdownEnabled: false,
     guiConfigs: {
-      dashboardMetrics: ['distance', 'timer', 'pace', 'power', 'stkRate', 'totalStk', 'calories'],
+      landscapeDashboardMetrics: ['distance', 'timer', 'pace', 'power', 'stkRate', 'totalStk', 'calories'],
+      portraitDashboardMetrics: ['distance', 'timer', 'pace', 'power', 'stkRate', 'totalStk', 'calories'],
       showIcons: true,
       maxNumberOfTiles: 8,
       trueBlackTheme: false,

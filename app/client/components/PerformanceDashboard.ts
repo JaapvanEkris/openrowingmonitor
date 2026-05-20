@@ -39,11 +39,21 @@ export class PerformanceDashboard extends AppElement {
   @state()
   _maxGridSlots = 8
 
+  _orientationMediaQuery: MediaQueryList | null = null
+  _handleOrientationChange = () => {
+    this._computeGridConfig()
+    if (this._retileMode) {
+      this._localMetrics = this._getOrientationMetrics()
+    }
+  }
+
   connectedCallback () {
     super.connectedCallback()
     this.addEventListener('retile-mode-changed', this._handleRetileModeChanged as EventListener)
     this.addEventListener('reset-layout-to-default', this._handleResetToDefault)
     this.addEventListener('open-settings', this._handleOpenSettings)
+    this._orientationMediaQuery = window.matchMedia('(orientation: portrait)')
+    this._orientationMediaQuery.addEventListener('change', this._handleOrientationChange)
   }
 
   willUpdate (changedProperties: Map<string, unknown>) {
@@ -58,19 +68,6 @@ export class PerformanceDashboard extends AppElement {
         this._computeGridConfig()
       }
     }
-
-    if (changedProperties.has('_localMetrics') && this._localMetrics) {
-      let currentSlots = this._localMetrics.reduce((sum, key) => sum + (DASHBOARD_METRICS[key]?.size || 1), 0)
-
-      if (currentSlots > this._maxGridSlots) {
-        const newMetrics = [...this._localMetrics]
-        while (currentSlots > this._maxGridSlots && newMetrics.length > 0) {
-          const removed = newMetrics.pop()!
-          currentSlots -= (DASHBOARD_METRICS[removed]?.size || 1)
-        }
-        this._localMetrics = newMetrics
-      }
-    }
   }
 
   _computeGridConfig () {
@@ -83,18 +80,24 @@ export class PerformanceDashboard extends AppElement {
     this._maxGridSlots = this._columns * this._rows
   }
 
+  _getOrientationMetrics (): string[] {
+    const isPortrait = window.matchMedia('(orientation: portrait)').matches
+    const guiConfigs = this.appState?.config?.guiConfigs ?? APP_STATE.config.guiConfigs
+    return isPortrait ? guiConfigs.portraitDashboardMetrics : guiConfigs.landscapeDashboardMetrics
+  }
+
   disconnectedCallback () {
     super.disconnectedCallback()
     this.removeEventListener('retile-mode-changed', this._handleRetileModeChanged as EventListener)
     this.removeEventListener('reset-layout-to-default', this._handleResetToDefault)
     this.removeEventListener('open-settings', this._handleOpenSettings)
+    this._orientationMediaQuery?.removeEventListener('change', this._handleOrientationChange)
   }
 
   _handleOpenSettings = () => {
     this._dialog = html`
       <settings-dialog
         .config=${this.appState.config.guiConfigs}
-        .dashboardMetrics=${this.appState.config.guiConfigs.dashboardMetrics}
         @close=${() => { this._dialog = null }}
       ></settings-dialog>
     `
@@ -115,12 +118,12 @@ export class PerformanceDashboard extends AppElement {
     this._retileMode = event.detail.active
 
     if (this._retileMode && !wasActive) {
-      this._localMetrics = [...this.appState.config.guiConfigs.dashboardMetrics]
+      this._localMetrics = [...this._getOrientationMetrics()]
     } else if (!this._retileMode && wasActive) {
       if (this._localMetrics) {
-        this.sendEvent('changeGuiSetting', {
-          dashboardMetrics: this._localMetrics
-        })
+        const isPortrait = window.matchMedia('(orientation: portrait)').matches
+        const metricsKey = isPortrait ? 'portraitDashboardMetrics' : 'landscapeDashboardMetrics'
+        this.sendEvent('changeGuiSetting', { [metricsKey]: this._localMetrics })
       }
       this._localMetrics = null
     }
@@ -135,7 +138,11 @@ export class PerformanceDashboard extends AppElement {
 
   _handleResetToDefault = () => {
     if (this._retileMode) {
-      this._localMetrics = [...APP_STATE.config.guiConfigs.dashboardMetrics]
+      const isPortrait = window.matchMedia('(orientation: portrait)').matches
+      const defaultMetrics = APP_STATE.config.guiConfigs
+      this._localMetrics = isPortrait ?
+        [...defaultMetrics.portraitDashboardMetrics] :
+        [...defaultMetrics.landscapeDashboardMetrics]
     }
   }
 
@@ -239,7 +246,7 @@ export class PerformanceDashboard extends AppElement {
   }
 
   render () {
-    const metrics = this._localMetrics ?? this.appState?.config?.guiConfigs?.dashboardMetrics ?? []
+    const metrics = this._localMetrics ?? this._getOrientationMetrics()
     const uniqueMetrics = [...new Set(metrics)]
     const currentGridSlots = uniqueMetrics.reduce((sum, key) => sum + (DASHBOARD_METRICS[key]?.size || 1), 0)
     const availableSlots = this._maxGridSlots - currentGridSlots

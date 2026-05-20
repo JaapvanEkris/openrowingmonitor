@@ -57,7 +57,7 @@ describe('dashboard metrics validation', () => {
     const state = app.getState()
     // unknownMetric and 'another' should be filtered out if they're not in DASHBOARD_METRICS
     // 'validPace' is also not a real key, so all should be filtered
-    const metrics = state.config.guiConfigs.dashboardMetrics
+    const metrics = state.config.guiConfigs.landscapeDashboardMetrics
     metrics.forEach((metric: string) => {
       // All remaining metrics should be valid (exist in DASHBOARD_METRICS)
       // rather than the invalid ones we injected

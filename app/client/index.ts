@@ -34,18 +34,30 @@ export class App extends LitElement {
       // todo: we also want a mechanism here to get notified of state changes
     })
 
+    // Migrate old 'dashboardMetrics' localStorage key to 'landscapeDashboardMetrics'
+    const legacyLandscape = localStorage.getItem('dashboardMetrics')
+    if (legacyLandscape && !localStorage.getItem('landscapeDashboardMetrics')) {
+      localStorage.setItem('landscapeDashboardMetrics', legacyLandscape)
+      localStorage.removeItem('dashboardMetrics')
+    }
+
     const config = this._appState.config.guiConfigs
     const configKey = Object.keys(config) as (keyof GuiConfig)[]
     configKey.forEach((key) => {
       let savedValue = JSON.parse(localStorage.getItem(key) ?? 'null') as GuiConfig[typeof key] | undefined
 
-      // Validate dashboardMetrics against known valid keys
-      if (key === 'dashboardMetrics' && Array.isArray(savedValue)) {
+      // Validate metrics arrays against known valid keys
+      if ((key === 'landscapeDashboardMetrics' || key === 'portraitDashboardMetrics') && Array.isArray(savedValue)) {
         savedValue = savedValue.filter((metric: string) => DASHBOARD_METRICS[metric] !== undefined)
       }
 
       (config[key] as GuiConfig[typeof key]) = savedValue ?? config[key]
     })
+
+    // If portrait metrics have never been saved, seed them from the landscape layout
+    if (!localStorage.getItem('portraitDashboardMetrics')) {
+      config.portraitDashboardMetrics = [...config.landscapeDashboardMetrics]
+    }
 
     // apply theme based on saved preference
     this.applyTheme(config.trueBlackTheme)
@@ -66,9 +78,12 @@ export class App extends LitElement {
     this.addEventListener('changeGuiSetting', (event) => {
       const detail = { ...(event as CustomEvent).detail }
 
-      // Validate dashboardMetrics against known valid keys before saving
-      if (Array.isArray(detail.dashboardMetrics)) {
-        detail.dashboardMetrics = detail.dashboardMetrics.filter((metric: string) => DASHBOARD_METRICS[metric] !== undefined)
+      // Validate metrics arrays against known valid keys before saving
+      if (Array.isArray(detail.landscapeDashboardMetrics)) {
+        detail.landscapeDashboardMetrics = detail.landscapeDashboardMetrics.filter((metric: string) => DASHBOARD_METRICS[metric] !== undefined)
+      }
+      if (Array.isArray(detail.portraitDashboardMetrics)) {
+        detail.portraitDashboardMetrics = detail.portraitDashboardMetrics.filter((metric: string) => DASHBOARD_METRICS[metric] !== undefined)
       }
 
       Object.keys(detail).forEach((key) => {

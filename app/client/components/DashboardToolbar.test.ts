@@ -16,7 +16,8 @@ function createToolbar (config: Partial<AppConfig> = {}): DashboardToolbar {
     uploadEnabled: false,
     shutdownEnabled: false,
     guiConfigs: {
-      dashboardMetrics: [],
+      landscapeDashboardMetrics: [],
+      portraitDashboardMetrics: [],
       showIcons: true,
       maxNumberOfTiles: 8,
       trueBlackTheme: false,
