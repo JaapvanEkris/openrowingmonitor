@@ -55,6 +55,11 @@ export class DashboardToolbar extends AppElement {
       filter: brightness(120%);
     }
 
+    button.label-button {
+      width: auto;
+      padding: 0 0.6em;
+    }
+
     button .text {
       position: absolute;
       left: 2px;
@@ -104,16 +109,16 @@ export class DashboardToolbar extends AppElement {
         <button @click=${this.openSettings} title="Settings">
           ${iconSettings}
         </button>
-        <button @click=${this.toggleRetileMode} title="Retile Dashboard" class="${this._retileMode ? 'active' : ''}">
+        <button @click=${this.toggleRetileMode} title="Retile Dashboard" class="label-button">
           ${this._retileMode ? 'Submit' : 'Retile'}
         </button>
-        ${this._retileMode
-          ? html`
-          <button @click=${this.resetToDefault} title="Reset to Default">
+        ${this._retileMode ?
+          html`
+          <button @click=${this.resetToDefault} title="Reset to Default" class="label-button">
             Reset
           </button>
-        `
-          : ''}
+        ` :
+          ''}
         <button @click=${this.reset} title="Reset">
           ${iconUndo}
         </button>

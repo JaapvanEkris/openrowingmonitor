@@ -96,3 +96,48 @@ describe('renderOptionalButtons', () => {
     expect(buttonsWithoutFullscreen.length).toBe(0)
   })
 })
+
+describe('retile button style', () => {
+  test('should default _retileMode to false', () => {
+    const toolbar = createToolbar()
+    expect(toolbar._retileMode).toBe(false)
+  })
+
+  test('should include label-button class on the retile toggle button', () => {
+    const toolbar = createToolbar()
+
+    const result = toolbar.render()
+
+    const staticParts = (result as unknown as { strings: readonly string[] }).strings.join('')
+    expect(staticParts).toContain('label-button')
+  })
+
+  test('should include label-button class on the submit button in retile mode', () => {
+    const toolbar = createToolbar()
+    toolbar._retileMode = true
+
+    const result = toolbar.render()
+
+    const staticParts = (result as unknown as { strings: readonly string[] }).strings.join('')
+    expect(staticParts).toContain('label-button')
+  })
+
+  test('should not include active class on the retile button in normal mode', () => {
+    const toolbar = createToolbar()
+
+    const result = toolbar.render()
+
+    const staticParts = (result as unknown as { strings: readonly string[] }).strings.join('')
+    expect(staticParts).not.toContain('active')
+  })
+
+  test('should not include active class on the submit button in retile mode', () => {
+    const toolbar = createToolbar()
+    toolbar._retileMode = true
+
+    const result = toolbar.render()
+
+    const staticParts = (result as unknown as { strings: readonly string[] }).strings.join('')
+    expect(staticParts).not.toContain('active')
+  })
+})
