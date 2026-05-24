@@ -174,7 +174,9 @@ Although both regression approaches are mathematically valid, they do yield diff
 * For approach 1, on a Concept2, the typical R<sup>2</sup> is around @@ (low drag) to @@ (high drag) for steady state rowing. Also, calculated drag has a standard deviation of @@ (low drag) to @@ (high drag) across a session.
 * For approach 2, On a Concept2, the typical R<sup>2</sup> is around 0.96 (low drag) to 0.99 (high drag) for steady state rowing. Also, calculated drag has a standard deviation of @@ (low drag) to @@ (high drag) across an entire session.
 
-Therefore, we choose @@
+Therefore, we choose the second approach. 
+
+This approach has the added benefit that the slope calculation can feed the Kalman filter, making the data for the perfect value of the Kalman filter much more robust. This further increases the Goodness of Fit to 0.9997 on almost all dragfactors (see the [mathematical foundations of OpenRowingMonitor](./Mathematical_Foundations.md)).
 
 ### Determining the "Torque" of the flywheel
 
