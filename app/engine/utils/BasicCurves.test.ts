@@ -184,12 +184,13 @@ describe('cleanSimulatorRecovery round-trip tests', () => {
  * Diagnostic helper functions
  */
 function logFailure (info: Record<string, unknown>) {
-  / eslint-disable no-console -- Needed for logging issues in roundtrip
+  /* eslint-disable no-console -- Needed for logging issues in roundtrip */
   console.error('--- ROUND TRIP FAILURE ---')
   for (const [k, v] of Object.entries(info)) {
     console.error(`${k}:`, v)
   }
   console.error('---------------------------')
+  /* eslint-enable no-console */
 }
 
 function checkFirstIntegral (name, curve, x) {
