@@ -887,7 +887,7 @@ function solveQuadratic (a: Readonly<number>, b: Readonly<number>, c: Readonly<n
  */
 function solveCubic (a: Readonly<number>, b: Readonly<number>, c: Readonly<number>, d: Readonly<number>, y: Readonly<number>): number[] {
   if (a === undefined || b === undefined || c === undefined || d === undefined || y === undefined) { return [] }
-  if (a === 0) return solveQuadratic(b, c, d, y)
+  if (a === 0) { return solveQuadratic(b, c, d, y) }
 
   // Normalize
   const a1 = b / a
