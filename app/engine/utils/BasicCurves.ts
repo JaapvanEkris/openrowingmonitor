@@ -9,6 +9,7 @@
  *
  * It also contains fuzzing functions, to inject artificial noise
  * The clean ('plain') versions are used/stored in CurveMetrics.test.ts, the firstIntegral and secondIntegral are used in MovingWindowRegressor.test.ts
+ * secondIntegral and fuzzing are also used in Flywheel.test.ts to test behaviour
  */
 /* eslint-disable max-lines -- This sets up quite complex functons for testing, we need a lot of code for it */
 export interface curveSimulator {
@@ -60,25 +61,25 @@ parabola.projectX = function projectXparabola (x: Readonly<number>): curveFuncti
 
   return {
     secondDerivative: { x, y: secondDerivY },
-    firstDerivative:  { x, y: firstDerivY },
-    plain:            { x, y },
-    firstIntegral:    { x, y: firstIntY },
-    secondIntegral:   { x, y: secondIntY }
+    firstDerivative: { x, y: firstDerivY },
+    plain: { x, y },
+    firstIntegral: { x, y: firstIntY },
+    secondIntegral: { x, y: secondIntY }
   }
 }
 
 parabola.solveY = function solveYparabola (y: Readonly<number>): curveFunctionResult {
-  if (y === undefined || isNaN(y) || y < 0) return undefined
+  if (y === undefined || isNaN(y) || y < 0) { return undefined }
 
   const firstIntX: number = solve(0, -1 / 3000, 1 / 10, 0, 0, y, 0, 200)
   const secondIntX: number = solve(-1 / 12000, 1 / 30, 0, 0, 0, y, 0, 200)
 
   return {
     secondDerivative: { x: undefined, y },
-    firstDerivative:  { x: undefined, y },
-    plain:            { x: undefined, y },
-    firstIntegral:    { x: firstIntX, y },
-    secondIntegral:   { x: secondIntX, y }
+    firstDerivative: { x: undefined, y },
+    plain: { x: undefined, y },
+    firstIntegral: { x: firstIntX, y },
+    secondIntegral: { x: secondIntX, y }
   }
 }
 
@@ -113,10 +114,10 @@ pyramid.projectX = function projectXpyramid (x: Readonly<number>): curveFunction
 
   return {
     secondDerivative: { x, y: secondDerivY },
-    firstDerivative:  { x, y: firstDerivY },
-    plain:            { x, y },
-    firstIntegral:    { x, y: firstIntY },
-    secondIntegral:   { x, y: secondIntY }
+    firstDerivative: { x, y: firstDerivY },
+    plain: { x, y },
+    firstIntegral: { x, y: firstIntY },
+    secondIntegral: { x, y: secondIntY }
   }
 }
 
@@ -139,10 +140,10 @@ pyramid.solveY = function solveYpyramid (y: Readonly<number>): curveFunctionResu
 
   return {
     secondDerivative: { x: undefined, y },
-    firstDerivative:  { x: undefined, y },
-    plain:            { x: undefined, y },
-    firstIntegral:    { x: firstIntX, y },
-    secondIntegral:   { x: secondIntX, y }
+    firstDerivative: { x: undefined, y },
+    plain: { x: undefined, y },
+    firstIntegral: { x: firstIntX, y },
+    secondIntegral: { x: secondIntX, y }
   }
 }
 
@@ -177,10 +178,10 @@ camel.projectX = function projectXcamel (x: Readonly<number>): curveFunctionResu
 
   return {
     secondDerivative: { x, y: secondDerivY },
-    firstDerivative:  { x, y: firstDerivY },
-    plain:            { x, y },
-    firstIntegral:    { x, y: firstIntY },
-    secondIntegral:   { x, y: secondIntY }
+    firstDerivative: { x, y: firstDerivY },
+    plain: { x, y },
+    firstIntegral: { x, y: firstIntY },
+    secondIntegral: { x, y: secondIntY }
   }
 }
 
@@ -211,10 +212,10 @@ camel.solveY = function solveYcamel (y: Readonly<number>): curveFunctionResult {
 
   return {
     secondDerivative: { x: undefined, y },
-    firstDerivative:  { x: undefined, y },
-    plain:            { x: undefined, y },
-    firstIntegral:    { x: firstIntX, y },
-    secondIntegral:   { x: secondIntX, y }
+    firstDerivative: { x: undefined, y },
+    plain: { x: undefined, y },
+    firstIntegral: { x: firstIntX, y },
+    secondIntegral: { x: secondIntX, y }
   }
 }
 
@@ -249,10 +250,10 @@ dromedaryLeft.projectX = function projectXdromedaryLeft (x: Readonly<number>): c
 
   return {
     secondDerivative: { x, y: secondDerivY },
-    firstDerivative:  { x, y: firstDerivY },
-    plain:            { x, y },
-    firstIntegral:    { x, y: firstIntY },
-    secondIntegral:   { x, y: secondIntY }
+    firstDerivative: { x, y: firstDerivY },
+    plain: { x, y },
+    firstIntegral: { x, y: firstIntY },
+    secondIntegral: { x, y: secondIntY }
   }
 }
 
@@ -292,10 +293,10 @@ dromedaryLeft.solveY = function solveYdromedaryLeft (y: Readonly<number>): curve
 
   return {
     secondDerivative: { x: undefined, y },
-    firstDerivative:  { x: undefined, y },
-    plain:            { x: undefined, y },
-    firstIntegral:    { x: firstIntX, y },
-    secondIntegral:   { x: secondIntX, y }
+    firstDerivative: { x: undefined, y },
+    plain: { x: undefined, y },
+    firstIntegral: { x: firstIntX, y },
+    secondIntegral: { x: secondIntX, y }
   }
 }
 
@@ -323,17 +324,17 @@ dromedaryRight.projectX = function projectXdromedaryRight (x: Readonly<number>):
   } else {
     secondDerivY = project(0, 0, 0, 0, -1 / 5, x)
     firstDerivY = project(0, 0, 0, -1 / 5, 49 / 2, x)
-    y = project(0, 0,  -1 / 10, 49 / 2, -900, x)
+    y = project(0, 0, -1 / 10, 49 / 2, -900, x)
     firstIntY = project(0, -1 / 30, 49 / 4, -900, 163125 / 4, x)
     secondIntY = project(-1 / 120, 49 / 12, -450, 163125 / 4, -8859375 / 8, x)
   }
 
   return {
     secondDerivative: { x, y: secondDerivY },
-    firstDerivative:  { x, y: firstDerivY },
-    plain:            { x, y },
-    firstIntegral:    { x, y: firstIntY },
-    secondIntegral:   { x, y: secondIntY }
+    firstDerivative: { x, y: firstDerivY },
+    plain: { x, y },
+    firstIntegral: { x, y: firstIntY },
+    secondIntegral: { x, y: secondIntY }
   }
 }
 
@@ -364,10 +365,10 @@ dromedaryRight.solveY = function solveYdromedaryRight (y: Readonly<number>): cur
 
   return {
     secondDerivative: { x: undefined, y },
-    firstDerivative:  { x: undefined, y },
-    plain:            { x: undefined, y },
-    firstIntegral:    { x: firstIntX, y },
-    secondIntegral:   { x: secondIntX, y }
+    firstDerivative: { x: undefined, y },
+    plain: { x: undefined, y },
+    firstIntegral: { x: firstIntX, y },
+    secondIntegral: { x: secondIntX, y }
   }
 }
 
@@ -390,7 +391,7 @@ alps.projectX = function projectXalps (x: Readonly<number>): curveFunctionResult
   switch (true) {
     case (x < 61):
       secondDerivY = project(0, 0, 0, 0, -12 / 25, x)
-      firstDerivY = project(0, 0, 0, -12 / 25, 24,  x)
+      firstDerivY = project(0, 0, 0, -12 / 25, 24, x)
       y = project(0, 0, -6 / 25, 24, 0, x)
       firstIntY = project(0, -2 / 25, 12, 0, 0, x)
       secondIntY = project(-1 / 50, 4, 0, 0, 0, x)
@@ -398,7 +399,7 @@ alps.projectX = function projectXalps (x: Readonly<number>): curveFunctionResult
     case (x < 141):
       secondDerivY = project(0, 0, 0, 0, -53 / 100, x)
       firstDerivY = project(0, 0, 0, -53 / 100, 53, x)
-      y =  project(0, 0, -53 / 200, 53, -1650, x)
+      y = project(0, 0, -53 / 200, 53, -1650, x)
       firstIntY = project(0, -53 / 600, 53 / 2, -1650, 48600, x)
       secondIntY = project(-53 / 2400, 53 / 6, -825, 48600, -963000, x)
       break
@@ -413,10 +414,10 @@ alps.projectX = function projectXalps (x: Readonly<number>): curveFunctionResult
 
   return {
     secondDerivative: { x, y: secondDerivY },
-    firstDerivative:  { x, y: firstDerivY },
-    plain:            { x, y },
-    firstIntegral:    { x, y: firstIntY },
-    secondIntegral:   { x, y: secondIntY }
+    firstDerivative: { x, y: firstDerivY },
+    plain: { x, y },
+    firstIntegral: { x, y: firstIntY },
+    secondIntegral: { x, y: secondIntY }
   }
 }
 
@@ -461,10 +462,10 @@ alps.solveY = function solveYalps (y: Readonly<number>): curveFunctionResult {
 
   return {
     secondDerivative: { x: undefined, y },
-    firstDerivative:  { x: undefined, y },
-    plain:            { x: undefined, y },
-    firstIntegral:    { x: firstIntX, y },
-    secondIntegral:   { x: secondIntX, y }
+    firstDerivative: { x: undefined, y },
+    plain: { x: undefined, y },
+    firstIntegral: { x: firstIntX, y },
+    secondIntegral: { x: secondIntX, y }
   }
 }
 
@@ -486,7 +487,7 @@ artificialStroke.projectX = function projectXartificialStroke (x: Readonly<numbe
   if (x < 101) {
     secondDerivY = project(0, 0, 0, 0, -6 / 50, x)
     firstDerivY = project(0, 0, 0, -6 / 50, 12, x)
-    y =  project(0, 0, -3 / 50, 12, 0, x)
+    y = project(0, 0, -3 / 50, 12, 0, x)
     firstIntY = project(0, -1 / 50, 6, 0, 0, x)
     secondIntY = project(-1 / 200, 2, 0, 0, 0, x)
   } else {
@@ -499,10 +500,10 @@ artificialStroke.projectX = function projectXartificialStroke (x: Readonly<numbe
 
   return {
     secondDerivative: { x, y: secondDerivY },
-    firstDerivative:  { x, y: firstDerivY },
-    plain:            { x, y },
-    firstIntegral:    { x, y: firstIntY },
-    secondIntegral:   { x, y: secondIntY }
+    firstDerivative: { x, y: firstDerivY },
+    plain: { x, y },
+    firstIntegral: { x, y: firstIntY },
+    secondIntegral: { x, y: secondIntY }
   }
 }
 
@@ -533,10 +534,10 @@ artificialStroke.solveY = function solveYartificialStroke (y: Readonly<number>):
 
   return {
     secondDerivative: { x: undefined, y },
-    firstDerivative:  { x: undefined, y },
-    plain:            { x: undefined, y },
-    firstIntegral:    { x: firstIntX, y },
-    secondIntegral:   { x: secondIntX, y }
+    firstDerivative: { x: undefined, y },
+    plain: { x: undefined, y },
+    firstIntegral: { x: firstIntX, y },
+    secondIntegral: { x: secondIntX, y }
   }
 }
 
@@ -556,26 +557,26 @@ cleanSimulatorDrive.projectX = function projectXcleanSimulator (x: Readonly<numb
 
   return {
     secondDerivative: { x, y: secondDerivY },
-    firstDerivative:  { x, y: firstDerivY },
-    plain:            { x, y },
-    firstIntegral:    { x, y: firstIntY },
-    secondIntegral:   { x, y: secondIntY }
+    firstDerivative: { x, y: firstDerivY },
+    plain: { x, y },
+    firstIntegral: { x, y: firstIntY },
+    secondIntegral: { x, y: secondIntY }
   }
 }
 
 cleanSimulatorDrive.solveY = function solveYcleanSimulator (y: Readonly<number>): curveFunctionResult {
-  if (y === undefined || isNaN(y) || y < 0) return undefined
+  if (y === undefined || isNaN(y) || y < 0) { return undefined }
 
-//  const firstIntX: number = solve(0, -172, 189, 0, 97.5, y, -0.0049, 0.8)
+  //  const firstIntX: number = solve(0, -172, 189, 0, 97.5, y, -0.0049, 0.8)
   const firstIntX: number = solve(0, -172, 189, 0, 97.5, y, -0.0001, 0.8)
   const secondIntX: number = solve(-43, 63, 0, 97.5, 0, y, 0, 1)
 
   return {
     secondDerivative: { x: undefined, y },
-    firstDerivative:  { x: undefined, y },
-    plain:            { x: undefined, y },
-    firstIntegral:    { x: firstIntX, y },
-    secondIntegral:   { x: secondIntX, y }
+    firstDerivative: { x: undefined, y },
+    plain: { x: undefined, y },
+    firstIntegral: { x: firstIntX, y },
+    secondIntegral: { x: secondIntX, y }
   }
 }
 
@@ -595,25 +596,25 @@ cleanSimulatorRecovery.projectX = function projectXcleanSimulatorRecovery (x: Re
 
   return {
     secondDerivative: { x, y: secondDerivY },
-    firstDerivative:  { x, y: firstDerivY },
-    plain:            { x, y },
-    firstIntegral:    { x, y: firstIntY },
-    secondIntegral:   { x, y: secondIntY }
+    firstDerivative: { x, y: firstDerivY },
+    plain: { x, y },
+    firstIntegral: { x, y: firstIntY },
+    secondIntegral: { x, y: secondIntY }
   }
 }
 
 cleanSimulatorRecovery.solveY = function solveYcleanSimulatorRecovery (y: Readonly<number>): curveFunctionResult {
-  if (y === undefined || isNaN(y) || y < 0) return undefined
+  if (y === undefined || isNaN(y) || y < 0) { return undefined }
 
   const firstIntX: number = solve(0, -0.24, 2.76, -19.95, 129.75, y, -0.01, 2.2)
   const secondIntX: number = solve(-0.06, 0.92, -9.975, 129.75, 0, y, 0, 2.2)
 
   return {
     secondDerivative: { x: undefined, y },
-    firstDerivative:  { x: undefined, y },
-    plain:            { x: undefined, y },
-    firstIntegral:    { x: firstIntX, y },
-    secondIntegral:   { x: secondIntX, y }
+    firstDerivative: { x: undefined, y },
+    plain: { x: undefined, y },
+    firstIntegral: { x: firstIntX, y },
+    secondIntegral: { x: secondIntX, y }
   }
 }
 
@@ -806,9 +807,9 @@ function project (a: Readonly<number>, b: Readonly<number>, c: Readonly<number>,
  * @description Solver for the general case a * x^4 + b * x^3 + c * x^2 + d * x + e = y
  * @returns the real solution closest to the minimum, within the domain
  */
-function solve(a: Readonly<number>, b: Readonly<number>, c: Readonly<number>, d: Readonly<number>, e: Readonly<number>, y: Readonly<number>, xMin: Readonly<number> = 0, xMax: Readonly<number> = Number.POSITIVE_INFINITY): number | null {
+function solve (a: Readonly<number>, b: Readonly<number>, c: Readonly<number>, d: Readonly<number>, e: Readonly<number>, y: Readonly<number>, xMin: Readonly<number> = 0, xMax: Readonly<number> = Number.POSITIVE_INFINITY): number | null {
   if (a === undefined || b === undefined || c === undefined || d === undefined || e === undefined || y === undefined) { return [] }
-  let roots: number[];
+  let roots: number[]
 
   switch (true) {
     case (a !== 0): roots = solveQuartic(a, b, c, d, e, y, xMin, xMax); break
@@ -822,7 +823,7 @@ function solve(a: Readonly<number>, b: Readonly<number>, c: Readonly<number>, d:
     .filter(x => Number.isFinite(x) && x >= xMin && x <= xMax)
     .filter(x => Number.isFinite(x) && x >= xMin && x <= xMax)
 
-  if (real.length === 0) return null
+  if (real.length === 0) { return null }
   real.sort((u, v) => Math.abs(u) - Math.abs(v))
   return real[0]
 }
@@ -856,6 +857,7 @@ function solveQuadratic (a: Readonly<number>, b: Readonly<number>, c: Readonly<n
 
   const discriminant: number = Math.pow(b, 2) - (4 * a * (c - y))
 
+  // eslint-disable no-case-declarations -- We need to store a varying number of roots we insert in the array
   switch (true) {
     case (a === 0):
       // a line
@@ -869,6 +871,7 @@ function solveQuadratic (a: Readonly<number>, b: Readonly<number>, c: Readonly<n
       return [root]
     default:
       return []
+    // eslint-enable no-case-declarations
   }
 }
 
@@ -898,6 +901,7 @@ function solveCubic (a: Readonly<number>, b: Readonly<number>, c: Readonly<numbe
   const disc = (q * q) / 4 + (p * p * p) / 27
   const roots: number[] = []
 
+  // eslint-disable no-case-declarations -- We need to store a varying number of roots we insert in the array
   switch (true) {
     case (disc > 0):
       const s1 = Math.cbrt(-q / 2 + Math.sqrt(disc))
@@ -918,7 +922,8 @@ function solveCubic (a: Readonly<number>, b: Readonly<number>, c: Readonly<numbe
       roots.push(m * Math.cos((phi + 2 * Math.PI) / 3) - a1 / 3)
       roots.push(m * Math.cos((phi + 4 * Math.PI) / 3) - a1 / 3)
   }
-  return roots;
+  // eslint-enable no-case-declarations
+  return roots
 }
 
 /**
@@ -940,11 +945,9 @@ function solveQuartic (a: Readonly<number>, b: Readonly<number>, c: Readonly<num
 
   const EPS = 1e-12
 
-  const f = (x: number): number =>
-    (a * x ** 4) + (b * x ** 3) + (c * x ** 2) + (d * x) + e - y
+  const f = (x: number): number => (a * x ** 4) + (b * x ** 3) + (c * x ** 2) + (d * x) + e - y
 
-  const df = (x: number): number =>
-    (4 * a * x ** 3) + (3 * b * x ** 2) + (2 * c * x) + d
+  const df = (x: number): number => (4 * a * x ** 3) + (3 * b * x ** 2) + (2 * c * x) + d
 
   const roots: number[] = []
 
@@ -952,8 +955,8 @@ function solveQuartic (a: Readonly<number>, b: Readonly<number>, c: Readonly<num
   let fMax = f(xMax)
 
   // Exact zeros at the boundaries
-  if (Math.abs(fMin) < EPS) roots.push(xMin)
-  if (Math.abs(fMax) < EPS && xMax !== xMin) roots.push(xMax)
+  if (Math.abs(fMin) < EPS) { roots.push(xMin) }
+  if (Math.abs(fMax) < EPS && xMax !== xMin) { roots.push(xMax) }
 
   // --- 1. Monotone-friendly path: global sign change on [xMin, xMax] ---
   if (fMin * fMax < 0) {
@@ -990,8 +993,8 @@ function solveQuartic (a: Readonly<number>, b: Readonly<number>, c: Readonly<num
       if (Math.abs(dfx) < EPS) break
       const stepN = fx / dfx
       root -= stepN
-      if (root < xMin || root > xMax) break
-      if (Math.abs(stepN) <= 1e-12 * (1 + Math.abs(root))) break
+      if (root < xMin || root > xMax) { break }
+      if (Math.abs(stepN) <= 1e-12 * (1 + Math.abs(root))) { break }
     }
 
     if (root >= xMin - 1e-9 && root <= xMax + 1e-9) {
@@ -1050,8 +1053,8 @@ function solveQuartic (a: Readonly<number>, b: Readonly<number>, c: Readonly<num
           if (Math.abs(dfx) < EPS) break
           const stepN = fx / dfx
           root -= stepN
-          if (root < xMin || root > xMax) break
-          if (Math.abs(stepN) <= 1e-12 * (1 + Math.abs(root))) break
+          if (root < xMin || root > xMax) { break }
+          if (Math.abs(stepN) <= 1e-12 * (1 + Math.abs(root))) { break }
         }
 
         if (root >= xMin - 1e-9 && root <= xMax + 1e-9) {
