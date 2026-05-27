@@ -4,7 +4,7 @@
  *
  * @file This file contains tests the collection of artificial curves that are used for testing purposses
  */
-import { describe, test, expect } from 'vitest'
+import { describe, test } from 'vitest'
 import { alps, artificialStroke, camel, cleanSimulatorDrive, cleanSimulatorRecovery, dromedaryLeft, dromedaryRight, parabola, pyramid } from './BasicCurves.ts'
 
 const tolerance = 0.035
@@ -161,7 +161,6 @@ describe('cleanSimulatorDrive round-trip tests', () => {
   })
 })
 
-
 /**
  * @description Roundtrip test of the cleanSimulator function
  */
@@ -184,7 +183,8 @@ describe('cleanSimulatorRecovery round-trip tests', () => {
 /**
  * Diagnostic helper functions
  */
-function logFailure(info: Record<string, unknown>) {
+function logFailure (info: Record<string, unknown>) {
+  / eslint-disable no-console -- Needed for logging issues in roundtrip
   console.error('--- ROUND TRIP FAILURE ---')
   for (const [k, v] of Object.entries(info)) {
     console.error(`${k}:`, v)
@@ -192,7 +192,7 @@ function logFailure(info: Record<string, unknown>) {
   console.error('---------------------------')
 }
 
-function checkFirstIntegral(name, curve, x) {
+function checkFirstIntegral (name, curve, x) {
   const f = curve.projectX(x)
   const y = f.firstIntegral.y
   const inv = curve.solveY(y)
@@ -202,17 +202,17 @@ function checkFirstIntegral(name, curve, x) {
     logFailure({
       curve: name,
       integral: 'firstIntegral',
-      x_original: x,
-      y_value: y,
-      x_returned: xr,
+      originalX: x,
+      valueY: y,
+      returnedX: xr,
       error: xr === undefined || x === 0 ? 'undefined' : (Math.abs(xr - x) / x),
-      expected_tolerance: tolerance
+      tolerance: tolerance
     })
     throw new Error(`${name} firstIntegral round-trip failed`)
   }
 }
 
-function checkSecondIntegral(name, curve, x) {
+function checkSecondIntegral (name, curve, x) {
   const f = curve.projectX(x)
   const y = f.secondIntegral.y
   const inv = curve.solveY(y)
@@ -222,11 +222,11 @@ function checkSecondIntegral(name, curve, x) {
     logFailure({
       curve: name,
       integral: 'secondIntegral',
-      x_original: x,
-      y_value: y,
-      x_returned: xr,
+      originalX: x,
+      valueY: y,
+      returnedX: xr,
       error: xr === undefined || x === 0 ? 'undefined' : (Math.abs(xr - x) / x),
-      expected_tolerance: tolerance
+      tolerance: tolerance
     })
     throw new Error(`${name} secondIntegral round-trip failed`)
   }
