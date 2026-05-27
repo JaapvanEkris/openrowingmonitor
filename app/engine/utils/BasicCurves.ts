@@ -857,7 +857,7 @@ function solveQuadratic (a: Readonly<number>, b: Readonly<number>, c: Readonly<n
 
   const discriminant: number = Math.pow(b, 2) - (4 * a * (c - y))
 
-  // eslint-disable no-case-declarations -- We need to store a varying number of roots we insert in the array
+  /* eslint-disable no-case-declarations -- We need to store a varying number of roots we insert in the array */
   switch (true) {
     case (a === 0):
       // a line
@@ -871,8 +871,8 @@ function solveQuadratic (a: Readonly<number>, b: Readonly<number>, c: Readonly<n
       return [root]
     default:
       return []
-    // eslint-enable no-case-declarations
   }
+  /* eslint-enable no-case-declarations */
 }
 
 /**
@@ -887,7 +887,7 @@ function solveQuadratic (a: Readonly<number>, b: Readonly<number>, c: Readonly<n
  */
 function solveCubic (a: Readonly<number>, b: Readonly<number>, c: Readonly<number>, d: Readonly<number>, y: Readonly<number>): number[] {
   if (a === undefined || b === undefined || c === undefined || d === undefined || y === undefined) { return [] }
-  if (a === 0) return solveQuadratic(b, c, d, y);
+  if (a === 0) return solveQuadratic(b, c, d, y)
 
   // Normalize
   const a1 = b / a
@@ -901,7 +901,7 @@ function solveCubic (a: Readonly<number>, b: Readonly<number>, c: Readonly<numbe
   const disc = (q * q) / 4 + (p * p * p) / 27
   const roots: number[] = []
 
-  // eslint-disable no-case-declarations -- We need to store a varying number of roots we insert in the array
+  /* eslint-disable no-case-declarations -- We need to store a varying number of roots we insert in the array */
   switch (true) {
     case (disc > 0):
       const s1 = Math.cbrt(-q / 2 + Math.sqrt(disc))
@@ -922,7 +922,7 @@ function solveCubic (a: Readonly<number>, b: Readonly<number>, c: Readonly<numbe
       roots.push(m * Math.cos((phi + 2 * Math.PI) / 3) - a1 / 3)
       roots.push(m * Math.cos((phi + 4 * Math.PI) / 3) - a1 / 3)
   }
-  // eslint-enable no-case-declarations
+  /* eslint-enable no-case-declarations */
   return roots
 }
 
@@ -990,7 +990,7 @@ function solveQuartic (a: Readonly<number>, b: Readonly<number>, c: Readonly<num
     for (let it = 0; it < 20; it++) {
       const fx = f(root)
       const dfx = df(root)
-      if (Math.abs(dfx) < EPS) break
+      if (Math.abs(dfx) < EPS) { break }
       const stepN = fx / dfx
       root -= stepN
       if (root < xMin || root > xMax) { break }
@@ -1050,7 +1050,7 @@ function solveQuartic (a: Readonly<number>, b: Readonly<number>, c: Readonly<num
         for (let it = 0; it < 20; it++) {
           const fx = f(root)
           const dfx = df(root)
-          if (Math.abs(dfx) < EPS) break
+          if (Math.abs(dfx) < EPS) { break }
           const stepN = fx / dfx
           root -= stepN
           if (root < xMin || root > xMax) { break }
