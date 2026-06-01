@@ -13,18 +13,18 @@
 export interface BinarySearchTree {
   push(label: Readonly<number>, value: Readonly<number>, weight?: Readonly<number>): void
   remove(label: Readonly<number>): void
+  reliable(): boolean
+  reliableWeighted(): boolean
   size(): number
   totalWeight(): number
   minimum(): number | undefined
   maximum(): number | undefined
-  numberOfValuesAbove(testedValue: Readonly<number>): number | undefined
-  numberOfValuesEqualOrBelow(testedValue: Readonly<number>): number | undefined
   median(): number | undefined
   weightedMedian(): number | undefined
   valueAtInorderPos(position: Readonly<number>): number | undefined
+  numberOfValuesAbove(testedValue: Readonly<number>): number | undefined
+  numberOfValuesEqualOrBelow(testedValue: Readonly<number>): number | undefined
   orderedSeries(): number[]
-  reliable(): boolean
-  reliableWeighted(): boolean
   reset(): void
 }
 
@@ -147,7 +147,7 @@ export function createLabelledBinarySearchTree (): BinarySearchTree {
    * @description retrieves the minimum value stored in the tree
    * @returns {float} minimum value stored in the tree
    */
-  function minimum (): number {
+  function minimum (): number | undefined {
     if (tree !== null && tree.numberOfLeafsAndNodes! > 0) {
       return minimumValueInTree(tree!)
     } else {
@@ -172,7 +172,7 @@ export function createLabelledBinarySearchTree (): BinarySearchTree {
    * @description retrieves the maximum value stored in the tree
    * @returns {float} maximum value stored in the tree
    */
-  function maximum (): number {
+  function maximum (): number | undefined {
     if (tree !== null && tree.numberOfLeafsAndNodes > 0) {
       return maximumValueInTree(tree!)
     } else {
@@ -198,7 +198,7 @@ export function createLabelledBinarySearchTree (): BinarySearchTree {
    * @param {float} testedValue - thresholdvalue to test for
    * @returns {integer} number of values above the tested value stored in the tree
    */
-  function numberOfValuesAbove (testedValue: Readonly<number>): number {
+  function numberOfValuesAbove (testedValue: Readonly<number>): number | undefined {
     if (tree !== null && tree.numberOfLeafsAndNodes > 0) {
       return countNumberOfValuesAboveInTree(tree, testedValue)
     } else {
@@ -232,7 +232,7 @@ export function createLabelledBinarySearchTree (): BinarySearchTree {
    * @param {float} testedValue - thresholdvalue to test for
    * @returns {integer} number of values equal or below the tested value stored in the tree
    */
-  function numberOfValuesEqualOrBelow (testedValue: Readonly<number>): number {
+  function numberOfValuesEqualOrBelow (testedValue: Readonly<number>): number | undefined {
     if (tree !== null && tree.numberOfLeafsAndNodes > 0) {
       return countNumberOfValuesEqualOrBelowInTree(tree, testedValue)
     } else {
@@ -518,7 +518,7 @@ export function createLabelledBinarySearchTree (): BinarySearchTree {
    * THIS LOGIC THUS WORKS DIFFERENT THAN STANDARD MEDIAN! !!!!!!
    * @returns {float} the regular median of the tree
    */
-  function median (): number {
+  function median (): number | undefined {
     if (tree !== null && tree.numberOfLeafsAndNodes! > 0) {
       // Standard median calculation (weight = 1 for all nodes)
       const mid: number = Math.floor(tree.numberOfLeafsAndNodes! / 2)
@@ -729,18 +729,18 @@ export function createLabelledBinarySearchTree (): BinarySearchTree {
   return {
     push,
     remove,
+    reliable,
+    reliableWeighted,
     size,
     totalWeight,
-    numberOfValuesAbove,
-    numberOfValuesEqualOrBelow,
     minimum,
     maximum,
     median,
     weightedMedian,
     valueAtInorderPos,
+    numberOfValuesAbove,
+    numberOfValuesEqualOrBelow,
     orderedSeries,
-    reliable,
-    reliableWeighted,
     reset
   }
 }
