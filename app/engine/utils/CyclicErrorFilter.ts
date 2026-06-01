@@ -41,7 +41,7 @@ export interface CyclicErrorFilter {
 
 export function createCyclicErrorFilter (rowerSettings: Readonly<RowerEngineSettings>, deltaTime: Readonly<TSLinearSeries>): CyclicErrorFilter {
   const CECFilterEnabled: boolean = (rowerSettings.autoAdjustDragFactor && rowerSettings.numOfImpulsesPerRevolution > 1 && rowerSettings.systematicErrorNumberOfDatapoints > 0 && rowerSettings.systematicErrorAgressiveness > 0)
-  const _numberOfMagnets: number = rowerSettings.numOfImpulsesPerRevolution
+  const _numberOfMagnets: number = Math.max(rowerSettings.numOfImpulsesPerRevolution, 1)
   const _flankLength: number = rowerSettings.flankLength
   const _agressiveness: number = Math.min(Math.max(rowerSettings.systematicErrorAgressiveness, 0), 1.5)
   const _invAgressiveness: number = Math.min(Math.max(1 - _agressiveness, 0), 1)
