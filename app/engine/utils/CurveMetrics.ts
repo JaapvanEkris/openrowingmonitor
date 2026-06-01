@@ -10,11 +10,11 @@
 // ---------------------------------------------------------------------------
 
 export interface CurveAndMetrics {
+  readonly length: number
   readonly curve: number[]
   readonly peak: number | undefined
   readonly peakNormalizedPosition: number | undefined
   readonly average: number | undefined
-  readonly length: number | undefined
 }
 
 export interface CurveMetrics {
@@ -32,15 +32,13 @@ export interface CurveMetrics {
  */
 export function createCurveMetrics (minimumValue: number): CurveMetrics {
   let _curve: number[] = []
-  let _max: number = 0
-  let _peakPosition: number = 0
 
   /**
    * Adds a value to the series
    * @param {float} value - value to be added to the series
    */
   function push (value: Readonly<number>): void {
-    if (value === undefined || isNaN(value)) { return }  
+    if (value === undefined || isNaN(value)) { return }
     if (_curve.length < 2 && value < minimumValue) {
       reset()
       return
@@ -48,10 +46,6 @@ export function createCurveMetrics (minimumValue: number): CurveMetrics {
 
     if (value > 0) {
       _curve.push(value)
-      if (value > _max) {
-        _peakPosition = _curve.length
-        _max = Math.max(_max, value)
-      }
     } else {
       _curve.push(0)
     }
@@ -74,15 +68,14 @@ export function createCurveMetrics (minimumValue: number): CurveMetrics {
     const length: number = curve.length
     const sum: number | undefined = length > 0 ? curve.reduce((total: number, item: number) => total + item) : undefined
     const average: number | undefined = (length > 0 && sum > 0) ? sum / length : undefined
-    const peak: number | undefined = (length > 0 && _max > 0) ? _max : undefined
-    const peakNormalizedPosition: number | undefined = (length > 0 && _max > 0 && _peakPosition > 0) ? Math.min(1, _peakPosition / length) : undefined
+    const peak: number | undefined = (length > 0 && sum > 0) ? curve.reduce((a,b) => { return (a > b) ? a : b }) : undefined
+    const peakPosition: number | undefined = (length > 0 && peak > 0) ? curve.indexOf(peak) : undefined
+    const peakNormalizedPosition: number | undefined = (length > 1 && peak > 0 && peakPosition >= 0) ? Math.min(1, peakPosition / (length - 1)) : undefined
     return { curve, peak, peakNormalizedPosition, average, length }
   }
 
   function reset (): void {
     _curve = []
-    _max = 0
-    _peakPosition = 0
   }
 
   return {
