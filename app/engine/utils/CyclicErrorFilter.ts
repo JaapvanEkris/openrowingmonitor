@@ -27,7 +27,6 @@ export interface CyclicErrorFilter {
   applyFilter(rawValue: Readonly<number>, position: Readonly<number>): CECFilteredValue
   recordRawDatapoint(relativePosition: Readonly<number>, absolutePosition: Readonly<number>, rawValue: Readonly<number>): void
   processNextRawDatapoint(): void
-  updateFilter(magnet: number, rawDatapoint: Readonly<number>, correctedDatapoint: Readonly<number>, goodnessOfFit: Readonly<number>): void
   atSeriesBegin(): CECFilteredValue
   forceFlushDatapointBuffer(): void
   clearDatapointBuffer(): void
@@ -275,7 +274,6 @@ export function createCyclicErrorFilter (rowerSettings: Readonly<RowerEngineSett
     applyFilter,
     recordRawDatapoint,
     processNextRawDatapoint,
-    updateFilter,
     atSeriesBegin,
     forceFlushDatapointBuffer,
     clearDatapointBuffer,
