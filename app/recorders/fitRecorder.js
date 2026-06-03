@@ -22,7 +22,7 @@
 /* eslint-disable max-lines -- The length is governed by the fit-parameterisation, which we can't control */
 import log from 'loglevel'
 import { createName } from './utils/decorators.js'
-import { createInfiniteSeriesMetrics } from '../engine/utils/InfiniteSeriesMetrics.js'
+import { createInfiniteSeriesMetrics } from '../engine/utils/InfiniteSeriesMetrics.ts'
 import { createVO2max } from './utils/VO2max.js'
 import { FitWriter, fit_messages } from '@markw65/fit-file-writer'
 
@@ -945,7 +945,7 @@ export function createFITRecorder (config) {
         developer_data_index: 0,
         field_definition_number: 60,
         fit_base_type_id: 'uint16',
-        array: sessionData.maxForceCurvePointCount,
+        array: Math.min(127, sessionData.maxForceCurvePointCount),
         scale: 10,
         field_name: 'HandleForceCurve',
         units: 'N'
@@ -1494,8 +1494,8 @@ export function createFITRecorder (config) {
 
     if (trackpoint.forceCurve.length > 0 && trackpoint.forceCurve.length <= sessionData.maxForceCurvePointCount) {
       const sampleInterval = trackpoint.driveLength / trackpoint.forceCurve.length
-      const paddedForceCurve = Array.from({ length: sessionData.maxForceCurvePointCount }, (_, i) => trackpoint.forceCurve[i] ?? '0')
-      const trimmedForceCurve = paddedForceCurve.slice(0, sessionData.maxForceCurvePointCount)
+      const paddedForceCurve = Array.from({ length: Math.min(sessionData.maxForceCurvePointCount, 127) }, (_, i) => trackpoint.forceCurve[i] ?? '0')
+      const trimmedForceCurve = paddedForceCurve.slice(0, Math.min(sessionData.maxForceCurvePointCount, 127))
       developerFieldValues.push({ developer_data_index: 0, field_num: 90, value: 2 })
       developerFieldValues.push({ developer_data_index: 0, field_num: 91, value: sampleInterval * 10000 })
       developerFieldValues.push({ developer_data_index: 0, field_num: 92, value: trackpoint.forceCurve.length })
