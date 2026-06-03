@@ -643,7 +643,7 @@ fuzzing.noNoise.X = function noneXFuzzing (datapointnumber: Readonly<number>, in
   }
 }
 
-fuzzing.noNoise.X = function noneYFuzzing (datapointnumber: Readonly<number>, inputTupple: Readonly<cartesianCoordinates>): cartesianCoordinates {
+fuzzing.noNoise.Y = function noneYFuzzing (datapointnumber: Readonly<number>, inputTupple: Readonly<cartesianCoordinates>): cartesianCoordinates {
   return {
     x: inputTupple.x,
     y: inputTupple.y
