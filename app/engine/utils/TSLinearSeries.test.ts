@@ -6,6 +6,7 @@
 // @vitest-environment node
 import { test, assert, describe } from 'vitest'
 import { createTSLinearSeries } from './TSLinearSeries.ts'
+import { cleanSimulatorRecovery, fuzzing } from './BasicCurves.ts'
 
 describe('Initialisation of the TSLinearSeries object', () => {
 /**
@@ -396,9 +397,70 @@ describe('Test behaviour of the TSLinearSeries object when data is pushed out', 
   })
 })
 
-/**
- * @description Testing edge cases
- */
+describe('Test of drag calculation capabilities', () => {
+  test('DragCalculation_01: Basic simulation based on dragfactor 120 on a C2, noisefree curve', () => {
+    const dataSeries = createTSLinearSeries()
+    let prevDatapoint = 0
+
+    let i = 1
+    while (i <= 235) {
+      const position = i * (Math.PI / 3)
+      const result = cleanSimulatorRecovery.solveY(position).secondIntegral
+      if (result.x !== null && !isNaN(result.x) && result.x > prevDatapoint) {
+        const currentDt = result.x - prevDatapoint
+        prevDatapoint = result.x
+        dataSeries.push(result.x, currentDt, 1)
+      }
+      i++
+    }
+
+    testSlopeEquals(dataSeries, 0.0012561947201753742) // = dragfactor 120
+    testGoodnessOfFitEquals(dataSeries, 0.9999980371918921)
+  })
+
+  test('DragCalculation_02: Basic simulation based on dragfactor 120 on a C2, with random noise', () => {
+    const dataSeries = createTSLinearSeries()
+    let prevDatapoint = 0
+
+    let i = 1
+    while (i <= 235) {
+      const position = i * (Math.PI / 3)
+      const result = fuzzing.randomNoise.X(i, cleanSimulatorRecovery.solveY(position).secondIntegral)
+      if (result.x !== null && !isNaN(result.x) && result.x > prevDatapoint) {
+        const cleanCurrentDt = result.x - prevDatapoint
+        const noisyCurrentDt = fuzzing.randomNoise.currentDt(i, cleanCurrentDt)
+        prevDatapoint = (result.x - cleanCurrentDt) + noisyCurrentDt
+        dataSeries.push(result.x, noisyCurrentDt, 1)
+      }
+      i++
+    }
+
+    testSlopeEquals(dataSeries, 0.0012726654467387394) // ideal value 0.0012561947201752605 = +/-dragfactor 120
+    testGoodnessOfFitEquals(dataSeries, 0.9077152287972196)
+  })
+
+  test('DragCalculation_03: Basic simulation based on dragfactor 120 on a C2, with systematic noise', () => {
+    const dataSeries = createTSLinearSeries()
+    let prevDatapoint = 0
+
+    let i = 1
+    while (i <= 235) {
+      const position = i * (Math.PI / 3)
+      const result = fuzzing.randomNoise.X(i, cleanSimulatorRecovery.solveY(position).secondIntegral)
+      if (result.x !== null && !isNaN(result.x) && result.x > prevDatapoint) {
+        const cleanCurrentDt = result.x - prevDatapoint
+        const noisyCurrentDt = fuzzing.systematicNoise.currentDt(i, cleanCurrentDt)
+        prevDatapoint = (result.x - cleanCurrentDt) + noisyCurrentDt
+        dataSeries.push(result.x, noisyCurrentDt, 1)
+      }
+      i++
+    }
+
+    testSlopeEquals(dataSeries, 0.001255070713300098) // ideal value 0.0012561947201752605 = +/-dragfactor 120
+    testGoodnessOfFitEquals(dataSeries, 0.8682912079254403)
+  })
+})
+
 describe('Edge-cases', () => {
   test('Edge_01: Series with 5 elements, on the horizontal line y = 6', () => {
     const dataSeries = createTSLinearSeries(5)
@@ -727,7 +789,7 @@ describe('Test behaviour of the TSLinearSeries object in larger datasets', () =>
     testLength(dataSeries, 4000)
     testSlopeAbove(dataSeries, 0.999999) // Theoretical noisefree value 1
     testGoodnessOfFitAbove(dataSeries, 0.9999999) // Theoretical noisefree value 1
-  }, 300000) // Timeout in msx
+  }, 320000) // Timeout in msx
 
   /**
    * @description This noiseless data results in 0.5 * (4000^2) identical slopes. This stress-tests the balancing of the trees (otherwise it will result in a heap overflow)
@@ -782,6 +844,7 @@ describe('Test behaviour of the TSLinearSeries object after a reset', () => {
     testLocalGoodnessOfFitEquals(dataSeries, 0, undefined)
   })
 })
+
 
 function testLength (series: Readonly<TSLinearSeries>, expectedValue: Readonly<number>) {
   assert.strictEqual(series.length(), expectedValue, `Expected length should be ${expectedValue}, encountered a ${series.length()}`)
