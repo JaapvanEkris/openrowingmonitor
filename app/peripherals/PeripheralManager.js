@@ -393,8 +393,8 @@ export function createPeripheralManager (config) {
       hrmPeripheral.on('heartRateMeasurement', (heartRateMeasurement) => {
         // Clear the HRM watchdog as new HRM data has been received
         clearTimeout(hrmWatchdogTimer)
-        // Make sure we check the HRM validity here, so the rest of the app doesn't have to
-        if (heartRateMeasurement.heartrate !== undefined && config.userSettings.restingHR <= heartRateMeasurement.heartrate && heartRateMeasurement.heartrate <= config.userSettings.maxHR) {
+        // We deliberately make this very relaxed, to prevent abnormally but valid heartrates to be ignored
+        if (heartRateMeasurement.heartrate !== undefined && 30 <= heartRateMeasurement.heartrate && heartRateMeasurement.heartrate <= 300) {
           lastHrmData = { ...heartRateMeasurement, heartRateBatteryLevel: heartRateMeasurement.batteryLevel }
           emitter.emit('heartRateMeasurement', heartRateMeasurement)
         } else {
