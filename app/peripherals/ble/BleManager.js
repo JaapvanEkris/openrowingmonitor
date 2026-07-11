@@ -1,3 +1,4 @@
+import EventEmitter from 'node:events'
 import loglevel from 'loglevel'
 
 import HciSocket from 'hci-socket'
@@ -9,7 +10,7 @@ import NodeBleHost from 'ble-host'
 
 const log = loglevel.getLogger('Peripherals')
 
-export class BleManager {
+export class BleManager extends EventEmitter {
   /**
    * @type {HciSocket | undefined}
    */
@@ -22,6 +23,39 @@ export class BleManager {
    * @type {Promise<BleHostManager> | undefined}
    */
   #managerOpeningTask
+  #isClosing = false
+
+  constructor () {
+    super()
+  }
+
+  /**
+   * @param {Error} error
+   */
+  #handleManagerError (error) {
+    if (this.#isClosing && error.message === 'Transport closed') {
+      log.debug('BLE transport closed')
+
+      return
+    }
+
+    log.error('BLE manager error, clearing cached state:', error.message)
+
+    try {
+      this.#transport?.close()
+    } catch (e) {
+      log.debug('BLE transport close during error recovery:', e.message)
+    }
+
+    this.#resetState()
+    this.emit('hardwareError', error)
+  }
+
+  #resetState () {
+    this.#transport = undefined
+    this.#manager = undefined
+    this.#managerOpeningTask = undefined
+  }
 
   open () {
     if (this.#manager !== undefined) {
@@ -32,19 +66,40 @@ export class BleManager {
       this.#managerOpeningTask = new Promise((resolve, reject) => {
         if (this.#manager) {
           resolve(this.#manager)
+
+          return
         }
+
         log.debug('Opening BLE manager')
 
         if (this.#transport === undefined) {
           this.#transport = new HciSocket()
         }
 
-        NodeBleHost.BleManager.create(this.#transport, {}, (/** @type {Error | null} */err, /** @type {BleHostManager} */manager) => {
-          if (err) { reject(err) }
-          this.#manager = manager
-          this.#managerOpeningTask = undefined
-          resolve(manager)
-        })
+        NodeBleHost.BleManager.create(
+          this.#transport,
+          {},
+          (
+            /** @type {Error | null} */ err,
+            /** @type {BleHostManager} */ manager
+          ) => {
+            if (err) {
+              this.#managerOpeningTask = undefined
+              this.#transport = undefined
+              reject(err)
+
+              return
+            }
+
+            manager.on('error', (error) => {
+              this.#handleManagerError(error)
+            })
+
+            this.#manager = manager
+            this.#managerOpeningTask = undefined
+            resolve(manager)
+          }
+        )
       })
     }
 
@@ -52,6 +107,8 @@ export class BleManager {
   }
 
   close () {
+    this.#isClosing = true
+
     try {
       this.#transport?.close()
     } catch (e) {
@@ -62,8 +119,9 @@ export class BleManager {
       }
 
       log.debug('Ble socket is closed')
-      this.#transport = undefined
-      this.#manager = undefined
+    } finally {
+      this.#resetState()
+      this.#isClosing = false
     }
   }
 
@@ -81,7 +139,8 @@ export class BleManager {
  * @param {string} uuid
  * @returns
  */
-export const toBLEStandard128BitUUID = (uuid) => `0000${uuid}-0000-1000-8000-00805F9B34FB`
+export const toBLEStandard128BitUUID = (uuid) =>
+  `0000${uuid}-0000-1000-8000-00805F9B34FB`
 
 export class GattNotifyCharacteristic {
   get characteristic () {
@@ -106,8 +165,13 @@ export class GattNotifyCharacteristic {
   constructor (characteristic) {
     this.#characteristic = {
       ...characteristic,
-      onSubscriptionChange: (/** @type {import('./ble-host.interface.js').Connection} */connection, /** @type {boolean} */ notification) => {
-        log.debug(`${this.#characteristic.name} subscription change: ${connection.peerAddress}, notification: ${notification}`)
+      onSubscriptionChange: (
+        /** @type {import('./ble-host.interface.js').Connection} */ connection,
+        /** @type {boolean} */ notification
+      ) => {
+        log.debug(
+          `${this.#characteristic.name} subscription change: ${connection.peerAddress}, notification: ${notification}`
+        )
         this.#isSubscribed = notification
         this.#connection = notification ? connection : undefined
       }
@@ -119,7 +183,9 @@ export class GattNotifyCharacteristic {
    */
   notify (buffer) {
     if (this.#characteristic.notify === undefined) {
-      throw new Error(`Characteristics ${this.#characteristic.name} has not been initialized`)
+      throw new Error(
+        `Characteristics ${this.#characteristic.name} has not been initialized`
+      )
     }
 
     if (!this.#isSubscribed || this.#connection === undefined) {
