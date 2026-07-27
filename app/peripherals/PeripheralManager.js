@@ -390,6 +390,9 @@ export function createPeripheralManager (config) {
     }
 
     if (hrmPeripheral && hrmMode.toLocaleLowerCase() !== 'OFF'.toLocaleLowerCase()) {
+      // Remove any existing heartRateMeasurement listeners before adding a new one to prevent memory leaks
+      hrmPeripheral.removeAllListeners('heartRateMeasurement')
+      
       hrmPeripheral.on('heartRateMeasurement', (heartRateMeasurement) => {
         // Clear the HRM watchdog as new HRM data has been received
         clearTimeout(hrmWatchdogTimer)
