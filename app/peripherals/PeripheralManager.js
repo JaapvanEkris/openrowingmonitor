@@ -110,7 +110,8 @@ export function createPeripheralManager (config) {
   setupPeripherals()
 
   async function setupPeripherals () {
-    // The order is important, starting with the BLEs causes EBUSY error on the HCI socket on switching. I was not able to find the cause - its probably the order within the async initialization of the BleManager, but cannot find a proper fix
+    // The order is important, starting with the BLEs causes EBUSY error on the HCI socket on switching.
+    // @ToDo: I was not able to find the cause - its probably the order within the async initialization of the BleManager, but cannot find a proper fix
     await createAntPeripheral(config.antPlusMode)
     await createHrmPeripheral(config.heartRateMode)
     await createBlePeripheral(config.bluetoothMode)
@@ -170,7 +171,6 @@ export function createPeripheralManager (config) {
    */
   async function switchBlePeripheralMode (newMode) {
     await runExclusivePeripheralChange(async () => {
-									   
       // if no mode was passed, select the next one from the list
       if (newMode === undefined) {
         newMode = bleModes[(bleModes.indexOf(bleMode) + 1) % bleModes.length]
@@ -273,7 +273,6 @@ export function createPeripheralManager (config) {
    */
   async function switchAntPeripheralMode (newMode) {
     await runExclusivePeripheralChange(async () => {
-									   
       if (newMode === undefined) {
         newMode = antModes[(antModes.indexOf(antMode) + 1) % antModes.length]
       }
@@ -333,7 +332,6 @@ export function createPeripheralManager (config) {
    */
   async function switchHrmMode (newMode) {
     await runExclusivePeripheralChange(async () => {
-									   
       if (newMode === undefined) {
         newMode = hrmModes[(hrmModes.indexOf(hrmMode) + 1) % hrmModes.length]
       }
@@ -381,8 +379,6 @@ export function createPeripheralManager (config) {
         log.info('heart rate profile: BLE')
         try {
           ensureBleManager()
-										  
-		   
         } catch (error) {
           log.error('BleManager creation error: ', error)
           return
@@ -399,7 +395,8 @@ export function createPeripheralManager (config) {
 
     if (hrmPeripheral && hrmMode.toLocaleLowerCase() !== 'OFF'.toLocaleLowerCase()) {
       // Remove any existing heartRateMeasurement listeners before adding a new one to prevent memory leaks
-      hrmPeripheral.removeAllListeners('heartRateMeasurement')																										   
+      hrmPeripheral.removeAllListeners('heartRateMeasurement')
+
       hrmPeripheral.on('heartRateMeasurement', (heartRateMeasurement) => {
         // Clear the HRM watchdog as new HRM data has been received
         clearTimeout(hrmWatchdogTimer)
