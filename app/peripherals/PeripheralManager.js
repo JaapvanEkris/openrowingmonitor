@@ -109,7 +109,8 @@ export function createPeripheralManager (config) {
   setupPeripherals()
 
   async function setupPeripherals () {
-    // The order is important, starting with the BLEs causes EBUSY error on the HCI socket on switching. I was not able to find the cause - its probably the order within the async initialization [...]
+    // The order is important, starting with the BLEs causes EBUSY error on the HCI socket on switching.
+    // @ToDo: I was not able to find the cause - its probably the order within the async initialization of the BleManager, but cannot find a proper fix
     await createAntPeripheral(config.antPlusMode)
     await createHrmPeripheral(config.heartRateMode)
     await createBlePeripheral(config.bluetoothMode)
