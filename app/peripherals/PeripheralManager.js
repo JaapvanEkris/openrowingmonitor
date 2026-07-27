@@ -109,7 +109,7 @@ export function createPeripheralManager (config) {
   setupPeripherals()
 
   async function setupPeripherals () {
-    // The order is important, starting with the BLEs causes EBUSY error on the HCI socket on switching. I was not able to find the cause - its probably the order within the async initialization of the BleManager, but cannot find a proper fix
+    // The order is important, starting with the BLEs causes EBUSY error on the HCI socket on switching. I was not able to find the cause - its probably the order within the async initialization [...]
     await createAntPeripheral(config.antPlusMode)
     await createHrmPeripheral(config.heartRateMode)
     await createBlePeripheral(config.bluetoothMode)
@@ -123,7 +123,7 @@ export function createPeripheralManager (config) {
    * @param {unknown} data for executing the command
    *
    * @see {@link https://github.com/JaapvanEkris/openrowingmonitor/blob/main/docs/Architecture.md#command-flow|The command flow documentation}
-  */
+   */
   /* eslint-disable-next-line no-unused-vars -- data is irrelevant here, but it is a standardised interface */
   async function handleCommand (commandName, data) {
     switch (commandName) {
@@ -390,6 +390,8 @@ export function createPeripheralManager (config) {
     }
 
     if (hrmPeripheral && hrmMode.toLocaleLowerCase() !== 'OFF'.toLocaleLowerCase()) {
+      // Remove any existing heartRateMeasurement listeners before adding a new one to prevent memory leaks
+      hrmPeripheral.removeAllListeners('heartRateMeasurement')
       hrmPeripheral.on('heartRateMeasurement', (heartRateMeasurement) => {
         // Clear the HRM watchdog as new HRM data has been received
         clearTimeout(hrmWatchdogTimer)
