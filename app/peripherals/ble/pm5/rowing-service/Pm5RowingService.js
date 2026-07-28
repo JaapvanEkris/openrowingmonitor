@@ -312,6 +312,10 @@ export class Pm5RowingService extends GattService {
     this.#genericStatusDataNotifies(this.#lastKnownMetrics, this.#previousSplitMetrics)
   }
 
+  stop () {
+    clearTimeout(this.#timer)
+  }
+
   /**
    * @param {Metrics} metrics
    * @param {SplitTimeDistanceData} previousSplitMetrics

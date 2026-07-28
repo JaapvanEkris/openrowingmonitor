@@ -106,6 +106,7 @@ export function createPm5Peripheral (bleManager, config, controlCallback) {
 
   function destroy () {
     log.debug('Shutting down PM5 peripheral')
+    rowingService.stop()
 
     if (_manager !== undefined) {
       gattServices.forEach((service) => {
