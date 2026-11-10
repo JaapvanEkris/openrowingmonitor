@@ -61,6 +61,7 @@ export function createPeripheralManager (config) {
    * @type {BluetoothModes}
    */
   let bleMode
+  let isBleRestartInProgress = false
 
   /**
    * @type {ReturnType<createFEPeripheral> | undefined}
@@ -168,15 +169,15 @@ export function createPeripheralManager (config) {
    * @param {BluetoothModes} [newMode]
    */
   async function switchBlePeripheralMode (newMode) {
-    if (isPeripheralChangeInProgress) { return }
-    isPeripheralChangeInProgress = true
-    // if no mode was passed, select the next one from the list
-    if (newMode === undefined) {
-      newMode = bleModes[(bleModes.indexOf(bleMode) + 1) % bleModes.length]
-    }
-    config.bluetoothMode = newMode
-    await createBlePeripheral(newMode)
-    isPeripheralChangeInProgress = false
+    await runExclusivePeripheralChange(async () => {
+      // if no mode was passed, select the next one from the list
+      if (newMode === undefined) {
+        newMode = bleModes[(bleModes.indexOf(bleMode) + 1) % bleModes.length]
+      }
+
+      config.bluetoothMode = newMode
+      await createBlePeripheral(newMode)
+    })
   }
 
   /**
@@ -207,13 +208,14 @@ export function createPeripheralManager (config) {
     }
 
     try {
-      if (_bleManager === undefined && newMode !== 'OFF') {
-        _bleManager = new BleManager(config)
+      if (newMode !== 'OFF') {
+        ensureBleManager()
       }
     } catch (error) {
       log.warn('BleManager creation error (BLE not available on this platform): ', error.message)
       bleMode = 'OFF'
-      return
+
+      return false
     }
 
     if (blePeripheral) {
@@ -256,7 +258,8 @@ export function createPeripheralManager (config) {
           }
         } catch (error) {
           log.error(error)
-          return
+
+          return false
         }
     }
 
@@ -266,20 +269,22 @@ export function createPeripheralManager (config) {
         data: {}
       }
     })
+
+    return true
   }
 
   /**
    * @param {AntPlusModes} [newMode]
    */
   async function switchAntPeripheralMode (newMode) {
-    if (isPeripheralChangeInProgress) { return }
-    isPeripheralChangeInProgress = true
-    if (newMode === undefined) {
-      newMode = antModes[(antModes.indexOf(antMode) + 1) % antModes.length]
-    }
-    config.antPlusMode = newMode
-    await createAntPeripheral(newMode)
-    isPeripheralChangeInProgress = false
+    await runExclusivePeripheralChange(async () => {
+      if (newMode === undefined) {
+        newMode = antModes[(antModes.indexOf(antMode) + 1) % antModes.length]
+      }
+
+      config.antPlusMode = newMode
+      await createAntPeripheral(newMode)
+    })
   }
 
   /**
@@ -336,14 +341,14 @@ export function createPeripheralManager (config) {
    * @param {HeartRateModes} [newMode]
    */
   async function switchHrmMode (newMode) {
-    if (isPeripheralChangeInProgress) { return }
-    isPeripheralChangeInProgress = true
-    if (newMode === undefined) {
-      newMode = hrmModes[(hrmModes.indexOf(hrmMode) + 1) % hrmModes.length]
-    }
-    config.heartRateMode = newMode
-    await createHrmPeripheral(newMode)
-    isPeripheralChangeInProgress = false
+    await runExclusivePeripheralChange(async () => {
+      if (newMode === undefined) {
+        newMode = hrmModes[(hrmModes.indexOf(hrmMode) + 1) % hrmModes.length]
+      }
+
+      config.heartRateMode = newMode
+      await createHrmPeripheral(newMode)
+    })
   }
 
   /**
@@ -383,9 +388,7 @@ export function createPeripheralManager (config) {
       case 'BLE':
         log.info('heart rate profile: BLE')
         try {
-          if (_bleManager === undefined) {
-            _bleManager = new BleManager(config)
-          }
+          ensureBleManager()
         } catch (error) {
           log.warn('BleManager creation error (BLE not available on this platform): ', error.message)
           hrmMode = 'OFF'
@@ -459,6 +462,93 @@ export function createPeripheralManager (config) {
     emitter.emit('control', event)
 
     return true
+  }
+
+  function ensureBleManager () {
+    if (_bleManager !== undefined) {
+      return _bleManager
+    }
+
+    _bleManager = new BleManager(config)
+    _bleManager.on('hardwareError', async (error) => {
+      try {
+        await restartBlePeripheral(error)
+      } catch (error) {
+        log.error('BLE restart failed unexpectedly:', error)
+      }
+    })
+
+    return _bleManager
+  }
+
+  /**
+   * @param {() => Promise<void>} change
+   */
+  async function runExclusivePeripheralChange (change) {
+    if (isPeripheralChangeInProgress) {
+      return false
+    }
+
+    isPeripheralChangeInProgress = true
+
+    try {
+      await change()
+
+      return true
+    } finally {
+      isPeripheralChangeInProgress = false
+    }
+  }
+
+  /**
+   * @param {Error} error
+   */
+  async function restartBlePeripheral (error) {
+    const savedMode = bleMode
+
+    if (savedMode === 'OFF') {
+      log.warn('Ignoring BLE manager error because BLE advertising is disabled')
+
+      return
+    }
+
+    if (isPeripheralChangeInProgress || isBleRestartInProgress) {
+      log.warn('Ignoring BLE manager error because a change is already in progress')
+
+      return
+    }
+
+    isBleRestartInProgress = true
+    log.error(`BLE manager error, attempting peripheral restart (mode: ${savedMode}): ${error.message}`)
+
+    try {
+      if (blePeripheral !== undefined) {
+        const activePeripheral = blePeripheral
+        blePeripheral = undefined
+        await Promise.race([
+          activePeripheral.destroy(),
+          new Promise((resolve) => setTimeout(resolve, 5000))
+        ])
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 5000))
+
+      if (bleMode !== savedMode) {
+        log.info('BLE mode changed during restart delay, aborting recovery')
+
+        return
+      }
+
+      log.info(`Recreating BLE peripheral (mode: ${savedMode})`)
+      try {
+        await createBlePeripheral(savedMode)
+      } catch (recreateError) {
+        log.error(`BLE restart failed, disabling BLE: ${recreateError.message}`)
+        await switchBlePeripheralMode('OFF')
+      }
+    } finally {
+      isBleRestartInProgress = false
+    }
   }
 
   async function shutdownAllPeripherals () {
