@@ -21,7 +21,8 @@ window.addEventListener('unhandledrejection', (event) => {
 @customElement('web-app')
 export class App extends LitElement {
   @state()
-  _appState: AppState = APP_STATE
+  // A copy, so loading the saved settings below does not overwrite the defaults in APP_STATE
+  _appState: AppState = structuredClone(APP_STATE)
 
   app: ReturnType<typeof createApp>
 
@@ -41,14 +42,23 @@ export class App extends LitElement {
       localStorage.removeItem('dashboardMetrics')
     }
 
+    // Migrate the old 'Use 12 cell grid' setting to the equivalent grid sizes
+    if (JSON.parse(localStorage.getItem('maxNumberOfTiles') ?? 'null') === 12 && !localStorage.getItem('gridConfig')) {
+      localStorage.setItem('gridConfig', JSON.stringify({
+        landscape: { columns: 4, rows: 3 },
+        portrait: { columns: 2, rows: 6 }
+      }))
+    }
+    localStorage.removeItem('maxNumberOfTiles')
+
     const config = this._appState.config.guiConfigs
     const configKey = Object.keys(config) as (keyof GuiConfig)[]
     configKey.forEach((key) => {
       let savedValue = JSON.parse(localStorage.getItem(key) ?? 'null') as GuiConfig[typeof key] | undefined
 
-      // Validate metrics arrays against known valid keys
+      // Validate metrics arrays against known valid keys, and drop duplicates (older versions stored wide tiles once per slot)
       if ((key === 'landscapeDashboardMetrics' || key === 'portraitDashboardMetrics') && Array.isArray(savedValue)) {
-        savedValue = savedValue.filter((metric: string) => DASHBOARD_METRICS[metric] !== undefined)
+        savedValue = [...new Set(savedValue)].filter((metric: string) => DASHBOARD_METRICS[metric] !== undefined)
       }
 
       (config[key] as GuiConfig[typeof key]) = savedValue ?? config[key]

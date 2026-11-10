@@ -114,7 +114,7 @@ export class DashboardToolbar extends AppElement {
         </button>
         ${this._retileMode ?
           html`
-          <button @click=${this.resetToDefault} title="Reset to Default" class="label-button">
+          <button @click=${this.revertLayout} title="Undo layout changes" class="label-button">
             Reset
           </button>
         ` :
@@ -231,8 +231,8 @@ export class DashboardToolbar extends AppElement {
     }))
   }
 
-  resetToDefault () {
-    this.dispatchEvent(new CustomEvent('reset-layout-to-default', {
+  revertLayout () {
+    this.dispatchEvent(new CustomEvent('revert-layout', {
       bubbles: true,
       composed: true
     }))

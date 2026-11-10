@@ -4,7 +4,7 @@
 // @vitest-environment happy-dom
 import { test, expect, describe } from 'vitest'
 
-import { DASHBOARD_METRICS } from './dashboardMetrics'
+import { DASHBOARD_METRICS, layoutMetricsForGrid } from './dashboardMetrics'
 import type { RowingMetrics, AppConfig } from './types'
 import { APP_STATE } from './appState'
 
@@ -127,5 +127,52 @@ describe('all templates', () => {
       const result = metric.template(defaultMetrics, defaultConfig)
       expect(result).toBeDefined()
     })
+  })
+})
+
+describe('layoutMetricsForGrid', () => {
+  test('should drop duplicates and unknown keys', () => {
+    const result = layoutMetricsForGrid(['distance', 'forceCurve', 'forceCurve', 'unknown', 'pace'], 4, 2)
+    expect(result.metrics).toEqual(['distance', 'forceCurve', 'pace'])
+    expect(result.usedCells).toBe(4)
+  })
+
+  test('should drop the force curve from a 1-column grid', () => {
+    const result = layoutMetricsForGrid(['distance', 'forceCurve', 'pace'], 1, 4)
+    expect(result.metrics).toEqual(['distance', 'pace'])
+  })
+
+  test('should move the next 1-slot tile in front of a force curve that would start in the last column', () => {
+    const result = layoutMetricsForGrid(['distance', 'timer', 'pace', 'forceCurve', 'stkRate', 'totalStk'], 4, 2)
+    expect(result.metrics).toEqual(['distance', 'timer', 'pace', 'stkRate', 'forceCurve', 'totalStk'])
+    expect(result.usedCells).toBe(7)
+  })
+
+  test('should leave the hole and count it when there is no 1-slot tile to fill it', () => {
+    const result = layoutMetricsForGrid(['distance', 'timer', 'pace', 'forceCurve'], 4, 2)
+    expect(result.metrics).toEqual(['distance', 'timer', 'pace', 'forceCurve'])
+    expect(result.usedCells).toBe(6)
+  })
+
+  test('should stop at the grid capacity and keep the order', () => {
+    const result = layoutMetricsForGrid(['distance', 'timer', 'pace', 'power', 'stkRate', 'totalStk', 'calories'], 3, 2)
+    expect(result.metrics).toEqual(['distance', 'timer', 'pace', 'power', 'stkRate', 'totalStk'])
+    expect(result.usedCells).toBe(6)
+  })
+
+  test('should drop a force curve that only fits by wrapping past the last row', () => {
+    const result = layoutMetricsForGrid(['distance', 'timer', 'pace', 'forceCurve'], 2, 2)
+    expect(result.metrics).toEqual(['distance', 'timer', 'pace'])
+    expect(result.usedCells).toBe(3)
+  })
+
+  test('should leave a list that already fits unchanged', () => {
+    const metrics = ['distance', 'timer', 'pace', 'power', 'stkRate', 'totalStk', 'calories']
+    expect(layoutMetricsForGrid(metrics, 4, 2).metrics).toEqual(metrics)
+  })
+
+  test('should return the same layout when applied twice', () => {
+    const once = layoutMetricsForGrid(['distance', 'timer', 'pace', 'forceCurve', 'stkRate'], 4, 2).metrics
+    expect(layoutMetricsForGrid(once, 4, 2).metrics).toEqual(once)
   })
 })

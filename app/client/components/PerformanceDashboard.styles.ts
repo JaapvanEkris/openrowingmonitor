@@ -42,9 +42,13 @@ export const performanceDashboardStyles = css`
     min-height: 0; /* prevent grid blowout */
   }
 
+  /* Overlays the bottom of the tile, so the controls keep the icon and the metric value visible */
   .retile-controls {
     display: flex;
-    position: relative;
+    position: absolute;
+    bottom: 0.2em;
+    left: 0.2em;
+    right: 0.2em;
     z-index: 10;
   }
 
@@ -52,6 +56,7 @@ export const performanceDashboardStyles = css`
     font-size: 0.4em;
     padding: 4px 8px;
     min-width: 80px;
+    width: 100%;
     background: var(--theme-button-color);
     color: var(--theme-font-color);
     cursor: pointer;

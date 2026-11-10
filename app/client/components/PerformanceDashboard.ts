@@ -10,7 +10,7 @@ import { customElement, property, state } from 'lit/decorators.js'
 import './DashboardToolbar'
 import './SettingsDialog'
 import './WorkoutDialog'
-import { DASHBOARD_METRICS } from '../store/dashboardMetrics'
+import { DASHBOARD_METRICS, layoutMetricsForGrid } from '../store/dashboardMetrics'
 import { APP_STATE } from '../store/appState'
 import type { AppState, GridOrientationConfig } from '../store/types'
 
@@ -36,21 +36,25 @@ export class PerformanceDashboard extends AppElement {
   @state()
   _rows = 2
 
-  @state()
-  _maxGridSlots = 8
+  _isPortrait = false
 
   _orientationMediaQuery: MediaQueryList | null = null
   _handleOrientationChange = () => {
+    if (this._retileMode && this._localMetrics) {
+      // Keep the edits made in the orientation we are leaving, as leaving retile mode would
+      const previousMetricsKey = this._isPortrait ? 'portraitDashboardMetrics' : 'landscapeDashboardMetrics'
+      this.sendEvent('changeGuiSetting', { [previousMetricsKey]: this._localMetrics })
+    }
     this._computeGridConfig()
     if (this._retileMode) {
-      this._localMetrics = this._getOrientationMetrics()
+      this._setLocalMetrics(this._getOrientationMetrics())
     }
   }
 
   connectedCallback () {
     super.connectedCallback()
     this.addEventListener('retile-mode-changed', this._handleRetileModeChanged as EventListener)
-    this.addEventListener('reset-layout-to-default', this._handleResetToDefault)
+    this.addEventListener('revert-layout', this._handleRevertLayout)
     this.addEventListener('open-settings', this._handleOpenSettings)
     this._orientationMediaQuery = window.matchMedia('(orientation: portrait)')
     this._orientationMediaQuery.addEventListener('change', this._handleOrientationChange)
@@ -66,18 +70,29 @@ export class PerformanceDashboard extends AppElement {
 
       if (oldGridConfig !== newGridConfig) {
         this._computeGridConfig()
+        if (this._localMetrics) {
+          this._setLocalMetrics(this._localMetrics)
+        }
       }
     }
   }
 
   _computeGridConfig () {
     const gridConfig = this.appState?.config?.guiConfigs?.gridConfig ?? APP_STATE.config.guiConfigs.gridConfig
-    const isPortrait = window.matchMedia('(orientation: portrait)').matches
-    const orientationConfig: GridOrientationConfig = isPortrait ? gridConfig.portrait : gridConfig.landscape
+    this._isPortrait = window.matchMedia('(orientation: portrait)').matches
+    const orientationConfig: GridOrientationConfig = this._isPortrait ? gridConfig.portrait : gridConfig.landscape
 
     this._columns = orientationConfig.columns
     this._rows = orientationConfig.rows
-    this._maxGridSlots = this._columns * this._rows
+  }
+
+  _layout (metrics: string[]) {
+    return layoutMetricsForGrid(metrics, this._columns, this._rows)
+  }
+
+  // _localMetrics always holds the list as the grid shows it, so a tile's position is its index in this list
+  _setLocalMetrics (metrics: string[]) {
+    this._localMetrics = this._layout(metrics).metrics
   }
 
   _getOrientationMetrics (): string[] {
@@ -89,7 +104,7 @@ export class PerformanceDashboard extends AppElement {
   disconnectedCallback () {
     super.disconnectedCallback()
     this.removeEventListener('retile-mode-changed', this._handleRetileModeChanged as EventListener)
-    this.removeEventListener('reset-layout-to-default', this._handleResetToDefault)
+    this.removeEventListener('revert-layout', this._handleRevertLayout)
     this.removeEventListener('open-settings', this._handleOpenSettings)
     this._orientationMediaQuery?.removeEventListener('change', this._handleOrientationChange)
   }
@@ -118,7 +133,7 @@ export class PerformanceDashboard extends AppElement {
     this._retileMode = event.detail.active
 
     if (this._retileMode && !wasActive) {
-      this._localMetrics = [...this._getOrientationMetrics()]
+      this._setLocalMetrics(this._getOrientationMetrics())
     } else if (!this._retileMode && wasActive) {
       if (this._localMetrics) {
         const isPortrait = window.matchMedia('(orientation: portrait)').matches
@@ -133,25 +148,32 @@ export class PerformanceDashboard extends AppElement {
     if (!this._localMetrics) { return }
     const newMetrics = [...this._localMetrics]
     newMetrics.splice(index, 1)
-    this._localMetrics = newMetrics
+    this._setLocalMetrics(newMetrics)
   }
 
-  _handleResetToDefault = () => {
+  // Undoes the retile edits that have not been submitted yet, by going back to the saved layout of this orientation
+  _handleRevertLayout = () => {
     if (this._retileMode) {
-      const isPortrait = window.matchMedia('(orientation: portrait)').matches
-      const defaultMetrics = APP_STATE.config.guiConfigs
-      this._localMetrics = isPortrait ?
-        [...defaultMetrics.portraitDashboardMetrics] :
-        [...defaultMetrics.landscapeDashboardMetrics]
+      this._setLocalMetrics(this._getOrientationMetrics())
     }
   }
 
-  _getAvailableMetrics (availableSlots = Infinity): string[] {
-    const currentSet = new Set(this._localMetrics ?? [])
+  /**
+   * Lists the metrics that can be added (no index) or can replace the tile at replaceIndex,
+   * i.e. the ones that are not on the dashboard yet and whose resulting layout still fits the grid
+   */
+  _getAvailableMetrics (replaceIndex?: number): string[] {
+    const currentMetrics = this._localMetrics ?? []
+    const currentSet = new Set(currentMetrics)
     return Object.keys(DASHBOARD_METRICS).filter((key) => {
       if (currentSet.has(key)) { return false }
-      const metricSize = DASHBOARD_METRICS[key]?.size || 1
-      return metricSize <= availableSlots
+      const candidate = [...currentMetrics]
+      if (replaceIndex === undefined) {
+        candidate.push(key)
+      } else {
+        candidate[replaceIndex] = key
+      }
+      return this._layout(candidate).metrics.length === candidate.length
     })
   }
 
@@ -163,10 +185,8 @@ export class PerformanceDashboard extends AppElement {
     }
   }
 
-  _renderMetricWithControls (componentFactory: (slotContent?: TemplateResult | string) => TemplateResult, index: number, metricName: string, availableSlots: number): TemplateResult {
-    const currentMetricSize = DASHBOARD_METRICS[metricName]?.size || 1
-    const slotsIfReplaced = availableSlots + currentMetricSize
-    const availableMetrics = this._getAvailableMetrics(slotsIfReplaced)
+  _renderMetricWithControls (componentFactory: (slotContent?: TemplateResult | string) => TemplateResult, index: number): TemplateResult {
+    const availableMetrics = this._getAvailableMetrics(index)
 
     const controls = html`
       <div class="retile-controls" @click=${(e: Event) => e.stopPropagation()}>
@@ -190,8 +210,8 @@ export class PerformanceDashboard extends AppElement {
     return componentFactory(controls)
   }
 
-  _renderAddTile (availableSlots: number): TemplateResult {
-    const availableMetrics = this._getAvailableMetrics(availableSlots)
+  _renderAddTile (): TemplateResult {
+    const availableMetrics = this._getAvailableMetrics()
 
     if (availableMetrics.length === 0) {
       return html`
@@ -221,14 +241,14 @@ export class PerformanceDashboard extends AppElement {
 
   _addMetricDirect = (metricKey: string) => {
     if (!this._localMetrics || !metricKey) { return }
-    this._localMetrics = [...this._localMetrics, metricKey]
+    this._setLocalMetrics([...this._localMetrics, metricKey])
   }
 
   _replaceMetricDirect = (index: number, metricKey: string) => {
     if (!this._localMetrics || !metricKey) { return }
     const newMetrics = [...this._localMetrics]
     newMetrics[index] = metricKey
-    this._localMetrics = newMetrics
+    this._setLocalMetrics(newMetrics)
   }
 
   dashboardMetricComponentsFactory = (appState: AppState) => {
@@ -246,23 +266,22 @@ export class PerformanceDashboard extends AppElement {
   }
 
   render () {
-    const metrics = this._localMetrics ?? this._getOrientationMetrics()
-    const uniqueMetrics = [...new Set(metrics)]
-    const currentGridSlots = uniqueMetrics.reduce((sum, key) => sum + (DASHBOARD_METRICS[key]?.size || 1), 0)
-    const availableSlots = this._maxGridSlots - currentGridSlots
+    // In retile mode _localMetrics is already laid out, so the tile index matches its index in _localMetrics
+    const { metrics, usedCells } = this._layout(this._localMetrics ?? this._getOrientationMetrics())
+    const componentFactories = this.dashboardMetricComponentsFactory(this.appState)
 
-    const metricConfig = uniqueMetrics.reduce((prev: TemplateResult[], metricName, index) => {
-      const componentFactory = this.dashboardMetricComponentsFactory(this.appState)[metricName]
+    const metricConfig = metrics.reduce((prev: TemplateResult[], metricName, index) => {
+      const componentFactory = componentFactories[metricName]
       if (this._retileMode) {
-        prev.push(this._renderMetricWithControls(componentFactory, index, metricName, availableSlots))
+        prev.push(this._renderMetricWithControls(componentFactory, index))
       } else {
         prev.push(componentFactory())
       }
       return prev
     }, [])
 
-    if (this._retileMode && currentGridSlots < this._maxGridSlots) {
-      metricConfig.push(this._renderAddTile(availableSlots))
+    if (this._retileMode && usedCells < this._columns * this._rows) {
+      metricConfig.push(this._renderAddTile())
     }
 
     return html`

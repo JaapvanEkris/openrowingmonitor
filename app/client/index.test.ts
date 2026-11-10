@@ -66,3 +66,35 @@ describe('dashboard metrics validation', () => {
     })
   })
 })
+
+describe('settings migration', () => {
+  test('should turn the old 12 cell grid setting into a 4x3 landscape and 2x6 portrait grid', () => {
+    localStorage.setItem('maxNumberOfTiles', '12')
+    const app = new App()
+    expect(app.getState().config.guiConfigs.gridConfig).toEqual({
+      landscape: { columns: 4, rows: 3 },
+      portrait: { columns: 2, rows: 6 }
+    })
+    expect(localStorage.getItem('maxNumberOfTiles')).toBeNull()
+  })
+
+  test('should keep the default grid for the old 8 cell setting', () => {
+    localStorage.setItem('maxNumberOfTiles', '8')
+    const app = new App()
+    expect(app.getState().config.guiConfigs.gridConfig).toEqual(APP_STATE.config.guiConfigs.gridConfig)
+    expect(localStorage.getItem('maxNumberOfTiles')).toBeNull()
+  })
+
+  test('should drop duplicate metrics that older versions stored for wide tiles', () => {
+    localStorage.setItem('dashboardMetrics', JSON.stringify(['distance', 'forceCurve', 'forceCurve', 'pace']))
+    const app = new App()
+    expect(app.getState().config.guiConfigs.landscapeDashboardMetrics).toEqual(['distance', 'forceCurve', 'pace'])
+  })
+
+  test('should not overwrite the defaults in APP_STATE with the saved settings', () => {
+    localStorage.setItem('landscapeDashboardMetrics', JSON.stringify(['heartRate']))
+    const app = new App()
+    expect(app.getState().config.guiConfigs.landscapeDashboardMetrics).toEqual(['heartRate'])
+    expect(APP_STATE.config.guiConfigs.landscapeDashboardMetrics).not.toEqual(['heartRate'])
+  })
+})
