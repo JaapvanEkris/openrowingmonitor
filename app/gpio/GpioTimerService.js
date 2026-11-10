@@ -25,7 +25,7 @@ export async function createGpioTimerService () {
     pigpio = pigpioModule.default
 
     // The JS wrapper loads even if the C library fails to initialize (e.g. on non-Pi or missing root).
-    // When the C library fails, the exported functions exist but wrap undefined C-bindings, causing a 
+    // When the C library fails, the exported functions exist but wrap undefined C-bindings, causing a
     // TypeError when called. We catch this explicitly to verify true compatibility before proceeding.
     let hwRev
     try {

@@ -9,6 +9,7 @@
 import defaultConfig from '../../config/default.config.js'
 import { checkRangeValue, checkIntegerValue, checkBooleanValue, checkFloatValue } from './ConfigValidations.js'
 import { deepMerge } from './Helper.js'
+import { parseHardwareArgs } from './HardwareArgs.js'
 import log from 'loglevel'
 
 /**
@@ -188,7 +189,7 @@ checkConfig(fileConfig)
 // Determine simulateWithoutHardware from CLI flag or environment variable
 // This is intentionally not part of the config file to prevent accidental commits
 // The env var is also set so that child processes (e.g. forked GpioTimerService) inherit it
-const simulateWithoutHardware = process.argv.includes('--no-hardware') || process.env.ORM_NO_HARDWARE === '1'
+const { simulateWithoutHardware } = parseHardwareArgs(process.argv.slice(2), process.env)
 
 if (simulateWithoutHardware) {
   process.env.ORM_NO_HARDWARE = '1'
