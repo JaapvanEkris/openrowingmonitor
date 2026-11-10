@@ -1,9 +1,6 @@
 import EventEmitter from 'node:events'
 import loglevel from 'loglevel'
 
-import HciSocket from 'hci-socket'
-import NodeBleHost from 'ble-host'
-
 /**
  * @typedef {import('./ble-host.interface.js').BleManager} BleHostManager
  */
@@ -12,7 +9,12 @@ const log = loglevel.getLogger('Peripherals')
 
 export class BleManager extends EventEmitter {
   /**
-   * @type {HciSocket | undefined}
+   * @type {Config}
+   */
+  #config
+
+  /**
+   * @type {import('hci-socket') | undefined}
    */
   #transport
   /**
@@ -23,10 +25,22 @@ export class BleManager extends EventEmitter {
    * @type {Promise<BleHostManager> | undefined}
    */
   #managerOpeningTask
+  /**
+   * @type {typeof import('hci-socket') | undefined}
+   */
+  #HciSocket
+  /**
+   * @type {typeof import('ble-host').default | undefined}
+   */
+  #NodeBleHost
   #isClosing = false
 
-  constructor () {
+  /**
+   * @param {Config} config
+   */
+  constructor (config) {
     super()
+    this.#config = config
   }
 
   /**
@@ -58,25 +72,47 @@ export class BleManager extends EventEmitter {
   }
 
   open () {
+    if (this.#config.simulateWithoutHardware) {
+      log.info('Hardware initialization: simulateWithoutHardware is true. BLE manager is bypassed.')
+      return Promise.reject(new Error('simulateWithoutHardware is true, BLE disabled.'))
+    }
+
+    if (process.platform !== 'linux') {
+      log.info(`Hardware initialization: BLE requires Linux. Current platform is ${process.platform}. BLE manager is bypassed.`)
+      return Promise.reject(new Error(`BLE requires Linux, current platform: ${process.platform}`))
+    }
+
     if (this.#manager !== undefined) {
       return Promise.resolve(this.#manager)
     }
 
-    if (this.#managerOpeningTask === undefined) {
-      this.#managerOpeningTask = new Promise((resolve, reject) => {
-        if (this.#manager) {
-          resolve(this.#manager)
+    if (this.#managerOpeningTask !== undefined) {
+      return this.#managerOpeningTask
+    }
 
-          return
+    this.#managerOpeningTask = (async () => {
+      log.info('Hardware initialization: BLE enabled on Linux. Attempting to start BLE manager.')
+
+      try {
+        if (this.#HciSocket === undefined || this.#NodeBleHost === undefined) {
+          const hciSocketModule = await import('hci-socket')
+          const bleHostModule = await import('ble-host')
+          this.#HciSocket = hciSocketModule.default
+          this.#NodeBleHost = bleHostModule.default
         }
-
-        log.debug('Opening BLE manager')
 
         if (this.#transport === undefined) {
-          this.#transport = new HciSocket()
+          this.#transport = new this.#HciSocket()
         }
+      } catch (error) {
+        log.debug('Failed to load BLE modules or open BLE socket:', error.message)
+        this.#managerOpeningTask = undefined
+        this.#transport = undefined
+        throw error
+      }
 
-        NodeBleHost.BleManager.create(
+      return new Promise((resolve, reject) => {
+        this.#NodeBleHost.BleManager.create(
           this.#transport,
           {},
           (
@@ -101,7 +137,7 @@ export class BleManager extends EventEmitter {
           }
         )
       })
-    }
+    })()
 
     return this.#managerOpeningTask
   }

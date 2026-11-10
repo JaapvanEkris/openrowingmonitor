@@ -202,14 +202,15 @@ export function createPeripheralManager (config) {
    * @param {BluetoothModes} newMode
    */
   async function createBlePeripheral (newMode) {
-    try {
-      if (newMode !== 'OFF') {
-        ensureBleManager()
-      }
-    } catch (error) {
-      log.error('BleManager creation error: ', error)
+    if (config.simulateWithoutHardware) {
+      log.info('Hardware initialization: simulateWithoutHardware is true. BLE peripherals are bypassed.')
+      newMode = 'OFF'
+      config.bluetoothMode = 'OFF'
+    }
 
-      return false
+    if (newMode !== 'OFF' && !(await isBleAvailable())) {
+      newMode = 'OFF'
+      config.bluetoothMode = 'OFF'
     }
 
     if (blePeripheral) {
@@ -285,6 +286,12 @@ export function createPeripheralManager (config) {
    * @param {AntPlusModes} newMode
    */
   async function createAntPeripheral (newMode) {
+    if (config.simulateWithoutHardware) {
+      log.info('Hardware initialization: simulateWithoutHardware is true. ANT+ peripherals are bypassed.')
+      newMode = 'OFF'
+      config.antPlusMode = 'OFF'
+    }
+
     if (antPeripheral) {
       await antPeripheral?.destroy()
       antPeripheral = undefined
@@ -344,6 +351,12 @@ export function createPeripheralManager (config) {
    * @param {HeartRateModes} newMode
    */
   async function createHrmPeripheral (newMode) {
+    if (config.simulateWithoutHardware) {
+      log.info('Hardware initialization: simulateWithoutHardware is true. Heart rate peripherals are bypassed.')
+      newMode = 'OFF'
+      config.heartRateMode = 'OFF'
+    }
+
     if (hrmPeripheral) {
       await hrmPeripheral?.destroy()
       hrmPeripheral?.removeAllListeners()
@@ -376,11 +389,10 @@ export function createPeripheralManager (config) {
 
       case 'BLE':
         log.info('heart rate profile: BLE')
-        try {
-          ensureBleManager()
-        } catch (error) {
-          log.error('BleManager creation error: ', error)
-          return
+        if (!(await isBleAvailable())) {
+          hrmMode = 'OFF'
+          config.heartRateMode = 'OFF'
+          break
         }
         hrmPeripheral = createBleHrmPeripheral(_bleManager)
         hrmMode = 'BLE'
@@ -452,12 +464,29 @@ export function createPeripheralManager (config) {
     return true
   }
 
+  /**
+   * Opens the BLE manager up front, so a missing adapter, missing permissions or a non-Linux platform
+   * results in BLE being switched off instead of an unhandled rejection inside a peripheral's setup()
+   * @returns {Promise<boolean>}
+   */
+  async function isBleAvailable () {
+    try {
+      await ensureBleManager().open()
+
+      return true
+    } catch (error) {
+      log.warn(`BLE is not available, switching it off: ${error.message}`)
+
+      return false
+    }
+  }
+
   function ensureBleManager () {
     if (_bleManager !== undefined) {
       return _bleManager
     }
 
-    _bleManager = new BleManager()
+    _bleManager = new BleManager(config)
     _bleManager.on('hardwareError', async (error) => {
       try {
         await restartBlePeripheral(error)
