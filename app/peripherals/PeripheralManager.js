@@ -205,6 +205,7 @@ export function createPeripheralManager (config) {
     if (config.simulateWithoutHardware) {
       log.info('Hardware initialization: simulateWithoutHardware is true. BLE peripherals are bypassed.')
       newMode = 'OFF'
+      config.bluetoothMode = 'OFF'
     }
 
     if (newMode !== 'OFF' && !(await isBleAvailable())) {
@@ -288,6 +289,7 @@ export function createPeripheralManager (config) {
     if (config.simulateWithoutHardware) {
       log.info('Hardware initialization: simulateWithoutHardware is true. ANT+ peripherals are bypassed.')
       newMode = 'OFF'
+      config.antPlusMode = 'OFF'
     }
 
     if (antPeripheral) {
@@ -352,6 +354,7 @@ export function createPeripheralManager (config) {
     if (config.simulateWithoutHardware) {
       log.info('Hardware initialization: simulateWithoutHardware is true. Heart rate peripherals are bypassed.')
       newMode = 'OFF'
+      config.heartRateMode = 'OFF'
     }
 
     if (hrmPeripheral) {
