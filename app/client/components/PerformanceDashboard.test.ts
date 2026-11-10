@@ -351,7 +351,7 @@ describe('render', () => {
     dashboard._retileMode = false
     dashboard._localMetrics = ['distance', 'timer', 'pace']
     const result = dashboard.render()
-    const metricConfig = result.values[3] as TemplateResult[]
+    const metricConfig = result.values[4] as TemplateResult[]
     expect(metricConfig).toHaveLength(3)
   })
 
@@ -362,7 +362,7 @@ describe('render', () => {
     dashboard._localMetrics = null
     const orientationMetrics = dashboard._getOrientationMetrics()
     const result = dashboard.render()
-    const metricConfig = result.values[3] as TemplateResult[]
+    const metricConfig = result.values[4] as TemplateResult[]
     expect(metricConfig).toHaveLength(orientationMetrics.length)
   })
 
@@ -372,7 +372,7 @@ describe('render', () => {
     dashboard._retileMode = true
     dashboard._localMetrics = ['distance']
     const result = dashboard.render()
-    const metricConfig = result.values[3] as TemplateResult[]
+    const metricConfig = result.values[4] as TemplateResult[]
     // 1 metric tile wrapped with controls + 1 add-tile
     expect(metricConfig).toHaveLength(2)
   })
@@ -383,7 +383,7 @@ describe('render', () => {
     dashboard._retileMode = false
     dashboard._localMetrics = ['distance']
     const result = dashboard.render()
-    const metricConfig = result.values[3] as TemplateResult[]
+    const metricConfig = result.values[4] as TemplateResult[]
     expect(metricConfig).toHaveLength(1)
   })
 
@@ -395,7 +395,7 @@ describe('render', () => {
     dashboard._columns = 3
     dashboard._rows = 1
     const result = dashboard.render()
-    const metricConfig = result.values[3] as TemplateResult[]
+    const metricConfig = result.values[4] as TemplateResult[]
     expect(metricConfig).toHaveLength(3)
   })
 
@@ -408,7 +408,7 @@ describe('render', () => {
     // 3 tiles + a hole at the end of row 2 + the force curve on row 3 → 6 cells used
     dashboard._localMetrics = ['distance', 'timer', 'pace', 'forceCurve']
     const result = dashboard.render()
-    const metricConfig = result.values[3] as TemplateResult[]
+    const metricConfig = result.values[4] as TemplateResult[]
     expect(metricConfig).toHaveLength(4)
   })
 
@@ -420,7 +420,7 @@ describe('render', () => {
     dashboard._rows = 2
     dashboard.appState.config.guiConfigs.landscapeDashboardMetrics = ['distance', 'timer', 'pace', 'power', 'stkRate', 'totalStk', 'calories']
     const result = dashboard.render()
-    const metricConfig = result.values[3] as TemplateResult[]
+    const metricConfig = result.values[4] as TemplateResult[]
     expect(metricConfig).toHaveLength(6)
     // the saved list is not changed
     expect(dashboard.appState.config.guiConfigs.landscapeDashboardMetrics).toHaveLength(7)
@@ -511,5 +511,44 @@ describe('rotating during retile mode', () => {
     dashboard.addEventListener('changeGuiSetting', listener)
     dashboard._handleOrientationChange()
     expect(listener).not.toHaveBeenCalled()
+  })
+})
+
+describe('_hasLayoutChanges', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  function enterRetileMode (saved: string[]) {
+    vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() } as unknown as MediaQueryList)
+    const dashboard = createDashboard()
+    dashboard.appState.config.guiConfigs.landscapeDashboardMetrics = saved
+    dashboard._handleRetileModeChanged(new CustomEvent('retile-mode-changed', { detail: { active: true } }))
+    return dashboard
+  }
+
+  test('should be false outside retile mode', () => {
+    const dashboard = createDashboard()
+    expect(dashboard._hasLayoutChanges()).toBe(false)
+  })
+
+  test('should be false right after entering retile mode, also when the saved list gets laid out', () => {
+    const dashboard = enterRetileMode(['distance', 'forceCurve', 'forceCurve', 'pace'])
+    expect(dashboard._hasLayoutChanges()).toBe(false)
+  })
+
+  test('should be true after an edit and false again after reverting it', () => {
+    const dashboard = enterRetileMode(['distance', 'timer', 'pace'])
+    dashboard._removeMetric(0)
+    expect(dashboard._hasLayoutChanges()).toBe(true)
+    dashboard._handleRevertLayout()
+    expect(dashboard._hasLayoutChanges()).toBe(false)
+  })
+
+  test('should be passed to the toolbar', () => {
+    const dashboard = enterRetileMode(['distance', 'timer', 'pace'])
+    expect(dashboard.render().values[1]).toBe(false)
+    dashboard._removeMetric(0)
+    expect(dashboard.render().values[1]).toBe(true)
   })
 })

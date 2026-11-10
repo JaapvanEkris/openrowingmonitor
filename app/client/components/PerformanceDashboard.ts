@@ -151,6 +151,13 @@ export class PerformanceDashboard extends AppElement {
     this._setLocalMetrics(newMetrics)
   }
 
+  // Compares against the saved layout as the grid shows it, so entering retile mode alone (which lays the list out) is no change
+  _hasLayoutChanges (): boolean {
+    if (!this._retileMode || !this._localMetrics) { return false }
+    const savedLayout = this._layout(this._getOrientationMetrics()).metrics
+    return savedLayout.length !== this._localMetrics.length || savedLayout.some((key, index) => key !== this._localMetrics?.[index])
+  }
+
   // Undoes the retile edits that have not been submitted yet, by going back to the saved layout of this orientation
   _handleRevertLayout = () => {
     if (this._retileMode) {
@@ -285,7 +292,7 @@ export class PerformanceDashboard extends AppElement {
     }
 
     return html`
-      <dashboard-toolbar .config=${this.appState.config}></dashboard-toolbar>
+      <dashboard-toolbar .config=${this.appState.config} .layoutChanged=${this._hasLayoutChanges()}></dashboard-toolbar>
       <section
         class="metrics-grid"
         style="--grid-columns: ${this._columns}; --grid-rows: ${this._rows};"
