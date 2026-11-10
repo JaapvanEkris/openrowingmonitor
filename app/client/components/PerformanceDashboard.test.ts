@@ -4,7 +4,7 @@
 // @vitest-environment happy-dom
 import { test, expect, describe, vi, beforeEach, afterEach } from 'vitest'
 
-import type { TemplateResult } from 'lit'
+import { render, type TemplateResult } from 'lit'
 import { PerformanceDashboard } from './PerformanceDashboard'
 import { DASHBOARD_METRICS } from '../store/dashboardMetrics'
 import { APP_STATE } from '../store/appState'
@@ -13,6 +13,12 @@ function createDashboard (): PerformanceDashboard {
   const dashboard = new PerformanceDashboard()
   dashboard.appState = structuredClone(APP_STATE)
   return dashboard
+}
+
+// The tiles render() shows: one per laid out metric, plus the add tile when it is shown
+function renderedTileCount (dashboard: PerformanceDashboard): number {
+  const { metrics, showAddTile } = dashboard._tileLayout()
+  return metrics.length + (showAddTile ? 1 : 0)
 }
 
 describe('dashboardMetricComponentsFactory', () => {
@@ -350,9 +356,8 @@ describe('render', () => {
     const dashboard = createDashboard()
     dashboard._retileMode = false
     dashboard._localMetrics = ['distance', 'timer', 'pace']
-    const result = dashboard.render()
-    const metricConfig = result.values[4] as TemplateResult[]
-    expect(metricConfig).toHaveLength(3)
+    dashboard.render()
+    expect(renderedTileCount(dashboard)).toBe(3)
   })
 
   test('should render tiles from orientation metrics when _localMetrics is null', () => {
@@ -361,9 +366,8 @@ describe('render', () => {
     dashboard._retileMode = false
     dashboard._localMetrics = null
     const orientationMetrics = dashboard._getOrientationMetrics()
-    const result = dashboard.render()
-    const metricConfig = result.values[4] as TemplateResult[]
-    expect(metricConfig).toHaveLength(orientationMetrics.length)
+    dashboard.render()
+    expect(renderedTileCount(dashboard)).toBe(orientationMetrics.length)
   })
 
   test('should append add-tile when in retile mode and grid has available slots', () => {
@@ -371,10 +375,9 @@ describe('render', () => {
     const dashboard = createDashboard()
     dashboard._retileMode = true
     dashboard._localMetrics = ['distance']
-    const result = dashboard.render()
-    const metricConfig = result.values[4] as TemplateResult[]
+    dashboard.render()
     // 1 metric tile wrapped with controls + 1 add-tile
-    expect(metricConfig).toHaveLength(2)
+    expect(renderedTileCount(dashboard)).toBe(2)
   })
 
   test('should not append add-tile when retile mode is off', () => {
@@ -382,9 +385,8 @@ describe('render', () => {
     const dashboard = createDashboard()
     dashboard._retileMode = false
     dashboard._localMetrics = ['distance']
-    const result = dashboard.render()
-    const metricConfig = result.values[4] as TemplateResult[]
-    expect(metricConfig).toHaveLength(1)
+    dashboard.render()
+    expect(renderedTileCount(dashboard)).toBe(1)
   })
 
   test('should not append add-tile when the grid is full', () => {
@@ -394,9 +396,8 @@ describe('render', () => {
     dashboard._localMetrics = ['distance', 'timer', 'pace']
     dashboard._columns = 3
     dashboard._rows = 1
-    const result = dashboard.render()
-    const metricConfig = result.values[4] as TemplateResult[]
-    expect(metricConfig).toHaveLength(3)
+    dashboard.render()
+    expect(renderedTileCount(dashboard)).toBe(3)
   })
 
   test('should not append add-tile when a hole fills the last free cell', () => {
@@ -407,9 +408,8 @@ describe('render', () => {
     dashboard._rows = 3
     // 3 tiles + a hole at the end of row 2 + the force curve on row 3 → 6 cells used
     dashboard._localMetrics = ['distance', 'timer', 'pace', 'forceCurve']
-    const result = dashboard.render()
-    const metricConfig = result.values[4] as TemplateResult[]
-    expect(metricConfig).toHaveLength(4)
+    dashboard.render()
+    expect(renderedTileCount(dashboard)).toBe(4)
   })
 
   test('should only render the tiles that fit the grid', () => {
@@ -419,9 +419,8 @@ describe('render', () => {
     dashboard._columns = 3
     dashboard._rows = 2
     dashboard.appState.config.guiConfigs.landscapeDashboardMetrics = ['distance', 'timer', 'pace', 'power', 'stkRate', 'totalStk', 'calories']
-    const result = dashboard.render()
-    const metricConfig = result.values[4] as TemplateResult[]
-    expect(metricConfig).toHaveLength(6)
+    dashboard.render()
+    expect(renderedTileCount(dashboard)).toBe(6)
     // the saved list is not changed
     expect(dashboard.appState.config.guiConfigs.landscapeDashboardMetrics).toHaveLength(7)
   })
@@ -442,9 +441,21 @@ describe('_renderAddTile', () => {
   test('should render one option per available metric', () => {
     const dashboard = createDashboard()
     dashboard._localMetrics = []
-    const result = dashboard._renderAddTile()
-    const options = result.values[0] as TemplateResult[]
-    expect(options).toHaveLength(Object.keys(DASHBOARD_METRICS).length)
+    const container = document.createElement('div')
+    render(dashboard._renderAddTile(), container)
+    expect(container.querySelectorAll('input[type="radio"]')).toHaveLength(Object.keys(DASHBOARD_METRICS).length)
+  })
+
+  test('should not leave a checked radio behind for the next metric after adding one', () => {
+    const dashboard = createDashboard()
+    dashboard._localMetrics = []
+    const container = document.createElement('div')
+    render(dashboard._renderAddTile(), container)
+    const first = container.querySelector<HTMLInputElement>('input[type="radio"]')!
+    first.checked = true
+    dashboard._addMetricDirect(first.value)
+    render(dashboard._renderAddTile(), container)
+    expect(container.querySelectorAll('input[type="radio"]:checked')).toHaveLength(0)
   })
 })
 
@@ -594,5 +605,27 @@ describe('reordering tiles', () => {
     dashboard._handleGripKeydown(event, 0)
     expect(dashboard._localMetrics).toEqual(['distance', 'timer'])
     expect(event.defaultPrevented).toBe(false)
+  })
+})
+
+describe('tiles keep their own form controls', () => {
+  test('should not show the previous tile action on the tile that moves into its place', () => {
+    vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() } as unknown as MediaQueryList)
+    const dashboard = createDashboard()
+    dashboard._retileMode = true
+    dashboard._localMetrics = ['pace', 'power', 'stkRate']
+    const container = document.createElement('div')
+    render(dashboard.render(), container)
+
+    const tiles = () => container.querySelector('.metrics-grid')!.children
+    const paceSelect = tiles()[0].querySelector('select')!
+    paceSelect.value = 'remove'
+    dashboard._removeMetric(0)
+    render(dashboard.render(), container)
+
+    const powerSelect = tiles()[0].querySelector('select')!
+    expect(powerSelect).not.toBe(paceSelect)
+    expect(powerSelect.value).toBe('')
+    vi.restoreAllMocks()
   })
 })

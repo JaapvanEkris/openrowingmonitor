@@ -7,6 +7,7 @@
 import { AppElement, html, TemplateResult } from './AppElement'
 import { performanceDashboardStyles } from './PerformanceDashboard.styles'
 import { customElement, property, state } from 'lit/decorators.js'
+import { repeat } from 'lit/directives/repeat.js'
 import './DashboardToolbar'
 import './SettingsDialog'
 import './WorkoutDialog'
@@ -278,7 +279,7 @@ export class PerformanceDashboard extends AppElement {
 
     return html`
       <div class="add-tile">
-        ${availableMetrics.map((key) => html`
+        ${repeat(availableMetrics, (key) => key, (key) => html`
           <div class="add-tile-option">
             <input
               type="radio"
@@ -320,31 +321,31 @@ export class PerformanceDashboard extends AppElement {
     return dashboardMetricComponents
   }
 
-  render () {
+  // The metrics as the grid shows them, and whether the add tile follows them (in retile mode, when there is room)
+  _tileLayout (): { metrics: string[], showAddTile: boolean } {
     // In retile mode _localMetrics is already laid out, so the tile index matches its index in _localMetrics
     const { metrics, usedCells } = this._layout(this._localMetrics ?? this._getOrientationMetrics())
+    return { metrics, showAddTile: this._retileMode && usedCells < this._columns * this._rows }
+  }
+
+  render () {
+    const { metrics, showAddTile } = this._tileLayout()
     const componentFactories = this.dashboardMetricComponentsFactory(this.appState)
 
-    const metricConfig = metrics.reduce((prev: TemplateResult[], metricName, index) => {
+    // Keyed by metric, so every metric keeps its own elements when tiles move: no form control state carries over to
+    // another tile, and the force curve keeps its chart
+    const renderTile = (metricName: string, index: number) => {
       const componentFactory = componentFactories[metricName]
-      if (this._retileMode) {
-        prev.push(this._renderMetricWithControls(componentFactory, index))
-      } else {
-        prev.push(componentFactory())
-      }
-      return prev
-    }, [])
-
-    if (this._retileMode && usedCells < this._columns * this._rows) {
-      metricConfig.push(this._renderAddTile())
+      return this._retileMode ? this._renderMetricWithControls(componentFactory, index) : componentFactory()
     }
+    const tiles = repeat(metrics, (metricName) => metricName, renderTile)
 
     return html`
       <dashboard-toolbar .config=${this.appState.config} .layoutChanged=${this._hasLayoutChanges()}></dashboard-toolbar>
       <section
         class="metrics-grid"
         style="--grid-columns: ${this._columns}; --grid-rows: ${this._rows};"
-      >${metricConfig}${this._tileDrag.renderDropIndicator()}</section>
+      >${tiles}${showAddTile ? this._renderAddTile() : ''}${this._tileDrag.renderDropIndicator()}</section>
       ${this._dialog ? this._dialog : ''}
     `
   }
