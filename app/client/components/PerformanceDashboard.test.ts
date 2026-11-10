@@ -629,3 +629,31 @@ describe('tiles keep their own form controls', () => {
     vi.restoreAllMocks()
   })
 })
+
+describe('animating retile edits', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  test('should prepare the slide for edits the user makes', () => {
+    const dashboard = createDashboard()
+    dashboard._retileMode = true
+    dashboard._localMetrics = ['distance', 'timer', 'pace']
+    const prepare = vi.spyOn(dashboard._flip, 'prepare')
+
+    dashboard._removeMetric(0)
+    dashboard._addMetricDirect('power')
+    dashboard._replaceMetricDirect(0, 'stkRate')
+    dashboard._handleGripKeydown(new KeyboardEvent('keydown', { key: 'ArrowRight', cancelable: true }), 0)
+    expect(prepare).toHaveBeenCalledTimes(4)
+  })
+
+  test('should not animate entering retile mode or loading another orientation', () => {
+    vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() } as unknown as MediaQueryList)
+    const dashboard = createDashboard()
+    const prepare = vi.spyOn(dashboard._flip, 'prepare')
+    dashboard._handleRetileModeChanged(new CustomEvent('retile-mode-changed', { detail: { active: true } }))
+    dashboard._handleOrientationChange()
+    expect(prepare).not.toHaveBeenCalled()
+  })
+})

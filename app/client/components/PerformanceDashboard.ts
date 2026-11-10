@@ -16,6 +16,7 @@ import { APP_STATE } from '../store/appState'
 import { iconGrip } from '../lib/icons'
 import { moveMetric } from '../lib/retile-utils'
 import { TileDragController } from './TileDragController'
+import { FlipController } from './FlipController'
 import type { AppState, GridOrientationConfig } from '../store/types'
 
 @customElement('performance-dashboard')
@@ -43,7 +44,21 @@ export class PerformanceDashboard extends AppElement {
   _isPortrait = false
 
   _tileDrag = new TileDragController(this, () => this._gridElement(), (from, insertBefore) => {
-    if (this._localMetrics) { this._setLocalMetrics(moveMetric(this._localMetrics, from, insertBefore)) }
+    if (this._localMetrics) { this._editLocalMetrics(moveMetric(this._localMetrics, from, insertBefore)) }
+  })
+
+  // Slides the tiles (and the add tile) to their new places after a retile edit, keyed like the rendered tiles
+  _flip = new FlipController(this, () => {
+    const elements = new Map<string, HTMLElement>()
+    const grid = this._gridElement()
+    if (!grid) { return elements }
+    this._tileLayout().metrics.forEach((metricName, index) => {
+      const tile = grid.children[index] as HTMLElement | undefined
+      if (tile) { elements.set(metricName, tile) }
+    })
+    const addTile = grid.querySelector<HTMLElement>('.add-tile')
+    if (addTile) { elements.set('.add-tile', addTile) }
+    return elements
   })
 
   // The metric whose grip should get the focus after a keyboard move re-rendered the tiles
@@ -102,6 +117,12 @@ export class PerformanceDashboard extends AppElement {
   }
 
   // _localMetrics always holds the list as the grid shows it, so a tile's position is its index in this list
+  // A change made by the user in retile mode: like _setLocalMetrics, but the tiles slide to their new places
+  _editLocalMetrics (metrics: string[]) {
+    this._flip.prepare()
+    this._setLocalMetrics(metrics)
+  }
+
   _setLocalMetrics (metrics: string[]) {
     this._localMetrics = this._layout(metrics).metrics
   }
@@ -160,7 +181,7 @@ export class PerformanceDashboard extends AppElement {
     if (!this._localMetrics) { return }
     const newMetrics = [...this._localMetrics]
     newMetrics.splice(index, 1)
-    this._setLocalMetrics(newMetrics)
+    this._editLocalMetrics(newMetrics)
   }
 
   // Compares against the saved layout as the grid shows it, so entering retile mode alone (which lays the list out) is no change
@@ -173,7 +194,7 @@ export class PerformanceDashboard extends AppElement {
   // Undoes the retile edits that have not been submitted yet, by going back to the saved layout of this orientation
   _handleRevertLayout = () => {
     if (this._retileMode) {
-      this._setLocalMetrics(this._getOrientationMetrics())
+      this._editLocalMetrics(this._getOrientationMetrics())
     }
   }
 
@@ -215,7 +236,7 @@ export class PerformanceDashboard extends AppElement {
     if (insertBefore === undefined) { return }
     event.preventDefault()
     this._focusAfterMove = this._localMetrics[index]
-    this._setLocalMetrics(moveMetric(this._localMetrics, index, insertBefore))
+    this._editLocalMetrics(moveMetric(this._localMetrics, index, insertBefore))
   }
 
   updated (changedProperties: Map<string, unknown>) {
@@ -297,14 +318,14 @@ export class PerformanceDashboard extends AppElement {
 
   _addMetricDirect = (metricKey: string) => {
     if (!this._localMetrics || !metricKey) { return }
-    this._setLocalMetrics([...this._localMetrics, metricKey])
+    this._editLocalMetrics([...this._localMetrics, metricKey])
   }
 
   _replaceMetricDirect = (index: number, metricKey: string) => {
     if (!this._localMetrics || !metricKey) { return }
     const newMetrics = [...this._localMetrics]
     newMetrics[index] = metricKey
-    this._setLocalMetrics(newMetrics)
+    this._editLocalMetrics(newMetrics)
   }
 
   dashboardMetricComponentsFactory = (appState: AppState) => {

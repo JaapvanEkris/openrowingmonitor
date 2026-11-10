@@ -91,10 +91,11 @@ export class TileDragController implements ReactiveController {
     const drag = this.drag
     if (!drag || event.pointerId !== drag.pointerId) { return }
     const dropIndex = insertionIndexAt(drag.tileRects, drag.addTileRect, event.clientX, event.clientY)
-    this.cancel()
+    // Report the drop while the tile is still at the pointer, so an animation can start from where it was released
     if (dropIndex !== null) {
       this.onDrop(drag.index, dropIndex)
     }
+    this.cancel()
   }
 
   // Ends a drag without changing the order (also used after a release, once the drop is known)

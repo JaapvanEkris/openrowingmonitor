@@ -79,6 +79,17 @@ describe('TileDragController', () => {
     expect(controller.drag).toBeNull()
   })
 
+  test('should report the drop while the tile is still at the pointer, so it can glide from there', () => {
+    const tile = grid.children[0] as HTMLElement
+    let transformAtDrop = ''
+    onDrop.mockImplementation(() => { transformAtDrop = tile.style.transform })
+    controller.start(pointer('pointerdown', 50, 50), 0, 4)
+    controller.move(pointer('pointermove', 290, 50))
+    controller.finish(pointer('pointerup', 290, 50))
+    expect(transformAtDrop).toBe('translate(240px, 0px)')
+    expect(tile.style.transform).toBe('')
+  })
+
   test('should move to the end when released on the add tile', () => {
     controller.start(pointer('pointerdown', 50, 50), 1, 4)
     controller.finish(pointer('pointerup', 160, 160))
