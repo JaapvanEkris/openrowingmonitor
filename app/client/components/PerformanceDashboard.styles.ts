@@ -26,8 +26,9 @@ export const performanceDashboardStyles = css`
     grid-area: metrics;
     display: grid;
     gap: 1vw;
-    grid-template-columns: repeat(var(--grid-columns, 4), 1fr);
-    grid-template-rows: repeat(var(--grid-rows, 2), 1fr);
+    /* minmax(0, 1fr) instead of 1fr: a wide value (like a timer past an hour) must not widen its column */
+    grid-template-columns: repeat(var(--grid-columns, 4), minmax(0, 1fr));
+    grid-template-rows: repeat(var(--grid-rows, 2), minmax(0, 1fr));
     min-height: 0; /* prevent grid blowout */
     position: relative; /* anchors the drop indicator */
   }
@@ -62,6 +63,7 @@ export const performanceDashboardStyles = css`
     padding: 0 0.3em;
     cursor: grab;
     touch-action: none; /* a drag on the grip moves the tile, it must not scroll or zoom the page */
+    -webkit-touch-callout: none; /* no iOS long-press menu */
     border-radius: var(--theme-border-radius);
   }
 
