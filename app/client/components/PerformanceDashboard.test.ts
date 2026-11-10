@@ -552,3 +552,47 @@ describe('_hasLayoutChanges', () => {
     expect(dashboard.render().values[1]).toBe(true)
   })
 })
+
+describe('reordering tiles', () => {
+  test('should render a grip in front of the tile actions only in retile mode', () => {
+    const dashboard = createDashboard()
+    dashboard._localMetrics = ['distance']
+    const factory = vi.fn() as unknown as (slotContent?: TemplateResult | string) => TemplateResult
+    dashboard._renderMetricWithControls(factory, 0)
+    const controls = vi.mocked(factory).mock.calls[0][0] as TemplateResult
+    expect(controls.strings.join('')).toContain('retile-grip')
+  })
+
+  test('should apply a drop through the layout', () => {
+    const dashboard = createDashboard()
+    dashboard._localMetrics = ['distance', 'timer', 'pace']
+    // what the drag controller calls on release: tile 0 dropped in the gap after tile 2
+    ;(dashboard._tileDrag as unknown as { onDrop: (from: number, insertBefore: number) => void }).onDrop(0, 3)
+    expect(dashboard._localMetrics).toEqual(['timer', 'pace', 'distance'])
+  })
+
+  test('should move a tile one place with the arrow keys and stop at the ends', () => {
+    const dashboard = createDashboard()
+    dashboard._localMetrics = ['distance', 'timer', 'pace']
+    const key = (k: string) => new KeyboardEvent('keydown', { key: k, cancelable: true })
+
+    dashboard._handleGripKeydown(key('ArrowRight'), 0)
+    expect(dashboard._localMetrics).toEqual(['timer', 'distance', 'pace'])
+    dashboard._handleGripKeydown(key('ArrowUp'), 1)
+    expect(dashboard._localMetrics).toEqual(['distance', 'timer', 'pace'])
+    dashboard._handleGripKeydown(key('ArrowLeft'), 0)
+    expect(dashboard._localMetrics).toEqual(['distance', 'timer', 'pace'])
+    dashboard._handleGripKeydown(key('ArrowDown'), 2)
+    expect(dashboard._localMetrics).toEqual(['distance', 'timer', 'pace'])
+    expect(dashboard._focusAfterMove).toBe('pace')
+  })
+
+  test('should ignore other keys', () => {
+    const dashboard = createDashboard()
+    dashboard._localMetrics = ['distance', 'timer']
+    const event = new KeyboardEvent('keydown', { key: 'Enter', cancelable: true })
+    dashboard._handleGripKeydown(event, 0)
+    expect(dashboard._localMetrics).toEqual(['distance', 'timer'])
+    expect(event.defaultPrevented).toBe(false)
+  })
+})

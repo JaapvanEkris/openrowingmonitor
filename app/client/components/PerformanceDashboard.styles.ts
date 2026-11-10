@@ -29,6 +29,7 @@ export const performanceDashboardStyles = css`
     grid-template-columns: repeat(var(--grid-columns, 4), 1fr);
     grid-template-rows: repeat(var(--grid-rows, 2), 1fr);
     min-height: 0; /* prevent grid blowout */
+    position: relative; /* anchors the drop indicator */
   }
 
   /* This should be defined within the component */
@@ -50,6 +51,43 @@ export const performanceDashboardStyles = css`
     left: 0.2em;
     right: 0.2em;
     z-index: 10;
+  }
+
+  .retile-grip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.5em;
+    padding: 0 0.3em;
+    cursor: grab;
+    touch-action: none; /* a drag on the grip moves the tile, it must not scroll or zoom the page */
+    border-radius: var(--theme-border-radius);
+  }
+
+  .retile-grip .icon {
+    height: 1.4em;
+  }
+
+  .retile-grip:focus-visible {
+    outline: 2px solid var(--theme-font-color);
+  }
+
+  .dragging {
+    opacity: 0.8;
+    z-index: 20;
+    box-shadow: 0 0.3em 1em rgb(0 0 0 / 50%);
+    cursor: grabbing;
+  }
+
+  .drop-indicator {
+    position: absolute;
+    width: 0.3em;
+    transform: translateX(-50%);
+    background: var(--theme-font-color);
+    border-radius: 0.15em;
+    pointer-events: none;
+    z-index: 30;
   }
 
   .retile-select {

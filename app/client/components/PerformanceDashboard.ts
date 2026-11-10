@@ -12,6 +12,9 @@ import './SettingsDialog'
 import './WorkoutDialog'
 import { DASHBOARD_METRICS, layoutMetricsForGrid } from '../store/dashboardMetrics'
 import { APP_STATE } from '../store/appState'
+import { iconGrip } from '../lib/icons'
+import { moveMetric } from '../lib/retile-utils'
+import { TileDragController } from './TileDragController'
 import type { AppState, GridOrientationConfig } from '../store/types'
 
 @customElement('performance-dashboard')
@@ -37,6 +40,13 @@ export class PerformanceDashboard extends AppElement {
   _rows = 2
 
   _isPortrait = false
+
+  _tileDrag = new TileDragController(this, () => this._gridElement(), (from, insertBefore) => {
+    if (this._localMetrics) { this._setLocalMetrics(moveMetric(this._localMetrics, from, insertBefore)) }
+  })
+
+  // The metric whose grip should get the focus after a keyboard move re-rendered the tiles
+  _focusAfterMove: string | null = null
 
   _orientationMediaQuery: MediaQueryList | null = null
   _handleOrientationChange = () => {
@@ -135,6 +145,7 @@ export class PerformanceDashboard extends AppElement {
     if (this._retileMode && !wasActive) {
       this._setLocalMetrics(this._getOrientationMetrics())
     } else if (!this._retileMode && wasActive) {
+      this._tileDrag.cancel()
       if (this._localMetrics) {
         const isPortrait = window.matchMedia('(orientation: portrait)').matches
         const metricsKey = isPortrait ? 'portraitDashboardMetrics' : 'landscapeDashboardMetrics'
@@ -192,11 +203,48 @@ export class PerformanceDashboard extends AppElement {
     }
   }
 
+  _gridElement (): HTMLElement | null {
+    return this.renderRoot?.querySelector('.metrics-grid') ?? null
+  }
+
+  _handleGripKeydown (event: KeyboardEvent, index: number) {
+    if (!this._localMetrics || this._tileDrag.drag) { return }
+    const moves: Record<string, number> = { ArrowLeft: index - 1, ArrowUp: index - 1, ArrowRight: index + 2, ArrowDown: index + 2 }
+    const insertBefore = moves[event.key]
+    if (insertBefore === undefined) { return }
+    event.preventDefault()
+    this._focusAfterMove = this._localMetrics[index]
+    this._setLocalMetrics(moveMetric(this._localMetrics, index, insertBefore))
+  }
+
+  updated (changedProperties: Map<string, unknown>) {
+    super.updated(changedProperties)
+    if (this._focusAfterMove && this._localMetrics) {
+      const index = this._localMetrics.indexOf(this._focusAfterMove)
+      this._focusAfterMove = null
+      // The move can put a new tile element here, which only shows its slotted grip (and can focus it) after its own first render
+      const tile = this._gridElement()?.children[index] as (HTMLElement & { updateComplete?: Promise<unknown> }) | undefined
+      void (tile?.updateComplete ?? Promise.resolve()).then(() => tile?.querySelector<HTMLElement>('.retile-grip')?.focus())
+    }
+  }
+
   _renderMetricWithControls (componentFactory: (slotContent?: TemplateResult | string) => TemplateResult, index: number): TemplateResult {
     const availableMetrics = this._getAvailableMetrics(index)
 
     const controls = html`
       <div class="retile-controls" @click=${(e: Event) => e.stopPropagation()}>
+        <span
+          class="retile-grip"
+          tabindex="0"
+          title="Drag to move this tile"
+          aria-label="Move tile (drag, or use the arrow keys)"
+          @pointerdown=${(e: PointerEvent) => this._tileDrag.start(e, index, this._localMetrics?.length ?? 0)}
+          @pointermove=${(e: PointerEvent) => this._tileDrag.move(e)}
+          @pointerup=${(e: PointerEvent) => this._tileDrag.finish(e)}
+          @pointercancel=${this._tileDrag.cancel}
+          @lostpointercapture=${this._tileDrag.cancel}
+          @keydown=${(e: KeyboardEvent) => this._handleGripKeydown(e, index)}
+        >${iconGrip}</span>
         <select
           class="retile-select"
           @click=${(e: Event) => e.stopPropagation()}
@@ -296,7 +344,7 @@ export class PerformanceDashboard extends AppElement {
       <section
         class="metrics-grid"
         style="--grid-columns: ${this._columns}; --grid-rows: ${this._rows};"
-      >${metricConfig}</section>
+      >${metricConfig}${this._tileDrag.renderDropIndicator()}</section>
       ${this._dialog ? this._dialog : ''}
     `
   }
