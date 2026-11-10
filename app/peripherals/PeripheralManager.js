@@ -207,15 +207,9 @@ export function createPeripheralManager (config) {
       newMode = 'OFF'
     }
 
-    try {
-      if (newMode !== 'OFF') {
-        ensureBleManager()
-      }
-    } catch (error) {
-      log.warn('BleManager creation error (BLE not available on this platform): ', error.message)
-      bleMode = 'OFF'
-
-      return false
+    if (newMode !== 'OFF' && !(await isBleAvailable())) {
+      newMode = 'OFF'
+      config.bluetoothMode = 'OFF'
     }
 
     if (blePeripheral) {
@@ -355,6 +349,11 @@ export function createPeripheralManager (config) {
    * @param {HeartRateModes} newMode
    */
   async function createHrmPeripheral (newMode) {
+    if (config.simulateWithoutHardware) {
+      log.info('Hardware initialization: simulateWithoutHardware is true. Heart rate peripherals are bypassed.')
+      newMode = 'OFF'
+    }
+
     if (hrmPeripheral) {
       await hrmPeripheral?.destroy()
       hrmPeripheral?.removeAllListeners()
@@ -387,12 +386,10 @@ export function createPeripheralManager (config) {
 
       case 'BLE':
         log.info('heart rate profile: BLE')
-        try {
-          ensureBleManager()
-        } catch (error) {
-          log.warn('BleManager creation error (BLE not available on this platform): ', error.message)
+        if (!(await isBleAvailable())) {
           hrmMode = 'OFF'
-          return
+          config.heartRateMode = 'OFF'
+          break
         }
         hrmPeripheral = createBleHrmPeripheral(_bleManager)
         hrmMode = 'BLE'
@@ -462,6 +459,23 @@ export function createPeripheralManager (config) {
     emitter.emit('control', event)
 
     return true
+  }
+
+  /**
+   * Opens the BLE manager up front, so a missing adapter, missing permissions or a non-Linux platform
+   * results in BLE being switched off instead of an unhandled rejection inside a peripheral's setup()
+   * @returns {Promise<boolean>}
+   */
+  async function isBleAvailable () {
+    try {
+      await ensureBleManager().open()
+
+      return true
+    } catch (error) {
+      log.warn(`BLE is not available, switching it off: ${error.message}`)
+
+      return false
+    }
   }
 
   function ensureBleManager () {

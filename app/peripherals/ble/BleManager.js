@@ -105,7 +105,7 @@ export class BleManager extends EventEmitter {
           this.#transport = new this.#HciSocket()
         }
       } catch (error) {
-        log.warn('Failed to load BLE modules or open BLE socket. BLE will be unavailable.', error.message)
+        log.debug('Failed to load BLE modules or open BLE socket:', error.message)
         this.#managerOpeningTask = undefined
         this.#transport = undefined
         throw error
