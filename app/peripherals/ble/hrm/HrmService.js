@@ -69,17 +69,30 @@ export class HrmService extends EventEmitter {
    * @type {number | string | undefined}
    */
   #serialNumber
+  /**
+   * Set to true when stop() is called so that any in-flight start() invocation
+   * exits cleanly and does not restart scanning.
+   */
+  #stopped = false
+  /**
+   * Reject function for the pending scan Promise, allowing stop() to cancel
+   * a start() that is blocked waiting for a connectable advertisement.
+   * @type {((reason?: unknown) => void) | undefined}
+   */
+  #scanReject
 
   /**
    * @param {import('../ble-host.interface.js').BleManager} manager
    */
-  constructor (manager) {
+  constructor(manager) {
     super()
     this.#manager = manager
   }
 
   /* eslint-disable max-statements -- This initialises the BLE HRM handler */
-  async start () {
+  async start() {
+    if (this.#stopped) { return }
+
     this.#scanner = this.#manager.startScan({
       scanFilters: [new BleManager.ServiceUUIDScanFilter(heartRateServiceUUID)]
     })
@@ -87,18 +100,29 @@ export class HrmService extends EventEmitter {
     this.#heartRateMeasurementCharacteristic?.removeAllListeners()
     this.#batteryLevelCharacteristic?.removeAllListeners()
 
-    const device = await new Promise((resolve) => {
-      /** @type {Scanner} */(this.#scanner).on('report', (eventData) => {
-        if (eventData.connectable) {
-          resolve(eventData)
-        }
+    let device
+    try {
+      device = await new Promise((resolve, reject) => {
+        this.#scanReject = reject
+        const activeScanner = /** @type {Scanner} */(this.#scanner)
+        activeScanner.on('report', (eventData) => {
+          if (eventData.connectable) {
+            resolve(eventData)
+          }
+        })
       })
-    })
+    } catch {
+      return // stop() was called while scanning
+    } finally {
+      this.#scanReject = undefined
+    }
 
     log.info(`Found device (${device.parsedDataItems.localName || 'no name'})`)
 
     this.#scanner.removeAllListeners()
     this.#scanner.stopScan()
+
+    if (this.#stopped) { return }
 
     this.#connection = await new Promise((/** @type {(value: Connection) => void} */resolve) => {
       this.#manager.connect(device.addressType, device.address, {}, (connection) => {
@@ -106,10 +130,17 @@ export class HrmService extends EventEmitter {
       })
     })
 
+    if (this.#stopped) {
+      this.#connection.disconnect()
+      this.#connection = undefined
+      return
+    }
+
     this.#connection.once('disconnect', () => {
       log.debug(`Disconnected from ${this.#connection?.peerAddress}, restart scanning`)
-
-      this.start()
+      if (!this.#stopped) {
+        this.start()
+      }
     })
 
     log.debug('Connected to ' + this.#connection.peerAddress)
@@ -128,13 +159,15 @@ export class HrmService extends EventEmitter {
       })
     })
 
-    const deviceInformationService = primaryServices.find(service => service.uuid === deviceInformationServiceUUID)
+    if (this.#stopped) { return }
+
+    const deviceInformationService = primaryServices.find((service) => service.uuid === deviceInformationServiceUUID)
     if (deviceInformationService !== undefined) {
       log.debug('HR device information service was discovered')
       const characteristics = await new Promise((/** @type {(value: { serialNumber?: GattClientCharacteristic, manufacturerId?: GattClientCharacteristic}) => void} */resolve) => {
         deviceInformationService.discoverCharacteristics((characteristics) => {
           resolve({
-            serialNumber: characteristics.find(characteristic => characteristic.uuid === serialNumberUUID), manufacturerId: characteristics.find(characteristic => characteristic.uuid === manufacturerIdUUID)
+            serialNumber: characteristics.find((characteristic) => characteristic.uuid === serialNumberUUID), manufacturerId: characteristics.find((characteristic) => characteristic.uuid === manufacturerIdUUID)
           })
         })
       })
@@ -164,25 +197,25 @@ export class HrmService extends EventEmitter {
       })
     }
 
-    const heartRateService = primaryServices.find(service => service.uuid === heartRateServiceUUID)
+    const heartRateService = primaryServices.find((service) => service.uuid === heartRateServiceUUID)
     if (heartRateService === undefined) {
       log.error(`Heart rate service not found in ${device.localName}`)
-
-      this.start()
+      // Disconnect cleanly – the registered once('disconnect') handler will call this.start()
+      this.#connection?.disconnect()
 
       return
     }
 
     this.#heartRateMeasurementCharacteristic = await new Promise((resolve) => {
       heartRateService.discoverCharacteristics((characteristics) => {
-        resolve(characteristics.find(characteristic => characteristic.uuid === heartRateMeasurementUUID))
+        resolve(characteristics.find((characteristic) => characteristic.uuid === heartRateMeasurementUUID))
       })
     })
 
     if (this.#heartRateMeasurementCharacteristic === undefined) {
       log.error(`Heart rate measurement characteristic not found in ${device.localName}`)
-
-      this.start()
+      // Disconnect cleanly – the registered once('disconnect') handler will call this.start()
+      this.#connection?.disconnect()
 
       return
     }
@@ -193,7 +226,7 @@ export class HrmService extends EventEmitter {
       this.#onHeartRateNotify(value)
     })
 
-    const batteryService = primaryServices.find(service => service.uuid === batteryLevelServiceUUID)
+    const batteryService = primaryServices.find((service) => service.uuid === batteryLevelServiceUUID)
     if (batteryService === undefined) {
       log.info(`Battery service not found in ${device.localName}`)
 
@@ -202,7 +235,7 @@ export class HrmService extends EventEmitter {
 
     this.#batteryLevelCharacteristic = await new Promise((resolve) => {
       batteryService.discoverCharacteristics((characteristics) => {
-        resolve(characteristics.find(characteristic => characteristic.uuid === batteryLevelMeasurementUUID))
+        resolve(characteristics.find((characteristic) => characteristic.uuid === batteryLevelMeasurementUUID))
       })
     })
 
@@ -228,9 +261,12 @@ export class HrmService extends EventEmitter {
     })
   }
 
-  stop () {
+  stop() {
+    this.#stopped = true
+    this.#scanReject?.(new Error('HrmService stopped'))
     this.#batteryLevelCharacteristic?.removeAllListeners()
     this.#heartRateMeasurementCharacteristic?.removeAllListeners()
+    this.#scanner?.removeAllListeners()
     this.#scanner?.stopScan()
     return new Promise((/** @type {(value: void) => void} */resolve) => {
       log.debug('Shutting down HRM peripheral')
@@ -249,7 +285,7 @@ export class HrmService extends EventEmitter {
   /**
    * @param {Buffer} data
    */
-  #onHeartRateNotify (data) {
+  #onHeartRateNotify(data) {
     if (!Buffer.isBuffer(data) || data.length === 0) {
       log.error('Received invalid heart rate data, ignoring')
 
@@ -305,7 +341,7 @@ export class HrmService extends EventEmitter {
   /**
    * @param {Buffer} data
    */
-  #onBatteryNotify (data) {
+  #onBatteryNotify(data) {
     if (Buffer.isBuffer(data) && data.length > 0) {
       this.#batteryLevel = data.readUInt8(0)
     }

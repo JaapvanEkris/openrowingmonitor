@@ -90,7 +90,7 @@ export function createCpsPeripheral (bleManager, config) {
       log.debug('CPS pairing request rejected')
     })
 
-    _connection.on('disconnect', async () => {
+    _connection.once('disconnect', async () => {
       log.debug(`CPS client disconnected (address: ${_connection?.peerAddress}), restarting advertising`)
       _connection = undefined
       await triggerAdvertising()
