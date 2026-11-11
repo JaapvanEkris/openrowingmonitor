@@ -26,9 +26,11 @@ export const performanceDashboardStyles = css`
     grid-area: metrics;
     display: grid;
     gap: 1vw;
-    grid-template-columns: repeat(var(--grid-columns, 4), 1fr);
-    grid-template-rows: repeat(var(--grid-rows, 2), 1fr);
+    /* minmax(0, 1fr) instead of 1fr: a wide value (like a timer past an hour) must not widen its column */
+    grid-template-columns: repeat(var(--grid-columns, 4), minmax(0, 1fr));
+    grid-template-rows: repeat(var(--grid-rows, 2), minmax(0, 1fr));
     min-height: 0; /* prevent grid blowout */
+    position: relative; /* anchors the drop indicator */
   }
 
   /* This should be defined within the component */
@@ -42,16 +44,59 @@ export const performanceDashboardStyles = css`
     min-height: 0; /* prevent grid blowout */
   }
 
+  /* Overlays the bottom of the tile, so the controls keep the icon and the metric value visible */
   .retile-controls {
     display: flex;
-    position: relative;
+    position: absolute;
+    bottom: 0.2em;
+    left: 0.2em;
+    right: 0.2em;
     z-index: 10;
+  }
+
+  .retile-grip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.5em;
+    padding: 0 0.3em;
+    cursor: grab;
+    touch-action: none; /* a drag on the grip moves the tile, it must not scroll or zoom the page */
+    -webkit-touch-callout: none; /* no iOS long-press menu */
+    border-radius: var(--theme-border-radius);
+  }
+
+  .retile-grip .icon {
+    height: 1.4em;
+  }
+
+  .retile-grip:focus-visible {
+    outline: 2px solid var(--theme-font-color);
+  }
+
+  .dragging {
+    opacity: 0.8;
+    z-index: 20;
+    box-shadow: 0 0.3em 1em rgb(0 0 0 / 50%);
+    cursor: grabbing;
+  }
+
+  .drop-indicator {
+    position: absolute;
+    width: 0.3em;
+    transform: translateX(-50%);
+    background: var(--theme-font-color);
+    border-radius: 0.15em;
+    pointer-events: none;
+    z-index: 30;
   }
 
   .retile-select {
     font-size: 0.4em;
     padding: 4px 8px;
     min-width: 80px;
+    width: 100%;
     background: var(--theme-button-color);
     color: var(--theme-font-color);
     cursor: pointer;

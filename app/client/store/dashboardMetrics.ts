@@ -161,3 +161,48 @@ export const DASHBOARD_METRICS: Record<string, DashboardMetricDefinition> = {
 function simpleMetricFactory (value: string | number | undefined = '--', unit = '', icon: string | TemplateResult = '', slotContent: TemplateResult | string = '') {
   return html`<dashboard-metric .icon=${icon} .unit=${unit} .value=${value}>${slotContent}</dashboard-metric>`
 }
+
+/**
+ * Lays out a list of dashboard metrics on a grid, so the returned list is exactly what the grid shows, in row-major order.
+ * - Drops duplicates, unknown keys and metrics wider than the grid
+ * - When a wide tile would start too close to the end of a row (and wrap, leaving a hole), the next tile that fills the
+ *   rest of that row is moved in front of it. If there is none, the hole is left.
+ * - Stops at the first metric that does not fit in the grid anymore
+ * @param metrics The metric keys in their intended order
+ * @param columns The number of columns of the grid
+ * @param rows The number of rows of the grid
+ * @returns The metrics that fit, in screen order, and the number of grid cells used (including holes)
+ */
+export function layoutMetricsForGrid (metrics: string[], columns: number, rows: number): { metrics: string[], usedCells: number } {
+  const sizeOf = (key: string) => DASHBOARD_METRICS[key]?.size || 1
+  const capacity = columns * rows
+  const queue = [...new Set(metrics)].filter((key) => DASHBOARD_METRICS[key] !== undefined && sizeOf(key) <= columns)
+  const placed: string[] = []
+  let usedCells = 0
+
+  while (queue.length > 0) {
+    let key = queue.shift() as string
+    let start = usedCells
+    const cellsLeftInRow = columns - (usedCells % columns)
+
+    if (sizeOf(key) > cellsLeftInRow) {
+      const fillerIndex = queue.findIndex((candidate) => sizeOf(candidate) <= cellsLeftInRow)
+      if (fillerIndex >= 0) {
+        // Place the filler now and the wide tile after it
+        const filler = queue.splice(fillerIndex, 1)[0]
+        queue.unshift(key)
+        key = filler
+      } else {
+        start += cellsLeftInRow
+      }
+    }
+
+    if (start + sizeOf(key) > capacity) {
+      break
+    }
+    placed.push(key)
+    usedCells = start + sizeOf(key)
+  }
+
+  return { metrics: placed, usedCells }
+}

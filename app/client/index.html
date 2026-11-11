@@ -39,6 +39,7 @@
       margin: 0;
       font-size: calc(16px + (60 - 16) * ((100vw - 300px) / (1920 - 300)));
       font-family: var(--theme-font-family);
+      -webkit-user-select: none; /* Safari, including iOS, only knows the prefixed version */
       user-select: none;
       overscroll-behavior: contain;
     }

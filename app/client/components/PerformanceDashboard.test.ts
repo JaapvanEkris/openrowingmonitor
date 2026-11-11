@@ -4,7 +4,7 @@
 // @vitest-environment happy-dom
 import { test, expect, describe, vi, beforeEach, afterEach } from 'vitest'
 
-import type { TemplateResult } from 'lit'
+import { render, type TemplateResult } from 'lit'
 import { PerformanceDashboard } from './PerformanceDashboard'
 import { DASHBOARD_METRICS } from '../store/dashboardMetrics'
 import { APP_STATE } from '../store/appState'
@@ -13,6 +13,12 @@ function createDashboard (): PerformanceDashboard {
   const dashboard = new PerformanceDashboard()
   dashboard.appState = structuredClone(APP_STATE)
   return dashboard
+}
+
+// The tiles render() shows: one per laid out metric, plus the add tile when it is shown
+function renderedTileCount (dashboard: PerformanceDashboard): number {
+  const { metrics, showAddTile } = dashboard._tileLayout()
+  return metrics.length + (showAddTile ? 1 : 0)
 }
 
 describe('dashboardMetricComponentsFactory', () => {
@@ -48,7 +54,7 @@ describe('_computeGridConfig', () => {
     dashboard._computeGridConfig()
     expect(dashboard._columns).toBe(5)
     expect(dashboard._rows).toBe(3)
-    expect(dashboard._maxGridSlots).toBe(15)
+    expect(dashboard._isPortrait).toBe(false)
   })
 
   test('should set columns and rows from portrait config when in portrait', () => {
@@ -61,7 +67,7 @@ describe('_computeGridConfig', () => {
     dashboard._computeGridConfig()
     expect(dashboard._columns).toBe(2)
     expect(dashboard._rows).toBe(6)
-    expect(dashboard._maxGridSlots).toBe(12)
+    expect(dashboard._isPortrait).toBe(true)
   })
 })
 
@@ -107,19 +113,41 @@ describe('_getAvailableMetrics', () => {
     expect(result).not.toContain('distance')
   })
 
-  test('should exclude metrics whose size exceeds available slots', () => {
+  test('should not offer the force curve to add when only one cell is free', () => {
     const dashboard = createDashboard()
-    dashboard._localMetrics = ['distance']
-    // availableSlots = 1, forceCurve has size 2 → should be excluded
-    const result = dashboard._getAvailableMetrics(1)
+    dashboard._localMetrics = ['distance', 'timer', 'pace', 'power', 'stkRate', 'totalStk', 'calories']
+    const result = dashboard._getAvailableMetrics()
     expect(result).not.toContain('forceCurve')
+    expect(result).toContain('heartRate')
   })
 
-  test('should include size-2 metrics when enough slots are available', () => {
+  test('should offer the force curve to add when two cells are free', () => {
     const dashboard = createDashboard()
     dashboard._localMetrics = ['distance', 'timer']
-    const result = dashboard._getAvailableMetrics(2)
-    expect(result).toContain('forceCurve')
+    expect(dashboard._getAvailableMetrics()).toContain('forceCurve')
+  })
+
+  test('should offer the force curve as replacement for a last-column tile when the packed layout fits', () => {
+    const dashboard = createDashboard()
+    dashboard._localMetrics = ['distance', 'timer', 'pace', 'power', 'stkRate', 'totalStk']
+    // replacing 'power' (last column of row 1) packs 'stkRate' in front of the force curve
+    expect(dashboard._getAvailableMetrics(3)).toContain('forceCurve')
+  })
+
+  test('should not offer the force curve as replacement when the result would not fit', () => {
+    const dashboard = createDashboard()
+    // all 8 cells used: swapping a 1-cell tile for the 2-cell force curve needs 9
+    dashboard._localMetrics = ['distance', 'timer', 'pace', 'power', 'stkRate', 'totalStk', 'calories', 'heartRate']
+    expect(dashboard._getAvailableMetrics(3)).not.toContain('forceCurve')
+  })
+
+  test('should never offer the force curve in a 1-column grid', () => {
+    const dashboard = createDashboard()
+    dashboard._columns = 1
+    dashboard._rows = 8
+    dashboard._localMetrics = ['distance']
+    expect(dashboard._getAvailableMetrics()).not.toContain('forceCurve')
+    expect(dashboard._getAvailableMetrics(0)).not.toContain('forceCurve')
   })
 })
 
@@ -206,7 +234,7 @@ describe('_handleRetileModeChanged', () => {
   })
 })
 
-describe('_handleResetToDefault', () => {
+describe('_handleRevertLayout', () => {
   function mockMatchMedia (isPortrait: boolean) {
     vi.spyOn(window, 'matchMedia').mockReturnValue({
       matches: isPortrait,
@@ -219,22 +247,26 @@ describe('_handleResetToDefault', () => {
     vi.restoreAllMocks()
   })
 
-  test('should reset _localMetrics to landscape defaults when in landscape', () => {
+  test('should go back to the saved landscape layout when in landscape', () => {
     mockMatchMedia(false)
     const dashboard = createDashboard()
+    dashboard.appState.config.guiConfigs.landscapeDashboardMetrics = ['heartRate', 'pace']
+    dashboard.appState.config.guiConfigs.portraitDashboardMetrics = ['timer', 'power']
     dashboard._retileMode = true
     dashboard._localMetrics = ['distance']
-    dashboard._handleResetToDefault()
-    expect(dashboard._localMetrics).toEqual(APP_STATE.config.guiConfigs.landscapeDashboardMetrics)
+    dashboard._handleRevertLayout()
+    expect(dashboard._localMetrics).toEqual(['heartRate', 'pace'])
   })
 
-  test('should reset _localMetrics to portrait defaults when in portrait', () => {
+  test('should go back to the saved portrait layout when in portrait', () => {
     mockMatchMedia(true)
     const dashboard = createDashboard()
+    dashboard.appState.config.guiConfigs.landscapeDashboardMetrics = ['heartRate', 'pace']
+    dashboard.appState.config.guiConfigs.portraitDashboardMetrics = ['timer', 'power']
     dashboard._retileMode = true
     dashboard._localMetrics = ['distance']
-    dashboard._handleResetToDefault()
-    expect(dashboard._localMetrics).toEqual(APP_STATE.config.guiConfigs.portraitDashboardMetrics)
+    dashboard._handleRevertLayout()
+    expect(dashboard._localMetrics).toEqual(['timer', 'power'])
   })
 
   test('should not modify _localMetrics when retile mode is not active', () => {
@@ -242,7 +274,7 @@ describe('_handleResetToDefault', () => {
     const dashboard = createDashboard()
     dashboard._retileMode = false
     dashboard._localMetrics = ['distance']
-    dashboard._handleResetToDefault()
+    dashboard._handleRevertLayout()
     expect(dashboard._localMetrics).toEqual(['distance'])
   })
 })
@@ -324,9 +356,8 @@ describe('render', () => {
     const dashboard = createDashboard()
     dashboard._retileMode = false
     dashboard._localMetrics = ['distance', 'timer', 'pace']
-    const result = dashboard.render()
-    const metricConfig = result.values[3] as TemplateResult[]
-    expect(metricConfig).toHaveLength(3)
+    dashboard.render()
+    expect(renderedTileCount(dashboard)).toBe(3)
   })
 
   test('should render tiles from orientation metrics when _localMetrics is null', () => {
@@ -335,9 +366,8 @@ describe('render', () => {
     dashboard._retileMode = false
     dashboard._localMetrics = null
     const orientationMetrics = dashboard._getOrientationMetrics()
-    const result = dashboard.render()
-    const metricConfig = result.values[3] as TemplateResult[]
-    expect(metricConfig).toHaveLength(orientationMetrics.length)
+    dashboard.render()
+    expect(renderedTileCount(dashboard)).toBe(orientationMetrics.length)
   })
 
   test('should append add-tile when in retile mode and grid has available slots', () => {
@@ -345,11 +375,9 @@ describe('render', () => {
     const dashboard = createDashboard()
     dashboard._retileMode = true
     dashboard._localMetrics = ['distance']
-    dashboard._maxGridSlots = 8
-    const result = dashboard.render()
-    const metricConfig = result.values[3] as TemplateResult[]
+    dashboard.render()
     // 1 metric tile wrapped with controls + 1 add-tile
-    expect(metricConfig).toHaveLength(2)
+    expect(renderedTileCount(dashboard)).toBe(2)
   })
 
   test('should not append add-tile when retile mode is off', () => {
@@ -357,10 +385,8 @@ describe('render', () => {
     const dashboard = createDashboard()
     dashboard._retileMode = false
     dashboard._localMetrics = ['distance']
-    dashboard._maxGridSlots = 8
-    const result = dashboard.render()
-    const metricConfig = result.values[3] as TemplateResult[]
-    expect(metricConfig).toHaveLength(1)
+    dashboard.render()
+    expect(renderedTileCount(dashboard)).toBe(1)
   })
 
   test('should not append add-tile when the grid is full', () => {
@@ -368,18 +394,46 @@ describe('render', () => {
     const dashboard = createDashboard()
     dashboard._retileMode = true
     dashboard._localMetrics = ['distance', 'timer', 'pace']
-    dashboard._maxGridSlots = 3
-    const result = dashboard.render()
-    const metricConfig = result.values[3] as TemplateResult[]
-    expect(metricConfig).toHaveLength(3)
+    dashboard._columns = 3
+    dashboard._rows = 1
+    dashboard.render()
+    expect(renderedTileCount(dashboard)).toBe(3)
+  })
+
+  test('should not append add-tile when a hole fills the last free cell', () => {
+    mockMatchMedia(false)
+    const dashboard = createDashboard()
+    dashboard._retileMode = true
+    dashboard._columns = 2
+    dashboard._rows = 3
+    // 3 tiles + a hole at the end of row 2 + the force curve on row 3 → 6 cells used
+    dashboard._localMetrics = ['distance', 'timer', 'pace', 'forceCurve']
+    dashboard.render()
+    expect(renderedTileCount(dashboard)).toBe(4)
+  })
+
+  test('should only render the tiles that fit the grid', () => {
+    mockMatchMedia(false)
+    const dashboard = createDashboard()
+    dashboard._retileMode = false
+    dashboard._columns = 3
+    dashboard._rows = 2
+    dashboard.appState.config.guiConfigs.landscapeDashboardMetrics = ['distance', 'timer', 'pace', 'power', 'stkRate', 'totalStk', 'calories']
+    dashboard.render()
+    expect(renderedTileCount(dashboard)).toBe(6)
+    // the saved list is not changed
+    expect(dashboard.appState.config.guiConfigs.landscapeDashboardMetrics).toHaveLength(7)
   })
 })
 
 describe('_renderAddTile', () => {
   test('should render empty message when no metrics fit in available slots', () => {
     const dashboard = createDashboard()
-    dashboard._localMetrics = []
-    const result = dashboard._renderAddTile(0)
+    dashboard._columns = 1
+    dashboard._rows = 1
+    // a 1x1 grid has room for one tile, so fill it
+    dashboard._localMetrics = ['distance']
+    const result = dashboard._renderAddTile()
     expect(result.values).toHaveLength(0)
     expect([...result.strings].join('')).toContain('All metrics in use or won\'t fit')
   })
@@ -387,9 +441,21 @@ describe('_renderAddTile', () => {
   test('should render one option per available metric', () => {
     const dashboard = createDashboard()
     dashboard._localMetrics = []
-    const result = dashboard._renderAddTile(Infinity)
-    const options = result.values[0] as TemplateResult[]
-    expect(options).toHaveLength(Object.keys(DASHBOARD_METRICS).length)
+    const container = document.createElement('div')
+    render(dashboard._renderAddTile(), container)
+    expect(container.querySelectorAll('input[type="radio"]')).toHaveLength(Object.keys(DASHBOARD_METRICS).length)
+  })
+
+  test('should not leave a checked radio behind for the next metric after adding one', () => {
+    const dashboard = createDashboard()
+    dashboard._localMetrics = []
+    const container = document.createElement('div')
+    render(dashboard._renderAddTile(), container)
+    const first = container.querySelector<HTMLInputElement>('input[type="radio"]')!
+    first.checked = true
+    dashboard._addMetricDirect(first.value)
+    render(dashboard._renderAddTile(), container)
+    expect(container.querySelectorAll('input[type="radio"]:checked')).toHaveLength(0)
   })
 })
 
@@ -398,8 +464,196 @@ describe('_renderMetricWithControls', () => {
     const dashboard = createDashboard()
     dashboard._localMetrics = ['distance']
     const factory = vi.fn() as unknown as (slotContent?: TemplateResult | string) => TemplateResult
-    dashboard._renderMetricWithControls(factory, 0, 'distance', 5)
+    dashboard._renderMetricWithControls(factory, 0)
     expect(vi.mocked(factory)).toHaveBeenCalledOnce()
     expect(vi.mocked(factory).mock.calls[0][0]).toBeDefined()
+  })
+})
+
+describe('retile edits keep _localMetrics in screen order', () => {
+  test('should drop legacy duplicates when entering retile mode, so remove hits the tile that was picked', () => {
+    vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() } as unknown as MediaQueryList)
+    const dashboard = createDashboard()
+    dashboard.appState.config.guiConfigs.landscapeDashboardMetrics = ['distance', 'forceCurve', 'forceCurve', 'pace', 'power']
+    dashboard._handleRetileModeChanged(new CustomEvent('retile-mode-changed', { detail: { active: true } }))
+    expect(dashboard._localMetrics).toEqual(['distance', 'forceCurve', 'pace', 'power'])
+    // 'pace' is the third tile on screen
+    dashboard._removeMetric(2)
+    expect(dashboard._localMetrics).toEqual(['distance', 'forceCurve', 'power'])
+    vi.restoreAllMocks()
+  })
+
+  test('should pack the list when the force curve replaces a last-column tile', () => {
+    const dashboard = createDashboard()
+    dashboard._localMetrics = ['distance', 'timer', 'pace', 'power', 'stkRate', 'totalStk']
+    dashboard._replaceMetricDirect(3, 'forceCurve')
+    expect(dashboard._localMetrics).toEqual(['distance', 'timer', 'pace', 'stkRate', 'forceCurve', 'totalStk'])
+  })
+})
+
+describe('rotating during retile mode', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  test('should save the edits of the orientation that is left, then load the new one', () => {
+    const mql = { matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() }
+    vi.spyOn(window, 'matchMedia').mockReturnValue(mql as unknown as MediaQueryList)
+    const dashboard = createDashboard()
+    dashboard.appState.config.guiConfigs.portraitDashboardMetrics = ['timer', 'power']
+    dashboard._isPortrait = false
+    dashboard._retileMode = true
+    dashboard._localMetrics = ['distance', 'pace']
+
+    let received: CustomEvent | undefined
+    dashboard.addEventListener('changeGuiSetting', (e) => { received = e as CustomEvent })
+
+    dashboard._handleOrientationChange()
+
+    expect(received!.detail).toEqual({ landscapeDashboardMetrics: ['distance', 'pace'] })
+    expect(dashboard._isPortrait).toBe(true)
+    expect(dashboard._localMetrics).toEqual(['timer', 'power'])
+  })
+
+  test('should not save anything when retile mode is off', () => {
+    vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() } as unknown as MediaQueryList)
+    const dashboard = createDashboard()
+    const listener = vi.fn()
+    dashboard.addEventListener('changeGuiSetting', listener)
+    dashboard._handleOrientationChange()
+    expect(listener).not.toHaveBeenCalled()
+  })
+})
+
+describe('_hasLayoutChanges', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  function enterRetileMode (saved: string[]) {
+    vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() } as unknown as MediaQueryList)
+    const dashboard = createDashboard()
+    dashboard.appState.config.guiConfigs.landscapeDashboardMetrics = saved
+    dashboard._handleRetileModeChanged(new CustomEvent('retile-mode-changed', { detail: { active: true } }))
+    return dashboard
+  }
+
+  test('should be false outside retile mode', () => {
+    const dashboard = createDashboard()
+    expect(dashboard._hasLayoutChanges()).toBe(false)
+  })
+
+  test('should be false right after entering retile mode, also when the saved list gets laid out', () => {
+    const dashboard = enterRetileMode(['distance', 'forceCurve', 'forceCurve', 'pace'])
+    expect(dashboard._hasLayoutChanges()).toBe(false)
+  })
+
+  test('should be true after an edit and false again after reverting it', () => {
+    const dashboard = enterRetileMode(['distance', 'timer', 'pace'])
+    dashboard._removeMetric(0)
+    expect(dashboard._hasLayoutChanges()).toBe(true)
+    dashboard._handleRevertLayout()
+    expect(dashboard._hasLayoutChanges()).toBe(false)
+  })
+
+  test('should be passed to the toolbar', () => {
+    const dashboard = enterRetileMode(['distance', 'timer', 'pace'])
+    expect(dashboard.render().values[1]).toBe(false)
+    dashboard._removeMetric(0)
+    expect(dashboard.render().values[1]).toBe(true)
+  })
+})
+
+describe('reordering tiles', () => {
+  test('should render a grip in front of the tile actions only in retile mode', () => {
+    const dashboard = createDashboard()
+    dashboard._localMetrics = ['distance']
+    const factory = vi.fn() as unknown as (slotContent?: TemplateResult | string) => TemplateResult
+    dashboard._renderMetricWithControls(factory, 0)
+    const controls = vi.mocked(factory).mock.calls[0][0] as TemplateResult
+    expect(controls.strings.join('')).toContain('retile-grip')
+  })
+
+  test('should apply a drop through the layout', () => {
+    const dashboard = createDashboard()
+    dashboard._localMetrics = ['distance', 'timer', 'pace']
+    // what the drag controller calls on release: tile 0 dropped in the gap after tile 2
+    ;(dashboard._tileDrag as unknown as { onDrop: (from: number, insertBefore: number) => void }).onDrop(0, 3)
+    expect(dashboard._localMetrics).toEqual(['timer', 'pace', 'distance'])
+  })
+
+  test('should move a tile one place with the arrow keys and stop at the ends', () => {
+    const dashboard = createDashboard()
+    dashboard._localMetrics = ['distance', 'timer', 'pace']
+    const key = (k: string) => new KeyboardEvent('keydown', { key: k, cancelable: true })
+
+    dashboard._handleGripKeydown(key('ArrowRight'), 0)
+    expect(dashboard._localMetrics).toEqual(['timer', 'distance', 'pace'])
+    dashboard._handleGripKeydown(key('ArrowUp'), 1)
+    expect(dashboard._localMetrics).toEqual(['distance', 'timer', 'pace'])
+    dashboard._handleGripKeydown(key('ArrowLeft'), 0)
+    expect(dashboard._localMetrics).toEqual(['distance', 'timer', 'pace'])
+    dashboard._handleGripKeydown(key('ArrowDown'), 2)
+    expect(dashboard._localMetrics).toEqual(['distance', 'timer', 'pace'])
+    expect(dashboard._focusAfterMove).toBe('pace')
+  })
+
+  test('should ignore other keys', () => {
+    const dashboard = createDashboard()
+    dashboard._localMetrics = ['distance', 'timer']
+    const event = new KeyboardEvent('keydown', { key: 'Enter', cancelable: true })
+    dashboard._handleGripKeydown(event, 0)
+    expect(dashboard._localMetrics).toEqual(['distance', 'timer'])
+    expect(event.defaultPrevented).toBe(false)
+  })
+})
+
+describe('tiles keep their own form controls', () => {
+  test('should not show the previous tile action on the tile that moves into its place', () => {
+    vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() } as unknown as MediaQueryList)
+    const dashboard = createDashboard()
+    dashboard._retileMode = true
+    dashboard._localMetrics = ['pace', 'power', 'stkRate']
+    const container = document.createElement('div')
+    render(dashboard.render(), container)
+
+    const tiles = () => container.querySelector('.metrics-grid')!.children
+    const paceSelect = tiles()[0].querySelector('select')!
+    paceSelect.value = 'remove'
+    dashboard._removeMetric(0)
+    render(dashboard.render(), container)
+
+    const powerSelect = tiles()[0].querySelector('select')!
+    expect(powerSelect).not.toBe(paceSelect)
+    expect(powerSelect.value).toBe('')
+    vi.restoreAllMocks()
+  })
+})
+
+describe('animating retile edits', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  test('should prepare the slide for edits the user makes', () => {
+    const dashboard = createDashboard()
+    dashboard._retileMode = true
+    dashboard._localMetrics = ['distance', 'timer', 'pace']
+    const prepare = vi.spyOn(dashboard._flip, 'prepare')
+
+    dashboard._removeMetric(0)
+    dashboard._addMetricDirect('power')
+    dashboard._replaceMetricDirect(0, 'stkRate')
+    dashboard._handleGripKeydown(new KeyboardEvent('keydown', { key: 'ArrowRight', cancelable: true }), 0)
+    expect(prepare).toHaveBeenCalledTimes(4)
+  })
+
+  test('should not animate entering retile mode or loading another orientation', () => {
+    vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() } as unknown as MediaQueryList)
+    const dashboard = createDashboard()
+    const prepare = vi.spyOn(dashboard._flip, 'prepare')
+    dashboard._handleRetileModeChanged(new CustomEvent('retile-mode-changed', { detail: { active: true } }))
+    dashboard._handleOrientationChange()
+    expect(prepare).not.toHaveBeenCalled()
   })
 })

@@ -182,13 +182,9 @@ export class DashboardForceCurve extends AppElement {
     return html`
       ${this._chart?.data.datasets[0].data.length ?
         '' :
-        html`
-          <div class="title"> 
-            Force Curve 
-            <slot></slot>
-          </div>
-        `
+        html`<div class="title"> Force Curve </div>`
       }
+      <slot></slot>
       <canvas @click="${this._handleClick}" id="chart"></canvas>
     `
   }

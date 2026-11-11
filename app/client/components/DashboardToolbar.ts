@@ -6,7 +6,7 @@
 
 import { AppElement, html, css, TemplateResult } from './AppElement'
 import { customElement, property, state } from 'lit/decorators.js'
-import { iconSettings, iconUndo, iconExpand, iconCompress, iconPoweroff, iconBluetooth, iconUpload, iconHeartbeat, iconAntplus } from '../lib/icons'
+import { iconSettings, iconRetileLock, iconRetileUnlock, iconRevertLayout, iconUndo, iconExpand, iconCompress, iconPoweroff, iconBluetooth, iconUpload, iconHeartbeat, iconAntplus } from '../lib/icons'
 import './AppDialog'
 import type { AppConfig } from '../store/types'
 
@@ -55,11 +55,6 @@ export class DashboardToolbar extends AppElement {
       filter: brightness(120%);
     }
 
-    button.label-button {
-      width: auto;
-      padding: 0 0.6em;
-    }
-
     button .text {
       position: absolute;
       left: 2px;
@@ -94,6 +89,10 @@ export class DashboardToolbar extends AppElement {
   @property({ type: Object })
   config!: AppConfig
 
+  // True when the retile edits differ from the saved layout, which is when undoing them makes sense
+  @property({ type: Boolean })
+  layoutChanged = false
+
   @state()
   _appMode = 'BROWSER'
 
@@ -109,13 +108,13 @@ export class DashboardToolbar extends AppElement {
         <button @click=${this.openSettings} title="Settings">
           ${iconSettings}
         </button>
-        <button @click=${this.toggleRetileMode} title="Retile Dashboard" class="label-button">
-          ${this._retileMode ? 'Submit' : 'Retile'}
+        <button @click=${this.toggleRetileMode} title=${this._retileMode ? 'Save layout' : 'Retile Dashboard'}>
+          ${this._retileMode ? iconRetileLock : iconRetileUnlock}
         </button>
-        ${this._retileMode ?
+        ${this._retileMode && this.layoutChanged ?
           html`
-          <button @click=${this.resetToDefault} title="Reset to Default" class="label-button">
-            Reset
+          <button @click=${this.revertLayout} title="Undo layout changes">
+            ${iconRevertLayout}
           </button>
         ` :
           ''}
@@ -231,8 +230,8 @@ export class DashboardToolbar extends AppElement {
     }))
   }
 
-  resetToDefault () {
-    this.dispatchEvent(new CustomEvent('reset-layout-to-default', {
+  revertLayout () {
+    this.dispatchEvent(new CustomEvent('revert-layout', {
       bubbles: true,
       composed: true
     }))

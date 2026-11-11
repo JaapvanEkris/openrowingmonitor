@@ -5,6 +5,7 @@
 import { test, expect, describe } from 'vitest'
 
 import { DashboardToolbar } from './DashboardToolbar'
+import { iconRetileLock, iconRetileUnlock, iconRevertLayout } from '../lib/icons'
 import type { AppConfig } from '../store/types'
 
 function createToolbar (config: Partial<AppConfig> = {}): DashboardToolbar {
@@ -103,23 +104,41 @@ describe('retile button style', () => {
     expect(toolbar._retileMode).toBe(false)
   })
 
-  test('should include label-button class on the retile toggle button', () => {
+  test('should show the unlock icon and the retile title in normal mode', () => {
     const toolbar = createToolbar()
 
     const result = toolbar.render()
 
-    const staticParts = (result as unknown as { strings: readonly string[] }).strings.join('')
-    expect(staticParts).toContain('label-button')
+    expect(result.values).toContain(iconRetileUnlock)
+    expect(result.values).not.toContain(iconRetileLock)
+    expect(result.values).toContain('Retile Dashboard')
   })
 
-  test('should include label-button class on the submit button in retile mode', () => {
+  test('should show the lock icon and the save title in retile mode', () => {
     const toolbar = createToolbar()
     toolbar._retileMode = true
 
     const result = toolbar.render()
 
-    const staticParts = (result as unknown as { strings: readonly string[] }).strings.join('')
-    expect(staticParts).toContain('label-button')
+    expect(result.values).toContain(iconRetileLock)
+    expect(result.values).not.toContain(iconRetileUnlock)
+    expect(result.values).toContain('Save layout')
+  })
+
+  test('should show the revert layout button only in retile mode with unsaved changes', () => {
+    const toolbar = createToolbar()
+    const findRevertButton = (values: readonly unknown[]) => values.find((value) => {
+      const nested = (value as { values?: unknown })?.values
+      return Array.isArray(nested) && nested.includes(iconRevertLayout)
+    })
+
+    toolbar.layoutChanged = true
+    expect(findRevertButton(toolbar.render().values)).toBeUndefined()
+    toolbar._retileMode = true
+    toolbar.layoutChanged = false
+    expect(findRevertButton(toolbar.render().values)).toBeUndefined()
+    toolbar.layoutChanged = true
+    expect(findRevertButton(toolbar.render().values)).toBeDefined()
   })
 
   test('should not include active class on the retile button in normal mode', () => {
