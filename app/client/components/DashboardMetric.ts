@@ -22,14 +22,12 @@ export class DashboardMetric extends AppElement {
         font-size: 150%;
     }
 
-    .metric-unit {
-        font-size: 80%;
+    .metric-value.with-icon {
+        font-size: 200%;
     }
 
-    ::slotted(*) {
-      right: 0.2em;
-      bottom: 0;
-      position: absolute;
+    .metric-unit {
+        font-size: 80%;
     }
   `
 
@@ -43,15 +41,18 @@ export class DashboardMetric extends AppElement {
   value: string | number | undefined
 
   render () {
+    const hasIcon = this.icon !== ''
     return html`
-      <div class="${this.icon === '' ? '' : 'label'}">
-        <div class=${this.icon === '' ? '' : 'icon'}>${this.icon}</div>
+      <div class="${hasIcon ? 'icon' : 'label'}">
+        ${this.icon}
+        <slot></slot>
       </div>
       <div class="content">
-        <span class="metric-value" style="${this.icon === '' ? 'font-size: 200%;' : ''}">${this.value !== undefined ? this.value : '--'}</span>
+        <span class="metric-value ${hasIcon ? 'with-icon' : ''}">
+          ${this.value !== undefined ? this.value : '--'}
+        </span>
         <span class="metric-unit">${this.unit}</span>
       </div>
-      <slot></slot>
     `
   }
 }

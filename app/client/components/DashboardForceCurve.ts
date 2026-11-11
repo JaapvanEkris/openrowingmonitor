@@ -39,6 +39,7 @@ export class DashboardForceCurve extends AppElement {
     :host {
       display: block;
       position: relative;
+      grid-column: span 2;
     }
 
     .title {
@@ -183,6 +184,7 @@ export class DashboardForceCurve extends AppElement {
         '' :
         html`<div class="title"> Force Curve </div>`
       }
+      <slot></slot>
       <canvas @click="${this._handleClick}" id="chart"></canvas>
     `
   }

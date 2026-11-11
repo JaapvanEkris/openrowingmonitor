@@ -6,8 +6,7 @@
 
 import { AppElement, html, css, TemplateResult } from './AppElement'
 import { customElement, property, state } from 'lit/decorators.js'
-import { iconSettings, iconUndo, iconExpand, iconCompress, iconPoweroff, iconBluetooth, iconUpload, iconHeartbeat, iconAntplus } from '../lib/icons'
-import './SettingsDialog'
+import { iconSettings, iconRetileLock, iconRetileUnlock, iconRevertLayout, iconUndo, iconExpand, iconCompress, iconPoweroff, iconBluetooth, iconUpload, iconHeartbeat, iconAntplus } from '../lib/icons'
 import './AppDialog'
 import type { AppConfig } from '../store/types'
 
@@ -51,6 +50,11 @@ export class DashboardToolbar extends AppElement {
       filter: brightness(150%);
     }
 
+    button.active {
+      background: var(--theme-accent-color, #4a9eff);
+      filter: brightness(120%);
+    }
+
     button .text {
       position: absolute;
       left: 2px;
@@ -85,11 +89,18 @@ export class DashboardToolbar extends AppElement {
   @property({ type: Object })
   config!: AppConfig
 
+  // True when the retile edits differ from the saved layout, which is when undoing them makes sense
+  @property({ type: Boolean })
+  layoutChanged = false
+
   @state()
   _appMode = 'BROWSER'
 
   @state()
   _dialog?: TemplateResult
+
+  @state()
+  _retileMode = false
 
   render () {
     return html`
@@ -97,6 +108,16 @@ export class DashboardToolbar extends AppElement {
         <button @click=${this.openSettings} title="Settings">
           ${iconSettings}
         </button>
+        <button @click=${this.toggleRetileMode} title=${this._retileMode ? 'Save layout' : 'Retile Dashboard'}>
+          ${this._retileMode ? iconRetileLock : iconRetileUnlock}
+        </button>
+        ${this._retileMode && this.layoutChanged ?
+          html`
+          <button @click=${this.revertLayout} title="Undo layout changes">
+            ${iconRevertLayout}
+          </button>
+        ` :
+          ''}
         <button @click=${this.reset} title="Reset">
           ${iconUndo}
         </button>
@@ -179,9 +200,10 @@ export class DashboardToolbar extends AppElement {
   }
 
   openSettings () {
-    this._dialog = html`<settings-dialog .config=${this.config.guiConfigs} @close=${() => {
-      this._dialog = undefined
-    }}></settings-dialog>`
+    this.dispatchEvent(new CustomEvent('open-settings', {
+      bubbles: true,
+      composed: true
+    }))
   }
 
   toggleFullscreen () {
@@ -197,6 +219,22 @@ export class DashboardToolbar extends AppElement {
 
   reset () {
     this.sendEvent('triggerAction', { command: 'reset' })
+  }
+
+  toggleRetileMode () {
+    this._retileMode = !this._retileMode
+    this.dispatchEvent(new CustomEvent('retile-mode-changed', {
+      bubbles: true,
+      composed: true,
+      detail: { active: this._retileMode }
+    }))
+  }
+
+  revertLayout () {
+    this.dispatchEvent(new CustomEvent('revert-layout', {
+      bubbles: true,
+      composed: true
+    }))
   }
 
   switchBlePeripheralMode () {
